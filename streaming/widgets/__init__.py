@@ -5,7 +5,7 @@ ICON = "icons/Stream.svg"
 
 # Background color for category background in menu
 # and widget icon background in workflow.
-BACKGROUND = "#33aaff"
+BACKGROUND = "light-green"
 
 # Location of widget help files.
 WIDGET_HELP_PATH = (
