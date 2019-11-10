@@ -5,6 +5,7 @@ import Orange.data
 import numpy
 from Orange.widgets import widget, gui
 from Orange.widgets.utils.signals import Output
+from pylsl import StreamInfo, resolve_streams
 
 
 class OWLSLStream(widget.OWWidget):
@@ -37,13 +38,19 @@ class OWLSLStream(widget.OWWidget):
     def stream_selected(self):
         print(self.selection[0])
 
+    def fetch_streams(self):
+        def get_stream_name(x: StreamInfo):
+            return ("%s (%d-Ch %s) - %s Hz" % (x.name(), x.channel_count(), x.type(), x.nominal_srate())), 3
+
+        self.streams = list(map(get_stream_name, resolve_streams()))
+
     def set_data(self, dataset):
         if dataset is not None:
             self.selected_stream.setText("%d instances in input data set" % len(dataset))
             indices = numpy.random.permutation(len(dataset))
             indices = indices[:int(numpy.ceil(len(dataset) * 0.1))]
             sample = dataset[indices]
-            self.streams = list((str(x) + '!', 0) for x in range(100))
+            self.fetch_streams()
             self.selected_stream_metadata.setText("%d sampled instances" % len(sample))
             self.Outputs.output_data.send(sample)
         else:
