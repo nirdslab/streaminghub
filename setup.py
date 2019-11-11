@@ -25,7 +25,7 @@ ENTRY_POINTS = {
 if __name__ == '__main__':
     setup(
         name="Orange3-Streaming",
-        description="Orange3 add-on for working with data and metadata streams through LSL",
+        description="Orange3 add-on for working with data and metadata stream_labels through LSL",
         version=VERSION,
         author="Yasith Jayawardana",
         author_email="yasith@cs.odu.edu",

@@ -1,24 +1,24 @@
 import sys
 from typing import List, Tuple
 
-import Orange.data
-import numpy
 from Orange.widgets import widget, gui
 from Orange.widgets.utils.signals import Output
-from pylsl import StreamInfo, resolve_streams
+from pylsl import StreamInfo, resolve_streams, StreamInlet
 
 
 class OWLSLStream(widget.OWWidget):
     name = "LSL Stream"
-    description = "Read data and metadata from LSL streams"
+    description = "Read data and metadata from LSL stream_labels"
     icon = "icons/Stream.svg"
     priority = 1
-    streams: List[Tuple[str, int]] = []
-    selection = []
+    # List of available LSL stream_labels
+    streams: List[StreamInfo] = []
+    stream_labels: List[Tuple[str, int]] = []
+    # Selected LSL stream(s)
+    i = []
 
     class Outputs:
-        output_data = Output("Data", Orange.data.Table)
-        output_metadata = Output("Metadata", Orange.data.Table)
+        output_streams = Output("Streams", StreamInlet)
 
     def connect_control(self, name, func):
         super().connect_control(name, func)
@@ -29,52 +29,64 @@ class OWLSLStream(widget.OWWidget):
         super().__init__()
 
         # GUI
-        box = gui.widgetBox(self.controlArea)
-        self.selected_stream = gui.widgetLabel(box, "No stream selected, waiting for selection.")
-        self.streams_list = gui.listBox(box, self, labels='streams', value='selection', callback=self.stream_selected)
-        self.selected_stream_metadata = gui.widgetLabel(box, '')
-        self.ok = gui.button(self.controlArea, self, 'OK')
+        self.box = gui.widgetBox(self.controlArea, minimumWidth=350)
+        self.streams_list_label = gui.widgetLabel(self.box, '')
+        self.streams_list = gui.listBox(self.box, self, labels='stream_labels', value='i',
+                                        callback=self.stream_selection_changed)
+        self.selected_stream_label = gui.widgetLabel(self.box, '')
+        self.ok = gui.button(self.buttonsArea, self, 'OK', callback=self.stream_selection_confirmed)
 
-    def stream_selected(self):
-        print(self.selection[0])
-
-    def fetch_streams(self):
-        def get_stream_name(x: StreamInfo):
-            return ("%s (%d-Ch %s) - %s Hz" % (x.name(), x.channel_count(), x.type(), x.nominal_srate())), 3
-
-        self.streams = list(map(get_stream_name, resolve_streams()))
-
-    def set_data(self, dataset):
-        if dataset is not None:
-            self.selected_stream.setText("%d instances in input data set" % len(dataset))
-            indices = numpy.random.permutation(len(dataset))
-            indices = indices[:int(numpy.ceil(len(dataset) * 0.1))]
-            sample = dataset[indices]
-            self.fetch_streams()
-            self.selected_stream_metadata.setText("%d sampled instances" % len(sample))
-            self.Outputs.output_data.send(sample)
+    def stream_selection_changed(self):
+        # Update i text
+        if len(self.i) > 0:
+            __s = self.streams[self.i[0]]
+            self.selected_stream_label.setText("Selection: %s" % self.gen_stream_desc(__s))
         else:
-            self.selected_stream.setText(
-                "No data on input yet, waiting to get something.")
-            self.selected_stream_metadata.setText('')
-            self.Outputs.output_data.send(None)
+            self.selected_stream_label.setText('Please select a channel and click OK to confirm')
+
+    def stream_selection_confirmed(self):
+        if len(self.i) > 0:
+            # Send stream as output
+            __s = self.streams[self.i[0]]
+            __output = StreamInlet(__s)
+
+        else:
+            # Send None as output
+            __output = None
+        self.Outputs.output_streams.send(__output)
+        print('Sent: %s' % str(__output))
+
+    @staticmethod
+    def gen_stream_desc(x: StreamInfo):
+        return "%s (%d-Ch %s) - %s Hz" % (x.name(), x.channel_count(), x.type(), x.nominal_srate())
+
+    def fetch_lsl_streams(self):
+        # Set loading labels
+        self.streams_list_label.setText("Hang on while we load the available LSL stream_labels...")
+        self.selected_stream_label.setText('')
+        # Fetch data
+        self.streams = resolve_streams()
+        self.stream_labels = list(map(lambda x: (x, 3), map(self.gen_stream_desc, self.streams)))
+        # Update labels
+        if self.stream_labels is not None and len(self.stream_labels) > 0:
+            # Update labels
+            self.streams_list_label.setText("%d LSL stream(s) available. Please select one" % len(self.stream_labels))
+            self.selected_stream_label.setText('Please select a channel and click OK to confirm')
+        else:
+            # Update labels
+            self.streams_list_label.setText("No LSL stream_labels! Please ensure there's at least one LSL stream")
+            self.selected_stream_label.setText('')
 
 
 def main(argv=sys.argv):
     from AnyQt.QtWidgets import QApplication
     app = QApplication(list(argv))
-    args = app.arguments()
-    if len(args) > 1:
-        filename = args[1]
-    else:
-        filename = "iris"
 
     ow = OWLSLStream()
     ow.show()
     ow.raise_()
 
-    dataset = Orange.data.Table(filename)
-    ow.set_data(dataset)
+    ow.fetch_lsl_streams()
     ow.handleNewSignals()
     app.exec_()
     return 0
