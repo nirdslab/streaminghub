@@ -14,7 +14,9 @@ class OWLSLStream(widget.OWWidget):
     priority = 1
 
     # Available LSL streams
-    streams: List[Tuple[StreamInfo, str, int]] = []
+    streams: List[StreamInfo] = []
+    stream_labels: List[Tuple[str, int]] = []
+
     # Selected LSL stream
     i: List[int] = settings.Setting([])
 
@@ -33,14 +35,14 @@ class OWLSLStream(widget.OWWidget):
         self.wl_selected_stream = gui.widgetLabel(self.wb_selected_stream, '')
         # Stream Selection
         self.wb_selected_stream = gui.widgetBox(self.wb_control_area, box="Available Streams")
-        self.lb_streams = gui.listBox(self.wb_control_area, self, labels='stream_labels', value='i', callback=self.on_stream_select)
+        self.lb_streams = gui.listBox(self.wb_selected_stream, self, labels='stream_labels', value='i', callback=self.on_stream_select)
         self.btn_ok = gui.button(self.buttonsArea, self, 'OK', callback=self.stream_selection_confirmed)
 
     def on_stream_select(self):
         # Update selected stream description
         if len(self.i) > 0:
             __s = self.streams[self.i[0]]
-            self.wl_selected_stream.setText("You Selected: %s" % self.gen_stream_desc(__s))
+            self.wl_selected_stream.setText(self.stream_labels[self.i[0]][0])
         else:
             self.wl_selected_stream.setText('Please select a channel and click OK to confirm')
 
@@ -65,9 +67,10 @@ class OWLSLStream(widget.OWWidget):
         # Set loading labels
         self.wl_selected_stream.setText('None')
         # Fetch data
-        self.streams = list(map(lambda x: (x, self.gen_stream_desc(x), 3), resolve_streams()))
+        self.streams = resolve_streams()
+        self.stream_labels = list(map(lambda x: (self.gen_stream_desc(x), 3), self.streams))
         # Update labels
-        s = 'Please select a channel and click OK to confirm' if len(self.streams) == 0 else self.streams[0][1]
+        s = 'Please select a channel and click OK to confirm' if len(self.streams) == 0 else self.stream_labels[0][0]
         self.wl_selected_stream.setText(s)
 
     def showEvent(self, event):
