@@ -47,7 +47,8 @@ if __name__ == '__main__':
         install_requires=[
             'Orange3',
             'numpy',
-            'pylsl'
+            'pylsl',
+            'pyQt5'
         ],
         entry_points=ENTRY_POINTS,
         classifiers=[
