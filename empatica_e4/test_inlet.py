@@ -16,6 +16,6 @@ if __name__ == '__main__':
     while True:
         # get a new sample (you can also omit the timestamp part if you're not interested in it)
         for inlet in inlets:
-            sample, timestamp = inlet.pull_sample(0)
+            sample, timestamp = inlet.pull_sample(0.5)
             if timestamp is not None:
-                print('\t'.join(map(str,[inlet.info().type()[:3], timestamp, sample])))
+                print('\t'.join(map(lambda x: str(x).ljust(20),[inlet.info().type(), timestamp, sample])))

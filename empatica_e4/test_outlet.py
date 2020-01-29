@@ -27,4 +27,5 @@ if __name__ == '__main__':
     ]
     for thread in threads:
         thread.start()
+    print('streaming started...')
     threads[0].join()
