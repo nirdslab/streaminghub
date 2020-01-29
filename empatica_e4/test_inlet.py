@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
+from threading import Thread
+from time import sleep
 
 from pylsl import StreamInlet, resolve_stream
+
+
+def listener(inlet):
+    while True:
+        sample, timestamp = inlet.pull_sample()
+        print('\t'.join(map(lambda x: str(x).ljust(20), [inlet.info().type(), timestamp, sample])), flush=True)
+        sleep(1)
+
 
 if __name__ == '__main__':
     print("looking for an Empatica E4 stream...")
@@ -9,13 +19,8 @@ if __name__ == '__main__':
     print(f'{len(streams)} Stream(s) found!')
 
     # create a new inlet to read from the stream
-    inlets = []
-    for stream in streams:
-        inlets.append(StreamInlet(stream))
-
-    while True:
-        # get a new sample (you can also omit the timestamp part if you're not interested in it)
-        for inlet in inlets:
-            sample, timestamp = inlet.pull_sample(0.5)
-            if timestamp is not None:
-                print('\t'.join(map(lambda x: str(x).ljust(20),[inlet.info().type(), timestamp, sample])))
+    threads = list(map(lambda x: Thread(target=listener, args=(StreamInlet(x),)), streams))
+    print('starting listeners')
+    for thread in threads:
+        thread.start()
+    threads[0].join()
