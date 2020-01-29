@@ -1,6 +1,6 @@
 from pylsl import StreamInfo, StreamOutlet
 
-from types import DeviceDesc, StreamDesc
+from core.types import DeviceDesc, StreamDesc
 
 
 def create_outlet(source_id: str, device_desc: DeviceDesc, stream_desc: StreamDesc):

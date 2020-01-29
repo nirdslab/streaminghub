@@ -3,8 +3,8 @@ import codecs
 import socket
 from typing import List
 
-from connectors.lsl_outlet import create_outlet
-from descriptors.empatica_e4 import device_info, streams
+from core.lsl_outlet import create_outlet
+from empatica_e4.descriptor import device_info, streams
 
 
 # server states

@@ -1,6 +1,6 @@
 from pylsl import IRREGULAR_RATE
 
-from types import DeviceDesc, StreamDesc
+from core.types import DeviceDesc, StreamDesc
 
 device_info = DeviceDesc(
     name='Empatica E4',
