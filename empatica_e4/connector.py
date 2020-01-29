@@ -182,7 +182,6 @@ def process_data_stream(cmd: str):
                 else:
                     [t, v] = data
                     OUTLET.push_sample([v], t)
-            print('.', end='', flush=True)
         except Exception as e:
             print('Error: ', e)
     else:
@@ -225,7 +224,7 @@ def handle_outgoing_msgs():
 if __name__ == '__main__':
     # Create socket connection
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect(("10.211.55.3", 28000))
+    s.connect((socket.gethostname(), 28000))
     # event loop
     while True:
         handle_outgoing_msgs()

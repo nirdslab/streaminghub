@@ -15,16 +15,14 @@ def create_outlet(source_id: str, device_desc: DeviceDesc, stream_desc: StreamDe
     info = StreamInfo(
         source_id=source_id,
         name=device_desc.name,
-        type=device_desc.device_type,
+        type=stream_desc.name,
         channel_count=stream_desc.channel_count,
         nominal_srate=stream_desc.freq
     )
     # create stream description
     desc = info.desc()
-    desc.append_child_value("name", stream_desc.name)
     desc.append_child_value("unit", stream_desc.unit)
-    desc.append_child_value("freq", stream_desc.freq)
-    desc.append_child_value("channel_count", stream_desc.channel_count)
+    desc.append_child_value("freq", str(stream_desc.freq))
     channels = desc.append_child("channels")
     for channel in stream_desc.channels:
         channels.append_child_value("channel", channel)
