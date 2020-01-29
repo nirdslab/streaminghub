@@ -1,16 +1,14 @@
+import time
 from random import randint
 from threading import Thread
-from time import sleep
 
 import empatica_e4.connector as conn
 
 
 def data_thread(name, freq, channels):
-    i = 0
     while True:
-        conn.process_data_stream(f"{name} {' '.join(map(str, [i, *[randint(1, 5) for x in range(channels)]]))}")
-        sleep(1 / freq)
-        i += 1
+        conn.process_data_stream(f"{name} {' '.join(map(str, [round(time.time_ns() * 1e-9, 2), *[randint(1, 5) for x in range(channels)]]))}")
+        time.sleep(1 / freq)
 
 
 if __name__ == '__main__':
