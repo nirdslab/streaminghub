@@ -170,30 +170,18 @@ def process_data_stream(cmd: str):
             # only parse command if outlet has consumers
             if OUTLET.have_consumers():
                 data = list(map(float, cmd.split(' ')[1:]))
+                # three-channel output
                 if d == 'E4_Acc':
                     [t, x, y, z] = data
                     OUTLET.push_sample([x, y, z], t)
-                elif d == 'E4_Bvp':
-                    [t, v] = data
-                    OUTLET.push_sample([v], t)
-                elif d == 'E4_Gsr':
-                    [t, v] = data
-                    OUTLET.push_sample([v], t)
-                elif d == 'E4_Temperature':
-                    [t, v] = data
-                    OUTLET.push_sample([v], t)
-                elif d == 'E4_Ibi':
-                    [t, v] = data
-                    OUTLET.push_sample([v], t)
-                elif d == 'E4_Hr':
-                    [t, v] = data
-                    OUTLET.push_sample([v], t)
-                elif d == 'E4_Battery':
-                    [t, v] = data
-                    OUTLET.push_sample([v], t)
+                # tag output
                 elif d == 'E4_Tag':
                     [t] = data
                     OUTLET.push_sample([1], t)
+                # for all other outputs
+                else:
+                    [t, v] = data
+                    OUTLET.push_sample([v], t)
             print('.', end='', flush=True)
         except Exception as e:
             print('Error: ', e)
