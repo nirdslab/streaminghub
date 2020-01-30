@@ -1,7 +1,7 @@
 import sys
 from typing import List, Tuple
 
-from Orange.widgets import widget, gui, settings
+from Orange.widgets import widget, gui
 from Orange.widgets.utils.signals import Output
 from pylsl import StreamInfo, StreamInlet, resolve_streams
 
@@ -59,10 +59,17 @@ class OWLSLStream(widget.OWWidget):
             value='current_selection',
             callback=self.on_stream_selection_changed
         )
+        self.btn_refresh = gui.button(
+            widget=self.buttonsArea,
+            master=self,
+            label='Refresh Streams List',
+            callback=self.fetch_lsl_streams
+        )
         self.btn_ok = gui.button(
             widget=self.buttonsArea,
             master=self,
             label='OK',
+            default=True,
             callback=self.on_stream_selection_confirmed
         )
 
@@ -112,7 +119,7 @@ class OWLSLStream(widget.OWWidget):
 
     def showEvent(self, event):
         super().showEvent(event)
-        if len(self.selected_streams) == 0:
+        if len(self.available_streams) == 0:
             self.fetch_lsl_streams()
 
 
