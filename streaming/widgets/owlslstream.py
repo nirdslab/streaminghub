@@ -3,92 +3,127 @@ from typing import List, Tuple
 
 from Orange.widgets import widget, gui, settings
 from Orange.widgets.utils.signals import Output
-from pylsl import StreamInfo, resolve_streams, StreamInlet
+from pylsl import StreamInfo, StreamInlet, resolve_streams
+
+SELECT_STREAM_MSG = 'None Selected'
+LOADING_MSG = 'Loading...'
 
 
 class OWLSLStream(widget.OWWidget):
     # widget definition
     name = "LSL Stream"
-    description = "Read data and metadata streams from LSL"
+    description = "Connect to LSL streams and fetch data and metadata from them"
     icon = "icons/Stream.svg"
     priority = 1
 
-    # Available LSL streams
-    streams: List[StreamInfo] = []
-    stream_labels: List[Tuple[str, int]] = []
+    # Stream Data
+    available_streams: List[StreamInfo] = []
+    available_stream_labels: List[Tuple[str, int]] = []
 
-    # Selected LSL stream
-    i: List[int] = settings.Setting([])
+    # Highlighted Stream Indices (before confirmation)
+    current_selection: List[int] = []
+
+    # Selected Streams (after confirmation)
+    selected_streams: List[StreamInfo] = []
 
     class Outputs:
-        output_stream = Output("Streams", StreamInlet)
+        stream_inlets = Output("Streams", StreamInlet, dynamic=True)
 
     want_main_area = False
 
     def __init__(self):
         super().__init__()
-
-        # GUI
-        self.wb_control_area = gui.widgetBox(self.controlArea, minimumWidth=400)
-        # Selected Stream
-        self.wb_selected_stream = gui.widgetBox(self.wb_control_area, box="Selected Stream")
-        self.wl_selected_stream = gui.widgetLabel(self.wb_selected_stream, '')
+        self.wb_control_area = gui.widgetBox(
+            widget=self.controlArea,
+            minimumWidth=400
+        )
+        # Selected Streams
+        self.wb_selected_streams = gui.widgetBox(
+            widget=self.wb_control_area,
+            box="Selected Stream(s)"
+        )
+        self.wl_selected_streams = gui.widgetLabel(
+            widget=self.wb_selected_streams,
+            label='None'
+        )
         # Stream Selection
-        self.wb_selected_stream = gui.widgetBox(self.wb_control_area, box="Available Streams")
-        self.lb_streams = gui.listBox(self.wb_selected_stream, self, labels='stream_labels', value='i', callback=self.on_stream_select)
-        self.btn_ok = gui.button(self.buttonsArea, self, 'OK', callback=self.stream_selection_confirmed)
+        self.wb_available_streams = gui.widgetBox(
+            widget=self.wb_control_area,
+            box="Available Streams"
+        )
+        self.lb_streams = gui.listBox(
+            widget=self.wb_available_streams,
+            master=self,
+            selectionMode=gui.OrangeListBox.MultiSelection,
+            labels='available_stream_labels',
+            value='current_selection',
+            callback=self.on_stream_selection_changed
+        )
+        self.btn_ok = gui.button(
+            widget=self.buttonsArea,
+            master=self,
+            label='OK',
+            callback=self.on_stream_selection_confirmed
+        )
 
-    def on_stream_select(self):
-        # Update selected stream description
-        if len(self.i) > 0:
-            __s = self.streams[self.i[0]]
-            self.wl_selected_stream.setText(self.stream_labels[self.i[0]][0])
+    def on_stream_selection_changed(self):
+        """
+        This method is called when the stream selection is changed.
+        When changed, the variable current_selection will be updated, and should be used to update state.
+        """
+        if len(self.current_selection) > 0:
+            selected_stream_names = [self.available_stream_labels[i][0] for i in self.current_selection]
+            self.wl_selected_streams.setText('\n'.join(sorted(selected_stream_names)))
         else:
-            self.wl_selected_stream.setText('Please select a channel and click OK to confirm')
+            self.wl_selected_streams.setText(SELECT_STREAM_MSG)
 
-    def stream_selection_confirmed(self):
-        if len(self.i) > 0:
-            # Send stream as output
-            __s = self.streams[self.i[0]]
-            __output = StreamInlet(__s)
-
-        else:
-            # Send None as output
-            __output = None
-        self.Outputs.output_stream.send(__output)
-        print('Sent: %s' % str(__output))
+    def on_stream_selection_confirmed(self):
+        """
+        This method updates the selected_streams setting variable, and sends stream_inlets as output
+        """
+        # select streams
+        self.selected_streams = [self.available_streams[i] for i in self.current_selection]
+        print(f'Selected {len(self.selected_streams)} streams')
+        # create stream inlets using selected streams
+        stream_inlets = list(map(StreamInlet, self.selected_streams))
+        # send inlets as outputs
+        self.Outputs.stream_inlets.send(stream_inlets)
         self.close()
 
     @staticmethod
-    def gen_stream_desc(x: StreamInfo):
-        return "%s (%d-Ch %s) - %s Hz" % (x.name(), x.channel_count(), x.type(), x.nominal_srate())
+    def gen_stream_label(x: StreamInfo):
+        """
+        Generate a user-friendly label for a stream, using its metadata
+        :param x: StreamInfo object
+        """
+        return f"{x.name()} {x.type()} ({x.channel_count()}ch) -  {x.nominal_srate()} Hz"
 
     def fetch_lsl_streams(self):
+        """
+        This method fetches available LSL streams, and updates variables
+        """
         # Set loading labels
-        self.wl_selected_stream.setText('None')
+        self.wl_selected_streams.setText(LOADING_MSG)
         # Fetch data
-        self.streams = resolve_streams()
-        self.stream_labels = list(map(lambda x: (self.gen_stream_desc(x), 3), self.streams))
+        self.available_streams = resolve_streams()
+        self.available_stream_labels = list(map(lambda x: (self.gen_stream_label(x), 3), self.available_streams))
         # Update labels
-        s = 'Please select a channel and click OK to confirm' if len(self.streams) == 0 else self.stream_labels[0][0]
-        self.wl_selected_stream.setText(s)
+        self.wl_selected_streams.setText(SELECT_STREAM_MSG)
 
     def showEvent(self, event):
         super().showEvent(event)
-        self.fetch_lsl_streams()
+        if len(self.selected_streams) == 0:
+            self.fetch_lsl_streams()
 
 
-def main(argv=sys.argv):
+if __name__ == "__main__":
     from AnyQt.QtWidgets import QApplication
-    app = QApplication(list(argv))
+
+    app = QApplication(sys.argv)
 
     ow = OWLSLStream()
     ow.show()
     ow.raise_()
     ow.handleNewSignals()
     app.exec_()
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit()
