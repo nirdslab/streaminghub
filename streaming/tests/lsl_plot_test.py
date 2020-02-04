@@ -45,4 +45,5 @@ def plot_data(s: List[StreamInlet]):
     plt.show()
 
 
-plot_data(in_object)
+if __name__ == '__main__':
+    plot_data(in_object)
