@@ -29,6 +29,7 @@ class OWLSLStream(widget.OWWidget):
         self.available_stream_labels = []  # type: List[Tuple[str, int]]
         self.current_selection = []  # type: List[int]
         self.selected_streams = []  # type: List[StreamInfo]
+        self.selected_inlets = []  # type: List[StreamInlet]
 
         # ui
         self.wb_control_area = gui.widgetBox(
@@ -90,9 +91,9 @@ class OWLSLStream(widget.OWWidget):
         self.selected_streams = [self.available_streams[i] for i in self.current_selection]
         print(f'Selected {len(self.selected_streams)} streams')
         # create stream inlets using selected streams
-        streams = list(map(StreamInlet, self.selected_streams))
+        self.selected_inlets = list(map(StreamInlet, self.selected_streams))
         # send inlets as outputs
-        self.Outputs.streams.send(streams)
+        self.Outputs.streams.send(self.selected_inlets)
         self.close()
 
     @staticmethod
@@ -123,6 +124,10 @@ class OWLSLStream(widget.OWWidget):
     def onDeleteWidget(self):
         self.cancel()
         super().onDeleteWidget()
+
+    def cancel(self):
+        for inlet in self.selected_inlets:
+            inlet.close_stream()
 
 
 if __name__ == "__main__":

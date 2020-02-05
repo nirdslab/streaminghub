@@ -94,7 +94,6 @@ class OWTabulate(widget.OWWidget):
         self._update()
 
     def _update(self):
-        print('Tabulate - data received...')
         if self._task is not None:
             # First make sure any pending tasks are cancelled.
             self.cancel()
@@ -103,7 +102,6 @@ class OWTabulate(widget.OWWidget):
         if self.streams is None:
             return
 
-        print('Tabulate - starting to collect data')
         self._task = task = Task()
         task.future = self._executor.submit(task.run, self.streams, 0.5)
         task.watcher = None
@@ -123,7 +121,6 @@ class OWTabulate(widget.OWWidget):
             if self._task.watcher is not None:
                 self._task.watcher.done.disconnect(self._task_finished)
             self._task = None
-        print('Tabulate - closed')
 
 
 if __name__ == "__main__":
