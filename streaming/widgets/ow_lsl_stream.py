@@ -16,23 +16,21 @@ class OWLSLStream(widget.OWWidget):
     icon = "icons/Stream.svg"
     priority = 1
 
-    # Stream Data
-    available_streams: List[StreamInfo] = []
-    available_stream_labels: List[Tuple[str, int]] = []
-
-    # Highlighted Stream Indices (before confirmation)
-    current_selection: List[int] = []
-
-    # Selected Streams (after confirmation)
-    selected_streams: List[StreamInfo] = []
-
     class Outputs:
-        stream_inlets = Output("Streams", StreamInlet, dynamic=True)
+        streams = Output("Streams", StreamInlet)
 
     want_main_area = False
 
     def __init__(self):
         super().__init__()
+
+        # variables
+        self.available_streams = []  # type: List[StreamInfo]
+        self.available_stream_labels = []  # type: List[Tuple[str, int]]
+        self.current_selection = []  # type: List[int]
+        self.selected_streams = []  # type: List[StreamInfo]
+
+        # ui
         self.wb_control_area = gui.widgetBox(
             widget=self.controlArea,
             minimumWidth=400
@@ -92,9 +90,9 @@ class OWLSLStream(widget.OWWidget):
         self.selected_streams = [self.available_streams[i] for i in self.current_selection]
         print(f'Selected {len(self.selected_streams)} streams')
         # create stream inlets using selected streams
-        stream_inlets = list(map(StreamInlet, self.selected_streams))
+        streams = list(map(StreamInlet, self.selected_streams))
         # send inlets as outputs
-        self.Outputs.stream_inlets.send(stream_inlets)
+        self.Outputs.streams.send(streams)
         self.close()
 
     @staticmethod
@@ -121,6 +119,10 @@ class OWLSLStream(widget.OWWidget):
         super().showEvent(event)
         if len(self.available_streams) == 0:
             self.fetch_lsl_streams()
+
+    def onDeleteWidget(self):
+        self.cancel()
+        super().onDeleteWidget()
 
 
 if __name__ == "__main__":
