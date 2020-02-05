@@ -5,9 +5,8 @@ from typing import List, Optional
 
 from Orange.data import Table
 from Orange.widgets import widget, gui
-from Orange.widgets.utils.concurrent import ThreadExecutor, FutureWatcher
+from Orange.widgets.utils.concurrent import FutureWatcher, ThreadExecutor
 from Orange.widgets.utils.signals import Output
-from orangewidget.settings import Setting
 from orangewidget.utils.signals import Input
 from pylsl import StreamInlet
 
@@ -77,8 +76,8 @@ class OWTabulate(widget.OWWidget):
     want_main_area = False
 
     @Inputs.streams
-    def set_inlets(self, data: List[StreamInlet]):
-        self._inlets = data
+    def set_streams(self, streams: List[StreamInlet]):
+        self.streams = streams
 
     def __init__(self):
         super().__init__()
@@ -89,24 +88,25 @@ class OWTabulate(widget.OWWidget):
         # variables
         self._task = None  # type: Optional[Task]
         self._executor = ThreadExecutor()
-        self._inlets = []  # type: List[StreamInlet]
-        self._buf_size = Setting(100)  # type: int
-        self.sleep_time = Setting(0.5)  # type: float
+        self.streams = []  # type: List[StreamInlet]
 
     def handleNewSignals(self):
         self._update()
 
     def _update(self):
+        print('Tabulate - data received...')
         if self._task is not None:
             # First make sure any pending tasks are cancelled.
             self.cancel()
         assert self._task is None
 
-        if self.data is None:
+        if self.streams is None:
             return
 
+        print('Tabulate - starting to collect data')
         self._task = task = Task()
-        task.future = self._executor.submit(task.run, self._inlets, self.sleep_time)
+        task.future = self._executor.submit(task.run, self.streams, 0.5)
+        task.watcher = None
 
     def onDeleteWidget(self):
         self.cancel()
@@ -123,6 +123,7 @@ class OWTabulate(widget.OWWidget):
             if self._task.watcher is not None:
                 self._task.watcher.done.disconnect(self._task_finished)
             self._task = None
+        print('Tabulate - closed')
 
 
 if __name__ == "__main__":
