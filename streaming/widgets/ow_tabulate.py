@@ -81,6 +81,7 @@ class Task(QObject):
     _timer = QTimer()  # type: QTimer
     _streams = ...  # type: List[StreamInlet]
     _out = ...  # type: Output
+    _data = None
 
     def begin(self, streams: List[StreamInlet], out: Output):
         self._streams = streams
@@ -88,17 +89,25 @@ class Task(QObject):
         self._timer.timeout.connect(lambda: self._run(self._streams, self._out))
         self._timer.start(500)
 
-    @staticmethod
-    def _run(inlets: List[StreamInlet], out: Output):
+    def _run(self, inlets: List[StreamInlet], out: Output):
         for inlet in inlets:
             samples, timestamps = inlet.pull_chunk()
             if len(timestamps) == 0:
                 continue
             timestamps = np.expand_dims(np.array(timestamps), -1)
             samples = np.array(samples)
-            data = np.concatenate((timestamps, samples), axis=-1)
+            chunk = np.concatenate((timestamps, samples), axis=-1)
+            labels = ['t']
+            if self._data is None:
+                self._data = chunk
+            else:
+                self._data = np.concatenate((self._data, chunk), axis=0)[:1000]
             try:
-                table = Table.from_numpy(Domain([*map(ContinuousVariable, ['timestamp', 'x', 'y', 'z'])]), data)
+                n = inlet.info().desc().child("channels").first_child()
+                while n.child_value() != '':
+                    labels.append(n.child_value())
+                    n = n.next_sibling()
+                table = Table.from_numpy(Domain([*map(ContinuousVariable, labels)]), self._data)
                 out.send(table)
             except Exception as e:
                 print(e)
