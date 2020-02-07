@@ -101,7 +101,7 @@ class Task(QObject):
             if self._data is None:
                 self._data = chunk
             else:
-                self._data = np.concatenate((self._data, chunk), axis=0)[:1000]
+                self._data = np.concatenate((self._data, chunk), axis=0)[-1000:]
             try:
                 n = inlet.info().desc().child("channels").first_child()
                 while n.child_value() != '':
