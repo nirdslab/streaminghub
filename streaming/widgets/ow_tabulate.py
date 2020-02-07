@@ -1,13 +1,12 @@
-import concurrent.futures
 import sys
-from time import sleep
 from typing import List, Optional
 
 import numpy as np
 from Orange.data import Table, Domain, ContinuousVariable
 from Orange.widgets import widget, gui
-from Orange.widgets.utils.concurrent import FutureWatcher, ThreadExecutor
+from Orange.widgets.utils.concurrent import ThreadExecutor
 from Orange.widgets.utils.signals import Output
+from PyQt5.QtCore import pyqtSlot, QThread, QObject, QTimer
 from orangewidget.utils.signals import Input
 from pylsl import StreamInlet
 
@@ -51,6 +50,11 @@ class OWTabulate(widget.OWWidget):
     def handleNewSignals(self):
         self._update()
 
+    @pyqtSlot(Table)
+    def handleTable(self, value):
+        assert self.thread() is QThread.currentThread()
+        self.Outputs.data.send(value)
+
     def _update(self):
         if self._task is not None:
             # First make sure any pending tasks are cancelled.
@@ -61,74 +65,46 @@ class OWTabulate(widget.OWWidget):
             return
 
         self._task = task = Task()
-        task.future = self._executor.submit(task.run, self.streams, 0.5, self.Outputs.data)
+        task.begin(self.streams, self.Outputs.data)
 
     def onDeleteWidget(self):
         self.cancel()
         super().onDeleteWidget()
 
     def cancel(self):
-        """
-        Cancel the current task (if any).
-        """
         if self._task is not None:
             self._task.cancel()
-            assert self._task.future.done()
-            # disconnect the `_task_finished` slot
-            # if self._task.watcher is not None:
-            #     self._task.watcher.done.disconnect(self._task_finished)
             self._task = None
 
 
-class Task:
-    """
-    A class that will hold the state for an learner evaluation.
-    """
+class Task(QObject):
+    _timer = QTimer()  # type: QTimer
+    _streams = ...  # type: List[StreamInlet]
+    _out = ...  # type: Output
 
-    #: A concurrent.futures.Future with our (eventual) results.
-    #: The OWLearningCurveC class must fill this field
-    future = ...  # type: concurrent.futures.Future
+    def begin(self, streams: List[StreamInlet], out: Output):
+        self._streams = streams
+        self._out = out
+        self._timer.timeout.connect(lambda: self._run(self._streams, self._out))
+        self._timer.start(500)
 
-    #: FutureWatcher. Likewise this will be filled by OWLearningCurveC
-    watcher = ...  # type: FutureWatcher
-
-    #: True if this evaluation has been cancelled. The OWLearningCurveC
-    #: will setup the task execution environment in such a way that this
-    #: field will be checked periodically in the worker thread and cancel
-    #: the computation if so required. In a sense this is the only
-    #: communication channel in the direction from the OWLearningCurve to the
-    #: worker thread
-    cancelled = False  # type: bool
-
-    def run(self, inlets: List[StreamInlet], sleep_time: float, out: Output):
-        while not self.cancelled:
-            for inlet in inlets:
-                samples, timestamps = inlet.pull_chunk()
-                if len(timestamps) == 0:
-                    continue
-                timestamps = np.expand_dims(np.array(timestamps), -1)
-                samples = np.array(samples)
-                data = np.concatenate((timestamps, samples), axis=-1)
-                try:
-                    table = Table.from_numpy(Domain([*map(ContinuousVariable, ['timestamp', 'x', 'y', 'z'])]), data)
-                    out.send(table)
-                except Exception as e:
-                    print(e)
-            sleep(sleep_time)
+    @staticmethod
+    def _run(inlets: List[StreamInlet], out: Output):
+        for inlet in inlets:
+            samples, timestamps = inlet.pull_chunk()
+            if len(timestamps) == 0:
+                continue
+            timestamps = np.expand_dims(np.array(timestamps), -1)
+            samples = np.array(samples)
+            data = np.concatenate((timestamps, samples), axis=-1)
+            try:
+                table = Table.from_numpy(Domain([*map(ContinuousVariable, ['timestamp', 'x', 'y', 'z'])]), data)
+                out.send(table)
+            except Exception as e:
+                print(e)
 
     def cancel(self):
-        """
-        Cancel the task.
-
-        Set the `cancelled` field to True and block until the future is done.
-        """
-        # set cancelled state
-        self.cancelled = True
-        # cancel the future. Note this succeeds only if the execution has
-        # not yet started (see `concurrent.futures.Future.cancel`) ..
-        self.future.cancel()
-        # ... and wait until computation finishes
-        concurrent.futures.wait([self.future])
+        self._timer.stop()
 
 
 if __name__ == "__main__":
