@@ -2,9 +2,9 @@ import sys
 from typing import List, Optional
 
 import numpy as np
+import pandas as pd
 from Orange.data import Table, Domain, ContinuousVariable
 from Orange.widgets import widget, gui
-from Orange.widgets.utils.concurrent import ThreadExecutor
 from Orange.widgets.utils.signals import Output
 from PyQt5.QtCore import pyqtSlot, QThread, QObject, QTimer
 from orangewidget.utils.signals import Input
@@ -44,7 +44,6 @@ class OWTabulate(widget.OWWidget):
         )
         # variables
         self._task = None  # type: Optional[Task]
-        self._executor = ThreadExecutor()
         self.streams = []  # type: List[StreamInlet]
 
     def handleNewSignals(self):
@@ -81,33 +80,61 @@ class Task(QObject):
     _timer = QTimer()  # type: QTimer
     _streams = ...  # type: List[StreamInlet]
     _out = ...  # type: Output
-    _data = None
+    _data = None  # type: pd.DataFrame
 
     def begin(self, streams: List[StreamInlet], out: Output):
         self._streams = streams
         self._out = out
         self._timer.timeout.connect(lambda: self._run(self._streams, self._out))
-        self._timer.start(500)
+        self._timer.start(1000)
 
     def _run(self, inlets: List[StreamInlet], out: Output):
+
+        def get_ch_labels(_inlet: StreamInlet):
+            _labels = []
+            _ch = _inlet.info().desc()
+            if not _ch.empty():
+                _ch = _ch.child("channels")
+                if not _ch.empty():
+                    _ch = _ch.first_child()
+                    while not _ch.empty():
+                        _labels.append(_ch.child_value())
+                        _ch = _ch.next_sibling()
+                    return _labels
+            return _labels
+
+        def create_schema(_inlets: List[StreamInlet]):
+            _labels = []
+            for _inlet in _inlets:
+                for _label in get_ch_labels(_inlet):
+                    _labels.append(_label)
+            return pd.DataFrame(columns=_labels, index=pd.Index([], name='t'))
+
+        # create table schema first
+        if self._data is None:
+            self._data = create_schema(inlets)
+
+        updated = False
+
         for inlet in inlets:
             samples, timestamps = inlet.pull_chunk()
+            labels = get_ch_labels(inlet)
             if len(timestamps) == 0:
                 continue
-            timestamps = np.expand_dims(np.array(timestamps), -1)
-            samples = np.array(samples)
-            chunk = np.concatenate((timestamps, samples), axis=-1)
-            labels = ['t']
-            if self._data is None:
-                self._data = chunk
-            else:
-                self._data = np.concatenate((self._data, chunk), axis=0)[-1000:]
+            samples = np.array(samples).reshape((-1, len(labels)))
+            chunk = pd.DataFrame(index=pd.Index(timestamps, name='t'), data=samples, columns=labels)
+            # self._data.update(chunk)
+            self._data = self._data.fillna(chunk).append(chunk[~chunk.index.isin(self._data.index)], sort=True)
+            updated = True
+
+        if updated:
+            # emit the aggregate data
             try:
-                n = inlet.info().desc().child("channels").first_child()
-                while n.child_value() != '':
-                    labels.append(n.child_value())
-                    n = n.next_sibling()
-                table = Table.from_numpy(Domain([*map(ContinuousVariable, labels)]), self._data)
+                self._data = self._data.iloc[:1000]
+                # create table from self._data (include index as well)
+                table_data = np.concatenate([self._data.index.to_numpy().reshape((-1, 1)), self._data.to_numpy()], axis=-1)
+                table = Table.from_numpy(Domain([*map(ContinuousVariable, [self._data.index.name, *self._data.columns])]), table_data)
+                # send table
                 out.send(table)
             except Exception as e:
                 print(e)
