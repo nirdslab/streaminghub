@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import codecs
 import socket
-from typing import List
+from typing import List, Dict
+
+from pylsl import StreamOutlet
 
 from core.lsl_outlet import create_outlet
 from empatica_e4.descriptor import device_info, streams
@@ -43,7 +45,7 @@ SRV_STREAM_ID_MAP = {
     'E4_Tag': 'tag'
 }
 
-OUTLETS = {}
+OUTLETS: Dict[str, StreamOutlet] = {}
 
 # State
 STATE = SRV_STATES.NEW__
@@ -155,7 +157,7 @@ def process_incoming_msgs():
             process_data_stream(cmd)
 
 
-def get_outlet(d: str):
+def get_outlet(d: str) -> StreamOutlet:
     if d not in OUTLETS:
         OUTLETS[d] = create_outlet(DEVICE_ID, device_info, streams[SRV_STREAM_ID_MAP[d]])
     return OUTLETS[d]

@@ -1,17 +1,30 @@
 #!/usr/bin/env python
 import asyncio
 import io
-from typing import Any
+from typing import Any, Dict
 
 import msgpack
 import zmq
 import zmq.asyncio
 from PIL import Image
+from pylsl import StreamOutlet
+
+from core.lsl_outlet import create_outlet
+from pupil_labs.descriptor import streams, device_info
 
 ZMQ_REQ = zmq.REQ
 ZMQ_SUB = zmq.SUB
 ZMQ_SUBSCRIBE = zmq.SUBSCRIBE
 CONF_THRESHOLD = 0.8
+
+OUTLETS: Dict[str, StreamOutlet] = {}
+DEVICE_ID = '1'
+
+
+def get_outlet(d: str) -> StreamOutlet:
+    if d not in OUTLETS:
+        OUTLETS[d] = create_outlet(DEVICE_ID, device_info, streams[d])
+    return OUTLETS[d]
 
 
 class Parser(object):
@@ -23,20 +36,35 @@ class Parser(object):
     def parse(self, message, extra) -> Any:
         t = self.topic
         if self.topic.startswith('gaze'):
+            # decode message
             [gaze_pos_x, gaze_pos_y] = message[b'norm_pos']
-            gaze_ts = message[b'timestamp']
             gaze_conf = message[b'confidence']
+            gaze_ts = message[b'timestamp']
+            # push to LSL stream if data point has acceptable confidence
             if gaze_conf > CONF_THRESHOLD:
-                print(f"[{t}](t={gaze_ts:.2f}, c={gaze_conf:.2f}): x: {gaze_pos_x:.3f}, y: {gaze_pos_y:.3f}")
-        if self.topic.startswith('fixations'):
+                eye_id = int(self.topic.strip('.')[-1])
+                stream_id = f'gaze.{eye_id}'
+                OUTLET = get_outlet(stream_id)
+                OUTLET.push_sample([gaze_pos_x, gaze_pos_y, gaze_conf], gaze_ts)
+        elif self.topic.startswith('fixations'):
+            # decode message
             [fxn_pos_x, fxn_pos_y] = message[b'norm_pos']
-            fxn_ts = message[b'timestamp']
-            fxn_conf = message[b'confidence']
-            fxn_d = message[b'duration']
             fxn_dispersion = message[b'dispersion']
+            fxn_d = message[b'duration']
+            fxn_conf = message[b'confidence']
+            fxn_ts = message[b'timestamp']
+            # push to LSL stream if data point has acceptable confidence
             if fxn_conf > CONF_THRESHOLD:
-                print(f"[{t}](t={fxn_ts:.2f}, c={fxn_conf:.2f}): x: {fxn_pos_x:.3f}, y: {fxn_pos_y:.3f}, r: {fxn_dispersion:.3f}, d: {fxn_d:.3f}")
-        # TODO do something if topic = 'frame' and len(extra) > 0. use topic to find what the image is (eye 1 / eye 2 / world)
+                stream_id = 'fixations'
+                OUTLET = get_outlet(stream_id)
+                OUTLET.push_sample([fxn_pos_x, fxn_pos_y, fxn_dispersion, fxn_d, fxn_conf], fxn_ts)
+        elif self.topic.startswith('frame') and len(extra) > 0:
+            # decode message
+            frame_ts = message[b'timestamp']
+            # push frame to LSL stream
+            stream_id = 'camera'
+            OUTLET = get_outlet(stream_id)
+            OUTLET.push_sample(extra, frame_ts)  # FIXME
 
 
 async def main():
@@ -74,7 +102,7 @@ async def main():
     _sub.setsockopt_string(ZMQ_SUBSCRIBE, 'gaze')  # where you're looking at
     # _sub.setsockopt_string(ZMQ_SUBSCRIBE, 'pupil')  # information about pupil (such as diameter, dilation)
     _sub.setsockopt_string(ZMQ_SUBSCRIBE, 'fixations')  # starts sending data when it detects fixations (continuously sends until next fixation)
-    # _sub.setsockopt_string(ZMQ_SUBSCRIBE, 'frame')  # camera stream (eye, world)
+    _sub.setsockopt_string(ZMQ_SUBSCRIBE, 'frame')  # camera stream (eye, world)
     # _sub.setsockopt_string(ZMQ_SUBSCRIBE, 'notify') # notifications
     # _sub.setsockopt_string(ZMQ_SUBSCRIBE, 'logging') # for logging
 

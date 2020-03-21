@@ -3,7 +3,7 @@ from pylsl import StreamInfo, StreamOutlet
 from core.types import DeviceDesc, StreamDesc
 
 
-def create_outlet(source_id: str, device_desc: DeviceDesc, stream_desc: StreamDesc):
+def create_outlet(source_id: str, device_desc: DeviceDesc, stream_desc: StreamDesc) -> StreamOutlet:
     """
     Generate LSL outlet from Metadata
     :rtype: StreamOutlet
