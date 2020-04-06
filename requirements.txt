@@ -1,0 +1,4 @@
+Orange3
+numpy
+pylsl
+pyQt5
