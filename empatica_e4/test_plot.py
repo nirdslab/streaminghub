@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from typing import List
 
 import matplotlib
@@ -39,7 +40,7 @@ def plot_data(s: List[StreamInlet]):
             # a.legend()
         plt.tight_layout()
 
-    ani = animation.FuncAnimation(fig, animate, interval=2000)
+    _ = animation.FuncAnimation(fig, animate, interval=2000)
     plt.show()
 
 
