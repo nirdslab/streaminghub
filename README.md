@@ -1,8 +1,17 @@
 # Streaminghub
 
-This repository hosts a collection of connector classes for reading data from sensory devices, and pushing them to LSL streams with metadata.
+This repository hosts the implementation of streaming-hub, a visual programming toolkit built on DFS to simplify data analysis workflows.
+It contains two subprojects,
+* conduit
+* orange-streaming
 
+## Conduit
+Conduit is a collection of connectors for reading data from sensory devices, and publishing them as LSL streams, annotated with DFS metadata.
+It currently supports the following devices:
+* Empatica E4 (ongoing)
+* Pupil Core (ongoing)
 We are working on adding more devices, and streamlining the metadata format to better provide data semantics.
 
-## Devices Supported
-* Empatica E4
+## Orange-Streaming
+Orange-Streaming is a Python package that adds support for DFS data-streams in Orange3.
+It provides a set of widgets to read data-streams from LSL, and their metadata in compliance with the original meta-stream and meta-file specifications.
