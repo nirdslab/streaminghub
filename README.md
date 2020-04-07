@@ -10,6 +10,7 @@ Conduit is a collection of connectors for reading data from sensory devices, and
 It currently supports the following devices:
 * Empatica E4 (ongoing)
 * Pupil Core (ongoing)
+
 We are working on adding more devices, and streamlining the metadata format to better provide data semantics.
 
 ## Orange-Streaming
