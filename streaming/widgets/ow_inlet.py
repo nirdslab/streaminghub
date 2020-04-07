@@ -11,7 +11,7 @@ LOADING_MSG = 'Loading...'
 
 class OWLSLStream(widget.OWWidget):
     # widget definition
-    name = "LSL Stream"
+    name = "Inlet"
     description = "Connect to LSL streams and fetch data and metadata from them"
     icon = "icons/Stream.svg"
     priority = 1
