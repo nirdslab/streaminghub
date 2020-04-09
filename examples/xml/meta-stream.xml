@@ -1,9 +1,11 @@
-<meta-stream xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../schemas/xml/meta-stream.xsd">
-    <device-info>
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<meta-stream id="sample" checksum="000000000000000000" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../schemas/xml/meta-stream.xsd">
+    <device>
         <model>E4</model>
         <manufacturer>Empatica</manufacturer>
-        <device-type>Wristband</device-type>
-    </device-info>
+        <category>Wristband</category>
+    </device>
     <streams>
         <stream id="acc">
             <name>acceleration</name>

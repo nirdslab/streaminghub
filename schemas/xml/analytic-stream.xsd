@@ -1,11 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    <xs:annotation>
-        <xs:documentation>Metadata schema for an analytic stream in DFS</xs:documentation>
-    </xs:annotation>
-    <xs:element name="analytic-stream">
-        <xs:complexType>
-            <xs:sequence></xs:sequence>
-        </xs:complexType>
-    </xs:element>
+    <xs:include schemaLocation="dfs.xsd" />
 </xs:schema>

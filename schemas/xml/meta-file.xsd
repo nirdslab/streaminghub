@@ -1,49 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    <xs:annotation>
-        <xs:documentation>Metadata schema for a dataset in DFS</xs:documentation>
-    </xs:annotation>
-    <xs:element name="meta-file">
-        <xs:complexType>
-            <xs:all>
-                <xs:element name="device-info">
-                    <!-- device information definition -->
-                    <xs:complexType>
-                        <xs:all>
-                            <xs:element name="name" type="xs:string" />
-                            <xs:element name="device-type" type="xs:string" />
-                        </xs:all>
-                    </xs:complexType>
-                </xs:element>
-                <xs:element name="streams">
-                    <!-- streams definition -->
-                    <xs:complexType>
-                        <xs:sequence minOccurs="1" maxOccurs="unbounded">
-                            <xs:element name="stream">
-                                <!-- stream definition -->
-                                <xs:complexType>
-                                    <xs:all>
-                                        <xs:element name="name" type="xs:string" />
-                                        <xs:element name="unit" type="xs:string" />
-                                        <xs:element name="frequency" type="xs:unsignedInt" />
-                                        <xs:element name="channel-count" type="xs:unsignedInt" />
-                                        <xs:element name="channels">
-                                            <!-- channels definition -->
-                                            <xs:complexType>
-                                                <xs:sequence minOccurs="1" maxOccurs="unbounded">
-                                                    <!-- channel definition -->
-                                                    <xs:element name="channel" type="xs:string" />
-                                                </xs:sequence>
-                                            </xs:complexType>
-                                        </xs:element>
-                                    </xs:all>
-                                    <xs:attribute name="id" type="xs:string" use="required"/>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-            </xs:all>
-        </xs:complexType>
-    </xs:element>
+    <xs:include schemaLocation="dfs.xsd" />
+    <!-- type - meta-file -->
+    <xs:complexType name="meta-file">
+        <xs:annotation>
+            <xs:documentation>Metadata schema for a sensory data stream in DFS</xs:documentation>
+        </xs:annotation>
+        <xs:all minOccurs="1" maxOccurs="1">
+            <xs:element name="device" type="device"></xs:element>
+            <xs:element name="streams" type="streams"></xs:element>
+        </xs:all>
+        <xs:attribute name="id" type="xs:ID" use="required"></xs:attribute>
+        <xs:attribute name="checksum" type="xs:hexBinary" use="required"></xs:attribute>
+        <xs:attribute name="version" type="xs:string" use="required"></xs:attribute>
+        <xs:attribute name="created" type="xs:dateTime" use="required"></xs:attribute>
+        <xs:attribute name="last-modified" type="xs:dateTime" use="required"></xs:attribute>
+    </xs:complexType>
+    <xs:element name="meta-file" type="meta-file" />
 </xs:schema>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <!-- primitive type - email -->
+    <xs:simpleType name="email">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[^@]+@[^\.]+\..+" />
+        </xs:restriction>
+    </xs:simpleType>
+    <!-- primitive type - device -->
+    <xs:complexType name="device">
+        <xs:annotation>
+            <xs:documentation>Information about the recording device</xs:documentation>
+        </xs:annotation>
+        <xs:all minOccurs="1" maxOccurs="1">
+            <xs:element name="model" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Device Model</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="manufacturer" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Device Manufacturer</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="category" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Device Category</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+    </xs:complexType>
+    <!-- primitive type - streams -->
+    <xs:complexType name="streams">
+        <xs:annotation>
+            <xs:documentation>Collection of information about all data streams</xs:documentation>
+        </xs:annotation>
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="stream">
+                <!-- stream definition -->
+                <xs:complexType>
+                    <xs:annotation>
+                        <xs:documentation>Information about each data stream</xs:documentation>
+                    </xs:annotation>
+                    <xs:all minOccurs="1" maxOccurs="1">
+                        <xs:element name="name" type="xs:string">
+                            <xs:annotation>
+                                <xs:documentation>Name of data stream</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                        <xs:element name="description" type="xs:string">
+                            <xs:annotation>
+                                <xs:documentation>Description of data stream</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                        <xs:element name="unit" type="xs:string">
+                            <xs:annotation>
+                                <xs:documentation>Unit of measurement</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                        <xs:element name="frequency" type="xs:unsignedInt">
+                            <xs:annotation>
+                                <xs:documentation>Sampling frequency (Hz)</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                        <xs:element name="channel-count" type="xs:unsignedInt">
+                            <xs:annotation>
+                                <xs:documentation>Number of channels</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                        <xs:element name="channels">
+                            <!-- channels definition -->
+                            <xs:complexType>
+                                <xs:annotation>
+                                    <xs:documentation>Information about each channel</xs:documentation>
+                                </xs:annotation>
+                                <xs:sequence minOccurs="1" maxOccurs="unbounded">
+                                    <!-- channel definition -->
+                                    <xs:element name="channel" type="xs:string">
+                                        <xs:annotation>
+                                            <xs:documentation>Name of channel</xs:documentation>
+                                        </xs:annotation>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:all>
+                    <xs:attribute name="id" type="xs:ID" use="required">
+                        <xs:annotation>
+                            <xs:documentation>Stream ID</xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- primitive type - dataset -->
+    <xs:complexType name="dataset">
+        <xs:annotation>
+            <xs:documentation>Information about the dataset</xs:documentation>
+        </xs:annotation>
+        <xs:all minOccurs="1" maxOccurs="1">
+            <xs:element name="name" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Name of Dataset</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="description" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Dataset Description</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="keywords">
+                <xs:annotation>
+                    <xs:documentation>Collection of keywords that describe the dataset</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="keyword" type="xs:string">
+                            <xs:annotation>
+                                <xs:documentation>A keyword</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="authors">
+                <xs:annotation>
+                    <xs:documentation>Collection of authors of the dataset</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="author">
+                            <xs:annotation>
+                                <xs:documentation>Author Information</xs:documentation>
+                            </xs:annotation>
+                            <xs:complexType>
+                                <xs:all minOccurs="1" maxOccurs="1">
+                                    <xs:element name="name" type="xs:string">
+                                        <xs:annotation>
+                                            <xs:documentation>Name of Author</xs:documentation>
+                                        </xs:annotation>
+                                    </xs:element>
+                                    <xs:element name="affiliation" type="xs:string">
+                                        <xs:annotation>
+                                            <xs:documentation>Author Affiliation</xs:documentation>
+                                        </xs:annotation>
+                                    </xs:element>
+                                    <xs:element name="email" type="email">
+                                        <xs:annotation>
+                                            <xs:documentation>Author e-mail address</xs:documentation>
+                                        </xs:annotation>
+                                    </xs:element>
+                                </xs:all>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:all>
+    </xs:complexType>
+</xs:schema>
