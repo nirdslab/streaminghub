@@ -1,1 +1,91 @@
-<meta-stream xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../schemas/xml/meta-stream.xsd"></meta-stream>
+<meta-stream xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../schemas/xml/meta-stream.xsd">
+    <device-info>
+        <model>E4</model>
+        <manufacturer>Empatica</manufacturer>
+        <device-type>Wristband</device-type>
+    </device-info>
+    <streams>
+        <stream id="acc">
+            <name>acceleration</name>
+            <description>3-axis acceleration (unit - gravity)</description>
+            <unit>g</unit>
+            <frequency>32</frequency>
+            <channel-count>3</channel-count>
+            <channels>
+                <channel>acc_x</channel>
+                <channel>acc_y</channel>
+                <channel>acc_z</channel>
+            </channels>
+        </stream>
+        <stream id="bvp">
+            <name>blood volume pulse</name>
+            <description>Blood Volume Pulse (unit - lumen)</description>
+            <unit>lm</unit>
+            <frequency>64</frequency>
+            <channel-count>1</channel-count>
+            <channels>
+                <channel>bvp</channel>
+            </channels>
+        </stream>
+        <stream id="gsr">
+            <name>galvanic skin response</name>
+            <description>Galvanic Skin Response (unit - micro siemens)</description>
+            <unit>μS</unit>
+            <frequency>0</frequency>
+            <channel-count>1</channel-count>
+            <channels>
+                <channel>gsr</channel>
+            </channels>
+        </stream>
+        <stream id="ibi">
+            <name>inter-beat interval</name>
+            <description>Inter-Beat Interval (unit - seconds)</description>
+            <unit>s</unit>
+            <frequency>0</frequency>
+            <channel-count>1</channel-count>
+            <channels>
+                <channel>ibi</channel>
+            </channels>
+        </stream>
+        <stream id="hr">
+            <name>heart rate</name>
+            <description>Heart rate (unit - beats per minute)</description>
+            <unit>bpm</unit>
+            <frequency>0</frequency>
+            <channel-count>1</channel-count>
+            <channels>
+                <channel>hr</channel>
+            </channels>
+        </stream>
+        <stream id="tmp">
+            <name>skin temperature</name>
+            <description>Skin Temperature (unit - celsius)</description>
+            <unit>c</unit>
+            <frequency>0</frequency>
+            <channel-count>1</channel-count>
+            <channels>
+                <channel>tmp</channel>
+            </channels>
+        </stream>
+        <stream id="bat">
+            <name>battery level</name>
+            <description>Device Battery (unit - percent)</description>
+            <unit>%</unit>
+            <frequency>0</frequency>
+            <channel-count>1</channel-count>
+            <channels>
+                <channel>bat</channel>
+            </channels>
+        </stream>
+        <stream id="tag">
+            <name>tag</name>
+            <description>Tag recorded upon button press</description>
+            <unit></unit>
+            <frequency>0</frequency>
+            <channel-count>1</channel-count>
+            <channels>
+                <channel>tag</channel>
+            </channels>
+        </stream>
+    </streams>
+</meta-stream>
