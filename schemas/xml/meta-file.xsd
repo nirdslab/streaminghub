@@ -4,11 +4,14 @@
     <!-- type - meta-file -->
     <xs:complexType name="meta-file">
         <xs:annotation>
-            <xs:documentation>Metadata schema for a sensory data stream in DFS</xs:documentation>
+            <xs:documentation>Metadata schema for a dataset in DFS</xs:documentation>
         </xs:annotation>
         <xs:all minOccurs="1" maxOccurs="1">
-            <xs:element name="device" type="device"></xs:element>
+            <xs:element name="dataset" type="dataset"></xs:element>
             <xs:element name="streams" type="streams"></xs:element>
+            <xs:element name="files" type="files"></xs:element>
+            <xs:element name="fields" type="fields"></xs:element>
+            <xs:element name="links" type="links"></xs:element>
         </xs:all>
         <xs:attribute name="id" type="xs:ID" use="required"></xs:attribute>
         <xs:attribute name="checksum" type="xs:hexBinary" use="required"></xs:attribute>

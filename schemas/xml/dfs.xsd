@@ -36,7 +36,7 @@
         </xs:annotation>
         <xs:sequence minOccurs="1" maxOccurs="unbounded">
             <xs:element name="stream">
-                <!-- stream definition -->
+                <!-- primitive type - stream -->
                 <xs:complexType>
                     <xs:annotation>
                         <xs:documentation>Information about each data stream</xs:documentation>
@@ -114,7 +114,7 @@
                     <xs:documentation>Collection of keywords that describe the dataset</xs:documentation>
                 </xs:annotation>
                 <xs:complexType>
-                    <xs:sequence>
+                    <xs:sequence minOccurs="1" maxOccurs="unbounded">
                         <xs:element name="keyword" type="xs:string">
                             <xs:annotation>
                                 <xs:documentation>A keyword</xs:documentation>
@@ -128,7 +128,7 @@
                     <xs:documentation>Collection of authors of the dataset</xs:documentation>
                 </xs:annotation>
                 <xs:complexType>
-                    <xs:sequence>
+                    <xs:sequence minOccurs="1" maxOccurs="unbounded">
                         <xs:element name="author">
                             <xs:annotation>
                                 <xs:documentation>Author Information</xs:documentation>
@@ -157,5 +157,114 @@
                 </xs:complexType>
             </xs:element>
         </xs:all>
+    </xs:complexType>
+    <!-- primitive type - files -->
+    <xs:complexType name="files">
+        <xs:annotation>
+            <xs:documentation>Collection of information about all files in a dataset</xs:documentation>
+        </xs:annotation>
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="file">
+                <!-- primitive type - file -->
+                <xs:complexType>
+                    <xs:all minOccurs="1" maxOccurs="1">
+                        <xs:element name="description" type="xs:string">
+                            <xs:annotation>
+                                <xs:documentation>File description</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                        <xs:element name="fields">
+                            <xs:annotation>
+                                <xs:documentation>IDs of each field in the file</xs:documentation>
+                            </xs:annotation>
+                            <xs:complexType>
+                                <xs:sequence minOccurs="1" maxOccurs="unbounded">
+                                    <xs:element name="field" type="xs:IDREF">
+                                        <xs:annotation>
+                                            <xs:documentation>Field ID</xs:documentation>
+                                        </xs:annotation>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:all>
+                    <xs:attribute name="id" type="xs:ID" use="required">
+                        <xs:annotation>
+                            <xs:documentation>Unique identifier for the file</xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="path" type="xs:anyURI">
+                        <xs:annotation>
+                            <xs:documentation>Path where the file is located</xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="encoding" type="xs:string">
+                        <xs:annotation>
+                            <xs:documentation>File format</xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="checksum" type="xs:hexBinary">
+                        <xs:annotation>
+                            <xs:documentation>MD5 Checksum of file</xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- primitive type - fields -->
+    <xs:complexType name="fields">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="field">
+                <xs:annotation>
+                    <xs:documentation>Information of the Field</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:all minOccurs="1" maxOccurs="1">
+                        <xs:element name="name" type="xs:string">
+                            <xs:annotation>
+                                <xs:documentation>Name of the field</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                        <xs:element name="description" type="xs:string">
+                            <xs:annotation>
+                                <xs:documentation>Description of the field</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                    </xs:all>
+                    <xs:attribute name="id" type="xs:ID" use="required">
+                        <xs:annotation>
+                            <xs:documentation>ID of the field</xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="dtype" type="xs:string" use="required">
+                        <xs:annotation>
+                            <xs:documentation>Data type of field</xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- primitive type - links -->
+    <xs:complexType name="links">
+        <xs:sequence>
+            <xs:element name="link">
+                <xs:complexType>
+                    <xs:sequence minOccurs="1" maxOccurs="unbounded">
+                        <xs:element name="field" type="xs:IDREF">
+                            <xs:annotation>
+                                <xs:documentation>ID of linked field</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                    </xs:sequence>
+                    <xs:attribute name="type" type="xs:string" use="required">
+                        <xs:annotation>
+                            <xs:documentation>Type of link</xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
     </xs:complexType>
 </xs:schema>
