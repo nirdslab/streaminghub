@@ -29,14 +29,14 @@
                 <category>Wristband</category>
             </device>
             <streams>
-                <stream id="hr_stream">
+                <stream>
                     <name>heart rate</name>
                     <description>Heart rate (unit - beats per minute)</description>
                     <unit>bpm</unit>
                     <frequency>0</frequency>
                     <channel-count>1</channel-count>
                     <channels>
-                        <channel>hr</channel>
+                        <channel>_hr</channel>
                     </channels>
                 </stream>
             </streams>
@@ -63,7 +63,7 @@
             <name>timestamp</name>
             <description>timestamp at which measurements were obtained</description>
         </field>
-        <field id="hr" dtype="float" stream="hr_stream">
+        <field id="hr" dtype="float" stream="_hr">
             <name>heart rate</name>
             <description>heart rate measurement at a given timestamp</description>
         </field>

@@ -7,7 +7,7 @@
         <category>Wristband</category>
     </device>
     <streams>
-        <stream id="acc">
+        <stream>
             <name>acceleration</name>
             <description>3-axis acceleration (unit - gravity)</description>
             <unit>g</unit>
@@ -19,7 +19,7 @@
                 <channel>acc_z</channel>
             </channels>
         </stream>
-        <stream id="bvp">
+        <stream>
             <name>blood volume pulse</name>
             <description>Blood Volume Pulse (unit - lumen)</description>
             <unit>lm</unit>
@@ -29,7 +29,7 @@
                 <channel>bvp</channel>
             </channels>
         </stream>
-        <stream id="gsr">
+        <stream>
             <name>galvanic skin response</name>
             <description>Galvanic Skin Response (unit - micro siemens)</description>
             <unit>μS</unit>
@@ -39,7 +39,7 @@
                 <channel>gsr</channel>
             </channels>
         </stream>
-        <stream id="ibi">
+        <stream>
             <name>inter-beat interval</name>
             <description>Inter-Beat Interval (unit - seconds)</description>
             <unit>s</unit>
@@ -49,7 +49,7 @@
                 <channel>ibi</channel>
             </channels>
         </stream>
-        <stream id="hr">
+        <stream>
             <name>heart rate</name>
             <description>Heart rate (unit - beats per minute)</description>
             <unit>bpm</unit>
@@ -59,7 +59,7 @@
                 <channel>hr</channel>
             </channels>
         </stream>
-        <stream id="tmp">
+        <stream>
             <name>skin temperature</name>
             <description>Skin Temperature (unit - celsius)</description>
             <unit>c</unit>
@@ -69,7 +69,7 @@
                 <channel>tmp</channel>
             </channels>
         </stream>
-        <stream id="bat">
+        <stream>
             <name>battery level</name>
             <description>Device Battery (unit - percent)</description>
             <unit>%</unit>
@@ -79,7 +79,7 @@
                 <channel>bat</channel>
             </channels>
         </stream>
-        <stream id="tag">
+        <stream>
             <name>tag</name>
             <description>Tag recorded upon button press</description>
             <unit></unit>

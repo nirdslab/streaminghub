@@ -75,7 +75,7 @@
                                 </xs:annotation>
                                 <xs:sequence minOccurs="1" maxOccurs="unbounded">
                                     <!-- channel definition -->
-                                    <xs:element name="channel" type="xs:string">
+                                    <xs:element name="channel" type="xs:ID">
                                         <xs:annotation>
                                             <xs:documentation>Name of channel</xs:documentation>
                                         </xs:annotation>
@@ -84,11 +84,6 @@
                             </xs:complexType>
                         </xs:element>
                     </xs:all>
-                    <xs:attribute name="id" type="xs:ID" use="required">
-                        <xs:annotation>
-                            <xs:documentation>Stream ID</xs:documentation>
-                        </xs:annotation>
-                    </xs:attribute>
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
