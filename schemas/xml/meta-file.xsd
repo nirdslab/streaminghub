@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xs:include schemaLocation="dfs.xsd" />
+    <xs:include schemaLocation="meta-stream.xsd" />
     <!-- type - meta-file -->
     <xs:complexType name="meta-file">
         <xs:annotation>
@@ -8,16 +9,40 @@
         </xs:annotation>
         <xs:all minOccurs="1" maxOccurs="1">
             <xs:element name="dataset" type="dataset"></xs:element>
-            <xs:element name="streams" type="streams"></xs:element>
             <xs:element name="files" type="files"></xs:element>
             <xs:element name="fields" type="fields"></xs:element>
             <xs:element name="links" type="links"></xs:element>
+            <xs:element name="meta-streams">
+                <xs:annotation>
+                    <xs:documentation>Collection of meta-streams within the dataset</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                        <xs:element name="meta-stream" type="meta-stream-base"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
         </xs:all>
-        <xs:attribute name="id" type="xs:ID" use="required"></xs:attribute>
-        <xs:attribute name="checksum" type="xs:hexBinary" use="required"></xs:attribute>
-        <xs:attribute name="version" type="xs:string" use="required"></xs:attribute>
-        <xs:attribute name="created" type="xs:dateTime" use="required"></xs:attribute>
-        <xs:attribute name="last-modified" type="xs:dateTime" use="required"></xs:attribute>
+        <xs:attribute name="checksum" type="xs:hexBinary" use="required">
+            <xs:annotation>
+                <xs:documentation>Checksum of child elements (for integrity)</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="version" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>Version of meta-file</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="created" type="xs:dateTime" use="required">
+            <xs:annotation>
+                <xs:documentation>Creation Date/Time</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="modified" type="xs:dateTime" use="required">
+            <xs:annotation>
+                <xs:documentation>Last Modified Date/Time</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
     <xs:element name="meta-file" type="meta-file" />
 </xs:schema>
