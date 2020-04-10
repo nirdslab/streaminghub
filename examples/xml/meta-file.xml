@@ -38,14 +38,14 @@
             <description>Recordings from Participant 1</description>
             <fields>
                 <field>t</field>
-                <field>hr</field>
+                <field stream="hr_stream">hr</field>
             </fields>
         </file>
         <file id="participant_002" path="./p001.csv" encoding="csv" checksum="F10203040506070809000A0B0C0D0E0F">
             <description>Recordings from Participant 2</description>
             <fields>
                 <field>t</field>
-                <field>hr</field>
+                <field stream="hr_stream">hr</field>
             </fields>
         </file>
     </files>

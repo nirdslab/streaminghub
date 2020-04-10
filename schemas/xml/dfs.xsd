@@ -179,10 +179,21 @@
                             </xs:annotation>
                             <xs:complexType>
                                 <xs:sequence minOccurs="1" maxOccurs="unbounded">
-                                    <xs:element name="field" type="xs:IDREF">
+                                    <xs:element name="field">
                                         <xs:annotation>
                                             <xs:documentation>Field ID</xs:documentation>
                                         </xs:annotation>
+                                        <xs:complexType>
+                                            <xs:simpleContent>
+                                                <xs:extension base="xs:string">
+                                                    <xs:attribute name="stream" type="xs:IDREF">
+                                                        <xs:annotation>
+                                                            <xs:documentation>Stream ID that the field corresponds</xs:documentation>
+                                                        </xs:annotation>
+                                                    </xs:attribute>
+                                                </xs:extension>
+                                            </xs:simpleContent>
+                                        </xs:complexType>
                                     </xs:element>
                                 </xs:sequence>
                             </xs:complexType>
@@ -248,7 +259,7 @@
     </xs:complexType>
     <!-- primitive type - links -->
     <xs:complexType name="links">
-        <xs:sequence>
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
             <xs:element name="link">
                 <xs:complexType>
                     <xs:sequence minOccurs="1" maxOccurs="unbounded">
