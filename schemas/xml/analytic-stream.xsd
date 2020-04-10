@@ -1,4 +1,48 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xs:include schemaLocation="dfs.xsd" />
+    <xs:include schemaLocation="meta-stream.xsd" />
+    <xs:complexType name="analytic-stream">
+        <xs:annotation>
+            <xs:documentation>Metadata schema for streaming data analytics in DFS</xs:documentation>
+        </xs:annotation>
+        <xs:all minOccurs="1" maxOccurs="1">
+            <xs:element name="fields" type="fields"></xs:element>
+            <xs:element name="meta-streams">
+                <xs:annotation>
+                    <xs:documentation>Source meta-streams used to obtain the analytics</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                        <xs:element name="meta-stream" type="meta-stream-base"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="analytics">
+                <xs:annotation>
+                    <xs:documentation>Information on the analytics contained in the stream</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence minOccurs="1" maxOccurs="unbounded">
+                        <xs:element name="analytic">
+                            <xs:annotation>
+                                <xs:documentation>Details of an analytic obtained</xs:documentation>
+                            </xs:annotation>
+                            <xs:complexType>
+                                <xs:all>
+                                    <xs:element name="name"></xs:element>
+                                </xs:all>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:all>
+        <xs:attribute name="checksum" type="xs:hexBinary" use="required">
+            <xs:annotation>
+                <xs:documentation>Checksum of child elements (for integrity)</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:element name="analytic-stream" type="analytic-stream" />
 </xs:schema>

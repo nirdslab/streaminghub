@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<meta-file version="1.0" created="2020-01-01T00:00:00" modified="2020-01-01T00:00:00" checksum="010203040506070809000A0B0C0D0E0F" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../schemas/xml/meta-file.xsd">
+<meta-file version="1.0" created="2020-01-01T00:00:00" modified="2020-01-01T00:00:00" checksum="010203040506070809000A0B0C0D0E0F" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/nirdslab/dfs/master/schemas/xml/meta-file.xsd">
     <dataset>
         <name>Heart Rate of Two Participants During a Running Task</name>
         <description>This dataset contains recordings of heart rate of two participants during a running task. Recordings were obtained from an Empatica E4.</description>
@@ -34,7 +34,6 @@
                     <description>Heart rate (unit - beats per minute)</description>
                     <unit>bpm</unit>
                     <frequency>0</frequency>
-                    <channel-count>1</channel-count>
                     <channels>
                         <channel>_hr</channel>
                     </channels>
