@@ -1,4 +1,4 @@
-# Streaminghub
+# Streaminghub <img src="https://i.imgur.com/xSieE3V.png" height="32px">
 
 This repository hosts the implementation of streaming-hub, a visual programming toolkit built on DFS to simplify data analysis workflows.
 It contains two subprojects,
