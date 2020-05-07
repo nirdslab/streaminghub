@@ -3,18 +3,11 @@
     <!-- type definition - email -->
     <xs:simpleType name="email">
         <xs:annotation>
-            <xs:documentation>an e-mail address</xs:documentation>
+            <xs:documentation>e-mail address</xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
             <xs:pattern value="[^@]+@[^\.]+\..+" />
         </xs:restriction>
-    </xs:simpleType>
-    <!-- type definition - channel -->
-    <xs:simpleType name="channel">
-        <xs:annotation>
-            <xs:documentation>id of the channel</xs:documentation>
-        </xs:annotation>
-        <xs:restriction base="xs:IDREF"></xs:restriction>
     </xs:simpleType>
     <!-- type definition - ref -->
     <xs:simpleType name="ref">
@@ -26,7 +19,7 @@
     <!-- type definition - device -->
     <xs:complexType name="device">
         <xs:annotation>
-            <xs:documentation>information about a recording device</xs:documentation>
+            <xs:documentation>information about the recording device</xs:documentation>
         </xs:annotation>
         <xs:sequence minOccurs="1" maxOccurs="1">
             <xs:element name="model" type="xs:string">
@@ -49,7 +42,7 @@
     <!-- type definition - stream -->
     <xs:complexType name="stream">
         <xs:annotation>
-            <xs:documentation>information about a data stream</xs:documentation>
+            <xs:documentation>information about the data stream</xs:documentation>
         </xs:annotation>
         <xs:sequence minOccurs="1" maxOccurs="1">
             <xs:element name="name" type="xs:string">
@@ -82,7 +75,7 @@
     <!-- type definition - author -->
     <xs:complexType name="author">
         <xs:annotation>
-            <xs:documentation>information about an author</xs:documentation>
+            <xs:documentation>information about the author</xs:documentation>
         </xs:annotation>
         <xs:sequence minOccurs="1" maxOccurs="1">
             <xs:element name="name" type="xs:string">
@@ -105,7 +98,7 @@
     <!-- type definition - dataset -->
     <xs:complexType name="dataset">
         <xs:annotation>
-            <xs:documentation>information about a dataset</xs:documentation>
+            <xs:documentation>information about the dataset</xs:documentation>
         </xs:annotation>
         <xs:sequence minOccurs="1" maxOccurs="1">
             <xs:element name="name" type="xs:string">
@@ -124,6 +117,9 @@
     </xs:complexType>
     <!-- type definition - file -->
     <xs:complexType name="file">
+        <xs:annotation>
+            <xs:documentation>information about the file</xs:documentation>
+        </xs:annotation>
         <xs:sequence minOccurs="1" maxOccurs="1">
             <xs:element name="id" type="xs:ID" minOccurs="0">
                 <xs:annotation>
@@ -153,14 +149,14 @@
         </xs:sequence>
         <xs:attribute name="checksum" type="xs:hexBinary">
             <xs:annotation>
-                <xs:documentation>MD5 Checksum of file</xs:documentation>
+                <xs:documentation>md5 checksum of file</xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
     <!-- type definition - field -->
     <xs:complexType name="field">
         <xs:annotation>
-            <xs:documentation>information on the fields</xs:documentation>
+            <xs:documentation>information about the field</xs:documentation>
         </xs:annotation>
         <xs:sequence maxOccurs="1">
             <xs:element name="name" type="xs:string" minOccurs="1">
@@ -201,16 +197,16 @@
     <!-- compound type - channels -->
     <xs:complexType name="channels">
         <xs:annotation>
-            <xs:documentation>information about a set of channels</xs:documentation>
+            <xs:documentation>information about each channel in the meta-stream</xs:documentation>
         </xs:annotation>
         <xs:sequence minOccurs="1" maxOccurs="unbounded">
-            <xs:element name="channel" type="channel"></xs:element>
+            <xs:element name="channel" type="ref"></xs:element>
         </xs:sequence>
     </xs:complexType>
     <!-- compound type - authors -->
     <xs:complexType name="authors">
         <xs:annotation>
-            <xs:documentation>information on each author in the dataset</xs:documentation>
+            <xs:documentation>information about each author in the dataset</xs:documentation>
         </xs:annotation>
         <xs:sequence minOccurs="1" maxOccurs="unbounded">
             <xs:element name="author" type="author"></xs:element>
@@ -232,7 +228,7 @@
     <!-- compound type - streams -->
     <xs:complexType name="streams">
         <xs:annotation>
-            <xs:documentation>information about all data streams</xs:documentation>
+            <xs:documentation>information about each data stream in the meta-stream</xs:documentation>
         </xs:annotation>
         <xs:sequence minOccurs="1" maxOccurs="unbounded">
             <xs:element name="stream" type="stream"></xs:element>
@@ -241,7 +237,7 @@
     <!-- compound type - files -->
     <xs:complexType name="files">
         <xs:annotation>
-            <xs:documentation>information about all files</xs:documentation>
+            <xs:documentation>information about all files in a meta-file</xs:documentation>
         </xs:annotation>
         <xs:sequence minOccurs="1" maxOccurs="unbounded">
             <xs:element name="file" type="file"></xs:element>
@@ -250,7 +246,7 @@
     <!-- compound type - keys -->
     <xs:complexType name="keys">
         <xs:annotation>
-            <xs:documentation>references to pre-declared fields</xs:documentation>
+            <xs:documentation>information about all keys referenced in a file</xs:documentation>
         </xs:annotation>
         <xs:sequence minOccurs="1" maxOccurs="unbounded">
             <xs:element name="key" type="ref"></xs:element>
@@ -258,12 +254,18 @@
     </xs:complexType>
     <!-- compound type - fields -->
     <xs:complexType name="fields">
+        <xs:annotation>
+            <xs:documentation>information about all fields in the current scope</xs:documentation>
+        </xs:annotation>
         <xs:sequence minOccurs="1" maxOccurs="unbounded">
             <xs:element name="field" type="field"></xs:element>
         </xs:sequence>
     </xs:complexType>
     <!-- compound type - links -->
     <xs:complexType name="links">
+        <xs:annotation>
+            <xs:documentation>information about all links in the current scope</xs:documentation>
+        </xs:annotation>
         <xs:sequence minOccurs="1" maxOccurs="unbounded">
             <xs:element name="link" type="link"></xs:element>
         </xs:sequence>
