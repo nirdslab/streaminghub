@@ -1,15 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<analytic-stream checksum="010203040506070809000A0B0C0D0E0F" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/nirdslab/dfs/master/schemas/xml/analytic-stream.xsd">
-    <analytics>
+<analytic-stream checksum="010203040506070809000A0B0C0D0E0F" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../schemas/analytic-stream.xsd">
+    <description>
         <analytic>
-            <name></name>
+            <name>de-noised heart rate</name>
         </analytic>
-        <analytic>
-            <name></name>
-        </analytic>
-    </analytics>
-    <meta-streams>
+    </description>
+    <fields>
+        <field id="t" dtype="float">
+            <name>timestamp</name>
+            <description></description>
+        </field>
+        <field id="hr" dtype="float">
+            <name>heart rate</name>
+            <description></description>
+        </field>
+        <field id="hr-d" dtype="float">
+            <name>de-noised heart rate</name>
+            <description></description>
+        </field>
+    </fields>
+    <input>
         <meta-stream>
             <device>
                 <model>E4</model>
@@ -18,16 +29,27 @@
             </device>
             <streams>
                 <stream>
+                    <name>timestamp</name>
+                    <description>Timestamp</description>
+                    <unit>ms</unit>
+                    <frequency>0</frequency>
+                    <channels>
+                        <channel>t</channel>
+                    </channels>
+                </stream>
+                <stream>
                     <name>heart rate</name>
                     <description>Heart rate (unit - beats per minute)</description>
                     <unit>bpm</unit>
                     <frequency>0</frequency>
                     <channels>
-                        <channel>_hr</channel>
+                        <channel>hr</channel>
                     </channels>
                 </stream>
             </streams>
         </meta-stream>
-    </meta-streams>
-    <fields></fields>
+    </input>
+    <output>
+        <key>hr-d</key>
+    </output>
 </analytic-stream>

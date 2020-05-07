@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<meta-file version="1.0" created="2020-01-01T00:00:00" modified="2020-01-01T00:00:00" checksum="010203040506070809000A0B0C0D0E0F" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/nirdslab/dfs/master/schemas/xml/meta-file.xsd">
+<meta-file version="1.0" created="2020-01-01T00:00:00" modified="2020-01-01T00:00:00" checksum="010203040506070809000A0B0C0D0E0F" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../schemas/meta-file.xsd">
     <dataset>
         <name>Heart Rate of Two Participants During a Running Task</name>
         <description>This dataset contains recordings of heart rate of two participants during a running task. Recordings were obtained from an Empatica E4.</description>
@@ -21,7 +21,22 @@
             </author>
         </authors>
     </dataset>
-    <meta-streams>
+    <fields>
+        <field id="t" dtype="float">
+            <name>timestamp</name>
+            <description></description>
+        </field>
+        <field id="hr" dtype="float">
+            <name>heart rate</name>
+            <description></description>
+        </field>
+    </fields>
+    <links>
+        <link type="index">
+            <field>t</field>
+        </link>
+    </links>
+    <sources>
         <meta-stream>
             <device>
                 <model>E4</model>
@@ -30,46 +45,42 @@
             </device>
             <streams>
                 <stream>
-                    <name>heart rate</name>
-                    <description>Heart rate (unit - beats per minute)</description>
+                    <name>timestamp</name>
+                    <description>timestamp at which measurements were obtained</description>
                     <unit>bpm</unit>
                     <frequency>0</frequency>
                     <channels>
-                        <channel>_hr</channel>
+                        <channel>t</channel>
+                    </channels>
+                </stream>
+                <stream>
+                    <name>heart rate</name>
+                    <description>heart rate (unit - beats per minute)</description>
+                    <unit>bpm</unit>
+                    <frequency>0</frequency>
+                    <channels>
+                        <channel>hr</channel>
                     </channels>
                 </stream>
             </streams>
         </meta-stream>
-    </meta-streams>
-    <files>
-        <file id="participant_001" path="./p001.csv" encoding="csv" checksum="010203040506070809000A0B0C0D0E0F">
+        <file checksum="010203040506070809000A0B0C0D0E0F">
+            <path>./p001.csv</path>
+            <encoding>csv</encoding>
             <description>Recordings from Participant 1</description>
-            <fields>
-                <field>t</field>
-                <field>hr</field>
-            </fields>
+            <keys>
+                <key>t</key>
+                <key>hr</key>
+            </keys>
         </file>
-        <file id="participant_002" path="./p001.csv" encoding="csv" checksum="F10203040506070809000A0B0C0D0E0F">
+        <file checksum="F10203040506070809000A0B0C0D0E0F">
+            <path>./p002.csv</path>
+            <encoding>csv</encoding>
             <description>Recordings from Participant 2</description>
-            <fields>
-                <field>t</field>
-                <field>hr</field>
-            </fields>
+            <keys>
+                <key>t</key>
+                <key>hr</key>
+            </keys>
         </file>
-    </files>
-    <fields>
-        <field id="t" dtype="float">
-            <name>timestamp</name>
-            <description>timestamp at which measurements were obtained</description>
-        </field>
-        <field id="hr" dtype="float" stream="_hr">
-            <name>heart rate</name>
-            <description>heart rate measurement at a given timestamp</description>
-        </field>
-    </fields>
-    <links>
-        <link type="index">
-            <field>t</field>
-        </link>
-    </links>
+    </sources>
 </meta-file>

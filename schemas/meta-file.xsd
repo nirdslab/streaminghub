@@ -7,22 +7,21 @@
         <xs:annotation>
             <xs:documentation>Metadata schema for a dataset in DFS</xs:documentation>
         </xs:annotation>
-        <xs:all minOccurs="1" maxOccurs="1">
+        <xs:sequence minOccurs="1" maxOccurs="1">
             <xs:element name="dataset" type="dataset"></xs:element>
-            <xs:element name="files" type="files"></xs:element>
             <xs:element name="fields" type="fields"></xs:element>
             <xs:element name="links" type="links"></xs:element>
-            <xs:element name="meta-streams">
-                <xs:annotation>
-                    <xs:documentation>Collection of meta-streams within the dataset</xs:documentation>
-                </xs:annotation>
+            <xs:element name="sources">
                 <xs:complexType>
-                    <xs:sequence minOccurs="0" maxOccurs="unbounded">
-                        <xs:element name="meta-stream" type="meta-stream-base"></xs:element>
+                    <xs:sequence minOccurs="1" maxOccurs="unbounded">
+                        <xs:choice minOccurs="1" maxOccurs="1">
+                            <xs:element name="meta-stream" type="meta-stream"></xs:element>
+                            <xs:element name="file" type="file"></xs:element>
+                        </xs:choice>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-        </xs:all>
+        </xs:sequence>
         <xs:attribute name="checksum" type="xs:hexBinary" use="required">
             <xs:annotation>
                 <xs:documentation>Checksum of child elements (for integrity)</xs:documentation>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:include schemaLocation="dfs.xsd" />
+    <!-- type - meta-stream -->
+    <xs:complexType name="meta-stream">
+        <xs:annotation>
+            <xs:documentation>Metadata schema for a sensory data stream in DFS</xs:documentation>
+        </xs:annotation>
+        <xs:sequence minOccurs="1" maxOccurs="1">
+            <xs:element name="device" type="device"></xs:element>
+            <xs:element name="streams" type="streams"></xs:element>
+            <xs:element name="fields" type="fields" minOccurs="0"></xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="meta-stream">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="meta-stream">
+                    <xs:attribute name="checksum" type="xs:hexBinary" use="required">
+                        <xs:annotation>
+                            <xs:documentation>Checksum of child elements (for integrity)</xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

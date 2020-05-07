@@ -6,19 +6,8 @@
         <xs:annotation>
             <xs:documentation>Metadata schema for streaming data analytics in DFS</xs:documentation>
         </xs:annotation>
-        <xs:all minOccurs="1" maxOccurs="1">
-            <xs:element name="fields" type="fields"></xs:element>
-            <xs:element name="meta-streams">
-                <xs:annotation>
-                    <xs:documentation>Source meta-streams used to obtain the analytics</xs:documentation>
-                </xs:annotation>
-                <xs:complexType>
-                    <xs:sequence minOccurs="0" maxOccurs="unbounded">
-                        <xs:element name="meta-stream" type="meta-stream-base"></xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="analytics">
+        <xs:sequence minOccurs="1" maxOccurs="1">
+            <xs:element name="description">
                 <xs:annotation>
                     <xs:documentation>Information on the analytics contained in the stream</xs:documentation>
                 </xs:annotation>
@@ -29,15 +18,27 @@
                                 <xs:documentation>Details of an analytic obtained</xs:documentation>
                             </xs:annotation>
                             <xs:complexType>
-                                <xs:all>
+                                <xs:sequence>
                                     <xs:element name="name"></xs:element>
-                                </xs:all>
+                                </xs:sequence>
                             </xs:complexType>
                         </xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-        </xs:all>
+            <xs:element name="fields" type="fields"></xs:element>
+            <xs:element name="input">
+                <xs:annotation>
+                    <xs:documentation>Source meta-streams used to obtain the analytics</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                        <xs:element name="meta-stream" type="meta-stream"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="output" type="keys"></xs:element>
+        </xs:sequence>
         <xs:attribute name="checksum" type="xs:hexBinary" use="required">
             <xs:annotation>
                 <xs:documentation>Checksum of child elements (for integrity)</xs:documentation>
