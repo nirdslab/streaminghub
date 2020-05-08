@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "title": "Metadata schema for streaming data analytics in DFS",
+  "type": "object",
+  "required": [
+    "description",
+    "fields",
+    "inputs",
+    "outputs"
+  ],
+  "properties": {
+    "description": {
+      "description": "information about the analytics obtained from meta-streams",
+      "type": "object",
+      "properties": {
+        "analytics": {
+          "type": "array",
+          "description": "details of an analytic obtained",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "name of the analytic"
+              }
+            }
+          }
+        }
+      }
+    },
+    "fields": {
+      "description": "information about all fields in the current scope",
+      "type": "object",
+      "properties": {}
+    },
+    "inputs": {
+      "description": "source meta-streams used to obtain the analytics",
+      "type": "object",
+      "properties": {}
+    },
+    "outputs": {
+      "description": "information about all keys referenced in a file",
+      "type": "object",
+      "properties": {}
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "title": "Metadata schema for a sensory data stream in DFS",
+    "type": "object",
+    "required": [],
+    "properties": {}
+}
