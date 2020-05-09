@@ -60,6 +60,32 @@
                     }
                 }
             }
+        },
+        "fields": {
+            "description": "information about all fields in the current scope",
+            "type": "array",
+            "items": {
+                "description": "information about the field",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "id of the field",
+                        "type": "string"
+                    },
+                    "dtype": {
+                        "description": "data type of field",
+                        "type": "string"
+                    },
+                    "name": {
+                        "description": "name of the field",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "description of the field",
+                        "type": "string"
+                    }
+                }
+            }
         }
     }
 }

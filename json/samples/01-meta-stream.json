@@ -1,6 +1,108 @@
 {
     "$schema": "../meta-stream.jsd",
-    "device": {},
-    "streams": [],
-    "fields": []
+    "device": {
+        "model": "E4",
+        "manufacturer": "Empatica",
+        "category": "Wristband"
+    },
+    "streams": [{
+        "name": "acceleration",
+        "description": "3-axis acceleration (unit - gravity)",
+        "unit": "g",
+        "frequency": 32,
+        "channels": ["acc_x", "acc_y", "acc_z"]
+    }, {
+        "name": "blood volume pulse",
+        "description": "Blood Volume Pulse (unit - lumen)",
+        "unit": "lm",
+        "frequency": 64,
+        "channels": ["bvp"]
+    }, {
+        "name": "galvanic skin response",
+        "description": "Galvanic Skin Response (unit - micro siemens)",
+        "unit": "μS",
+        "frequency": 0,
+        "channels": ["gsr"]
+    }, {
+        "name": "inter-beat interval",
+        "description": "Inter-Beat Interval (unit - seconds)",
+        "unit": "s",
+        "frequency": 0,
+        "channels": ["ibi"]
+    }, {
+        "name": "heart rate",
+        "description": "Heart rate (unit - beats per minute)",
+        "unit": "bpm",
+        "frequency": 0,
+        "channels": ["hr"]
+    }, {
+        "name": "skin temperature",
+        "description": "Skin Temperature (unit - celsius)",
+        "unit": "c",
+        "frequency": 0,
+        "channels": ["tmp"]
+    }, {
+        "name": "battery level",
+        "description": "Device Battery (unit - percent)",
+        "unit": "%",
+        "frequency": 0,
+        "channels": ["bat"]
+    }, {
+        "name": "tag",
+        "description": "Tag recorded upon button press",
+        "unit": "",
+        "frequency": 0,
+        "channels": ["tag"]
+    }],
+    "fields": [{
+        "id": "acc_x",
+        "dtype": "float",
+        "name": "x - acceleration",
+        "description": ""
+    }, {
+        "id": "acc_y",
+        "dtype": "float",
+        "name": "y - acceleration",
+        "description": ""
+    }, {
+        "id": "acc_z",
+        "dtype": "float",
+        "name": "z - acceleration",
+        "description": ""
+    }, {
+        "id": "bvp",
+        "dtype": "float",
+        "name": "blood volume pulso",
+        "description": ""
+    }, {
+        "id": "gsr",
+        "dtype": "float",
+        "name": "galvanic skin response",
+        "description": ""
+    }, {
+        "id": "ibi",
+        "dtype": "float",
+        "name": "inter beat interval",
+        "description": ""
+    }, {
+        "id": "hr",
+        "dtype": "float",
+        "name": "heart rate",
+        "description": ""
+    }, {
+        "id": "tmp",
+        "dtype": "float",
+        "name": "skin temperature",
+        "description": ""
+    }, {
+        "id": "bat",
+        "dtype": "float",
+        "name": "battery level",
+        "description": ""
+    }, {
+        "id": "tag",
+        "dtype": "float",
+        "name": "tag",
+        "description": ""
+    }]
 }
