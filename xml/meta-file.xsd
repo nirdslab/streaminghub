@@ -2,6 +2,15 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="https://nirdslab.cs.odu.edu/dfs/xml" xmlns="https://nirdslab.cs.odu.edu/dfs/xml">
     <xs:include schemaLocation="dfs.xsd" />
     <xs:include schemaLocation="meta-stream.xsd" />
+    <!-- type - files -->
+    <xs:complexType name="files">
+        <xs:annotation>
+            <xs:documentation>information about all files referenced in a meta-file</xs:documentation>
+        </xs:annotation>
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="file" type="file"></xs:element>
+        </xs:sequence>
+    </xs:complexType>
     <!-- type - meta-streams -->
     <xs:complexType name="meta-streams">
         <xs:annotation>

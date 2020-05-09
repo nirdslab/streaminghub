@@ -52,11 +52,11 @@
                             }
                         },
                         "files": {
-                            "description": "information about all files in a meta-file",
+                            "description": "information about all files referenced in a meta-file",
                             "type": "array",
                             "minItems": 1,
                             "items": {
-
+                                "$ref": "dfs.jsd#/definitions/file"
                             }
                         }
                     }

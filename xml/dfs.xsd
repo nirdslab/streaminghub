@@ -232,19 +232,10 @@
             <xs:element name="stream" type="stream"></xs:element>
         </xs:sequence>
     </xs:complexType>
-    <!-- compound type - files -->
-    <xs:complexType name="files">
-        <xs:annotation>
-            <xs:documentation>information about all files in a meta-file</xs:documentation>
-        </xs:annotation>
-        <xs:sequence minOccurs="1" maxOccurs="unbounded">
-            <xs:element name="file" type="file"></xs:element>
-        </xs:sequence>
-    </xs:complexType>
     <!-- compound type - keys -->
     <xs:complexType name="keys">
         <xs:annotation>
-            <xs:documentation>information about all keys referenced in a file</xs:documentation>
+            <xs:documentation>keys contained in a file</xs:documentation>
         </xs:annotation>
         <xs:sequence minOccurs="1" maxOccurs="unbounded">
             <xs:element name="key" type="ref"></xs:element>

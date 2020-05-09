@@ -203,8 +203,14 @@
                 "$ref": "#/definitions/stream"
             }
         },
-        "files": {},
-        "keys": {},
+        "keys": {
+            "description": "keys contained in a file",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "$ref": "#/definitions/ref"
+            }
+        },
         "fields": {
             "description": "information about all fields in the current scope",
             "type": "array",
