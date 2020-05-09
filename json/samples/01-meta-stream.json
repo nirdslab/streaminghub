@@ -1,3 +1,6 @@
 {
-    "$schema": "../meta-stream.jsd"
+    "$schema": "../meta-stream.jsd",
+    "device": {},
+    "streams": [],
+    "fields": []
 }

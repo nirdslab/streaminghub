@@ -2,6 +2,64 @@
     "$schema": "http://json-schema.org/schema",
     "title": "Metadata schema for a sensory data stream in DFS",
     "type": "object",
-    "required": [],
-    "properties": {}
+    "required": [
+        "device",
+        "streams",
+        "fields"
+    ],
+    "properties": {
+        "device": {
+            "description": "information about the recording device",
+            "type": "object",
+            "properties": {
+                "model": {
+                    "description": "model of the device",
+                    "type": "string"
+                },
+                "manufacturer": {
+                    "description": "manufacturer of the device",
+                    "type": "string"
+                },
+                "category": {
+                    "description": "category of the device",
+                    "type": "string"
+                }
+            }
+        },
+        "streams": {
+            "description": "information about each data stream in the meta-stream",
+            "type": "array",
+            "items": {
+                "description": "information about the data stream",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "description": "name of the data stream",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "description of the data stream",
+                        "type": "string"
+                    },
+                    "unit": {
+                        "description": "unit of measurement",
+                        "type": "string"
+                    },
+                    "frequency": {
+                        "description": "sampling frequency (Hz)",
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "channels": {
+                        "description": "channels in the data stream",
+                        "type": "array",
+                        "items": {
+                            "description": "information about each channel in the meta-stream",
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
