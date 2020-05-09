@@ -1,3 +1,36 @@
 {
-    "$schema": "../meta-file.jsd"
+    "$schema": "../meta-file.jsd",
+    "dataset": {
+        "name": "Heart Rate of Two Participants During a Running Task",
+        "description": "This dataset contains recordings of heart rate of two participants during a running task. Recordings were obtained from an Empatica E4.",
+        "keywords": ["heart-rate", "running"],
+        "authors": [{
+            "name": "John Doe",
+            "affiliation": "Example University",
+            "email": "john@example.edu"
+        }, {
+            "name": "Jane Doe",
+            "affiliation": "Example University",
+            "email": "jane@example.edu"
+        }]
+    },
+    "fields": [{
+        "id": "t",
+        "dtype": "float",
+        "name": "timestamp",
+        "description": ""
+    }, {
+        "id": "hr",
+        "dtype": "float",
+        "name": "heart rate",
+        "description": ""
+    }],
+    "links": [{
+        "type": "index",
+        "fields": ["t"]
+    }],
+    "sources": {
+        "meta-streams": [],
+        "files": []
+    }
 }

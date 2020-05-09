@@ -7,7 +7,7 @@
         "dataset": {
             "description": "information about the dataset",
             "type": "object",
-            "required": ["name", "description", " keywords", "authors"],
+            "required": ["name", "description", "keywords", "authors"],
             "properties": {
                 "name": {
                     "description": "name of the dataset",
@@ -107,19 +107,23 @@
         "sources": {
             "description": "information on all referenced data sources",
             "type": "object",
-            "required": ["meta-streams", "files"],
+            "minProperties": 1,
             "properties": {
                 "meta-streams": {
                     "description": "information about all meta-streams referenced in a meta-file",
                     "type": "array",
                     "minItems": 1,
                     "items": {
-                        
+
                     }
                 },
                 "files": {
                     "description": "information about all files in a meta-file",
-                    "type": "object"
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+
+                    }
                 }
             }
         }

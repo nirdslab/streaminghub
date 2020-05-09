@@ -5,7 +5,7 @@
         <name>Heart Rate of Two Participants During a Running Task</name>
         <description>This dataset contains recordings of heart rate of two participants during a running task. Recordings were obtained from an Empatica E4.</description>
         <keywords>
-            <keyword>heartrate</keyword>
+            <keyword>heart-rate</keyword>
             <keyword>running</keyword>
         </keywords>
         <authors>
