@@ -1,11 +1,9 @@
 {
     "$schema": "../analytic-stream.jsd",
-    "description": {
-        "analytics": [
-            {
-                "name": "de-noised heart rate"
-            }
-        ]
+    "info": {
+        "analytics": [{
+            "name": "de-noised heart rate"
+        }]
     },
     "fields": {},
     "inputs": {},

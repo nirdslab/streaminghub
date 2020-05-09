@@ -7,9 +7,9 @@
             <xs:documentation>Metadata schema for streaming data analytics in DFS</xs:documentation>
         </xs:annotation>
         <xs:sequence minOccurs="1" maxOccurs="1">
-            <xs:element name="description">
+            <xs:element name="info">
                 <xs:annotation>
-                    <xs:documentation>information about the analytics obtained from meta-streams</xs:documentation>
+                    <xs:documentation>information about the analytics-stream</xs:documentation>
                 </xs:annotation>
                 <xs:complexType>
                     <xs:sequence minOccurs="1" maxOccurs="unbounded">
@@ -45,7 +45,7 @@
         </xs:sequence>
         <xs:attribute name="checksum" type="xs:hexBinary" use="required">
             <xs:annotation>
-                <xs:documentation>checksum of child elements (for integrity)</xs:documentation>
+                <xs:documentation>checksum of content</xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>

@@ -48,7 +48,7 @@
                     <stream>
                         <name>timestamp</name>
                         <description>timestamp at which measurements were obtained</description>
-                        <unit>bpm</unit>
+                        <unit>ms</unit>
                         <frequency>0</frequency>
                         <channels>
                             <channel>t</channel>

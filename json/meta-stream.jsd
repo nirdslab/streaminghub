@@ -1,93 +1,51 @@
 {
     "$schema": "http://json-schema.org/schema",
-    "title": "Metadata schema for a sensory data stream in DFS",
-    "type": "object",
-    "required": ["device", "streams", "fields"],
-    "properties": {
-        "device": {
-            "description": "information about the recording device",
+    "definitions": {
+        "meta-stream": {
+            "description": "description of a meta-stream",
             "type": "object",
-            "required": ["model", "manufacturer", "category"],
+            "required": ["info", "device", "streams", "fields"],
             "properties": {
-                "model": {
-                    "description": "model of the device",
-                    "type": "string"
-                },
-                "manufacturer": {
-                    "description": "manufacturer of the device",
-                    "type": "string"
-                },
-                "category": {
-                    "description": "category of the device",
-                    "type": "string"
-                }
-            }
-        },
-        "streams": {
-            "description": "information about each data stream in the meta-stream",
-            "type": "array",
-            "minItems": 1,
-            "items": {
-                "description": "information about the data stream",
-                "type": "object",
-                "required": ["name", "description", "unit", "frequency", "channels"],
-                "properties": {
-                    "name": {
-                        "description": "name of the data stream",
-                        "type": "string"
-                    },
-                    "description": {
-                        "description": "description of the data stream",
-                        "type": "string"
-                    },
-                    "unit": {
-                        "description": "unit of measurement",
-                        "type": "string"
-                    },
-                    "frequency": {
-                        "description": "sampling frequency (Hz)",
-                        "type": "integer",
-                        "minimum": 0
-                    },
-                    "channels": {
-                        "description": "channels in the data stream",
-                        "type": "array",
-                        "minItems": 1,
-                        "items": {
-                            "description": "information about each channel in the meta-stream",
+                "info": {
+                    "description": "information about the meta-stream",
+                    "type": "object",
+                    "required": ["version", "checksum"],
+                    "properties": {
+                        "version": {
+                            "description": "semantic version",
                             "type": "string"
+                        },
+                        "checksum": {
+                            "description": "checksum of content",
+                            "$ref": "dfs.jsd#/definitions/checksum"
                         }
                     }
+                },
+                "device": {
+                    "$ref": "dfs.jsd#/definitions/device"
+                },
+                "streams": {
+                    "$ref": "dfs.jsd#/definitions/streams"
+                },
+                "fields": {
+                    "$ref": "dfs.jsd#/definitions/fields"
                 }
             }
         },
-        "fields": {
-            "description": "information about all fields in the current scope",
-            "type": "array",
-            "minItems": 1,
-            "items": {
-                "description": "information about the field",
-                "type": "object",
-                "required": ["id", "dtype", "name", "description"],
-                "properties": {
-                    "id": {
-                        "description": "id of the field",
-                        "type": "string"
-                    },
-                    "dtype": {
-                        "description": "data type of field",
-                        "type": "string"
-                    },
-                    "name": {
-                        "description": "name of the field",
-                        "type": "string"
-                    },
-                    "description": {
-                        "description": "description of the field",
-                        "type": "string"
-                    }
+        "meta-stream-ref": {
+            "description": "reference to a meta-stream",
+            "type": "object",
+            "required": ["device", "streams"],
+            "properties": {
+                "device": {
+                    "$ref": "dfs.jsd#/definitions/device"
+                },
+                "streams": {
+                    "$ref": "dfs.jsd#/definitions/streams"
                 }
             }
         }
-    }
+    },
+    "title": "Metadata schema for a sensory data stream in DFS",
+    "$ref": "#/definitions/meta-stream"
 }

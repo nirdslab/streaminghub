@@ -1,5 +1,11 @@
 {
     "$schema": "../meta-file.jsd",
+    "info": {
+        "version": "1.0.0",
+        "created": "2020-05-05T00:00:00",
+        "modified": "2020-05-05T00:00:00",
+        "checksum": "010203040506070809000A0B0C0D0E0F"
+    },
     "dataset": {
         "name": "Heart Rate of Two Participants During a Running Task",
         "description": "This dataset contains recordings of heart rate of two participants during a running task. Recordings were obtained from an Empatica E4.",
@@ -30,7 +36,28 @@
         "fields": ["t"]
     }],
     "sources": {
-        "meta-streams": [],
-        "files": []
+        "meta-streams": [{
+            "device": {
+                "model": "E4",
+                "manufacturer": "Empatica",
+                "category": "Wristband"
+            },
+            "streams": [{
+                "name": "timestamp",
+                "description": "timestamp at which measurements were obtained",
+                "unit": "ms",
+                "frequency": 0,
+                "channels": ["t"]
+            }, {
+                "name": "heart rate",
+                "description": "heart rate (unit - beats per minute)",
+                "unit": "bpm",
+                "frequency": 0,
+                "channels": ["hr"]
+            }]
+        }],
+        "files": [{
+
+        }]
     }
 }

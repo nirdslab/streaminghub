@@ -121,11 +121,6 @@
             <xs:documentation>information about the file</xs:documentation>
         </xs:annotation>
         <xs:sequence minOccurs="1" maxOccurs="1">
-            <xs:element name="id" type="xs:ID" minOccurs="0">
-                <xs:annotation>
-                    <xs:documentation>unique id for the file</xs:documentation>
-                </xs:annotation>
-            </xs:element>
             <xs:element name="path" type="xs:anyURI">
                 <xs:annotation>
                     <xs:documentation>path to the file</xs:documentation>

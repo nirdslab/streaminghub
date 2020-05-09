@@ -16,9 +16,14 @@
             </xs:annotation>
             <xs:complexContent>
                 <xs:extension base="meta-stream">
+                    <xs:attribute name="version" type="xs:string" use="required">
+                        <xs:annotation>
+                            <xs:documentation>semantic version</xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
                     <xs:attribute name="checksum" type="xs:hexBinary" use="required">
                         <xs:annotation>
-                            <xs:documentation>Checksum of child elements (for integrity)</xs:documentation>
+                            <xs:documentation>checksum of content</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
                 </xs:extension>

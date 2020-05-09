@@ -34,22 +34,22 @@
         </xs:sequence>
         <xs:attribute name="checksum" type="xs:hexBinary" use="required">
             <xs:annotation>
-                <xs:documentation>Checksum of child elements (for integrity)</xs:documentation>
+                <xs:documentation>checksum of content</xs:documentation>
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="version" type="xs:string" use="required">
             <xs:annotation>
-                <xs:documentation>Version of meta-file</xs:documentation>
+                <xs:documentation>semantic version</xs:documentation>
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="created" type="xs:dateTime" use="required">
             <xs:annotation>
-                <xs:documentation>Creation Date/Time</xs:documentation>
+                <xs:documentation>creation date/time</xs:documentation>
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="modified" type="xs:dateTime" use="required">
             <xs:annotation>
-                <xs:documentation>Last Modified Date/Time</xs:documentation>
+                <xs:documentation>last modified date/time</xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>

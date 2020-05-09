@@ -3,14 +3,14 @@
   "title": "Metadata schema for streaming data analytics in DFS",
   "type": "object",
   "required": [
-    "description",
+    "info",
     "fields",
     "inputs",
     "outputs"
   ],
   "properties": {
-    "description": {
-      "description": "information about the analytics obtained from meta-streams",
+    "info": {
+      "description": "information about the analytics-stream",
       "type": "object",
       "properties": {
         "analytics": {
