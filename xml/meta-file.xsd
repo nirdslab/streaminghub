@@ -2,6 +2,15 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="https://nirdslab.cs.odu.edu/dfs/xml" xmlns="https://nirdslab.cs.odu.edu/dfs/xml">
     <xs:include schemaLocation="dfs.xsd" />
     <xs:include schemaLocation="meta-stream.xsd" />
+    <!-- type - meta-streams -->
+    <xs:complexType name="meta-streams">
+        <xs:annotation>
+            <xs:documentation>information about all meta-streams referenced in a meta-file</xs:documentation>
+        </xs:annotation>
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="meta-stream" type="meta-stream"></xs:element>
+        </xs:sequence>
+    </xs:complexType>
     <!-- type - meta-file -->
     <xs:complexType name="meta-file">
         <xs:annotation>
@@ -12,12 +21,13 @@
             <xs:element name="fields" type="fields"></xs:element>
             <xs:element name="links" type="links"></xs:element>
             <xs:element name="sources">
+                <xs:annotation>
+                    <xs:documentation>information on all referenced data sources</xs:documentation>
+                </xs:annotation>
                 <xs:complexType>
-                    <xs:sequence minOccurs="1" maxOccurs="unbounded">
-                        <xs:choice minOccurs="1" maxOccurs="1">
-                            <xs:element name="meta-stream" type="meta-stream"></xs:element>
-                            <xs:element name="file" type="file"></xs:element>
-                        </xs:choice>
+                    <xs:sequence maxOccurs="1">
+                        <xs:element name="meta-streams" type="meta-streams"></xs:element>
+                        <xs:element name="files" type="files"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>

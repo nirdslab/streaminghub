@@ -2,15 +2,12 @@
     "$schema": "http://json-schema.org/schema",
     "title": "Metadata schema for a sensory data stream in DFS",
     "type": "object",
-    "required": [
-        "device",
-        "streams",
-        "fields"
-    ],
+    "required": ["device", "streams", "fields"],
     "properties": {
         "device": {
             "description": "information about the recording device",
             "type": "object",
+            "required": ["model", "manufacturer", "category"],
             "properties": {
                 "model": {
                     "description": "model of the device",
@@ -29,9 +26,11 @@
         "streams": {
             "description": "information about each data stream in the meta-stream",
             "type": "array",
+            "minItems": 1,
             "items": {
                 "description": "information about the data stream",
                 "type": "object",
+                "required": ["name", "description", "unit", "frequency", "channels"],
                 "properties": {
                     "name": {
                         "description": "name of the data stream",
@@ -53,6 +52,7 @@
                     "channels": {
                         "description": "channels in the data stream",
                         "type": "array",
+                        "minItems": 1,
                         "items": {
                             "description": "information about each channel in the meta-stream",
                             "type": "string"
@@ -64,9 +64,11 @@
         "fields": {
             "description": "information about all fields in the current scope",
             "type": "array",
+            "minItems": 1,
             "items": {
                 "description": "information about the field",
                 "type": "object",
+                "required": ["id", "dtype", "name", "description"],
                 "properties": {
                     "id": {
                         "description": "id of the field",

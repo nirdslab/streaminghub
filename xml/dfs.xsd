@@ -183,6 +183,9 @@
     </xs:complexType>
     <!-- type definition - link -->
     <xs:complexType name="link">
+        <xs:annotation>
+            <xs:documentation>information about the link</xs:documentation>
+        </xs:annotation>
         <xs:sequence minOccurs="1" maxOccurs="unbounded">
             <xs:element name="field" type="ref"></xs:element>
         </xs:sequence>

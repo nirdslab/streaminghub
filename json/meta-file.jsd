@@ -2,6 +2,126 @@
     "$schema": "http://json-schema.org/schema",
     "title": "Metadata schema for a dataset in DFS",
     "type": "object",
-    "required": [],
-    "properties": {}
+    "required": ["dataset", "fields", "links", "sources"],
+    "properties": {
+        "dataset": {
+            "description": "information about the dataset",
+            "type": "object",
+            "required": ["name", "description", " keywords", "authors"],
+            "properties": {
+                "name": {
+                    "description": "name of the dataset",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "description of the dataset",
+                    "type": "string"
+                },
+                "keywords": {
+                    "description": "keywords that best describes the dataset",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "description": "a keyword",
+                        "type": "string"
+                    }
+                },
+                "authors": {
+                    "description": "information about each author in the dataset",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "description": "information about the author",
+                        "type": "object",
+                        "required": ["name", "affiliation", "email"],
+                        "properties": {
+                            "name": {
+                                "description": "name of the author",
+                                "type": "string"
+                            },
+                            "affiliation": {
+                                "description": "affiliation of the author",
+                                "type": "string"
+                            },
+                            "email": {
+                                "description": "email address of the author",
+                                "type": "string",
+                                "pattern": "[^@]+@[^\\.]+\\..+"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "fields": {
+            "description": "information about all fields in the current scope",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "description": "information about the field",
+                "type": "object",
+                "required": ["id", "dtype", "name", "description"],
+                "properties": {
+                    "id": {
+                        "description": "id of the field",
+                        "type": "string"
+                    },
+                    "dtype": {
+                        "description": "data type of field",
+                        "type": "string"
+                    },
+                    "name": {
+                        "description": "name of the field",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "description of the field",
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "links": {
+            "description": "information about all links in the current scope",
+            "type": "array",
+            "items": {
+                "description": "information about the link",
+                "type": "object",
+                "required": ["type", "fields"],
+                "properties": {
+                    "type": {
+                        "description": "type of link",
+                        "type": "string"
+                    },
+                    "fields": {
+                        "description": "references to pre-declared fields",
+                        "type": "array",
+                        "items": {
+                            "description": "reference to a pre-declared field",
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "sources": {
+            "description": "information on all referenced data sources",
+            "type": "object",
+            "required": ["meta-streams", "files"],
+            "properties": {
+                "meta-streams": {
+                    "description": "information about all meta-streams referenced in a meta-file",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        
+                    }
+                },
+                "files": {
+                    "description": "information about all files in a meta-file",
+                    "type": "object"
+                }
+            }
+        }
+    }
 }
