@@ -5,7 +5,41 @@
             "name": "de-noised heart rate"
         }]
     },
-    "fields": {},
-    "inputs": {},
-    "outputs": {}
+    "fields": [{
+        "id": "t",
+        "dtype": "float",
+        "name": "timestamp",
+        "description": ""
+    }, {
+        "id": "hr",
+        "dtype": "float",
+        "name": "heart rate",
+        "description": ""
+    }, {
+        "id": "hr-d",
+        "dtype": "float",
+        "name": "de-noised heart rate",
+        "description": ""
+    }],
+    "inputs": [{
+        "device": {
+            "model": "E4",
+            "manufacturer": "Empatica",
+            "category": "Wristband"
+        },
+        "streams": [{
+            "name": "timestamp",
+            "description": "Timestamp",
+            "unit": "ms",
+            "frequency": 0,
+            "channels": ["t"]
+        }, {
+            "name": "heart rate",
+            "description": "Heart rate (unit - beats per minute)",
+            "unit": "bpm",
+            "frequency": 0,
+            "channels": ["hr"]
+        }]
+    }],
+    "outputs": ["hr-d"]
 }
