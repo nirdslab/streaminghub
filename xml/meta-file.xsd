@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="https://nirdslab.cs.odu.edu/dfs/xml" xmlns="https://nirdslab.cs.odu.edu/dfs/xml">
-    <xs:include schemaLocation="dfs.xsd" />
-    <xs:include schemaLocation="meta-stream.xsd" />
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="https://nirdslab.cs.odu.edu/dfs/xml"
+           xmlns="https://nirdslab.cs.odu.edu/dfs/xml">
+    <xs:include schemaLocation="dfs.xsd"/>
+    <xs:include schemaLocation="meta-stream.xsd"/>
     <!-- type - files -->
     <xs:complexType name="files">
         <xs:annotation>
             <xs:documentation>information about all files referenced in a meta-file</xs:documentation>
         </xs:annotation>
-        <xs:sequence minOccurs="1" maxOccurs="unbounded">
-            <xs:element name="file" type="file"></xs:element>
+        <xs:sequence minOccurs="1"
+                     maxOccurs="unbounded">
+            <xs:element name="file"
+                        type="file"/>
         </xs:sequence>
     </xs:complexType>
     <!-- type - meta-streams -->
@@ -16,8 +20,10 @@
         <xs:annotation>
             <xs:documentation>information about all meta-streams referenced in a meta-file</xs:documentation>
         </xs:annotation>
-        <xs:sequence minOccurs="1" maxOccurs="unbounded">
-            <xs:element name="meta-stream" type="meta-stream"></xs:element>
+        <xs:sequence minOccurs="1"
+                     maxOccurs="unbounded">
+            <xs:element name="meta-stream"
+                        type="meta-stream"/>
         </xs:sequence>
     </xs:complexType>
     <!-- type - meta-file -->
@@ -25,42 +31,56 @@
         <xs:annotation>
             <xs:documentation>Metadata schema for a dataset in DFS</xs:documentation>
         </xs:annotation>
-        <xs:sequence minOccurs="1" maxOccurs="1">
-            <xs:element name="dataset" type="dataset"></xs:element>
-            <xs:element name="fields" type="fields"></xs:element>
-            <xs:element name="links" type="links"></xs:element>
+        <xs:sequence minOccurs="1"
+                     maxOccurs="1">
+            <xs:element name="dataset"
+                        type="dataset"/>
+            <xs:element name="fields"
+                        type="fields"/>
+            <xs:element name="links"
+                        type="links"/>
             <xs:element name="sources">
                 <xs:annotation>
                     <xs:documentation>information on all referenced data sources</xs:documentation>
                 </xs:annotation>
                 <xs:complexType>
                     <xs:sequence maxOccurs="1">
-                        <xs:element name="meta-streams" type="meta-streams"></xs:element>
-                        <xs:element name="files" type="files"></xs:element>
+                        <xs:element name="meta-streams"
+                                    type="meta-streams"/>
+                        <xs:element name="files"
+                                    type="files"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
-        <xs:attribute name="checksum" type="xs:hexBinary" use="required">
+        <xs:attribute name="checksum"
+                      type="xs:hexBinary"
+                      use="required">
             <xs:annotation>
                 <xs:documentation>checksum of content</xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="version" type="xs:string" use="required">
+        <xs:attribute name="version"
+                      type="xs:string"
+                      use="required">
             <xs:annotation>
                 <xs:documentation>semantic version</xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="created" type="xs:dateTime" use="required">
+        <xs:attribute name="created"
+                      type="xs:dateTime"
+                      use="required">
             <xs:annotation>
                 <xs:documentation>creation date/time</xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="modified" type="xs:dateTime" use="required">
+        <xs:attribute name="modified"
+                      type="xs:dateTime" use="required">
             <xs:annotation>
                 <xs:documentation>last modified date/time</xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
-    <xs:element name="meta-file" type="meta-file" />
+    <xs:element name="meta-file"
+                type="meta-file"/>
 </xs:schema>

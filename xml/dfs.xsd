@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="https://nirdslab.cs.odu.edu/dfs/xml" xmlns="https://nirdslab.cs.odu.edu/dfs/xml">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="https://nirdslab.cs.odu.edu/dfs/xml"
+           xmlns="https://nirdslab.cs.odu.edu/dfs/xml">
     <!-- type definition - email -->
     <xs:simpleType name="email">
         <xs:annotation>
             <xs:documentation>e-mail address</xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
-            <xs:pattern value="[^@]+@[^\.]+\..+" />
+            <xs:pattern value="[^@]+@[^.]+\..+"/>
         </xs:restriction>
     </xs:simpleType>
     <!-- type definition - ref -->
@@ -14,25 +16,29 @@
         <xs:annotation>
             <xs:documentation>reference to a pre-declared field</xs:documentation>
         </xs:annotation>
-        <xs:restriction base="xs:IDREF"></xs:restriction>
+        <xs:restriction base="xs:IDREF"/>
     </xs:simpleType>
     <!-- type definition - device -->
     <xs:complexType name="device">
         <xs:annotation>
             <xs:documentation>information about the recording device</xs:documentation>
         </xs:annotation>
-        <xs:sequence minOccurs="1" maxOccurs="1">
-            <xs:element name="model" type="xs:string">
+        <xs:sequence minOccurs="1"
+                     maxOccurs="1">
+            <xs:element name="model"
+                        type="xs:string">
                 <xs:annotation>
                     <xs:documentation>model of the device</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="manufacturer" type="xs:string">
+            <xs:element name="manufacturer"
+                        type="xs:string">
                 <xs:annotation>
                     <xs:documentation>manufacturer of the device</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="category" type="xs:string">
+            <xs:element name="category"
+                        type="xs:string">
                 <xs:annotation>
                     <xs:documentation>category of the device</xs:documentation>
                 </xs:annotation>
@@ -44,28 +50,34 @@
         <xs:annotation>
             <xs:documentation>information about the data stream</xs:documentation>
         </xs:annotation>
-        <xs:sequence minOccurs="1" maxOccurs="1">
-            <xs:element name="name" type="xs:string">
+        <xs:sequence minOccurs="1"
+                     maxOccurs="1">
+            <xs:element name="name"
+                        type="xs:string">
                 <xs:annotation>
                     <xs:documentation>name of the data stream</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="description" type="xs:string">
+            <xs:element name="description"
+                        type="xs:string">
                 <xs:annotation>
                     <xs:documentation>description of the data stream</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="unit" type="xs:string">
+            <xs:element name="unit"
+                        type="xs:string">
                 <xs:annotation>
                     <xs:documentation>unit of measurement</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="frequency" type="xs:unsignedInt">
+            <xs:element name="frequency"
+                        type="xs:unsignedInt">
                 <xs:annotation>
                     <xs:documentation>sampling frequency (Hz)</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="channels" type="channels">
+            <xs:element name="channels"
+                        type="channels">
                 <xs:annotation>
                     <xs:documentation>channels in the data stream</xs:documentation>
                 </xs:annotation>
@@ -77,18 +89,22 @@
         <xs:annotation>
             <xs:documentation>information about the author</xs:documentation>
         </xs:annotation>
-        <xs:sequence minOccurs="1" maxOccurs="1">
-            <xs:element name="name" type="xs:string">
+        <xs:sequence minOccurs="1"
+                     maxOccurs="1">
+            <xs:element name="name"
+                        type="xs:string">
                 <xs:annotation>
                     <xs:documentation>name of the author</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="affiliation" type="xs:string">
+            <xs:element name="affiliation"
+                        type="xs:string">
                 <xs:annotation>
                     <xs:documentation>affiliation of the author</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="email" type="email">
+            <xs:element name="email"
+                        type="email">
                 <xs:annotation>
                     <xs:documentation>email address of the author</xs:documentation>
                 </xs:annotation>
@@ -100,19 +116,24 @@
         <xs:annotation>
             <xs:documentation>information about the dataset</xs:documentation>
         </xs:annotation>
-        <xs:sequence minOccurs="1" maxOccurs="1">
-            <xs:element name="name" type="xs:string">
+        <xs:sequence minOccurs="1"
+                     maxOccurs="1">
+            <xs:element name="name"
+                        type="xs:string">
                 <xs:annotation>
                     <xs:documentation>name of the dataset</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="description" type="xs:string">
+            <xs:element name="description"
+                        type="xs:string">
                 <xs:annotation>
                     <xs:documentation>description of the dataset</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="keywords" type="keywords"></xs:element>
-            <xs:element name="authors" type="authors"></xs:element>
+            <xs:element name="keywords"
+                        type="keywords"/>
+            <xs:element name="authors"
+                        type="authors"/>
         </xs:sequence>
     </xs:complexType>
     <!-- type definition - file -->
@@ -120,29 +141,35 @@
         <xs:annotation>
             <xs:documentation>information about the file</xs:documentation>
         </xs:annotation>
-        <xs:sequence minOccurs="1" maxOccurs="1">
-            <xs:element name="path" type="xs:anyURI">
+        <xs:sequence minOccurs="1"
+                     maxOccurs="1">
+            <xs:element name="path"
+                        type="xs:anyURI">
                 <xs:annotation>
                     <xs:documentation>path to the file</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="encoding" type="xs:string">
+            <xs:element name="encoding"
+                        type="xs:string">
                 <xs:annotation>
                     <xs:documentation>file format</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="description" type="xs:string">
+            <xs:element name="description"
+                        type="xs:string">
                 <xs:annotation>
                     <xs:documentation>description of the file</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="keys" type="keys">
+            <xs:element name="keys"
+                        type="keys">
                 <xs:annotation>
                     <xs:documentation>references to each key in the file</xs:documentation>
                 </xs:annotation>
             </xs:element>
         </xs:sequence>
-        <xs:attribute name="checksum" type="xs:hexBinary">
+        <xs:attribute name="checksum"
+                      type="xs:hexBinary">
             <xs:annotation>
                 <xs:documentation>md5 checksum of file</xs:documentation>
             </xs:annotation>
@@ -154,23 +181,31 @@
             <xs:documentation>information about the field</xs:documentation>
         </xs:annotation>
         <xs:sequence maxOccurs="1">
-            <xs:element name="name" type="xs:string" minOccurs="1">
+            <xs:element name="name"
+                        type="xs:string"
+                        minOccurs="1">
                 <xs:annotation>
                     <xs:documentation>name of the field</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="description" type="xs:string" minOccurs="0">
+            <xs:element name="description"
+                        type="xs:string"
+                        minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>description of the field</xs:documentation>
                 </xs:annotation>
             </xs:element>
         </xs:sequence>
-        <xs:attribute name="id" type="xs:ID" use="required">
+        <xs:attribute name="id"
+                      type="xs:ID"
+                      use="required">
             <xs:annotation>
                 <xs:documentation>id of the field</xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="dtype" type="xs:string" use="required">
+        <xs:attribute name="dtype"
+                      type="xs:string"
+                      use="required">
             <xs:annotation>
                 <xs:documentation>data type of field</xs:documentation>
             </xs:annotation>
@@ -181,10 +216,14 @@
         <xs:annotation>
             <xs:documentation>information about the link</xs:documentation>
         </xs:annotation>
-        <xs:sequence minOccurs="1" maxOccurs="unbounded">
-            <xs:element name="field" type="ref"></xs:element>
+        <xs:sequence minOccurs="1"
+                     maxOccurs="unbounded">
+            <xs:element name="field"
+                        type="ref"/>
         </xs:sequence>
-        <xs:attribute name="type" type="xs:string" use="required">
+        <xs:attribute name="type"
+                      type="xs:string"
+                      use="required">
             <xs:annotation>
                 <xs:documentation>type of link</xs:documentation>
             </xs:annotation>
@@ -197,8 +236,10 @@
         <xs:annotation>
             <xs:documentation>information about each channel in the meta-stream</xs:documentation>
         </xs:annotation>
-        <xs:sequence minOccurs="1" maxOccurs="unbounded">
-            <xs:element name="channel" type="ref"></xs:element>
+        <xs:sequence minOccurs="1"
+                     maxOccurs="unbounded">
+            <xs:element name="channel"
+                        type="ref"/>
         </xs:sequence>
     </xs:complexType>
     <!-- compound type - authors -->
@@ -206,8 +247,10 @@
         <xs:annotation>
             <xs:documentation>information about each author in the dataset</xs:documentation>
         </xs:annotation>
-        <xs:sequence minOccurs="1" maxOccurs="unbounded">
-            <xs:element name="author" type="author"></xs:element>
+        <xs:sequence minOccurs="1"
+                     maxOccurs="unbounded">
+            <xs:element name="author"
+                        type="author"/>
         </xs:sequence>
     </xs:complexType>
     <!-- compound type - keywords -->
@@ -215,8 +258,10 @@
         <xs:annotation>
             <xs:documentation>keywords that best describes the dataset</xs:documentation>
         </xs:annotation>
-        <xs:sequence minOccurs="1" maxOccurs="unbounded">
-            <xs:element name="keyword" type="xs:string">
+        <xs:sequence minOccurs="1"
+                     maxOccurs="unbounded">
+            <xs:element name="keyword"
+                        type="xs:string">
                 <xs:annotation>
                     <xs:documentation>a keyword</xs:documentation>
                 </xs:annotation>
@@ -228,8 +273,10 @@
         <xs:annotation>
             <xs:documentation>information about each data stream in the meta-stream</xs:documentation>
         </xs:annotation>
-        <xs:sequence minOccurs="1" maxOccurs="unbounded">
-            <xs:element name="stream" type="stream"></xs:element>
+        <xs:sequence minOccurs="1"
+                     maxOccurs="unbounded">
+            <xs:element name="stream"
+                        type="stream"/>
         </xs:sequence>
     </xs:complexType>
     <!-- compound type - keys -->
@@ -237,8 +284,10 @@
         <xs:annotation>
             <xs:documentation>keys contained in a file</xs:documentation>
         </xs:annotation>
-        <xs:sequence minOccurs="1" maxOccurs="unbounded">
-            <xs:element name="key" type="ref"></xs:element>
+        <xs:sequence minOccurs="1"
+                     maxOccurs="unbounded">
+            <xs:element name="key"
+                        type="ref"/>
         </xs:sequence>
     </xs:complexType>
     <!-- compound type - fields -->
@@ -246,8 +295,10 @@
         <xs:annotation>
             <xs:documentation>information about all fields in the current scope</xs:documentation>
         </xs:annotation>
-        <xs:sequence minOccurs="1" maxOccurs="unbounded">
-            <xs:element name="field" type="field"></xs:element>
+        <xs:sequence minOccurs="1"
+                     maxOccurs="unbounded">
+            <xs:element name="field"
+                        type="field"/>
         </xs:sequence>
     </xs:complexType>
     <!-- compound type - links -->
@@ -255,8 +306,10 @@
         <xs:annotation>
             <xs:documentation>information about all links in the current scope</xs:documentation>
         </xs:annotation>
-        <xs:sequence minOccurs="1" maxOccurs="unbounded">
-            <xs:element name="link" type="link"></xs:element>
+        <xs:sequence minOccurs="1"
+                     maxOccurs="unbounded">
+            <xs:element name="link"
+                        type="link"/>
         </xs:sequence>
     </xs:complexType>
 </xs:schema>

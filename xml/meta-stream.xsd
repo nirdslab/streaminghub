@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="https://nirdslab.cs.odu.edu/dfs/xml" xmlns="https://nirdslab.cs.odu.edu/dfs/xml">
-    <xs:include schemaLocation="dfs.xsd" />
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="https://nirdslab.cs.odu.edu/dfs/xml"
+           xmlns="https://nirdslab.cs.odu.edu/dfs/xml">
+    <xs:include schemaLocation="dfs.xsd"/>
     <!-- type - meta-stream -->
     <xs:complexType name="meta-stream">
-        <xs:sequence minOccurs="1" maxOccurs="1">
-            <xs:element name="device" type="device"></xs:element>
-            <xs:element name="streams" type="streams"></xs:element>
-            <xs:element name="fields" type="fields" minOccurs="0"></xs:element>
+        <xs:sequence minOccurs="1"
+                     maxOccurs="1">
+            <xs:element name="device"
+                        type="device"/>
+            <xs:element name="streams"
+                        type="streams"/>
+            <xs:element name="fields"
+                        type="fields"
+                        minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
     <xs:element name="meta-stream">
@@ -16,12 +23,16 @@
             </xs:annotation>
             <xs:complexContent>
                 <xs:extension base="meta-stream">
-                    <xs:attribute name="version" type="xs:string" use="required">
+                    <xs:attribute name="version"
+                                  type="xs:string"
+                                  use="required">
                         <xs:annotation>
                             <xs:documentation>semantic version</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
-                    <xs:attribute name="checksum" type="xs:hexBinary" use="required">
+                    <xs:attribute name="checksum"
+                                  type="xs:hexBinary"
+                                  use="required">
                         <xs:annotation>
                             <xs:documentation>checksum of content</xs:documentation>
                         </xs:annotation>

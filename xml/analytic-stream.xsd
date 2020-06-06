@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="https://nirdslab.cs.odu.edu/dfs/xml" xmlns="https://nirdslab.cs.odu.edu/dfs/xml">
-    <xs:include schemaLocation="dfs.xsd" />
-    <xs:include schemaLocation="meta-stream.xsd" />
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="https://nirdslab.cs.odu.edu/dfs/xml"
+           xmlns="https://nirdslab.cs.odu.edu/dfs/xml">
+    <xs:include schemaLocation="dfs.xsd"/>
+    <xs:include schemaLocation="meta-stream.xsd"/>
     <xs:complexType name="analytic-stream">
         <xs:annotation>
             <xs:documentation>Metadata schema for streaming data analytics in DFS</xs:documentation>
         </xs:annotation>
-        <xs:sequence minOccurs="1" maxOccurs="1">
+        <xs:sequence minOccurs="1"
+                     maxOccurs="1">
             <xs:element name="info">
                 <xs:annotation>
                     <xs:documentation>information about the analytics-stream</xs:documentation>
                 </xs:annotation>
                 <xs:complexType>
-                    <xs:sequence minOccurs="1" maxOccurs="unbounded">
+                    <xs:sequence minOccurs="1"
+                                 maxOccurs="unbounded">
                         <xs:element name="analytic">
                             <xs:annotation>
                                 <xs:documentation>details of an analytic obtained</xs:documentation>
@@ -30,24 +34,31 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="fields" type="fields"></xs:element>
+            <xs:element name="fields"
+                        type="fields"/>
             <xs:element name="inputs">
                 <xs:annotation>
                     <xs:documentation>source meta-streams used to obtain the analytics</xs:documentation>
                 </xs:annotation>
                 <xs:complexType>
-                    <xs:sequence minOccurs="0" maxOccurs="unbounded">
-                        <xs:element name="meta-stream" type="meta-stream"></xs:element>
+                    <xs:sequence minOccurs="0"
+                                 maxOccurs="unbounded">
+                        <xs:element name="meta-stream"
+                                    type="meta-stream"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="outputs" type="keys"></xs:element>
+            <xs:element name="outputs"
+                        type="keys"/>
         </xs:sequence>
-        <xs:attribute name="checksum" type="xs:hexBinary" use="required">
+        <xs:attribute name="checksum"
+                      type="xs:hexBinary"
+                      use="required">
             <xs:annotation>
                 <xs:documentation>checksum of content</xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
-    <xs:element name="analytic-stream" type="analytic-stream" />
+    <xs:element name="analytic-stream"
+                type="analytic-stream"/>
 </xs:schema>
