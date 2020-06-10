@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<meta-stream version="1.0.0" checksum="010203040506070809000A0B0C0D0E0F" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://nirdslab.cs.odu.edu/dfs/xml ../meta-stream.xsd" xmlns="https://nirdslab.cs.odu.edu/dfs/xml">
+<meta-stream xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="../dfs.xsd"
+             version="1.0.0"
+             checksum="010203040506070809000A0B0C0D0E0F">
     <device>
         <model>E4</model>
         <manufacturer>Empatica</manufacturer>
@@ -85,43 +88,43 @@
     <fields>
         <field id="acc_x" dtype="float">
             <name>x - acceleration</name>
-            <description></description>
+            <description>Acceleration in the X axis</description>
         </field>
         <field id="acc_y" dtype="float">
             <name>y - acceleration</name>
-            <description></description>
+            <description>Acceleration in the Y axis</description>
         </field>
         <field id="acc_z" dtype="float">
             <name>z - acceleration</name>
-            <description></description>
+            <description>Acceleration in the Z axis</description>
         </field>
         <field id="bvp" dtype="float">
             <name>blood volume pulse</name>
-            <description></description>
+            <description>Blood Volume Pulse</description>
         </field>
         <field id="gsr" dtype="float">
             <name>galvanic skin response</name>
-            <description></description>
+            <description>Galvanic Skin Response</description>
         </field>
         <field id="ibi" dtype="float">
             <name>inter beat interval</name>
-            <description></description>
+            <description>The interval between two consecutive heartbeats</description>
         </field>
         <field id="hr" dtype="float">
             <name>heart rate</name>
-            <description></description>
+            <description>Heart Rate</description>
         </field>
         <field id="tmp" dtype="float">
             <name>skin temperature</name>
-            <description></description>
+            <description>Skin Temperature on the Wrist</description>
         </field>
         <field id="bat" dtype="float">
             <name>battery level</name>
-            <description></description>
+            <description>Battery Level of the Device</description>
         </field>
         <field id="tag" dtype="float">
             <name>tag</name>
-            <description></description>
+            <description>Press of the Tag Button</description>
         </field>
     </fields>
 </meta-stream>
