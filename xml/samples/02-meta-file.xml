@@ -30,13 +30,15 @@
         </authors>
     </dataset>
     <fields>
-        <field id="t" dtype="float">
+        <field id="t"
+               dtype="float">
             <name>timestamp</name>
-            <description></description>
+            <description>Timestamp</description>
         </field>
-        <field id="hr" dtype="float">
+        <field id="hr"
+               dtype="float">
             <name>heart rate</name>
-            <description></description>
+            <description>Heart Rate</description>
         </field>
     </fields>
     <links>

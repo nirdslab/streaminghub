@@ -9,15 +9,18 @@
         </analytic>
     </info>
     <fields>
-        <field id="t" dtype="float">
+        <field id="t"
+               dtype="float">
             <name>timestamp</name>
             <description>Timestamp</description>
         </field>
-        <field id="hr" dtype="float">
+        <field id="hr"
+               dtype="float">
             <name>heart rate</name>
             <description>Heart Rate</description>
         </field>
-        <field id="hr-d" dtype="float">
+        <field id="hr-d"
+               dtype="float">
             <name>de-noised heart rate</name>
             <description>De-Noised Heart Rate</description>
         </field>

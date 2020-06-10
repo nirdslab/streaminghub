@@ -227,11 +227,11 @@
         <xs:sequence>
             <xs:element name="device"
                         type="device"/>
-            <xs:element name="streams"
-                        type="streams"/>
             <xs:element name="fields"
                         type="fields"
                         minOccurs="0"/>
+            <xs:element name="streams"
+                        type="streams"/>
         </xs:sequence>
     </xs:complexType>
     <!-- type definition - analytic-stream -->

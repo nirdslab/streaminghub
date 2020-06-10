@@ -9,6 +9,58 @@
         <manufacturer>Empatica</manufacturer>
         <category>Wristband</category>
     </device>
+    <fields>
+        <field id="acc_x"
+               dtype="float">
+            <name>x - acceleration</name>
+            <description>Acceleration in the X axis</description>
+        </field>
+        <field id="acc_y"
+               dtype="float">
+            <name>y - acceleration</name>
+            <description>Acceleration in the Y axis</description>
+        </field>
+        <field id="acc_z"
+               dtype="float">
+            <name>z - acceleration</name>
+            <description>Acceleration in the Z axis</description>
+        </field>
+        <field id="bvp"
+               dtype="float">
+            <name>blood volume pulse</name>
+            <description>Blood Volume Pulse</description>
+        </field>
+        <field id="gsr"
+               dtype="float">
+            <name>galvanic skin response</name>
+            <description>Galvanic Skin Response</description>
+        </field>
+        <field id="ibi"
+               dtype="float">
+            <name>inter beat interval</name>
+            <description>The interval between two consecutive heartbeats</description>
+        </field>
+        <field id="hr"
+               dtype="float">
+            <name>heart rate</name>
+            <description>Heart Rate</description>
+        </field>
+        <field id="tmp"
+               dtype="float">
+            <name>skin temperature</name>
+            <description>Skin Temperature on the Wrist</description>
+        </field>
+        <field id="bat"
+               dtype="float">
+            <name>battery level</name>
+            <description>Battery Level of the Device</description>
+        </field>
+        <field id="tag"
+               dtype="float">
+            <name>tag</name>
+            <description>Press of the Tag Button</description>
+        </field>
+    </fields>
     <streams>
         <stream>
             <name>acceleration</name>
@@ -78,53 +130,11 @@
         <stream>
             <name>tag</name>
             <description>Tag recorded upon button press</description>
-            <unit></unit>
+            <unit/>
             <frequency>0</frequency>
             <channels>
                 <channel>tag</channel>
             </channels>
         </stream>
     </streams>
-    <fields>
-        <field id="acc_x" dtype="float">
-            <name>x - acceleration</name>
-            <description>Acceleration in the X axis</description>
-        </field>
-        <field id="acc_y" dtype="float">
-            <name>y - acceleration</name>
-            <description>Acceleration in the Y axis</description>
-        </field>
-        <field id="acc_z" dtype="float">
-            <name>z - acceleration</name>
-            <description>Acceleration in the Z axis</description>
-        </field>
-        <field id="bvp" dtype="float">
-            <name>blood volume pulse</name>
-            <description>Blood Volume Pulse</description>
-        </field>
-        <field id="gsr" dtype="float">
-            <name>galvanic skin response</name>
-            <description>Galvanic Skin Response</description>
-        </field>
-        <field id="ibi" dtype="float">
-            <name>inter beat interval</name>
-            <description>The interval between two consecutive heartbeats</description>
-        </field>
-        <field id="hr" dtype="float">
-            <name>heart rate</name>
-            <description>Heart Rate</description>
-        </field>
-        <field id="tmp" dtype="float">
-            <name>skin temperature</name>
-            <description>Skin Temperature on the Wrist</description>
-        </field>
-        <field id="bat" dtype="float">
-            <name>battery level</name>
-            <description>Battery Level of the Device</description>
-        </field>
-        <field id="tag" dtype="float">
-            <name>tag</name>
-            <description>Press of the Tag Button</description>
-        </field>
-    </fields>
 </meta-stream>
