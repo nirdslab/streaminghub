@@ -12,55 +12,65 @@
     <category>Wristband</category>
   </device>
   <fields>
-    <field id="acc_x"
-           dtype="float">
+    <field>
+      <id>acc_x</id>
       <name>x - acceleration</name>
       <description>Acceleration in the X axis</description>
+      <dtype>float</dtype>
     </field>
-    <field id="acc_y"
-           dtype="float">
+    <field>
+      <id>acc_y</id>
       <name>y - acceleration</name>
       <description>Acceleration in the Y axis</description>
+      <dtype>float</dtype>
     </field>
-    <field id="acc_z"
-           dtype="float">
+    <field>
+      <id>acc_z</id>
       <name>z - acceleration</name>
       <description>Acceleration in the Z axis</description>
+      <dtype>float</dtype>
     </field>
-    <field id="bvp"
-           dtype="float">
+    <field>
+      <id>bvp</id>
       <name>blood volume pulse</name>
       <description>Blood Volume Pulse</description>
+      <dtype>float</dtype>
     </field>
-    <field id="gsr"
-           dtype="float">
+    <field>
+      <id>gsr</id>
       <name>galvanic skin response</name>
       <description>Galvanic Skin Response</description>
+      <dtype>float</dtype>
     </field>
-    <field id="ibi"
-           dtype="float">
+    <field>
+      <id>ibi</id>
       <name>inter beat interval</name>
       <description>The interval between two consecutive heartbeats</description>
+      <dtype>float</dtype>
     </field>
-    <field id="hr"
-           dtype="float">
+    <field>
+      <id>hr</id>
       <name>heart rate</name>
       <description>Heart Rate</description>
+      <dtype>float</dtype>
     </field>
-    <field id="tmp"
-           dtype="float">
+    <field>
+      <id>tmp</id>
       <name>skin temperature</name>
       <description>Skin Temperature on the Wrist</description>
+      <dtype>float</dtype>
     </field>
-    <field id="bat"
-           dtype="float">
+    <field>
+      <id>bat</id>
       <name>battery level</name>
       <description>Battery Level of the Device</description>
+      <dtype>float</dtype>
     </field>
-    <field id="tag"
-           dtype="float">
+    <field>
+      <id>tag</id>
       <name>tag</name>
       <description>Press of the Tag Button</description>
+      <dtype>float</dtype>
     </field>
   </fields>
   <streams>
