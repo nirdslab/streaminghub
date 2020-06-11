@@ -1,0 +1,3 @@
+[submodule "conduit/dfs"]
+	path = conduit/dfs
+	url = git@github.com:nirdslab/dfs.git

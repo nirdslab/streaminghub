@@ -1,4 +1,4 @@
-Orange3
-numpy
-pylsl
-pyQt5
+Orange3==3.25.0
+numpy==1.18.4
+pylsl==1.12.2
+pyQt5==5.14.2

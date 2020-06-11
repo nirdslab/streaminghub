@@ -6,7 +6,6 @@ from typing import List, Dict
 from pylsl import StreamOutlet
 
 from core.lsl_outlet import create_outlet
-from empatica_e4.descriptor import device_info, streams
 
 
 # server states
