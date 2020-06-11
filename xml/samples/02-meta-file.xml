@@ -2,101 +2,101 @@
 
 <meta-file xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:noNamespaceSchemaLocation="../dfs.xsd">
-    <info>
-        <version>1.0</version>
-        <created>2020-01-01T00:00:00</created>
-        <modified>2020-01-01T00:00:00</modified>
-        <checksum>010203040506070809000A0B0C0D0E0F</checksum>
-    </info>
-    <dataset>
-        <name>Heart Rate of Two Participants During a Running Task</name>
-        <description>
-            This dataset contains recordings of heart rate of two participants during a running task.
-            Recordings were obtained from an Empatica E4.
-        </description>
-        <keywords>
-            <keyword>heart-rate</keyword>
-            <keyword>running</keyword>
-        </keywords>
-        <authors>
-            <author>
-                <name>John Doe</name>
-                <affiliation>Example University</affiliation>
-                <email>john@example.edu</email>
-            </author>
-            <author>
-                <name>Jane Doe</name>
-                <affiliation>Example University</affiliation>
-                <email>jane@example.edu</email>
-            </author>
-        </authors>
-    </dataset>
-    <fields>
-        <field id="t"
-               dtype="float">
+  <info>
+    <version>1.0</version>
+    <created>2020-01-01T00:00:00Z</created>
+    <modified>2020-01-01T00:00:00Z</modified>
+    <checksum>010203040506070809000A0B0C0D0E0F</checksum>
+  </info>
+  <dataset>
+    <name>Heart Rate of Two Participants During a Running Task</name>
+    <description>
+      This dataset contains recordings of heart rate of two participants during a running task.
+      Recordings were obtained from an Empatica E4.
+    </description>
+    <keywords>
+      <keyword>heart-rate</keyword>
+      <keyword>running</keyword>
+    </keywords>
+    <authors>
+      <author>
+        <name>John Doe</name>
+        <affiliation>Example University</affiliation>
+        <email>john@example.edu</email>
+      </author>
+      <author>
+        <name>Jane Doe</name>
+        <affiliation>Example University</affiliation>
+        <email>jane@example.edu</email>
+      </author>
+    </authors>
+  </dataset>
+  <fields>
+    <field id="t"
+           dtype="float">
+      <name>timestamp</name>
+      <description>Timestamp</description>
+    </field>
+    <field id="hr"
+           dtype="float">
+      <name>heart rate</name>
+      <description>Heart Rate</description>
+    </field>
+  </fields>
+  <links>
+    <link type="index">
+      <field>t</field>
+    </link>
+  </links>
+  <sources>
+    <meta-streams>
+      <meta-stream>
+        <device>
+          <model>E4</model>
+          <manufacturer>Empatica</manufacturer>
+          <category>Wristband</category>
+        </device>
+        <streams>
+          <stream>
             <name>timestamp</name>
-            <description>Timestamp</description>
-        </field>
-        <field id="hr"
-               dtype="float">
+            <description>timestamp at which measurements were obtained</description>
+            <unit>ms</unit>
+            <frequency>0</frequency>
+            <channels>
+              <channel>t</channel>
+            </channels>
+          </stream>
+          <stream>
             <name>heart rate</name>
-            <description>Heart Rate</description>
-        </field>
-    </fields>
-    <links>
-        <link type="index">
-            <field>t</field>
-        </link>
-    </links>
-    <sources>
-        <meta-streams>
-            <meta-stream>
-                <device>
-                    <model>E4</model>
-                    <manufacturer>Empatica</manufacturer>
-                    <category>Wristband</category>
-                </device>
-                <streams>
-                    <stream>
-                        <name>timestamp</name>
-                        <description>timestamp at which measurements were obtained</description>
-                        <unit>ms</unit>
-                        <frequency>0</frequency>
-                        <channels>
-                            <channel>t</channel>
-                        </channels>
-                    </stream>
-                    <stream>
-                        <name>heart rate</name>
-                        <description>heart rate (unit - beats per minute)</description>
-                        <unit>bpm</unit>
-                        <frequency>0</frequency>
-                        <channels>
-                            <channel>hr</channel>
-                        </channels>
-                    </stream>
-                </streams>
-            </meta-stream>
-        </meta-streams>
-        <files>
-            <file checksum="010203040506070809000A0B0C0D0E0F">
-                <path>./p001.csv</path>
-                <encoding>csv</encoding>
-                <description>Recordings from Participant 1</description>
-                <keys>
-                    <key>t</key>
-                    <key>hr</key>
-                </keys>
-            </file>
-            <file checksum="F10203040506070809000A0B0C0D0E0F">
-                <path>./p002.csv</path>
-                <encoding>csv</encoding>
-                <description>Recordings from Participant 2</description>
-                <keys>
-                    <key>t</key>
-                    <key>hr</key>
-                </keys>
-            </file>
-        </files>
-    </sources>
+            <description>heart rate (unit - beats per minute)</description>
+            <unit>bpm</unit>
+            <frequency>0</frequency>
+            <channels>
+              <channel>hr</channel>
+            </channels>
+          </stream>
+        </streams>
+      </meta-stream>
+    </meta-streams>
+    <files>
+      <file checksum="010203040506070809000A0B0C0D0E0F">
+        <path>./p001.csv</path>
+        <encoding>csv</encoding>
+        <description>Recordings from Participant 1</description>
+        <keys>
+          <key>t</key>
+          <key>hr</key>
+        </keys>
+      </file>
+      <file checksum="F10203040506070809000A0B0C0D0E0F">
+        <path>./p002.csv</path>
+        <encoding>csv</encoding>
+        <description>Recordings from Participant 2</description>
+        <keys>
+          <key>t</key>
+          <key>hr</key>
+        </keys>
+      </file>
+    </files>
+  </sources>
 </meta-file>
