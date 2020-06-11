@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-    <!-- COMMON ELEMENTS (1) -->
+    <!-- ELEMENTS (1) -->
     <!-- type definition - email -->
     <xs:simpleType name="email">
         <xs:annotation>
@@ -222,129 +222,97 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
-    <!-- type definition - meta-stream -->
-    <xs:complexType name="meta-stream">
-        <xs:sequence>
-            <xs:element name="device"
-                        type="device"/>
-            <xs:element name="fields"
-                        type="fields"
-                        minOccurs="0"/>
-            <xs:element name="streams"
-                        type="streams"/>
-        </xs:sequence>
-    </xs:complexType>
-    <!-- type definition - analytic-stream -->
-    <xs:complexType name="analytic-stream">
+
+
+    <!-- ELEMENTS (2) -->
+    <!-- type definition - meta-stream-info -->
+    <xs:complexType name="meta-stream-info">
         <xs:annotation>
-            <xs:documentation>Metadata schema for streaming data analytics in DFS</xs:documentation>
+            <xs:documentation>identifiable information about a meta-stream</xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="info">
+            <xs:element name="version" type="xs:string">
                 <xs:annotation>
-                    <xs:documentation>information about the analytics-stream</xs:documentation>
+                    <xs:documentation>version of the document</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="checksum" type="xs:hexBinary">
+                <xs:annotation>
+                    <xs:documentation>checksum of the document</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- type definition - meta-file-info -->
+    <xs:complexType name="meta-file-info">
+        <xs:annotation>
+            <xs:documentation>identifiable information about a meta-file</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="version" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>version of the document</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="created" type="xs:dateTime">
+                <xs:annotation>
+                    <xs:documentation>created date of the document</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="modified" type="xs:dateTime">
+                <xs:annotation>
+                    <xs:documentation>last modified date of the document</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="checksum" type="xs:hexBinary">
+                <xs:annotation>
+                    <xs:documentation>checksum of the document</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- type definition - analytic-stream-info -->
+    <xs:complexType name="analytic-stream-info">
+        <xs:annotation>
+            <xs:documentation>identifiable information about an analytic-stream</xs:documentation>
+        </xs:annotation>
+        <xs:sequence maxOccurs="unbounded">
+            <xs:element name="checksum" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>checksum of the document</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="analytic">
+                <xs:annotation>
+                    <xs:documentation>details of an analytic obtained</xs:documentation>
                 </xs:annotation>
                 <xs:complexType>
-                    <xs:sequence maxOccurs="unbounded">
-                        <xs:element name="analytic">
+                    <xs:sequence>
+                        <xs:element name="name">
                             <xs:annotation>
-                                <xs:documentation>details of an analytic obtained</xs:documentation>
+                                <xs:documentation>name of the analytic</xs:documentation>
                             </xs:annotation>
-                            <xs:complexType>
-                                <xs:sequence>
-                                    <xs:element name="name">
-                                        <xs:annotation>
-                                            <xs:documentation>name of the analytic</xs:documentation>
-                                        </xs:annotation>
-                                    </xs:element>
-                                </xs:sequence>
-                            </xs:complexType>
                         </xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="fields"
-                        type="fields"/>
-            <xs:element name="inputs">
-                <xs:annotation>
-                    <xs:documentation>source meta-streams used to obtain the analytics</xs:documentation>
-                </xs:annotation>
-                <xs:complexType>
-                    <xs:sequence minOccurs="0"
-                                 maxOccurs="unbounded">
-                        <xs:element name="meta-stream"
-                                    type="meta-stream"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="outputs"
-                        type="keys"/>
         </xs:sequence>
-        <xs:attribute name="checksum"
-                      type="xs:hexBinary"
-                      use="required">
-            <xs:annotation>
-                <xs:documentation>checksum of content</xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
     </xs:complexType>
-    <!-- type definition - meta-file -->
-    <xs:complexType name="meta-file">
+    <!-- type definition - meta-stream-ref -->
+    <xs:complexType name="meta-stream-ref">
         <xs:annotation>
-            <xs:documentation>Metadata schema for a dataset in DFS</xs:documentation>
+            <xs:documentation>Reference to a meta-stream</xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="dataset"
-                        type="dataset"/>
-            <xs:element name="fields"
-                        type="fields"/>
-            <xs:element name="links"
-                        type="links"/>
-            <xs:element name="sources">
-                <xs:annotation>
-                    <xs:documentation>information on all referenced data sources</xs:documentation>
-                </xs:annotation>
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element name="meta-streams"
-                                    type="meta-streams"/>
-                        <xs:element name="files"
-                                    type="files"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
+            <xs:element name="device"
+                        type="device"/>
+            <xs:element name="streams"
+                        type="streams"/>
         </xs:sequence>
-        <xs:attribute name="checksum"
-                      type="xs:hexBinary"
-                      use="required">
-            <xs:annotation>
-                <xs:documentation>checksum of content</xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-        <xs:attribute name="version"
-                      type="xs:string"
-                      use="required">
-            <xs:annotation>
-                <xs:documentation>semantic version</xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-        <xs:attribute name="created"
-                      type="xs:dateTime"
-                      use="required">
-            <xs:annotation>
-                <xs:documentation>creation date/time</xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-        <xs:attribute name="modified"
-                      type="xs:dateTime"
-                      use="required">
-            <xs:annotation>
-                <xs:documentation>last modified date/time</xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
     </xs:complexType>
 
-    <!-- COMMON ELEMENTS (2) -->
+
+    <!-- ELEMENTS (3) -->
     <!-- compound type - channels -->
     <xs:complexType name="channels">
         <xs:annotation>
@@ -429,16 +397,17 @@
                         type="file"/>
         </xs:sequence>
     </xs:complexType>
-    <!-- compound type - meta-streams -->
-    <xs:complexType name="meta-streams">
+    <!-- compound type - meta-stream-refs -->
+    <xs:complexType name="meta-stream-refs">
         <xs:annotation>
             <xs:documentation>information about all meta-streams referenced in a meta-file</xs:documentation>
         </xs:annotation>
         <xs:sequence maxOccurs="unbounded">
             <xs:element name="meta-stream"
-                        type="meta-stream"/>
+                        type="meta-stream-ref"/>
         </xs:sequence>
     </xs:complexType>
+
 
     <!-- META STREAM -->
     <xs:element name="meta-stream">
@@ -446,32 +415,70 @@
             <xs:annotation>
                 <xs:documentation>Metadata schema for a sensory data stream in DFS</xs:documentation>
             </xs:annotation>
-            <xs:complexContent>
-                <xs:extension base="meta-stream">
-                    <xs:attribute name="version"
-                                  type="xs:string"
-                                  use="required">
-                        <xs:annotation>
-                            <xs:documentation>semantic version</xs:documentation>
-                        </xs:annotation>
-                    </xs:attribute>
-                    <xs:attribute name="checksum"
-                                  type="xs:hexBinary"
-                                  use="required">
-                        <xs:annotation>
-                            <xs:documentation>checksum of content</xs:documentation>
-                        </xs:annotation>
-                    </xs:attribute>
-                </xs:extension>
-            </xs:complexContent>
+            <xs:sequence>
+                <xs:element name="info"
+                            type="meta-stream-info"/>
+                <xs:element name="device"
+                            type="device"/>
+                <xs:element name="fields"
+                            type="fields"/>
+                <xs:element name="streams"
+                            type="streams"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- ANALYTIC-STREAM -->
+    <xs:element name="analytic-stream">
+        <xs:complexType>
+            <xs:annotation>
+                <xs:documentation>Metadata schema for streaming data analytics in DFS</xs:documentation>
+            </xs:annotation>
+            <xs:sequence>
+                <xs:element name="info"
+                            type="analytic-stream-info"/>
+                <xs:element name="fields"
+                            type="fields"/>
+                <xs:element name="inputs" type="meta-stream-refs">
+                    <xs:annotation>
+                        <xs:documentation>source meta-streams used to obtain the analytics</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="outputs"
+                            type="keys"/>
+            </xs:sequence>
         </xs:complexType>
     </xs:element>
 
     <!-- META-FILE -->
-    <xs:element name="meta-file"
-                type="meta-file"/>
-
-    <!-- ANALYTIC-STREAM -->
-    <xs:element name="analytic-stream"
-                type="analytic-stream"/>
+    <xs:element name="meta-file">
+        <xs:complexType>
+            <xs:annotation>
+                <xs:documentation>Metadata schema for a dataset in DFS</xs:documentation>
+            </xs:annotation>
+            <xs:sequence>
+                <xs:element name="info"
+                            type="meta-file-info"/>
+                <xs:element name="dataset"
+                            type="dataset"/>
+                <xs:element name="fields"
+                            type="fields"/>
+                <xs:element name="links"
+                            type="links"/>
+                <xs:element name="sources">
+                    <xs:annotation>
+                        <xs:documentation>information on all referenced data sources</xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="meta-streams"
+                                        type="meta-stream-refs"/>
+                            <xs:element name="files"
+                                        type="files"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
 </xs:schema>

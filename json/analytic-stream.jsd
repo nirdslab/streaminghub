@@ -1,47 +1,53 @@
 {
   "$schema": "http://json-schema.org/schema",
-  "title": "Metadata schema for streaming data analytics in DFS",
-  "type": "object",
-  "required": [
-    "info",
-    "fields",
-    "inputs",
-    "outputs"
-  ],
-  "properties": {
-    "info": {
-      "description": "information about the analytics-stream",
+  "definitions": {
+    "analytic-stream": {
+      "description": "description of an analytic-stream",
       "type": "object",
+      "required": [
+        "info",
+        "fields",
+        "inputs",
+        "outputs"
+      ],
       "properties": {
-        "analytics": {
-          "type": "array",
-          "description": "details of an analytic obtained",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string",
-                "description": "name of the analytic"
+        "info": {
+          "description": "information about the analytics-stream",
+          "type": "object",
+          "properties": {
+            "analytics": {
+              "type": "array",
+              "description": "details of an analytic obtained",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "name of the analytic"
+                  }
+                }
               }
             }
           }
+        },
+        "fields": {
+          "$ref": "dfs.jsd#/definitions/fields"
+        },
+        "inputs": {
+          "description": "source meta-streams used to obtain the analytics",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "meta-stream.jsd#/definitions/meta-stream-ref"
+          }
+        },
+        "outputs": {
+          "description": "information about all keys referenced in a file",
+          "$ref": "dfs.jsd#/definitions/keys"
         }
       }
-    },
-    "fields": {
-      "$ref": "dfs.jsd#/definitions/fields"
-    },
-    "inputs": {
-      "description": "source meta-streams used to obtain the analytics",
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "$ref": "meta-stream.jsd#/definitions/meta-stream-ref"
-      }
-    },
-    "outputs": {
-      "description": "information about all keys referenced in a file",
-      "$ref": "dfs.jsd#/definitions/keys"
     }
-  }
+  },
+  "title": "Metadata schema for streaming data analytics in DFS",
+  "$ref": "#/definitions/analytic-stream"
 }
