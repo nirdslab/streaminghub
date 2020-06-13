@@ -3,9 +3,7 @@ from lxml import etree
 from core.errors import DoesNotMatchSchemaError
 from core.io import parser
 
-__meta_file_schema_path = 'dfs/xml/dfs.xsd'
-__meta_stream_schema_path = 'dfs/xml/dfs.xsd'
-__analytic_stream_schema_path = 'dfs/xml/dfs.xsd'
+__schema_path = 'dfs/xml/dfs.xsd'
 
 
 def __load(path: str) -> etree:
@@ -38,15 +36,15 @@ def __read_spec(meta_path: str, schema_path: str) -> etree:
 
 
 def meta_stream(path: str):
-    content = __read_spec(path, __meta_stream_schema_path)
+    content = __read_spec(path, __schema_path)
     return parser.__parse_etree_into_meta_stream(content)
 
 
 def meta_file(path: str):
-    content = __read_spec(path, __meta_file_schema_path)
+    content = __read_spec(path, __schema_path)
     return parser.__parse_etree_into_meta_file(content)
 
 
 def analytic_stream(path: str):
-    content = __read_spec(path, __analytic_stream_schema_path)
+    content = __read_spec(path, __schema_path)
     return parser.__parse_etree_into_analytic_stream(content)

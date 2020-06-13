@@ -48,8 +48,7 @@ def __parse_etree_into_analytic_stream(data: etree) -> AnalyticStream:
 
 
 def __parse_dict_into_meta_stream(data: dict) -> MetaStream:
-    meta = MetaStream(data)
-    return meta
+    return MetaStream(meta=data)
 
 
 def __parse_dict_into_meta_file(data: dict) -> MetaFile:
