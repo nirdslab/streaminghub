@@ -1,9 +1,9 @@
 from pylsl import StreamInfo, StreamOutlet
 
-from core.types import DeviceDesc, StreamDesc
+from core.types import MetaStream
 
 
-def create_outlet(source_id: str, device_desc: DeviceDesc, stream_desc: StreamDesc) -> StreamOutlet:
+def create_outlet(source_id: str, device_desc: DeviceInfo, stream_desc: StreamInfo) -> StreamOutlet:
     """
     Generate LSL outlet from Metadata
     :rtype: StreamOutlet
@@ -14,9 +14,9 @@ def create_outlet(source_id: str, device_desc: DeviceDesc, stream_desc: StreamDe
     """
     info = StreamInfo(
         source_id=source_id,
-        name=device_desc.name,
+        name=device_desc.model,
         type=stream_desc.name,
-        channel_count=stream_desc.channel_count,
+        channel_count=len(stream_desc.channels),
         nominal_srate=stream_desc.freq
     )
     # create stream description
