@@ -5,9 +5,7 @@ import jsonschema
 from core.errors import DoesNotMatchSchemaError
 from core.io import parser
 
-__meta_file_schema_path = 'dfs/json/meta-file.jsd'
-__meta_stream_schema_path = 'dfs/json/meta-stream.jsd'
-__analytic_stream_schema_path = 'dfs/json/analytic-stream.jsd'
+__schema_path = 'dfs/json/dfs.jsd'
 
 
 def __load(path: str) -> dict:
@@ -23,7 +21,7 @@ def __load(path: str) -> dict:
     return content
 
 
-def __read_spec(meta_path: str, schema_path: str) -> dict:
+def __read_spec(meta_path: str, schema_path: str, schema_name) -> dict:
     """
     Validate an XML element tree using the DFS schema.
     Throws a DocumentInvalid exception if it is not valid
@@ -33,22 +31,24 @@ def __read_spec(meta_path: str, schema_path: str) -> dict:
     """
     meta = __load(meta_path)
     schema = __load(schema_path)
-    if jsonschema.validate(meta, schema):
+    schema["$ref"] = f"#/definitions/{schema_name}"
+    try:
+        jsonschema.validate(meta, schema)
         return meta
-    else:
+    except jsonschema.ValidationError as e:
         raise DoesNotMatchSchemaError()
 
 
 def meta_stream(path: str):
-    content = __read_spec(path, __meta_stream_schema_path)
+    content = __read_spec(path, __schema_path, "meta-stream")
     return parser.__parse_dict_into_meta_stream(content)
 
 
 def meta_file(path: str):
-    content = __read_spec(path, __meta_file_schema_path)
+    content = __read_spec(path, __schema_path, "meta-file")
     return parser.__parse_dict_into_meta_file(content)
 
 
 def analytic_stream(path: str):
-    content = __read_spec(path, __analytic_stream_schema_path)
+    content = __read_spec(path, __schema_path, "analytic-stream")
     return parser.__parse_dict_into_analytic_stream(content)
