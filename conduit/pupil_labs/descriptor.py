@@ -1,15 +1,16 @@
 from pylsl import IRREGULAR_RATE
 
-from core.types import DeviceDesc, StreamDesc
+from core.types import DeviceInfo, StreamInfo
 
-device_info = DeviceDesc(
-    name='Pupil Core',
-    device_type='Eye Tracker'
+device_info = DeviceInfo(
+    model='Pupil Core',
+    manufacturer='PupilLabs',
+    category='Eye Tracker'
 )
 
 streams = {
     # Camera (World)
-    'camera': StreamDesc(
+    'camera': StreamInfo(
         name='Camera (World)',
         unit='',
         freq=IRREGULAR_RATE,
@@ -17,7 +18,7 @@ streams = {
         channels=['r', 'g', 'b']  # r,g,b: color channels
     ),
     # Gaze (Eye 0)
-    'gaze.0': StreamDesc(
+    'gaze.0': StreamInfo(
         name='Gaze Position (Eye 0)',
         unit='',
         freq=IRREGULAR_RATE,
@@ -25,7 +26,7 @@ streams = {
         channels=['x', 'y', 'c']  # x,y: normalized coordinates, c: confidence
     ),
     # Gaze (Eye 1)
-    'gaze.1': StreamDesc(
+    'gaze.1': StreamInfo(
         name='Gaze Position (Eye 1)',
         unit='',
         freq=IRREGULAR_RATE,
@@ -33,7 +34,7 @@ streams = {
         channels=['x', 'y', 'c']  # x,y: normalized coordinates, c: confidence
     ),
     # Fixations
-    'fixations': StreamDesc(
+    'fixations': StreamInfo(
         name='Fixations',
         unit='',
         freq=IRREGULAR_RATE,
