@@ -257,6 +257,181 @@
       "items": {
         "$ref": "#/definitions/link"
       }
+    },
+    "analytic-stream": {
+      "description": "schema of an analytic-stream",
+      "type": "object",
+      "required": [
+        "info",
+        "fields",
+        "inputs",
+        "outputs"
+      ],
+      "properties": {
+        "info": {
+          "description": "information about the analytics-stream",
+          "type": "object",
+          "properties": {
+            "analytics": {
+              "type": "array",
+              "description": "details of an analytic obtained",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "name of the analytic"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "fields": {
+          "$ref": "#/definitions/fields"
+        },
+        "inputs": {
+          "description": "source meta-streams used to obtain the analytics",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/meta-stream-ref"
+          }
+        },
+        "outputs": {
+          "description": "information about all keys referenced in a file",
+          "$ref": "#/definitions/keys"
+        }
+      }
+    },
+    "meta-file": {
+      "description": "schema of a meta-file",
+      "type": "object",
+      "required": [
+        "info",
+        "dataset",
+        "fields",
+        "links",
+        "sources"
+      ],
+      "properties": {
+        "info": {
+          "description": "information about the meta-file",
+          "type": "object",
+          "required": [
+            "version",
+            "created",
+            "modified",
+            "checksum"
+          ],
+          "properties": {
+            "version": {
+              "description": "semantic version",
+              "type": "string"
+            },
+            "created": {
+              "description": "creation date/time",
+              "type": "string"
+            },
+            "modified": {
+              "description": "last modified date/time",
+              "type": "string"
+            },
+            "checksum": {
+              "description": "checksum of content",
+              "$ref": "#/definitions/checksum"
+            }
+          }
+        },
+        "dataset": {
+          "$ref": "#/definitions/dataset"
+        },
+        "fields": {
+          "$ref": "#/definitions/fields"
+        },
+        "links": {
+          "$ref": "#/definitions/links"
+        },
+        "sources": {
+          "description": "information on all referenced data sources",
+          "type": "object",
+          "minProperties": 1,
+          "properties": {
+            "meta-streams": {
+              "description": "information about all meta-streams referenced in a meta-file",
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/definitions/meta-stream-ref"
+              }
+            },
+            "files": {
+              "description": "information about all files referenced in a meta-file",
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/definitions/file"
+              }
+            }
+          }
+        }
+      }
+    },
+    "meta-stream": {
+      "description": "schema of a meta-stream",
+      "type": "object",
+      "required": [
+        "info",
+        "device",
+        "streams",
+        "fields"
+      ],
+      "properties": {
+        "info": {
+          "description": "information about the meta-stream",
+          "type": "object",
+          "required": [
+            "version",
+            "checksum"
+          ],
+          "properties": {
+            "version": {
+              "description": "semantic version",
+              "type": "string"
+            },
+            "checksum": {
+              "description": "checksum of content",
+              "$ref": "#/definitions/checksum"
+            }
+          }
+        },
+        "device": {
+          "$ref": "#/definitions/device"
+        },
+        "streams": {
+          "$ref": "#/definitions/streams"
+        },
+        "fields": {
+          "$ref": "#/definitions/fields"
+        }
+      }
+    },
+    "meta-stream-ref": {
+      "description": "schema for a reference to a meta-stream",
+      "type": "object",
+      "required": [
+        "device",
+        "streams"
+      ],
+      "properties": {
+        "device": {
+          "$ref": "#/definitions/device"
+        },
+        "streams": {
+          "$ref": "#/definitions/streams"
+        }
+      }
     }
-  }
+  },
+  "title": "JSON Metadata schemas for DFS"
 }
