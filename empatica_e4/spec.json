@@ -47,12 +47,6 @@
       "dtype": "float"
     },
     {
-      "id": "hr",
-      "name": "heart rate",
-      "description": "Heart Rate",
-      "dtype": "float"
-    },
-    {
       "id": "tmp",
       "name": "skin temperature",
       "description": "Skin Temperature on the Wrist",
@@ -108,15 +102,6 @@
       "frequency": 0,
       "channels": [
         "ibi"
-      ]
-    },
-    {
-      "name": "heart rate",
-      "description": "Heart rate (unit - beats per minute)",
-      "unit": "bpm",
-      "frequency": 0,
-      "channels": [
-        "hr"
       ]
     },
     {

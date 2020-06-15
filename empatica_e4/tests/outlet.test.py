@@ -3,12 +3,16 @@ import asyncio
 import time
 from random import randint
 
-import empatica_e4.connector as conn
+from empatica_e4.connector import Connector
 
 
-async def emit(name, freq, channels):
+async def emit(conn: Connector, name: str, freq: int, channels: int):
     while True:
-        conn.process_data_stream(f"{name} {' '.join(map(str, [round(time.time_ns() * 1e-9, 2), *[randint(1, 5) for _ in range(channels)]]))}")
+        t = round(time.time_ns() * 1e-9, 2)
+        cmd = f"{name} {str(t)}"
+        if channels > 0:
+            cmd = f"{cmd} {' '.join(map(lambda x: str(randint(1, 5)), range(channels)))}"
+        conn.process_data_stream(cmd)
         await asyncio.sleep(1 / freq)
 
 
@@ -18,15 +22,15 @@ async def main():
         ('E4_Bvp', 64, 1),
         ('E4_Gsr', 1, 1),
         ('E4_Ibi', 1, 1),
-        ('E4_Hr', 1, 1),
         ('E4_Temperature', 0.5, 1),
         ('E4_Battery', 0.1, 1),
         ('E4_Tag', 0.1, 0)
     ]
     print(f'{len(args)} streams created')
     print(f'streaming started')
-    jobs = [emit(*arg) for arg in args]
-    conn.DEVICE_ID = '1234567890'
+    conn = Connector()
+    jobs = [emit(conn, *arg) for arg in args]
+    conn.device_id = '1234567890'
     await asyncio.gather(*jobs)
 
 

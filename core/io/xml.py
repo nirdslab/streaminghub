@@ -1,9 +1,11 @@
+import os
+
 from lxml import etree
 
 from core.errors import DoesNotMatchSchemaError
 from core.io import parser
 
-__schema_path = 'dfs/xml/dfs.xsd'
+__schema_path = f'{os.path.dirname(__file__)}/../../dfs/xml/dfs.xsd'
 
 
 def __load(path: str) -> etree:

@@ -1,11 +1,12 @@
 import json
+import os
 
 import jsonschema
 
 from core.errors import DoesNotMatchSchemaError
 from core.io import parser
 
-__schema_path = 'dfs/json/dfs.jsd'
+__schema_path = f'{os.path.dirname(__file__)}/../../dfs/json/dfs.jsd'
 
 
 def __load(path: str) -> dict:

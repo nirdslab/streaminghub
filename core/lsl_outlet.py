@@ -3,28 +3,29 @@ from pylsl import StreamInfo, StreamOutlet
 from core.types import MetaStream
 
 
-def create_outlet(source_id: str, device_desc: DeviceInfo, stream_desc: StreamInfo) -> StreamOutlet:
+def create_outlet(source_id: str, meta: MetaStream, idx: int) -> StreamOutlet:
     """
     Generate LSL outlet from Metadata
     :rtype: StreamOutlet
     :param source_id: id for the device, usually the manufacturer and device type combined
-    :param device_desc: device information (name, type)
-    :param stream_desc: stream description. should contain the keys (name, unit, freq, channel_count, channels)
+    :param meta: meta stream (description of all streams from a particular device)
+    :param idx: which stream, from all streams in meta, to create an outlet for
     :return: StreamOutlet object to send data streams through
     """
+    stream: MetaStream.StreamInfo = meta.streams[idx]
     info = StreamInfo(
         source_id=source_id,
-        name=device_desc.model,
-        type=stream_desc.name,
-        channel_count=len(stream_desc.channels),
-        nominal_srate=stream_desc.freq
+        name=f'{meta.device.model}, {meta.device.manufacturer} ({meta.device.category})',
+        type=stream.name,
+        channel_count=len(stream.channels),
+        nominal_srate=stream.frequency
     )
     # create stream description
     desc = info.desc()
-    desc.append_child_value("unit", stream_desc.unit)
-    desc.append_child_value("freq", str(stream_desc.freq))
+    desc.append_child_value("unit", stream.unit)
+    desc.append_child_value("freq", str(stream.frequency))
     channels = desc.append_child("channels")
-    for channel in stream_desc.channels:
+    for channel in stream.channels:
         channels.append_child_value("channel", channel)
     # return stream outlet
     return StreamOutlet(info)

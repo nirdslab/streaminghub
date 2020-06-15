@@ -31,6 +31,8 @@ def __parse_etree_into_meta_stream(data: etree) -> MetaStream:
         stream_info.name = stream.xpath('name')[0].text
         stream_info.description = stream.xpath('description')[0].text
         stream_info.unit = stream.xpath('unit')[0].text
+        if stream_info.unit is None:
+            stream_info.unit = ""
         stream_info.frequency = stream.xpath('frequency')[0].text
         stream_info.channels = [x.text for x in stream.xpath('channels/channel')]
         spec.streams.append(stream_info)
