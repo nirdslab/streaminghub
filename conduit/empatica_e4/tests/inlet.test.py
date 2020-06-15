@@ -14,7 +14,7 @@ async def listen(inlet: StreamInlet):
 
 async def main():
     print("looking for an Empatica E4 stream...")
-    streams = resolve_stream('name', 'Empatica E4')
+    streams = resolve_stream('name', 'E4, Empatica (Wristband)')
     assert len(streams) > 0
     print(f'{len(streams)} Stream(s) found!')
 

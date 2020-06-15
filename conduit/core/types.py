@@ -36,7 +36,7 @@ class MetaStream(dict):
 
         @property
         def model(self) -> str:
-            return self.get('model')
+            return self['model']
 
         @model.setter
         def model(self, value: str):
@@ -44,7 +44,7 @@ class MetaStream(dict):
 
         @property
         def manufacturer(self) -> str:
-            return self.get('manufacturer')
+            return self['manufacturer']
 
         @manufacturer.setter
         def manufacturer(self, value: str):
@@ -52,7 +52,7 @@ class MetaStream(dict):
 
         @property
         def category(self) -> str:
-            return self.get('category')
+            return self['category']
 
         @category.setter
         def category(self, value: str):
@@ -119,11 +119,11 @@ class MetaStream(dict):
             self['unit'] = value
 
         @property
-        def frequency(self) -> int:
-            return self['frequency']
+        def frequency(self) -> float:
+            return float(self['frequency'])
 
         @frequency.setter
-        def frequency(self, value: int):
+        def frequency(self, value: float):
             self['frequency'] = value
 
         @property

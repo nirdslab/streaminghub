@@ -49,12 +49,6 @@
       <dtype>float</dtype>
     </field>
     <field>
-      <id>hr</id>
-      <name>heart rate</name>
-      <description>Heart Rate</description>
-      <dtype>float</dtype>
-    </field>
-    <field>
       <id>tmp</id>
       <name>skin temperature</name>
       <description>Skin Temperature on the Wrist</description>
@@ -110,15 +104,6 @@
       <frequency>0</frequency>
       <channels>
         <channel>ibi</channel>
-      </channels>
-    </stream>
-    <stream>
-      <name>heart rate</name>
-      <description>Heart rate (unit - beats per minute)</description>
-      <unit>bpm</unit>
-      <frequency>0</frequency>
-      <channels>
-        <channel>hr</channel>
       </channels>
     </stream>
     <stream>

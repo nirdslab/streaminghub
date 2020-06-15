@@ -8,7 +8,7 @@ from pylsl import resolve_stream, StreamInlet
 
 matplotlib.use("Qt5Agg")
 
-streams = resolve_stream('name', 'Empatica E4')
+streams = resolve_stream('name', 'E4, Empatica (Wristband)')
 in_object = [*map(StreamInlet, streams)]
 
 
