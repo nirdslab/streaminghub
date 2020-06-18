@@ -160,7 +160,7 @@ class Connector:
                     # tag output
                     elif res_code == 'E4_Tag':
                         [t] = data
-                        OUTLET.push_sample([1], t)
+                        OUTLET.push_sample([0], t)
                     # for all other outputs
                     else:
                         [t, v] = data
