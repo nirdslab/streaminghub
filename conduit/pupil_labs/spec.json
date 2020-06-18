@@ -108,7 +108,7 @@
       ]
     },
     {
-      "name": "gaze.0",
+      "name": "gaze (left eye)",
       "description": "Gaze Position (Eye 0)",
       "unit": "",
       "frequency": 128,
@@ -119,7 +119,7 @@
       ]
     },
     {
-      "name": "gaze.1",
+      "name": "gaze (right eye)",
       "description": "Gaze Position (Eye 1)",
       "unit": "",
       "frequency": 128,
@@ -130,7 +130,7 @@
       ]
     },
     {
-      "name": "fxn",
+      "name": "fixation",
       "description": "Fixations",
       "unit": "",
       "frequency": 0,

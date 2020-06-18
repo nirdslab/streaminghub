@@ -1,18 +1,15 @@
 #!/usr/bin/env python3
+import sys
 from typing import List
 
-import matplotlib
 import numpy as np
-from matplotlib import pyplot as plt, animation
 from pylsl import resolve_stream, StreamInlet
 
-matplotlib.use("Qt5Agg")
-
-streams = resolve_stream('name', 'E4, Empatica (Wristband)')
-in_object = [*map(StreamInlet, streams)]
+SYNTAX = "data-stream-plot [stream_name]"
 
 
 def plot_data(_streams: List[StreamInlet]):
+    from matplotlib import pyplot as plt, animation
     S = len(_streams)  # number of streams
     W = 100  # buffer size (only W data points are visualized per plot)
     T = [np.arange(W) for _ in _streams]  # for timestamps (initialize to nan)
@@ -74,5 +71,21 @@ def plot_data(_streams: List[StreamInlet]):
     plt.show()
 
 
-if __name__ == '__main__':
+def main():
+    # Load matplotlib
+    import matplotlib
+    matplotlib.use("Qt5Agg")
+    # parse command-line args
+    args = sys.argv
+    assert len(args) == 2, f"Invalid Syntax.\nExpected: {SYNTAX}"
+    stream_name = sys.argv[1]
+    streams = resolve_stream('name', stream_name)
+    in_object = [*map(StreamInlet, streams)]
     plot_data(in_object)
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except AssertionError as e:
+        print(f'Error: {e}', file=sys.stderr)
