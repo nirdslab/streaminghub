@@ -14,7 +14,7 @@ in_object = [*map(StreamInlet, streams)]
 
 def plot_data(_streams: List[StreamInlet]):
     S = len(_streams)  # number of streams
-    W = 50  # buffer size (only W data points are visualized per plot)
+    W = 100  # buffer size (only W data points are visualized per plot)
     T = [np.arange(W) for _ in _streams]  # for timestamps (initialize to nan)
     D = [np.full((W, stream.channel_count), np.nan) for stream in _streams]  # for data (initialize to nan)
     L = []
