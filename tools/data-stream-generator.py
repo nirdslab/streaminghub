@@ -38,6 +38,7 @@ async def emit(source_id: str, meta: MetaStream, idx: int):
 async def begin_data_stream(meta: MetaStream):
     try:
         print('Starting data stream...')
+        print(f'Device Name: {meta.device.model}, {meta.device.manufacturer} ({meta.device.category})')
         _id = '12345'
         # create a job for each stream defined in the meta-stream
         jobs = [emit(_id, meta, _idx) for _idx in range(len(meta.streams))]

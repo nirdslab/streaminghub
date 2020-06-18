@@ -15,7 +15,7 @@ import sys
 from core.errors import DoesNotMatchSchemaError
 from core.io import get_meta_stream
 
-SYNTAX = "schema-validator [path_to_meta_stream]"
+SYNTAX = "meta-stream-validator [path_to_meta_stream]"
 
 
 def validate_xml_schema(path: str):
