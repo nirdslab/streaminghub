@@ -89,7 +89,7 @@
     {
       "name": "galvanic skin response",
       "description": "Galvanic Skin Response (unit - micro siemens)",
-      "unit": "S",
+      "unit": "μS",
       "frequency": 0,
       "channels": [
         "gsr"
