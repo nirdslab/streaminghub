@@ -1,4 +1,16 @@
 #!/usr/bin/env python3
+
+"""
+This command-line executable program accepts a
+data-stream name as an input, and generates a
+plot for each stream in the data-stream.
+
+It can be used for testing whether a meta-stream
+has been correctly used to generate a compliant
+data-stream, and also to visualize how different
+streams arrive at different frequencies.
+"""
+
 import sys
 from typing import List
 
