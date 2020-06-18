@@ -154,7 +154,7 @@ class MetaStream(dict):
 
         @frequency.setter
         def frequency(self, value: float):
-            self['frequency'] = value
+            self['frequency'] = float(value)
 
         @property
         def channels(self) -> List[str]:
