@@ -140,8 +140,9 @@ class Connector:
 
     def get_outlet(self, res_code: str) -> StreamOutlet:
         if res_code not in self.outlets:
-            outlet = create_outlet(self.device_id, self.meta_stream, self.res_codes.index(res_code))
-            self.outlets[res_code] = outlet
+            _meta = self.meta_stream
+            _idx = self.res_codes.index(res_code)
+            self.outlets[res_code] = create_outlet(self.device_id, _meta.device, _meta.streams[_idx])
         return self.outlets[res_code]
 
     def process_data_stream(self, cmd: str):

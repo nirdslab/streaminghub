@@ -3,19 +3,18 @@ from pylsl import StreamInfo, StreamOutlet
 from core.types import MetaStream
 
 
-def create_outlet(source_id: str, meta: MetaStream, idx: int) -> StreamOutlet:
+def create_outlet(source_id: str, device: MetaStream.DeviceInfo, stream: MetaStream.StreamInfo) -> StreamOutlet:
     """
     Generate LSL outlet from Metadata
     :rtype: StreamOutlet
     :param source_id: id for the device, usually the manufacturer and device type combined
-    :param meta: meta stream (description of all streams from a particular device)
-    :param idx: which stream, from all streams in meta, to create an outlet for
+    :param device: device information (from meta-stream)
+    :param stream: stream information (from meta-stream)
     :return: StreamOutlet object to send data streams through
     """
-    stream: MetaStream.StreamInfo = meta.streams[idx]
     info = StreamInfo(
         source_id=source_id,
-        name=f'{meta.device.model}, {meta.device.manufacturer} ({meta.device.category})',
+        name=f'{device.model}, {device.manufacturer} ({device.category})',
         type=stream.name,
         channel_count=len(stream.channels),
         nominal_srate=stream.frequency

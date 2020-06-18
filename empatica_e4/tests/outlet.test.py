@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 import asyncio
-import time
 import random
+import time
 
 from empatica_e4.connector import Connector
 
 
 async def emit(conn: Connector, name: str, freq: int, channels: int):
-
     while True:
         t = round(time.time_ns() * 1e-9, 2)
         cmd = f"{name} {str(t)}"

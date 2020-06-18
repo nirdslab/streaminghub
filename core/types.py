@@ -6,15 +6,21 @@ class MetaStream(dict):
     Meta-stream object
     """
 
-    def __init__(self, meta=None) -> None:
+    def __init__(self, d=None) -> None:
         super().__init__()
-        if meta is not None:
-            self['info'] = meta['info']
-            self['device'] = meta['device']
-            self['fields'] = meta['fields']
-            self['streams'] = meta['streams']
+        if d is not None:
+            self.info = MetaStream.Info(d['info'])
+            self.device = MetaStream.DeviceInfo(d['device'])
+            self.fields = [MetaStream.FieldInfo(field) for field in d['fields']]
+            self.streams = [MetaStream.StreamInfo(stream) for stream in d['streams']]
 
     class Info(dict):
+
+        def __init__(self, d=None) -> None:
+            super().__init__()
+            if d is not None:
+                self.version = d['version']
+                self.checksum = d['checksum']
 
         @property
         def version(self) -> str:
@@ -33,6 +39,13 @@ class MetaStream(dict):
             self['checksum'] = value
 
     class DeviceInfo(dict):
+
+        def __init__(self, d=None) -> None:
+            super().__init__()
+            if d is not None:
+                self.model = d['model']
+                self.manufacturer = d['manufacturer']
+                self.category = d['category']
 
         @property
         def model(self) -> str:
@@ -59,6 +72,14 @@ class MetaStream(dict):
             self['category'] = value
 
     class FieldInfo(dict):
+
+        def __init__(self, d=None) -> None:
+            super().__init__()
+            if d is not None:
+                self.id = d['id']
+                self.name = d['name']
+                self.description = d['description']
+                self.dtype = d['dtype']
 
         @property
         def id(self) -> str:
@@ -93,6 +114,15 @@ class MetaStream(dict):
             self['dtype'] = value
 
     class StreamInfo(dict):
+
+        def __init__(self, d=None) -> None:
+            super().__init__()
+            if d is not None:
+                self.name = d['name']
+                self.description = d['description']
+                self.unit = d['unit']
+                self.frequency = d['frequency']
+                self.channels = d['channels']
 
         @property
         def name(self) -> str:
