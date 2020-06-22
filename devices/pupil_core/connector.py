@@ -5,6 +5,7 @@ import os
 from typing import Any, Dict
 
 import msgpack
+import numpy as np
 import zmq
 import zmq.asyncio
 from PIL import Image
@@ -32,17 +33,18 @@ class Connector(object):
         self.req = self.ctx.socket(ZMQ_REQ)
         self.sub = self.ctx.socket(ZMQ_SUB)
         self.topics = [
-            'frame',  # camera stream (eye, world)
-            'gaze',  # where you're looking at
+            'frame.world',  # camera stream (eye, world)
+            'gaze.3d.0.',  # where you're looking at
+            'gaze.3d.1.',  # where you're looking at
             # 'pupil', # information about pupil (such as diameter, dilation)
             'fixations',  # starts sending data when it detects fixations (continuously sends until next fixation)
             # 'notify',  # notifications
             # 'logging'  # for logging
         ]
         self.stream_idx = {
-            'frame': 0,
-            'gaze.0': 1,
-            'gaze.1': 2,
+            'frame.world': 0,
+            'gaze.3d.0.': 1,
+            'gaze.3d.1.': 2,
             'fixations': 3
         }
         self.outlets: Dict[str, StreamOutlet] = {}
@@ -71,51 +73,50 @@ class Connector(object):
             print(f'Subscribed to: {sub_id}')
         print('Subscription Completed.')
 
-    def emit(self, topic: str, message: dict, extra) -> Any:
-        ts = message[b'timestamp']
-        if topic.startswith('gaze'):
+    def emit(self, topic: str, message: dict, image: np.array) -> Any:
+        ts = message['timestamp']
+        if topic.startswith('gaze.3d.'):
             # decode message
-            [gaze_pos_x, gaze_pos_y] = message[b'norm_pos']
-            gaze_conf = message[b'confidence']
+            [gaze_pos_x, gaze_pos_y] = message['norm_pos']
+            gaze_conf = message['confidence']
             # push to LSL stream if data point has acceptable confidence
             if gaze_conf > CONF_THRESHOLD:
-                self.get_outlet(f'gaze.{topic[5]}').push_sample([gaze_pos_x, gaze_pos_y, gaze_conf], ts)
+                self.get_outlet(topic[:10]).push_sample([gaze_pos_x, gaze_pos_y, gaze_conf], ts)
         elif topic.startswith('fixations'):
             # decode message
-            [fxn_pos_x, fxn_pos_y] = message[b'norm_pos']
-            fxn_dispersion = message[b'dispersion']
-            fxn_d = message[b'duration']
-            fxn_conf = message[b'confidence']
+            [fxn_pos_x, fxn_pos_y] = message['norm_pos']
+            fxn_dispersion = message['dispersion']
+            fxn_d = message['duration']
+            fxn_conf = message['confidence']
             # push to LSL stream if data point has acceptable confidence
             if fxn_conf > CONF_THRESHOLD:
-                self.get_outlet('fixations').push_sample([fxn_pos_x, fxn_pos_y, fxn_dispersion, fxn_d, fxn_conf], ts)
-        elif topic.startswith('frame'):
+                self.get_outlet(topic[:9]).push_sample([fxn_pos_x, fxn_pos_y, fxn_dispersion, fxn_d, fxn_conf], ts)
+        elif image is not None:
             # push image data to LSL stream
-            [r, g, b] = extra
-            # TODO check
-            self.get_outlet('frame').push_chunk([r, g, b], ts)
+            [r, g, b] = image
+            # TODO only sending (0,0) pixel for now, fix to send all pixels
+            self.get_outlet(topic[:11]).push_sample([r[0][0], g[0][0], b[0][0]], ts)
 
     async def run(self):
         self.sub_port = await self.get_sub_port()
         self.subscribe()
+        print('Started Data Stream. Use SIGINT to terminate.')
         while True:
             try:
                 # receive raw data (bytes)
-                data: list = await self.sub.recv_multipart()
-                # content of data after being parsed
-                topic: str = data[0].decode()
-                message: dict = msgpack.loads(data[1])
-                extra: list = data[2:]
-                # special case
-                if str.startswith(topic, 'frame'):
-                    image: Image.Image = Image.open(io.BytesIO(extra[0]))
-                    [r, g, b] = [image.getdata(0), image.getdata(1), image.getdata(2)]
-                    self.emit(topic, message, [r, g, b])
-                    continue
-                # general case
-                self.emit(topic, message, None)
-            except InterruptedError:
+                [topic, payload, *extra] = await self.sub.recv_multipart()
+                topic = topic.decode()
+                image = None
+                # world camera
+                if topic.startswith('frame.world'):
+                    image = np.transpose(np.asarray(Image.open(io.BytesIO(extra[0])).convert('RGB')))
+                # payload
+                payload = msgpack.loads(payload)
+                self.emit(topic, payload, image)
+            except KeyboardInterrupt:
+                print('Received Interrupt. Stopping...')
                 break
+        print('Stopped.')
 
 
 async def main():
