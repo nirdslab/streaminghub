@@ -1,4 +1,5 @@
-Orange3==3.25.0
-numpy==1.18.4
+Orange3==3.26.0
+numpy==1.19.0
 pylsl==1.12.2
-pyQt5==5.14.2
+PyQt5==5.15.0
+PyQt5-stubs==5.14.2.2

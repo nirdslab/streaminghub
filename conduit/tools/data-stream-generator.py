@@ -22,12 +22,12 @@ from core.types import MetaStream
 SYNTAX = "data-generator [schema_file]"
 
 
-async def emit(source_id: str, meta: MetaStream, idx: int):
+async def emit(source_id: str, meta: MetaStream, idx: int, t_start: int):
     stream = meta.streams[idx]
     outlet = create_outlet(source_id, meta.device, stream)
     print(f'created stream: {stream.name}')
     while True:
-        t = round(time.time_ns() * 1e-9, 2)
+        t = (time.time_ns() - t_start) * 1e-9
         outlet.push_sample([random.gauss(0, random.random() / 2) for _ in range(len(stream.channels))], t)
         # if stream frequency is zero, schedule next sample after a random time.
         # if not, schedule after (1 / f) time
@@ -36,12 +36,13 @@ async def emit(source_id: str, meta: MetaStream, idx: int):
 
 
 async def begin_data_stream(meta: MetaStream):
+    t_start = time.time_ns()
     try:
         print('Starting data stream...')
         print(f'Device Name: {meta.device.model}, {meta.device.manufacturer} ({meta.device.category})')
         _id = '12345'
         # create a job for each stream defined in the meta-stream
-        jobs = [emit(_id, meta, _idx) for _idx in range(len(meta.streams))]
+        jobs = [emit(_id, meta, _idx, t_start) for _idx in range(len(meta.streams))]
         # start all jobs
         print('Data stream started')
         await asyncio.gather(*jobs)

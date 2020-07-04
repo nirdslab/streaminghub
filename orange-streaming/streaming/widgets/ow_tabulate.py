@@ -1,14 +1,15 @@
 import sys
-from typing import List, Optional
+import typing
+from typing import List, Optional, Dict, Callable
 
 import numpy as np
 import pandas as pd
-from Orange.data import Table, Domain, ContinuousVariable
+from Orange.data import Table, Domain, ContinuousVariable, TimeVariable
 from Orange.widgets import widget, gui
 from Orange.widgets.utils.signals import Output
-from PyQt5.QtCore import pyqtSlot, QThread, QObject, QTimer
+from PyQt5.QtCore import pyqtSlot, QThread, QObject, QTimerEvent
 from orangewidget.utils.signals import Input
-from pylsl import StreamInlet
+from pylsl import StreamInlet, XMLElement
 
 SELECT_STREAM_MSG = 'None Selected'
 LOADING_MSG = 'Loading...'
@@ -43,104 +44,110 @@ class OWTabulate(widget.OWWidget):
             minimumWidth=400
         )
         # variables
-        self._task = None  # type: Optional[Task]
+        self.task = None  # type: Optional[Task]
         self.streams = []  # type: List[StreamInlet]
 
     def handleNewSignals(self):
-        self._update()
+        # First make sure any pending tasks are cancelled.
+        self.cancel_running_tasks()
+        if self.streams is not None:
+            self.task = Task(streams=self.streams, callback=self.Outputs.data.send, buffer_size=1000, parent=self)
+            self.task.begin(interval=1000)
 
     @pyqtSlot(Table)
-    def handleTable(self, value):
+    def handleTable(self, value: Table):
         assert self.thread() is QThread.currentThread()
         self.Outputs.data.send(value)
-
-    def _update(self):
-        if self._task is not None:
-            # First make sure any pending tasks are cancelled.
-            self.cancel()
-        assert self._task is None
-
-        if self.streams is None:
-            return
-
-        self._task = task = Task()
-        task.begin(self.streams, self.Outputs.data)
 
     def onDeleteWidget(self):
         self.cancel()
         super().onDeleteWidget()
 
+    def cancel_running_tasks(self):
+        if self.task is not None:
+            self.task.cancel()
+            self.task = None
+        assert self.task is None
+
     def cancel(self):
-        if self._task is not None:
-            self._task.cancel()
-            self._task = None
+        self.cancel_running_tasks()
 
 
 class Task(QObject):
-    _timer = QTimer()  # type: QTimer
-    _streams = ...  # type: List[StreamInlet]
-    _out = ...  # type: Output
-    _data = None  # type: pd.DataFrame
+    streams = ...  # type: List[StreamInlet]
+    callback = ...  # type: Callable[[Table], None]
+    buffer_size = ...  # type: int
+    timer_id = ...  # type: int
+    df = ...  # type: pd.DataFrame
+    ch_map = ...  # type: Dict[str, List[str]]
 
-    def begin(self, streams: List[StreamInlet], out: Output):
-        self._streams = streams
-        self._out = out
-        self._timer.timeout.connect(lambda: self._run(self._streams, self._out))
-        self._timer.start(1000)
+    def __init__(self,
+                 streams: List[StreamInlet],
+                 callback: Callable[[Table], None],
+                 buffer_size: int,
+                 parent: typing.Optional['QObject'] = ...) -> None:
+        super().__init__(parent)
+        self.streams = streams
+        self.callback = callback
+        self.buffer_size = buffer_size
+        self.init_ch_map()
 
-    def _run(self, inlets: List[StreamInlet], out: Output):
+    def init_ch_map(self):
+        self.ch_map = {}
+        for inlet in self.streams:
+            info = inlet.info()
+            ch_labels = []
+            ptr: XMLElement = info.desc()
+            key = f'{info.name()} {info.type()}'
+            if not ptr.empty():
+                ptr = ptr.child("channels")
+                if not ptr.empty():
+                    ptr = ptr.first_child()
+                    while not ptr.empty():
+                        ch_labels.append(ptr.child_value())
+                        ptr = ptr.next_sibling()
+            self.ch_map[key] = ch_labels
 
-        def get_ch_labels(_inlet: StreamInlet):
-            _labels = []
-            _ch = _inlet.info().desc()
-            if not _ch.empty():
-                _ch = _ch.child("channels")
-                if not _ch.empty():
-                    _ch = _ch.first_child()
-                    while not _ch.empty():
-                        _labels.append(_ch.child_value())
-                        _ch = _ch.next_sibling()
-                    return _labels
-            return _labels
+    def begin(self, interval: int):
+        cols = [c for cs in self.ch_map.values() for c in cs]
+        self.df = pd.DataFrame(columns=cols, index=pd.Index([], name='t'))
+        self.timer_id = self.startTimer(interval)
 
-        def create_schema(_inlets: List[StreamInlet]):
-            _labels = []
-            for _inlet in _inlets:
-                for _label in get_ch_labels(_inlet):
-                    _labels.append(_label)
-            return pd.DataFrame(columns=_labels, index=pd.Index([], name='t'))
+    def timerEvent(self, a0: QTimerEvent) -> None:
+        if a0.timerId() == self.timer_id:
+            a0.accept()
+            self._run()
 
-        # create table schema first
-        if self._data is None:
-            self._data = create_schema(inlets)
-
+    def _run(self):
+        df = self.df
         updated = False
-
-        for inlet in inlets:
+        # collect data into df
+        for inlet in self.streams:
+            # pull samples
             samples, timestamps = inlet.pull_chunk()
-            labels = get_ch_labels(inlet)
             if len(timestamps) == 0:
                 continue
+            # merge samples to data frame
+            info = inlet.info()
+            key = f'{info.name()} {info.type()}'
+            labels = self.ch_map[key]
             samples = np.array(samples).reshape((-1, len(labels)))
             chunk = pd.DataFrame(index=pd.Index(timestamps, name='t'), data=samples, columns=labels)
-            # self._data.update(chunk)
-            self._data = self._data.fillna(chunk).append(chunk[~chunk.index.isin(self._data.index)], sort=True)
+            # generate updated chunk of data
+            df = chunk.reindex(index=df.index.union(chunk.index).sort_values(), columns=df.columns).fillna(df)
             updated = True
-
+        # retain only the last ${buffer_size} rows
+        self.df = df.iloc[-self.buffer_size:]
+        # emit the aggregate data
         if updated:
-            # emit the aggregate data
-            try:
-                self._data = self._data.iloc[:1000]
-                # create table from self._data (include index as well)
-                table_data = np.concatenate([self._data.index.to_numpy().reshape((-1, 1)), self._data.to_numpy()], axis=-1)
-                table = Table.from_numpy(Domain([*map(ContinuousVariable, [self._data.index.name, *self._data.columns])]), table_data)
-                # send table
-                out.send(table)
-            except Exception as e:
-                print(e)
+            # create table from self._data (include index as well)
+            table_data = np.concatenate([self.df.index.to_numpy().reshape((-1, 1)), self.df.to_numpy()], axis=-1)
+            table = Table.from_numpy(Domain([TimeVariable(self.df.index.name), *map(ContinuousVariable, self.df.columns)]), table_data)
+            # trigger callback
+            self.callback(table)
 
     def cancel(self):
-        self._timer.stop()
+        self.killTimer(0)
 
 
 if __name__ == "__main__":

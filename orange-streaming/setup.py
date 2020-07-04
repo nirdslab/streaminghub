@@ -29,7 +29,7 @@ if __name__ == '__main__':
         version=VERSION,
         author="Yasith Jayawardana",
         author_email="yasith@cs.odu.edu",
-        url="https://github.com/nirdslab/orange-streaming/",
+        url="https://github.com/nirdslab/streaminghub/",
         license='MIT',
         keywords=(
             'stream',
