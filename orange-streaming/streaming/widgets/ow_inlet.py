@@ -9,34 +9,29 @@ SELECT_STREAM_MSG = 'None Selected'
 LOADING_MSG = 'Loading...'
 
 
-class OWLSLStream(widget.OWWidget):
-    # widget definition
+class OWInlet(widget.OWWidget):
+    """
+    Widget to fetch data and metadata from LSL streams
+    """
     name = "Inlet"
     description = "Connect to LSL streams and fetch data and metadata from them"
     icon = "icons/Stream.svg"
     priority = 1
 
-    class Outputs:
-        streams = Output("Streams", StreamInlet)
-
-    want_main_area = False
-
-    def __init__(self):
-        super().__init__()
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         # variables
         self.available_streams = []  # type: List[StreamInfo]
         self.available_stream_labels = []  # type: List[Tuple[str, int]]
         self.current_selection = []  # type: List[int]
         self.selected_streams = []  # type: List[StreamInfo]
         self.selected_inlets = []  # type: List[StreamInlet]
-
         # ui
+        self.want_main_area = False
         self.wb_control_area = gui.widgetBox(
             widget=self.controlArea,
             minimumWidth=400
         )
-        # Selected Streams
         self.wb_selected_streams = gui.widgetBox(
             widget=self.wb_control_area,
             box="Selected Stream(s)"
@@ -45,7 +40,6 @@ class OWLSLStream(widget.OWWidget):
             widget=self.wb_selected_streams,
             label='None'
         )
-        # Stream Selection
         self.wb_available_streams = gui.widgetBox(
             widget=self.wb_control_area,
             box="Available Streams"
@@ -71,6 +65,12 @@ class OWLSLStream(widget.OWWidget):
             default=True,
             callback=self.on_stream_selection_confirmed
         )
+
+    class Outputs:
+        """
+        Outputs
+        """
+        streams = Output("Streams", StreamInlet)
 
     def on_stream_selection_changed(self):
         """
@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
-    ow = OWLSLStream()
+    ow = OWInlet()
     ow.show()
     ow.raise_()
     ow.handleNewSignals()

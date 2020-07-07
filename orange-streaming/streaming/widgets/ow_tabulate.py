@@ -16,42 +16,47 @@ LOADING_MSG = 'Loading...'
 
 
 class OWTabulate(widget.OWWidget):
-    # widget definition
+    """
+    Widget to convert data and metadata from StreamInlet class (LSL) into Table class (Orange)
+    """
     name = "Tabulate"
     description = "Convert LSL stream into table form"
     icon = "icons/Tabulate.svg"
     priority = 2
 
-    # inputs
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # variables
+        self.task = None  # type: Optional[Task]
+        self.streams = []  # type: List[StreamInlet]
+        # ui
+        self.want_main_area = False
+        self.wb_control_area = gui.widgetBox(
+            widget=self.controlArea,
+            minimumWidth=400
+        )
+
     class Inputs:
+        """
+        Inputs
+        """
         streams = Input("Streams", StreamInlet)
 
-    # outputs
     class Outputs:
+        """
+        Outputs
+        """
         data = Output("Data", Table)
-
-    # ui
-    want_main_area = False
 
     @Inputs.streams
     def set_streams(self, streams: List[StreamInlet]):
         self.streams = streams
 
-    def __init__(self):
-        super().__init__()
-        self.wb_control_area = gui.widgetBox(
-            widget=self.controlArea,
-            minimumWidth=400
-        )
-        # variables
-        self.task = None  # type: Optional[Task]
-        self.streams = []  # type: List[StreamInlet]
-
     def handleNewSignals(self):
         # First make sure any pending tasks are cancelled.
         self.cancel_running_tasks()
         if self.streams is not None:
-            self.task = Task(streams=self.streams, callback=self.Outputs.data.send, buffer_size=1000, parent=self)
+            self.task = Task(streams=self.streams, callback=self.handleTable, buffer_size=1000, parent=self)
             self.task.begin(interval=1000)
 
     @pyqtSlot(Table)
