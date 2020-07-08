@@ -8,7 +8,7 @@ SELECT_STREAM_MSG = 'None Selected'
 LOADING_MSG = 'Loading...'
 
 
-class OWOutlet(widget.OWWidget):
+class OutletWidget(widget.OWWidget):
     """
     Widget to push data and metadata into LSL streams
     """
@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
-    ow = OWOutlet()
+    ow = OutletWidget()
     ow.show()
     ow.raise_()
     ow.handleNewSignals()

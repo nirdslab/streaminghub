@@ -8,7 +8,7 @@ from Orange.widgets import widget
 from orangewidget.utils.signals import Input, Output
 
 
-class OWMonitor(widget.OWWidget):
+class MonitorWidget(widget.OWWidget):
     """
     Monitor resource utilization and calculate heuristics for a particular transformation
     """
@@ -85,7 +85,7 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
-    ow = OWMonitor()
+    ow = MonitorWidget()
     ow.show()
     ow.raise_()
     ow.handleNewSignals()

@@ -15,7 +15,7 @@ SELECT_STREAM_MSG = 'None Selected'
 LOADING_MSG = 'Loading...'
 
 
-class OWTabulate(widget.OWWidget):
+class TabulateWidget(widget.OWWidget):
     """
     Widget to convert data and metadata from StreamInlet class (LSL) into Table class (Orange)
     """
@@ -160,7 +160,7 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
-    ow = OWTabulate()
+    ow = TabulateWidget()
     ow.show()
     ow.raise_()
     ow.handleNewSignals()

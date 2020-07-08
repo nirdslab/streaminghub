@@ -9,7 +9,7 @@ SELECT_STREAM_MSG = 'None Selected'
 LOADING_MSG = 'Loading...'
 
 
-class OWInlet(widget.OWWidget):
+class InletWidget(widget.OWWidget):
     """
     Widget to fetch data and metadata from LSL streams
     """
@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
-    ow = OWInlet()
+    ow = InletWidget()
     ow.show()
     ow.raise_()
     ow.handleNewSignals()
