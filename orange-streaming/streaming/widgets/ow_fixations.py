@@ -4,7 +4,7 @@ import threading
 import numpy as np
 from Orange.data import Table
 from Orange.widgets import widget
-from PyQt5.QtCore import pyqtSlot
+from AnyQt.QtCore import pyqtSlot
 from orangewidget.utils.signals import Input, Output
 from streaming.widgets.fixation_detector import FixationDetector
 

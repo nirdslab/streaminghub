@@ -57,7 +57,7 @@ class TabulateWidget(widget.OWWidget):
         self.cancel_running_tasks()
         if self.streams is not None:
             self.task = Task(streams=self.streams, callback=self.handleTable, buffer_size=1000, parent=self)
-            self.task.begin(interval=1000)
+            self.task.begin(interval=5000)
 
     @pyqtSlot(Table)
     def handleTable(self, value: Table):
