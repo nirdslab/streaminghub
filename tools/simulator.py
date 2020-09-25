@@ -106,8 +106,12 @@ async def emit(source_id: str, meta: MetaStream, idx: int, df: pd.DataFrame):
     print(f'stream started - {stream.name}')
     while current_thread.alive:
         if ptr < df.index.size:
-            sample = df.iloc[ptr][stream.channels]
-            outlet.push_sample(sample.values, sample.name)
+            packet = df.iloc[ptr][stream.channels]
+            [t, d] = packet.name, packet.values
+            d_l = df[stream.channels].min().values
+            d_h = df[stream.channels].max().values
+            d_n = (d - d_l) / (d_h - d_l)
+            outlet.push_sample(d_n, t)
             ptr += 1
             # if stream frequency is zero, schedule next sample after a random time.
             # if not, schedule after (1 / f) time
