@@ -1,0 +1,144 @@
+{
+  "$schema": "../dfs/json/meta-file.jsd",
+  "info": {
+    "version": "1.0.0",
+    "created": "2020-09-20T00:00:00",
+    "modified": "2020-09-20T00:00:00",
+    "checksum": "010203040506070809000A0B0C0D0E0F"
+  },
+  "dataset": {
+    "name": "ADHD Audiovisual SIN Dataset",
+    "description": "Gaze recordings of participants during an audiovisual SIN task",
+    "keywords": [
+      "SIN",
+      "ADHD"
+    ],
+    "authors": [
+      {
+        "name": "Anne M. P. Michalek",
+        "affiliation": "Old Dominion University",
+        "email": "aperrott@odu.edu"
+      }
+    ]
+  },
+  "fields": [
+    {
+      "id": "RecordingTimestamp",
+      "name": "timestamp",
+      "description": "Recording Timestamp",
+      "dtype": "float"
+    },
+    {
+      "id": "GazePointLeftX (ADCSpx)",
+      "name": "left x",
+      "description": "Normalized X-Gaze Point of Left Eye",
+      "dtype": "float"
+    },
+    {
+      "id": "GazePointLeftY (ADCSpx)",
+      "name": "left y",
+      "description": "Normalized Y-Gaze Point of Left Eye",
+      "dtype": "float"
+    },
+    {
+      "id": "PupilLeft",
+      "name": "left d",
+      "description": "Pupil Diameter of Left Eye",
+      "dtype": "float"
+    },
+    {
+      "id": "GazePointLeftY (ADCSpx)",
+      "name": "right x",
+      "description": "Normalized X-Gaze Point of Right Eye",
+      "dtype": "float"
+    },
+    {
+      "id": "GazePointRightY (ADCSpx)",
+      "name": "right y",
+      "description": "Normalized Y-Gaze Point of Right Eye",
+      "dtype": "float"
+    },
+    {
+      "id": "PupilRight",
+      "name": "right d",
+      "description": "Pupil Diameter of Right Eye",
+      "dtype": "float"
+    }
+  ],
+  "links": [
+    {
+      "type": "index",
+      "fields": [
+        "RecordingTimestamp"
+      ]
+    }
+  ],
+  "sources": {
+    "meta-streams": [
+      {
+        "device": {
+          "model": "Pro X2-60",
+          "manufacturer": "Tobii",
+          "category": "Eye Tracker"
+        },
+        "streams": [
+          {
+            "name": "gaze_l",
+            "description": "gaze point of left eye",
+            "unit": "px",
+            "frequency": 60,
+            "channels": [
+              "GazePointLeftX (ADCSpx)",
+              "GazePointLeftY (ADCSpx)"
+            ]
+          },
+          {
+            "name": "pupil_l",
+            "description": "pupil diameter of left eye",
+            "unit": "mm",
+            "frequency": 60,
+            "channels": [
+              "PupilLeft"
+            ]
+          },
+          {
+            "name": "gaze_r",
+            "description": "gaze point of right eye",
+            "unit": "px",
+            "frequency": 60,
+            "channels": [
+              "GazePointRightX (ADCSpx)",
+              "GazePointRightY (ADCSpx)"
+            ]
+          },
+          {
+            "name": "pupil_r",
+            "description": "pupil diameter of right eye",
+            "unit": "mm",
+            "frequency": 60,
+            "channels": [
+              "PupilRight"
+            ]
+          }
+        ]
+      }
+    ],
+    "files": [
+      {
+        "checksum": "010203040506070809000A0B0C0D0E0F",
+        "path": "./data/003ADHD_AV_01.csv",
+        "encoding": "csv",
+        "description": "Recordings from Participant 003, at Noise Level of 0 db, for Question 1",
+        "keys": [
+          "RecordingTimestamp",
+          "GazePointLeftX (ADCSpx)",
+          "GazePointLeftY (ADCSpx)",
+          "PupilLeft",
+          "GazePointRightX (ADCSpx)",
+          "GazePointRightY (ADCSpx)",
+          "PupilRight"
+        ]
+      }
+    ]
+  }
+}
