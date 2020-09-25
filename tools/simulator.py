@@ -89,12 +89,12 @@ def create_streaming_task(meta: MetaStream, df: pd.DataFrame):
 
 async def begin_data_stream(meta: MetaStream, df: pd.DataFrame):
     _id = str.join('', [random.choice(DIGIT_CHARS) for _ in range(5)])
-    print(f'Created data stream: {_id} - Device: {meta.device.model}, {meta.device.manufacturer} ({meta.device.category})', flush=True)
+    print(f'Created streaming task: {_id} - Device: {meta.device.model}, {meta.device.manufacturer} ({meta.device.category})', flush=True)
     # create a job for each stream defined in the meta-stream
     jobs = [emit(_id, meta, _idx, df) for _idx in range(len(meta.streams))]
     # start all jobs
     await asyncio.gather(*jobs)
-    print(f'Closed data stream: {_id}')
+    print(f'Ended streaming task: {_id}')
 
 
 async def emit(source_id: str, meta: MetaStream, idx: int, df: pd.DataFrame):
@@ -103,7 +103,7 @@ async def emit(source_id: str, meta: MetaStream, idx: int, df: pd.DataFrame):
     current_thread = threading.current_thread()
     current_thread.alive = True
     ptr = 0
-    print(f'streaming started - {stream.name}')
+    print(f'stream started - {stream.name}')
     while current_thread.alive:
         if ptr < df.index.size:
             sample = df.iloc[ptr][stream.channels]
@@ -113,6 +113,11 @@ async def emit(source_id: str, meta: MetaStream, idx: int, df: pd.DataFrame):
             # if not, schedule after (1 / f) time
             dt = (1. / stream.frequency) if stream.frequency > 0 else (random.randrange(0, 10) / 10.0)
             await asyncio.sleep(dt)
+        else:
+            print(f'stream ended - {stream.name}')
+            break
+    if not current_thread.alive:
+        print(f'stream terminated - {stream.name}')
 
 
 def main():
@@ -146,12 +151,12 @@ def main():
         while all([t.is_alive() for t in threads]):
             [t.join(.5) for t in threads]
     except KeyboardInterrupt:
-        print('\nInterrupt received. Ending all data streams...\n')
+        print('\nInterrupt received. Ending all stream tasks...\n')
         for t in threads:
             t.alive = False
             t.join()
     finally:
-        print('\nAll data streams ended\n')
+        print('\nAll streaming tasks ended\n')
 
 
 if __name__ == '__main__':
