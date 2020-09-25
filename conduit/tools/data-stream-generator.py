@@ -19,7 +19,7 @@ from core.io import get_meta_stream
 from core.lsl_outlet import create_outlet
 from core.types import MetaStream
 
-SYNTAX = "data-generator [schema_file]"
+SYNTAX = "data-stream-generator [schema_file]"
 
 
 async def emit(source_id: str, meta: MetaStream, idx: int, t_start: int):

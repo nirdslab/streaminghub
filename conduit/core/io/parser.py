@@ -54,8 +54,7 @@ def __parse_dict_into_meta_stream(data: dict) -> MetaStream:
 
 
 def __parse_dict_into_meta_file(data: dict) -> MetaFile:
-    meta = MetaFile()
-    return meta
+    return MetaFile(d=data)
 
 
 def __parse_dict_into_analytic_stream(data: dict) -> AnalyticStream:
