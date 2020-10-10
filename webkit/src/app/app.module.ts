@@ -6,6 +6,7 @@ import { AppRoutingModule } from './app-routing.module';
 // Material Modules
 import { MatInputModule } from '@angular/material/input'
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatToolbarModule } from '@angular/material/toolbar';
 // Application Components
 import { AppComponent } from './app.component';
 import { CanvasComponent } from './components/canvas/canvas.component';
@@ -15,6 +16,7 @@ import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { WidgetComponent } from './components/widget/widget.component';
 import { DesignerComponent } from './views/designer/designer.component';
+import { MetadataComponent } from './views/metadata/metadata.component';
 
 @NgModule({
   declarations: [
@@ -25,14 +27,16 @@ import { DesignerComponent } from './views/designer/designer.component';
     HeaderComponent,
     FooterComponent,
     WidgetComponent,
-    DesignerComponent
+    DesignerComponent,
+    MetadataComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
     MatInputModule,
-    MatTabsModule
+    MatTabsModule,
+    MatToolbarModule
   ],
   providers: [],
   bootstrap: [AppComponent]

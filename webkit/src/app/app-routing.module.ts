@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { DesignerComponent } from './views/designer/designer.component';
+import { MetadataComponent } from './views/metadata/metadata.component';
 
 const routes: Routes = [
   {
@@ -9,10 +10,10 @@ const routes: Routes = [
   },
   {
     path: 'metadata',
-    component: DesignerComponent
+    component: MetadataComponent
   },
   {
-    path: 'pipelines',
+    path: 'designer',
     component: DesignerComponent
   }
 ];
