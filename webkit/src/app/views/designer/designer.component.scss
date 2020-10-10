@@ -1,0 +1,13 @@
+.two-pane-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 480px;
+
+  .left-pane {
+    grid-column: 1;
+  }
+
+  .right-pane {
+    grid-column: 2;
+  }
+}
