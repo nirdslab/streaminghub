@@ -7,6 +7,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { MatInputModule } from '@angular/material/input'
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatCardModule } from '@angular/material/card';
 // Application Components
 import { AppComponent } from './app.component';
 import { CanvasComponent } from './components/canvas/canvas.component';
@@ -36,7 +37,8 @@ import { MetadataComponent } from './views/metadata/metadata.component';
     AppRoutingModule,
     MatInputModule,
     MatTabsModule,
-    MatToolbarModule
+    MatToolbarModule,
+    MatCardModule
   ],
   providers: [],
   bootstrap: [AppComponent]
