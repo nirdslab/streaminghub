@@ -123,6 +123,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "streaminghub-web"
+    }
+  },
+  "defaultProject": "streaminghub-web",
+  "cli": {
+    "analytics": "c5d38330-7fbb-495a-9756-6e2913144fa2"
+  }
 }
