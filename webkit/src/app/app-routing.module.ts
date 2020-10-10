@@ -6,6 +6,14 @@ const routes: Routes = [
   {
     path: '',
     component: DesignerComponent
+  },
+  {
+    path: 'metadata',
+    component: DesignerComponent
+  },
+  {
+    path: 'pipelines',
+    component: DesignerComponent
   }
 ];
 

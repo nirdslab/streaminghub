@@ -3,7 +3,9 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
+// Material Modules
 import { MatInputModule } from '@angular/material/input'
+import { MatTabsModule } from '@angular/material/tabs';
 // Application Components
 import { AppComponent } from './app.component';
 import { CanvasComponent } from './components/canvas/canvas.component';
@@ -29,7 +31,8 @@ import { DesignerComponent } from './views/designer/designer.component';
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
-    MatInputModule
+    MatInputModule,
+    MatTabsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

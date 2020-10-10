@@ -7,6 +7,9 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MenuComponent implements OnInit {
 
+  public links = [{title: 'Metadata', link: '/metadata'}, {title: 'Pipelines', link: '/pipelines'}];
+  public activeLink = this.links[0];
+
   constructor() { }
 
   ngOnInit(): void {

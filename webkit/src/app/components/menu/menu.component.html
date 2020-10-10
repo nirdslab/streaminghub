@@ -1,1 +1,6 @@
-<p>menu works!</p>
+<nav mat-tab-nav-bar backgroundColor="primary">
+  <a mat-tab-link *ngFor="let link of links"
+     (click)="activeLink = link"
+     [routerLink]="link.link"
+     [active]="(activeLink == link)">{{link.title}}</a>
+</nav>
