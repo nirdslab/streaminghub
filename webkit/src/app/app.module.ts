@@ -8,6 +8,8 @@ import { MatInputModule } from '@angular/material/input'
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
+// CDK Modules
+import { DragDropModule } from '@angular/cdk/drag-drop';
 // Application Components
 import { AppComponent } from './app.component';
 import { CanvasComponent } from './components/canvas/canvas.component';
@@ -35,10 +37,13 @@ import { MetadataComponent } from './views/metadata/metadata.component';
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
+    // Material Modules
     MatInputModule,
     MatTabsModule,
     MatToolbarModule,
-    MatCardModule
+    MatCardModule,
+    // CDK Modules
+    DragDropModule
   ],
   providers: [],
   bootstrap: [AppComponent]
