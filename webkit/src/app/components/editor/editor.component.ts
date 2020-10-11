@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 
 import * as ace from 'ace-builds';
 import 'ace-builds/src-noconflict/mode-json';
@@ -14,6 +14,7 @@ const LANG = 'ace/mode/json';
 })
 export class EditorComponent implements OnInit {
 
+  @Input() public title: string;
   @ViewChild('editor', { static: true }) editorRef: ElementRef;
   private codeEditor: ace.Ace.Editor;
 

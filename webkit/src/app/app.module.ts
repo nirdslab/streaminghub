@@ -20,6 +20,7 @@ import { FooterComponent } from './components/footer/footer.component';
 import { WidgetComponent } from './components/widget/widget.component';
 import { DesignerComponent } from './views/designer/designer.component';
 import { MetadataComponent } from './views/metadata/metadata.component';
+import { MetadataFormComponent } from './components/metadata-form/metadata-form.component';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { MetadataComponent } from './views/metadata/metadata.component';
     FooterComponent,
     WidgetComponent,
     DesignerComponent,
-    MetadataComponent
+    MetadataComponent,
+    MetadataFormComponent
   ],
   imports: [
     BrowserModule,
