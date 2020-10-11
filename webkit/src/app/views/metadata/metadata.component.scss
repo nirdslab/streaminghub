@@ -1,16 +1,16 @@
-.two-pane-container {
+.container {
   display: grid;
   grid-template-columns: 1fr 1fr;
 
   .left-pane {
     grid-column: 1;
     height: 100%;
-    box-sizing: border-box;
+    padding-right: 0.25em;
   }
 
   .right-pane {
     grid-column: 2;
     height: 100%;
-    box-sizing: border-box;
+    padding-left: 0.25em;
   }
 }

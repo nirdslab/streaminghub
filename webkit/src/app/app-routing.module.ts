@@ -6,7 +6,8 @@ import { MetadataComponent } from './views/metadata/metadata.component';
 const routes: Routes = [
   {
     path: '',
-    component: DesignerComponent
+    pathMatch: 'full',
+    redirectTo: '/metadata'
   },
   {
     path: 'metadata',
