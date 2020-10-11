@@ -17,16 +17,15 @@ from typing import List
 import numpy as np
 from pylsl import resolve_stream, StreamInlet
 
-SYNTAX = "data-stream-plot [stream_name]"
+SYNTAX = "2d-stream-plot [stream_name]"
 
 
 def plot_data(_streams: List[StreamInlet]):
     from matplotlib import pyplot as plt, animation
     S = len(_streams)  # number of streams
-    W = 100  # buffer size (only W data points are visualized per plot)
-    T = [np.arange(W) for _ in _streams]  # for timestamps (initialize to nan)
-    D = [np.full((W, stream.channel_count), np.nan) for stream in _streams]  # for data (initialize to nan)
-    L = []
+    W = 10  # buffer size (only W data points are visualized per plot)
+    D = [np.full((W, 2), 0.0) for _ in _streams]  # for 2D data (initialize to 0, 0)
+    SD = []  # Scatter Data
 
     COLS = 2
     ROWS = 1 + S // COLS
@@ -42,20 +41,20 @@ def plot_data(_streams: List[StreamInlet]):
         a = ax(i)
         a.xaxis.set_visible(False)
         a.title.set_text(_streams[i].info().type())
-        a.set_ylim(-1, 1)
-        a.set_xlim(0, W)
-        lines = a.plot(T[i], np.array(D[i]), '-d', markersize=2, animated=True)
-        L.append(lines)
+        a.set_ylim(0, 1)
+        a.set_xlim(0, 1)
+        scatters = a.scatter(D[i][:, 0], D[i][:, 1], animated=True)
+        SD.append(scatters)
+
     # remove excess subplots
     for i in range(S, ROWS * COLS):
         ax(i).set_axis_off()
     plt.tight_layout()
 
     def init():
-        for _lines in L:
-            for _line in _lines:
-                _line.set_ydata(np.full((W,), np.nan))
-        return [y for x in L for y in x]
+        for _scatters in SD:
+            _scatters.set_offsets(np.full((W, 2), 0.0))
+        return SD
 
     def animate(f):
         nonlocal D
@@ -65,18 +64,22 @@ def plot_data(_streams: List[StreamInlet]):
             _n = len(samples)
             if _n == 0:
                 continue
+
+            # convert samples to numpy array
+            samples = np.nan_to_num(np.array(samples))
+            # TODO remove nan_to_num hack
+
             # update samples
-            elif _n < W:
+            if _n < W:
                 d_i = np.roll(D[_i], -_n, axis=0)
-                d_i[-_n:] = np.array(samples)
-                D[_i] = d_i
+                d_i[-_n:] = samples
+                D[_i] = d_i.copy()
             else:
-                D[_i] = np.array(samples)[-W:]
+                D[_i] = np.array(samples[-W:]).copy()
             # update plot
             _cc = _si.channel_count
-            for c in range(_cc):
-                L[_i][c].set_ydata(D[_i][:, c])
-        return [y for x in L for y in x]
+            SD[_i].set_offsets(D[_i])
+        return SD
 
     # _ = animation.FuncAnimation(fig, animate, init_func=init, blit=True, interval=100)
     _ = animation.FuncAnimation(fig, animate, init_func=init, blit=True, save_count=0, cache_frame_data=False)
@@ -92,6 +95,7 @@ def main():
     assert len(args) == 2, f"Invalid Syntax.\nExpected: {SYNTAX}"
     stream_name = sys.argv[1]
     streams = resolve_stream('name', stream_name)
+    streams = filter(lambda x: x.channel_count() == 2, streams)
     in_object = [*map(StreamInlet, streams)]
     plot_data(in_object)
 
