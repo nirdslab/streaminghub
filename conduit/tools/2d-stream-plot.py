@@ -24,6 +24,7 @@ def plot_data(_streams: List[StreamInlet]):
     from matplotlib import pyplot as plt, animation
     S = len(_streams)  # number of streams
     W = 10  # buffer size (only W data points are visualized per plot)
+    R = 2
     D = [np.full((W, 2), 0.0) for _ in _streams]  # for 2D data (initialize to 0, 0)
     SD = []  # Scatter Data
 
@@ -43,7 +44,9 @@ def plot_data(_streams: List[StreamInlet]):
         a.title.set_text(_streams[i].info().type())
         a.set_ylim(0, 1)
         a.set_xlim(0, 1)
-        scatters = a.scatter(D[i][:, 0], D[i][:, 1], animated=True)
+        colors = np.stack([np.zeros(W), np.zeros(W), np.ones(W), np.linspace(0.1, 1.0, W)], axis=-1)
+        sizes = 2 ** np.linspace(1, W / 2, W)
+        scatters = a.scatter(D[i][:, 0], D[i][:, 1], s=sizes, c=colors, animated=True)
         SD.append(scatters)
 
     # remove excess subplots
