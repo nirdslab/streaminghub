@@ -23,9 +23,8 @@ SYNTAX = "2d-stream-plot [stream_name]"
 def plot_data(_streams: List[StreamInlet]):
     from matplotlib import pyplot as plt, animation
     S = len(_streams)  # number of streams
-    W = 10  # buffer size (only W data points are visualized per plot)
-    R = 2
-    D = [np.full((W, 2), 0.0) for _ in _streams]  # for 2D data (initialize to 0, 0)
+    W = 100  # buffer size (only W data points are visualized per plot)
+    D = [np.full((W, stream.channel_count), 0.0) for stream in _streams]  # for 2D data (initialize to 0, 0)
     SD = []  # Scatter Data
 
     COLS = 2
@@ -44,9 +43,11 @@ def plot_data(_streams: List[StreamInlet]):
         a.title.set_text(_streams[i].info().type())
         a.set_ylim(0, 1)
         a.set_xlim(0, 1)
-        colors = np.stack([np.zeros(W), np.zeros(W), np.ones(W), np.linspace(0.1, 1.0, W)], axis=-1)
-        sizes = 2 ** np.linspace(1, W / 2, W)
-        scatters = a.scatter(D[i][:, 0], D[i][:, 1], s=sizes, c=colors, animated=True)
+        _x = D[i][:, 0]
+        _y = D[i][:, 1]
+        _c = np.stack([np.zeros(W), np.zeros(W), np.ones(W), np.linspace(0.1, 1.0, W)], axis=-1)
+        _s = 2 ** np.linspace(1, 6, W)
+        scatters = a.scatter(x=_x, y=_y, s=_s, c=_c, animated=True)
         SD.append(scatters)
 
     # remove excess subplots
@@ -68,9 +69,8 @@ def plot_data(_streams: List[StreamInlet]):
             if _n == 0:
                 continue
 
-            # convert samples to numpy array
-            samples = np.nan_to_num(np.array(samples))
-            # TODO remove nan_to_num hack
+            # convert samples to numpy array, and move nan values outside visible plot range
+            samples = np.nan_to_num(np.array(samples), nan=-1.0)
 
             # update samples
             if _n < W:
