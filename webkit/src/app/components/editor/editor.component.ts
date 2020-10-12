@@ -21,6 +21,8 @@ export class EditorComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+    ace.config.set('workerPath', 'assets');
+    const JSONMode = ace.require(LANG).Mode;
     const element = this.editorRef.nativeElement;
     const editorOptions: Partial<ace.Ace.EditorOptions> = {
       highlightActiveLine: true,
@@ -28,7 +30,7 @@ export class EditorComponent implements OnInit {
     };
     this.codeEditor = ace.edit(element, editorOptions);
     this.codeEditor.setTheme(THEME);
-    this.codeEditor.getSession().setMode(LANG);
+    this.codeEditor.getSession().setMode(new JSONMode());
     this.codeEditor.setShowFoldWidgets(true);
   }
 
