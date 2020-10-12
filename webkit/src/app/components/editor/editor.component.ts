@@ -3,6 +3,7 @@ import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import * as ace from 'ace-builds';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
+import { MetaStream } from '../metadata-form/metadata-form.component';
 
 const THEME = 'ace/theme/github';
 const LANG = 'ace/mode/json';
@@ -15,7 +16,7 @@ const LANG = 'ace/mode/json';
 export class EditorComponent implements OnInit {
 
   @Input() public title: string;
-  @ViewChild('editor', { static: true }) editorRef: ElementRef;
+  @ViewChild('editor', { static: true }) private editorRef: ElementRef;
   private codeEditor: ace.Ace.Editor;
 
   constructor() { }
@@ -31,6 +32,10 @@ export class EditorComponent implements OnInit {
     this.codeEditor.setTheme(THEME);
     this.codeEditor.getSession().setMode(LANG);
     this.codeEditor.setShowFoldWidgets(true);
+  }
+
+  update(metadata: MetaStream) {
+    this.codeEditor.setValue(JSON.stringify(metadata))
   }
 
 }

@@ -1,13 +1,15 @@
 // Angular Modules
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 // Material Modules
 import { MatInputModule } from '@angular/material/input'
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
 // CDK Modules
 import { DragDropModule } from '@angular/cdk/drag-drop';
 // Application Components
@@ -38,12 +40,14 @@ import { MetadataFormComponent } from './components/metadata-form/metadata-form.
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    FormsModule,
     AppRoutingModule,
     // Material Modules
     MatInputModule,
     MatTabsModule,
     MatToolbarModule,
     MatCardModule,
+    MatButtonModule,
     // CDK Modules
     DragDropModule
   ],
