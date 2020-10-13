@@ -35,7 +35,7 @@ export class EditorComponent implements OnInit {
   }
 
   update(metadata: MetaStream) {
-    this.codeEditor.setValue(JSON.stringify(metadata))
+    this.codeEditor.setValue(JSON.stringify(metadata, null, 2));
   }
 
 }
