@@ -1,0 +1,20 @@
+<mat-card class="h-100">
+  <mat-card-title>Canvas</mat-card-title>
+  <mat-card-content #card>
+    <div class="widget" cdkDrag [cdkDragBoundary]="card">
+      <app-widget name="A"></app-widget>
+    </div>
+    <div class="widget" cdkDrag [cdkDragBoundary]="card">
+      <app-widget name="B"></app-widget>
+    </div>
+    <div class="widget" cdkDrag [cdkDragBoundary]="card">
+      <app-widget name="C"></app-widget>
+    </div>
+    <div class="widget" cdkDrag [cdkDragBoundary]="card">
+      <app-widget name="D"></app-widget>
+    </div>
+    <div class="widget" cdkDrag [cdkDragBoundary]="card">
+      <app-widget name="E"></app-widget>
+    </div>
+  </mat-card-content>
+</mat-card>
