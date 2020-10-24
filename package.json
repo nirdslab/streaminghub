@@ -1,6 +1,12 @@
 {
   "name": "webflow",
-  "version": "0.0.0",
+  "version": "0.0.1",
+  "description": "Visual Scientific Workflow Generation and Metadata Validation Tool",
+  "author": {
+    "name": "Yasith Jayawardana",
+    "email": "yasith@cs.odu.edu",
+    "url": "https://www.cs.odu.edu/~yasith"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -8,7 +14,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "start:native": "wait-on http://localhost:8888 && tsc -p tsconfig.native.json && electron dist/native",
+    "start:native": "wait-on http://localhost:8888 && tsc -p tsconfig.native.json && npx electron dist/native",
     "build:native": "npm run build:prod && electron-builder build",
     "start:all": "concurrently -kr npm:start npm:start:native"
   },
@@ -26,7 +32,6 @@
     "@angular/router": "~10.1.5",
     "ace-builds": "^1.4.12",
     "ace-code-editor": "^1.2.3",
-    "electron": "^10.1.5",
     "rxjs": "~6.6.3",
     "tslib": "^2.0.3",
     "zone.js": "~0.10.2"
@@ -40,6 +45,7 @@
     "@types/node": "^12.11.1",
     "codelyzer": "^6.0.1",
     "concurrently": "^5.3.0",
+    "electron": "^10.1.5",
     "jasmine-core": "~3.6.0",
     "jasmine-spec-reporter": "~6.0.0",
     "karma": "~5.2.3",
