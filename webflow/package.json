@@ -8,9 +8,9 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "start:native": "wait-on http://localhost:8888 && tsc -p tsconfig.native.json && electron out-tsc/native",
+    "start:native": "wait-on http://localhost:8888 && tsc -p tsconfig.native.json && electron dist/native",
     "build:native": "npm run build:prod && electron-builder build",
-    "start:all": "concurrently -k -r \"npm run start\" \"npm run start:native\""
+    "start:all": "concurrently -kr npm:start npm:start:native"
   },
   "private": true,
   "dependencies": {

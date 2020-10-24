@@ -3,7 +3,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "module": "CommonJS",
-    "outDir": "./out-tsc/native",
+    "outDir": "./dist/native",
     "types": []
   },
   "files": [
