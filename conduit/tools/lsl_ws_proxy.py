@@ -1,22 +1,29 @@
 #!/usr/bin/env python
 
-# WS server example
-
 import asyncio
+import json
+
 import websockets
 
+
 async def hello(websocket, path):
-    name = await websocket.recv()
-    print(f"< {name}")
+    msg_in = await websocket.recv()
+    request = json.loads(msg_in)
 
-    greeting = f"Hello {name}!"
+    print(f"< {request}")
+    response = await handleRequest(request)
+    print(f"> {response}")
 
-    await websocket.send(greeting)
-    print(f"> {greeting}")
+    msg_out = json.dumps(response)
+    await websocket.send(msg_out)
 
 
-start_server = websockets.serve(hello, "localhost", 8765)
+async def handleRequest(request: dict):
+    response = {'error': None, 'data': {'status': 'OK'}}
+    return response
+
 
 if __name__ == '__main__':
+    start_server = websockets.serve(hello, "localhost", 8765)
     asyncio.get_event_loop().run_until_complete(start_server)
     asyncio.get_event_loop().run_forever()

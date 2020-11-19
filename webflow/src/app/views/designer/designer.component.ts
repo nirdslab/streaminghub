@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { WebSocketService } from 'src/app/web-socket.service';
 
 @Component({
   selector: 'app-designer',
@@ -7,9 +8,18 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DesignerComponent implements OnInit {
 
-  constructor() { }
+  constructor(private ws: WebSocketService) { }
 
   ngOnInit(): void {
+    this.ws.listen<any>().subscribe(res => {
+      if (res.error) {
+        console.error('error', res.error);
+      }
+      if (res.data) {
+        console.log('data', res.data);
+      }
+    })
+    this.ws.send<any>({ command: 'search' });
   }
 
 }
