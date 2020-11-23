@@ -7,47 +7,39 @@ from typing import List
 
 import numpy as np
 import websockets
-from pylsl import resolve_stream, StreamInfo, StreamInlet, LostError
+from pylsl import resolve_stream, StreamInlet, LostError
+
+from tools.util import stream_info_to_dict
 
 
-async def server(websocket, path):
-    while True:
-        msg_in = await websocket.recv()
-        request = json.loads(msg_in)
-        await handleRequest(request, websocket)
+async def ws_handler(websocket: websockets.WebSocketServerProtocol, path: str):
+    async for message in websocket:
+        print(f"< {message}")
+        await consumer(message, websocket)
 
 
-def get_stream_info(x: StreamInfo):
-    return {
-        'id': x.source_id(),
-        'channels': x.channel_count(),
-        'name': x.name(),
-        'type': x.type()
-    }
-
-
-async def handleRequest(request: dict, websocket: websockets.WebSocketServerProtocol):
-    print(f"< {request}")
-    command = request.get('command')
+async def consumer(message: str, websocket: websockets.WebSocketServerProtocol):
+    payload = json.loads(message)
+    command = payload['command']
     response = {'command': command, 'error': None, 'data': None}
     if command == 'search':
         streams = resolve_stream()
-        response['data'] = {'streams': [*map(lambda x: get_stream_info(x), streams)]}
+        response['data'] = {'streams': [*map(stream_info_to_dict, streams)]}
     if command == 'subscribe':
-        data: dict = request['data']
+        data: dict = payload['data']
         source_id, source_name, source_type = data['id'], data['name'], data['type']
         # create stream inlets to pull data from
         streams: List[StreamInlet] = [StreamInlet(x, max_chunklen=1, recover=False) for x in resolve_stream('source_id', source_id) if x.name() == source_name and x.type() == source_type]
         # create async jobs to push data through the websocket
         thread = threading.Thread(target=create_streaming_task, args=(streams, websocket))
         thread.start()
-    print(f"> {response}")
     await ws_push(response, websocket)
 
 
-async def ws_push(response: dict, websocket: websockets.WebSocketServerProtocol):
-    msg_out = json.dumps(response)
-    await websocket.send(msg_out)
+async def ws_push(payload: dict, websocket: websockets.WebSocketServerProtocol):
+    message = json.dumps(payload)
+    print(f"> {message}")
+    await websocket.send(message)
 
 
 def create_streaming_task(streams: List[StreamInlet], websocket: websockets.WebSocketServerProtocol):
@@ -77,7 +69,7 @@ async def proxy_stream(streams: List[StreamInlet], websocket: websockets.WebSock
 
 
 if __name__ == '__main__':
-    start_server = websockets.serve(server, "localhost", 8765)
+    start_server = websockets.serve(ws_handler, "localhost", 8765)
     try:
         asyncio.get_event_loop().run_until_complete(start_server)
         print('started websocket server.')
