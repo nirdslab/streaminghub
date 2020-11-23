@@ -9,8 +9,6 @@ import numpy as np
 import websockets
 from pylsl import resolve_stream, StreamInfo, StreamInlet, LostError
 
-SUBSCRIPTIONS = {}
-
 
 async def server(websocket, path):
     while True:
@@ -36,20 +34,12 @@ async def handleRequest(request: dict, websocket: websockets.WebSocketServerProt
         streams = resolve_stream()
         response['data'] = {'streams': [*map(lambda x: get_stream_info(x), streams)]}
     if command == 'subscribe':
-        data: dict = request.get('data')
-        source_id = data.get('id')
-        source_name = data.get('name')
-        source_type = data.get('type')
+        data: dict = request['data']
+        source_id, source_name, source_type = data['id'], data['name'], data['type']
         # create stream inlets to pull data from
-        streams: List[StreamInlet] = [StreamInlet(x) for x in resolve_stream('source_id', source_id) if x.name() == source_name and x.type() == source_type]
+        streams: List[StreamInlet] = [StreamInlet(x, max_chunklen=1, recover=False) for x in resolve_stream('source_id', source_id) if x.name() == source_name and x.type() == source_type]
         # create async jobs to push data through the websocket
         thread = threading.Thread(target=create_streaming_task, args=(streams, websocket))
-        # save references to stream inlets and thread
-        if source_id in SUBSCRIPTIONS.keys():
-            v: dict = SUBSCRIPTIONS[source_id]
-            SUBSCRIPTIONS[source_id] = {'streams': [*v['streams'], *streams], 'threads': [*v['threads'], thread]}
-        else:
-            SUBSCRIPTIONS[source_id] = {'streams': streams, 'threads': [thread]}
         thread.start()
     print(f"> {response}")
     await ws_push(response, websocket)
