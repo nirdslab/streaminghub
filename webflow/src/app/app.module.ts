@@ -10,6 +10,8 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 // CDK Modules
 import { DragDropModule } from '@angular/cdk/drag-drop';
 // Application Components
@@ -23,6 +25,7 @@ import { WidgetComponent } from './components/widget/widget.component';
 import { DesignerComponent } from './views/designer/designer.component';
 import { MetadataComponent } from './views/metadata/metadata.component';
 import { MetadataFormComponent } from './components/metadata-form/metadata-form.component';
+import { DialogComponent } from './components/dialog/dialog.component';
 
 @NgModule({
   declarations: [
@@ -35,7 +38,8 @@ import { MetadataFormComponent } from './components/metadata-form/metadata-form.
     WidgetComponent,
     DesignerComponent,
     MetadataComponent,
-    MetadataFormComponent
+    MetadataFormComponent,
+    DialogComponent
   ],
   imports: [
     BrowserModule,
@@ -48,6 +52,8 @@ import { MetadataFormComponent } from './components/metadata-form/metadata-form.
     MatToolbarModule,
     MatCardModule,
     MatButtonModule,
+    MatDialogModule,
+    MatCheckboxModule,
     // CDK Modules
     DragDropModule
   ],
