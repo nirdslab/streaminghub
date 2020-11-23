@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
 @Injectable({
@@ -15,7 +14,7 @@ export class WebSocketService {
   }
 
   public listen<T>(): Observable<WSResponse<T>> {
-    return this.ws.pipe(map(x => <WSResponse<T>>x));
+    return this.ws;
   }
 
   public send<T>(request: WSRequest<T>) {

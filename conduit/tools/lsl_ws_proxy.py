@@ -4,6 +4,7 @@ import asyncio
 import json
 
 import websockets
+from pylsl import resolve_stream
 
 
 async def hello(websocket, path):
@@ -19,11 +20,18 @@ async def hello(websocket, path):
 
 
 async def handleRequest(request: dict):
+    if request.get('command') == 'search':
+        streams = resolve_stream()
+        return {'error': None, 'data': {'streams': [*map(lambda x: {'name': x.name(), 'type': x.type()}, streams)]}}
     response = {'error': None, 'data': {'status': 'OK'}}
     return response
 
 
 if __name__ == '__main__':
     start_server = websockets.serve(hello, "localhost", 8765)
-    asyncio.get_event_loop().run_until_complete(start_server)
-    asyncio.get_event_loop().run_forever()
+    try:
+        print('starting websocket server...')
+        asyncio.get_event_loop().run_until_complete(start_server)
+        asyncio.get_event_loop().run_forever()
+    except KeyboardInterrupt:
+        print('Interrupt received. Closing WebSockets Proxy...\n')

@@ -13,10 +13,10 @@ export class DesignerComponent implements OnInit {
   ngOnInit(): void {
     this.ws.listen<any>().subscribe(res => {
       if (res.error) {
-        console.error('error', res.error);
+        console.error(res.error);
       }
       if (res.data) {
-        console.log('data', res.data);
+        console.dir(res.data);
       }
     })
     this.ws.send<any>({ command: 'search' });
