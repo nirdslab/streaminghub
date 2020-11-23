@@ -23,6 +23,7 @@ RIGHT_PUPIL_SIZE = "PupilRight
 """
 
 import asyncio
+import os
 import random
 import sys
 import threading
@@ -42,7 +43,7 @@ DIGIT_CHARS = '0123456789'
 
 
 def load_meta_file(dataset: str, file_format: str) -> MetaFile:
-    path = f'datasets/{dataset}.{file_format}'
+    path = f'{os.path.dirname(__file__)}/../datasets/{dataset}.{file_format}'
     assert file_format in ['json', 'xml'], f"Invalid File Format.\nExpected JSON or XML file"
     # load meta-file
     print(f'Loading meta-file: {path}...', end=' ', flush=True)
@@ -72,7 +73,7 @@ def create_meta_streams(meta_file: MetaFile) -> List[MetaStream]:
 
 
 def load_data_from_file(dataset: str, participant: int, noise_level: int, question: int) -> pd.DataFrame:
-    path = f'datasets/{dataset}/{participant:03d}ADHD_AV_{noise_level}{question}.csv'
+    path = f'{os.path.dirname(__file__)}/../datasets/{dataset}/{participant:03d}ADHD_AV_{noise_level}{question}.csv'
     print(f'Loading: {path}...', end=' ', flush=True)
     df = pd.read_csv(path)
     print(f'DONE')
@@ -92,7 +93,7 @@ async def begin_data_stream(meta: MetaStream, df: pd.DataFrame):
     print(f'Created streaming task: {_id} - Device: {meta.device.model}, {meta.device.manufacturer} ({meta.device.category})', flush=True)
     # create a job for each stream defined in the meta-stream
     jobs = [emit(_id, meta, _idx, df) for _idx in range(len(meta.streams))]
-    # start all jobs
+    # start all jobsexcept KeyboardInterrupt:
     await asyncio.gather(*jobs)
     print(f'Ended streaming task: {_id}')
 
@@ -105,14 +106,16 @@ async def emit(source_id: str, meta: MetaStream, idx: int, df: pd.DataFrame):
     ptr = 0
     print(f'stream started - {stream.name}')
     while current_thread.alive:
+        # # wait for a consumer or timeout (currently using a large timeout for debugging)
         if ptr < df.index.size:
-            packet = df.iloc[ptr][stream.channels]
-            [t, d] = packet.name, packet.values
-            d_l = df[stream.channels].min().values
-            d_h = df[stream.channels].max().values
-            d_n = (d - d_l) / (d_h - d_l)
-            outlet.push_sample(d_n, t)
-            ptr += 1
+            if outlet.have_consumers():
+                packet = df.iloc[ptr][stream.channels]
+                [t, d] = packet.name, packet.values
+                d_l = df[stream.channels].min().values
+                d_h = df[stream.channels].max().values
+                d_n = (d - d_l) / (d_h - d_l)
+                outlet.push_sample(d_n, t)
+                ptr += 1
             # if stream frequency is zero, schedule next sample after a random time.
             # if not, schedule after (1 / f) time
             dt = (1. / stream.frequency) if stream.frequency > 0 else (random.randrange(0, 10) / 10.0)
