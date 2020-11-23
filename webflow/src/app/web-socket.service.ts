@@ -14,7 +14,7 @@ export class WebSocketService {
   }
 
   public listen<T>(): Observable<WSResponse<T>> {
-    return this.ws;
+    return this.ws.asObservable();
   }
 
   public send<T>(request: WSRequest<T>) {

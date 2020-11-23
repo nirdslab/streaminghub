@@ -12,14 +12,23 @@ export class DesignerComponent implements OnInit {
 
   ngOnInit(): void {
     this.ws.listen<any>().subscribe(res => {
-      if (res.error) {
-        console.error(res.error);
-      }
-      if (res.data) {
-        console.dir(res.data);
-      }
+      this.handleResponse(res);
     })
     this.ws.send<any>({ command: 'search' });
+  }
+
+  private handleResponse(res: WSResponse<any>) {
+    console.dir(res);
+    switch (res.command) {
+      case "search":
+        const streams: any[] = res.data.streams;
+        const ids: string[] = streams.map(s => s.id);
+        ids.forEach(id => {
+          console.log(id);
+          this.ws.send<any>({ command: 'subscribe', data: { id } });
+        })
+        break;
+    }
   }
 
 }

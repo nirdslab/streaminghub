@@ -1,4 +1,5 @@
 interface WSResponse<T> {
+  command: string,
   error: {
     code: number
     message: string

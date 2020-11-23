@@ -93,7 +93,7 @@ async def begin_data_stream(meta: MetaStream, df: pd.DataFrame):
     print(f'Created streaming task: {_id} - Device: {meta.device.model}, {meta.device.manufacturer} ({meta.device.category})', flush=True)
     # create a job for each stream defined in the meta-stream
     jobs = [emit(_id, meta, _idx, df) for _idx in range(len(meta.streams))]
-    # start all jobsexcept KeyboardInterrupt:
+    # start all jobs
     await asyncio.gather(*jobs)
     print(f'Ended streaming task: {_id}')
 
