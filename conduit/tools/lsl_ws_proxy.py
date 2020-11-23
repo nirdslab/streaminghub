@@ -2,10 +2,10 @@
 
 import asyncio
 import json
-import numpy as np
 import threading
 from typing import List
 
+import numpy as np
 import websockets
 from pylsl import resolve_stream, StreamInfo, StreamInlet, LostError
 
@@ -38,14 +38,19 @@ async def handleRequest(request: dict, websocket: websockets.WebSocketServerProt
     if command == 'subscribe':
         data: dict = request.get('data')
         source_id = data.get('id')
-        if source_id not in SUBSCRIPTIONS:
-            # create stream inlets to pull data from
-            streams: List[StreamInlet] = [StreamInlet(x) for x in resolve_stream('source_id', source_id)]
-            # create async jobs to push data through the websocket
-            thread = threading.Thread(target=create_streaming_task, args=(streams, websocket))
-            # save references to stream inlets and thread
-            SUBSCRIPTIONS[source_id] = {'streams': streams, 'thread': thread}
-            thread.start()
+        source_name = data.get('name')
+        source_type = data.get('type')
+        # create stream inlets to pull data from
+        streams: List[StreamInlet] = [StreamInlet(x) for x in resolve_stream('source_id', source_id) if x.name() == source_name and x.type() == source_type]
+        # create async jobs to push data through the websocket
+        thread = threading.Thread(target=create_streaming_task, args=(streams, websocket))
+        # save references to stream inlets and thread
+        if source_id in SUBSCRIPTIONS.keys():
+            v: dict = SUBSCRIPTIONS[source_id]
+            SUBSCRIPTIONS[source_id] = {'streams': [*v['streams'], *streams], 'threads': [*v['threads'], thread]}
+        else:
+            SUBSCRIPTIONS[source_id] = {'streams': streams, 'threads': [thread]}
+        thread.start()
     print(f"> {response}")
     await ws_push(response, websocket)
 
