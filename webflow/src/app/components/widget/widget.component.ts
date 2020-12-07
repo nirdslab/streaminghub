@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { distinct, filter, take } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import { WebSocketService } from 'src/app/web-socket.service';
 import { DialogComponent } from '../dialog/dialog.component';
 
@@ -20,10 +20,10 @@ export class WidgetComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.ws.listen<any>().pipe(filter(res => res.command === 'search')).subscribe(res => {
+    this.ws?.listen<any>().pipe(filter(res => res.command === 'search')).subscribe(res => {
       this.openDialog(res.data.streams);
     });
-    this.ws.listen<any>().pipe(filter(res => res.command === 'data')).subscribe(res => {
+    this.ws?.listen<any>().pipe(filter(res => res.command === 'data')).subscribe(res => {
       console.dir(res);
     });
   }
@@ -34,14 +34,14 @@ export class WidgetComponent implements OnInit {
   }
 
   openDialog(streams: any[]) {
-    const dialogRef = this.dialog.open(DialogComponent, {
+    const dialogRef = this.dialog?.open(DialogComponent, {
       data: { name: this.name, options: streams }
     });
-    dialogRef.afterClosed().subscribe((result: any[]) => {
+    dialogRef?.afterClosed().subscribe((result: any[]) => {
       if (result) {
         this.selectedStreams = result.filter(x => x.selected);
         this.selectedStreams.forEach((stream: any) => {
-          this.ws.send<any>({ command: 'subscribe', data: { id: stream.id, name: stream.name, type: stream.type } });
+          this.ws?.send<any>({ command: 'subscribe', data: { id: stream.id, name: stream.name, type: stream.type } });
         })
       }
     })

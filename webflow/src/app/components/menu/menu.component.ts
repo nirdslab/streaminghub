@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { filter } from "rxjs/operators";
 
 @Component({
@@ -12,8 +12,8 @@ export class MenuComponent implements OnInit {
   public links = [{ title: 'Metadata', link: '/metadata' }, { title: 'Designer', link: '/designer' }];
   public activeLink: string;
 
-  constructor(activatedRoute: ActivatedRoute, router: Router) {
-    router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe((e: any) => {
+  constructor(router: Router) {
+    router?.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe((e: any) => {
       this.activeLink = e.urlAfterRedirects;
     })
   }
