@@ -7,10 +7,10 @@ import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 })
 export class WebSocketService {
 
-  private ws: WebSocketSubject<any> = webSocket<any>('ws://localhost:8765');
+  private ws: WebSocketSubject<any>;
 
   constructor() {
-    this.ws.subscribe();
+    this.ws = webSocket<any>('ws://localhost:8765');
   }
 
   public listen<T>(): Observable<WSResponse<T>> {
