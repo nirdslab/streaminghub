@@ -44,7 +44,8 @@ PTR = 0
 
 
 def load_meta_file(dataset: str, file_format: str) -> MetaFile:
-    path = f'{os.path.dirname(__file__)}/../datasets/{dataset}.{file_format}'
+    base_dir = os.getenv("DATASET_DIR")
+    path = f'{base_dir}/{dataset}.{file_format}'
     assert file_format in ['json', 'xml'], f"Invalid File Format.\nExpected JSON or XML file"
     # load meta-file
     print(f'Loading meta-file: {path}...', end=' ', flush=True)
@@ -74,7 +75,8 @@ def create_meta_streams(meta_file: MetaFile) -> List[MetaStream]:
 
 
 def load_data_from_file(dataset: str, file_name: str) -> pd.DataFrame:
-    path = f'{os.path.dirname(__file__)}/../datasets/{dataset}/{file_name}'
+    base_dir = os.getenv("DATASET_DIR")
+    path = f'{base_dir}/{dataset}/{file_name}'
     print(f'Loading: {path}...', end=' ', flush=True)
     df = pd.read_csv(path)
     print(f'DONE')
