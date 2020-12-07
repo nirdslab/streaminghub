@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { filter } from "rxjs/operators";
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-menu',
@@ -15,7 +15,7 @@ export class MenuComponent implements OnInit {
   constructor(router: Router) {
     router?.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe((e: any) => {
       this.activeLink = e.urlAfterRedirects;
-    })
+    });
   }
 
   ngOnInit(): void {

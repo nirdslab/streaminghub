@@ -42,9 +42,9 @@ export class WidgetComponent implements OnInit {
         this.selectedStreams = result.filter(x => x.selected);
         this.selectedStreams.forEach((stream: any) => {
           this.ws?.send<any>({ command: 'subscribe', data: { id: stream.id, name: stream.name, type: stream.type } });
-        })
+        });
       }
-    })
+    });
   }
 
 }
