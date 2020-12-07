@@ -1,13 +1,13 @@
 interface WSResponse<T> {
-  command: string,
+  command: string;
   error: {
-    code: number
-    message: string
-  },
-  data: T
+    code: number;
+    message: string;
+  };
+  data: T;
 }
 
 interface WSRequest<T> {
-  command: string,
-  data?: T
+  command: string;
+  data?: T;
 }

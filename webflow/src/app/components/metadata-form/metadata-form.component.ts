@@ -2,23 +2,23 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 
 export interface MetaStream {
   device: {
-    model: string,
-    manufacturer: string,
-    category: string
-  },
+    model: string;
+    manufacturer: string;
+    category: string;
+  };
   fields: {
-    id: string,
-    name: string,
-    description: string,
-    dtype: string
-  }[],
+    id: string;
+    name: string;
+    description: string;
+    dtype: string;
+  }[];
   streams: {
-    name: string,
-    description: string,
-    unit: string,
-    frequency?: number,
-    channels: string[]
-  }[]
+    name: string;
+    description: string;
+    unit: string;
+    frequency?: number;
+    channels: string[];
+  }[];
 }
 
 @Component({
@@ -52,7 +52,7 @@ export class MetadataFormComponent implements OnInit {
       unit: '',
       frequency: null,
       channels: []
-    })
+    });
   }
 
   public removeStream(i: number) {
