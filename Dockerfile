@@ -4,7 +4,7 @@ LABEL maintainer="Yasith Jayawardana <yasith@cs.odu.edu>"
 WORKDIR /conduit
 
 # install dependencies
-RUN pip3 install numpy pandas pylsl websockets pillow matplotlib lxml jsonschema
+RUN pip3 install jsonschema lxml matplotlib numpy pandas pillow pylsl websockets
 
 # set up project
 ENV PYTHONPATH=/conduit
