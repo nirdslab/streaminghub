@@ -21,7 +21,7 @@ stages:
 
 
 test_python:
-  image: python:3-alpine
+  image: python:3-slim
   before_script:
     - pip install -r requirements.txt
   stage: test
