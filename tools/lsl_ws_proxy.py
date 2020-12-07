@@ -9,6 +9,7 @@ via WebSockets.
 
 import asyncio
 import json
+import os
 import threading
 from typing import List, Callable
 
@@ -87,7 +88,8 @@ async def lsl_connector(streams: List[StreamInlet], push: Callable):
 
 
 if __name__ == '__main__':
-    start_server = websockets.serve(ws_handler, "0.0.0.0", 5000)
+    port = int(os.getenv("WS_PORT"))
+    start_server = websockets.serve(ws_handler, "0.0.0.0", port)
     try:
         asyncio.get_event_loop().run_until_complete(start_server)
         print('started websocket server.')
