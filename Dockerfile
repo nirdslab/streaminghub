@@ -8,6 +8,7 @@ RUN pip3 install jsonschema lxml matplotlib numpy pandas pillow pylsl websockets
 
 # set up project
 ARG WS_PORT=5000
+ENV WS_PORT=${WS_PORT}
 ENV PYTHONPATH=/conduit
 ENV DATASET_DIR=${PYTHONPATH}/datasets
 EXPOSE ${WS_PORT}
