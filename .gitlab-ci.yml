@@ -24,6 +24,7 @@ test_python:
   image: node:lts
   before_script:
     - npm install
+    - apt-get update && apt-get install -y libnss3
   stage: test
   script:
     - npm run test
