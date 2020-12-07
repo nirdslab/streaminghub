@@ -1,0 +1,8 @@
+numpy
+pandas
+pylsl
+websockets
+pillow
+matplotlib
+lxml
+jsonschema
