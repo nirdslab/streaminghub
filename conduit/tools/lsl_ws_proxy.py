@@ -78,7 +78,7 @@ async def lsl_connector(streams: List[StreamInlet], push: Callable):
 
 
 if __name__ == '__main__':
-    start_server = websockets.serve(ws_handler, "localhost", 8765)
+    start_server = websockets.serve(ws_handler, "0.0.0.0", 8765)
     try:
         asyncio.get_event_loop().run_until_complete(start_server)
         print('started websocket server.')
