@@ -23,9 +23,12 @@ async def ws_handler(websocket: websockets.WebSocketServerProtocol, path: str):
     async def callback(data):
         await ws_push(data, websocket)
 
-    async for message in websocket:
-        print(f"< {message}")
-        await consumer(message, callback)
+    try:
+        async for message in websocket:
+            print(f"< {message}")
+            await consumer(message, callback)
+    except Exception:
+        print('websocket handler closed')
 
 
 async def consumer(message: str, callback: Callable):
@@ -73,8 +76,14 @@ async def lsl_connector(streams: List[StreamInlet], push: Callable):
                 await push({'command': 'data', 'data': {'stream': typ, 'chunk': np.nan_to_num(sample, nan=-1).tolist()}})
         except LostError:
             keepalive = False
+            print(f'LSL connection lost')
+        except Exception:
+            keepalive = False
+            print(f'websocket connection lost')
+            for stream in streams:
+                stream.close_stream()
     else:
-        print('stream unsubscribed')
+        print('streams unsubscribed')
 
 
 if __name__ == '__main__':
