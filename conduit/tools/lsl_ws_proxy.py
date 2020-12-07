@@ -1,4 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
+"""
+A simple WebSocket proxy server for LSL.
+This program discovers LSL services on a
+local network and proxies them to other services
+via WebSockets.
+"""
 
 import asyncio
 import json
