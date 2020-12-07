@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { EditorComponent } from 'src/app/components/editor/editor.component';
+import { MetadataFormComponent } from 'src/app/components/metadata-form/metadata-form.component';
 
 import { MetadataComponent } from './metadata.component';
 
@@ -8,9 +10,9 @@ describe('MetadataComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ MetadataComponent ]
+      declarations: [MetadataComponent, MetadataFormComponent, EditorComponent]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {
