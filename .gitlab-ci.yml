@@ -35,9 +35,9 @@ include:
   #- template: Jobs/Code-Quality.gitlab-ci.yml (commented since it runs forever)
   - template: Jobs/Code-Intelligence.gitlab-ci.yml
   - template: Jobs/Deploy.gitlab-ci.yml
-  - template: Jobs/DAST-Default-Branch-Deploy.gitlab-ci.yml
+#  - template: Jobs/DAST-Default-Branch-Deploy.gitlab-ci.yml (not working for some reason)
   - template: Jobs/Browser-Performance-Testing.gitlab-ci.yml
-  - template: Security/DAST.gitlab-ci.yml
+#  - template: Security/DAST.gitlab-ci.yml (not working for some reason)
   - template: Security/Container-Scanning.gitlab-ci.yml
   - template: Security/Dependency-Scanning.gitlab-ci.yml
   - template: Security/License-Scanning.gitlab-ci.yml
