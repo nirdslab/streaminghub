@@ -40,6 +40,7 @@ RESOLUTION = [1920, 1080]  # 1920x1080
 SCREEN_SIZE = 21  # 21 in
 DISTANCE = 22.02  # 22.02 in
 DIGIT_CHARS = '0123456789'
+PTR = 0
 
 
 def load_meta_file(dataset: str, file_format: str) -> MetaFile:
@@ -72,8 +73,8 @@ def create_meta_streams(meta_file: MetaFile) -> List[MetaStream]:
     return meta_streams
 
 
-def load_data_from_file(dataset: str, participant: int, noise_level: int, question: int) -> pd.DataFrame:
-    path = f'{os.path.dirname(__file__)}/../datasets/{dataset}/{participant:03d}ADHD_AV_{noise_level}{question}.csv'
+def load_data_from_file(dataset: str, file_name: str) -> pd.DataFrame:
+    path = f'{os.path.dirname(__file__)}/../datasets/{dataset}/{file_name}'
     print(f'Loading: {path}...', end=' ', flush=True)
     df = pd.read_csv(path)
     print(f'DONE')
@@ -103,26 +104,23 @@ async def emit(source_id: str, meta: MetaStream, idx: int, df: pd.DataFrame):
     outlet = create_outlet(source_id, meta.device, stream)
     current_thread = threading.current_thread()
     current_thread.alive = True
-    ptr = 0
     print(f'stream started - {stream.name}')
+    global PTR
     while current_thread.alive:
         # # wait for a consumer or timeout (currently using a large timeout for debugging)
-        if ptr < df.index.size:
+        while True:
             if outlet.have_consumers():
-                packet = df.iloc[ptr][stream.channels]
+                packet = df.iloc[PTR][stream.channels]
                 [t, d] = packet.name, packet.values
                 d_l = df[stream.channels].min().values
                 d_h = df[stream.channels].max().values
                 d_n = (d - d_l) / (d_h - d_l)
                 outlet.push_sample(d_n, t)
-                ptr += 1
+                PTR = (PTR + 1) % df.index.size
             # if stream frequency is zero, schedule next sample after a random time.
             # if not, schedule after (1 / f) time
             dt = (1. / stream.frequency) if stream.frequency > 0 else (random.randrange(0, 10) / 10.0)
             await asyncio.sleep(dt)
-        else:
-            print(f'stream ended - {stream.name}')
-            break
     if not current_thread.alive:
         print(f'stream terminated - {stream.name}')
 
@@ -130,23 +128,19 @@ async def emit(source_id: str, meta: MetaStream, idx: int, df: pd.DataFrame):
 def main():
     # parse command-line args
     args = sys.argv
-    assert len(args) == 5, f"Invalid Syntax.\nExpected: {SYNTAX}"
+    assert len(args) == 3, f"Invalid Syntax.\nExpected: {SYNTAX}"
     dataset_name = args[1].strip()
-    participant = int(args[2])
-    noise_level = int(args[3])
-    question = int(args[4])
+    file_name = args[2].strip()
     # print args
     print(f'Dataset: {dataset_name}')
-    print(f'Participant: {participant:03d}')
-    print(f'Noise Level: {noise_level}')
-    print(f'Question: {question}\n')
+    print(f'File: {file_name}')
     # load datasets
     meta_file = load_meta_file(dataset_name, 'json')
     meta_streams = create_meta_streams(meta_file)
     assert len(meta_streams) > 0, f"Meta-file does not have meta-streams"
 
     idx_cols = next(filter(lambda x: x.type == "index", meta_file.links)).fields
-    df = load_data_from_file(dataset_name, participant, noise_level, question).set_index(idx_cols)
+    df = load_data_from_file(dataset_name, file_name).set_index(idx_cols)
     # spawn a thread for each stream
     print('\n=== Initiating streaming tasks ===')
     threads = [threading.Thread(target=create_streaming_task, args=(meta, df)) for (i, meta) in enumerate(meta_streams)]

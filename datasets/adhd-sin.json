@@ -126,9 +126,9 @@
     "files": [
       {
         "checksum": "010203040506070809000A0B0C0D0E0F",
-        "path": "./data/003ADHD_AV_01.csv",
+        "path": "003ADHD_AV_01.csv",
         "encoding": "csv",
-        "description": "Recordings from Participant 003, at Noise Level of 0 db, for Question 1",
+        "description": "Recordings from Participant 003, at Noise Level of 0 db, for Q1",
         "keys": [
           "RecordingTimestamp",
           "GazePointLeftX (ADCSpx)",
