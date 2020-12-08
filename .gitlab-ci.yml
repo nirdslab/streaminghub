@@ -27,7 +27,7 @@ test_cases:
     - pip install -r requirements.txt
   stage: test
   script:
-    - find test/*.py | xargs -n 1 python3
+    - find test/*.py | PYTHONPATH=. xargs -n 1 python3
 
 
 include:

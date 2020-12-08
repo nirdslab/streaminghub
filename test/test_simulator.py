@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
+import os
 import unittest
 
-from core.types import MetaStream
+from tools.simulator import load_meta_file
 
 
 class TestSimulator(unittest.TestCase):
@@ -10,8 +11,11 @@ class TestSimulator(unittest.TestCase):
         """
         Test if the correct meta-file is loaded for the given arguments
         """
-        # TODO
-        self.assertEqual(False, False)
+        test_dataset_name = 'adhd-sin'
+        test_file_format = 'json'
+        test_dataset_dir = os.getenv("TEST_DATASET_DIR")
+        meta_file = load_meta_file(test_dataset_name, test_file_format, dataset_dir=test_dataset_dir)
+        self.assertEqual(meta_file.info.checksum, "010203040506070809000A0B0C0D0E0F")
 
     def test_load_data_file(self):
         """
