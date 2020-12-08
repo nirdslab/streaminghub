@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { filter } from 'rxjs/operators';
 import { WebSocketService } from 'src/app/web-socket.service';
 import { DialogComponent } from '../dialog/dialog.component';
@@ -16,16 +17,19 @@ export class WidgetComponent implements OnInit {
 
   constructor(
     public dialog: MatDialog,
+    public snackbar: MatSnackBar,
     private ws: WebSocketService
   ) { }
 
   ngOnInit(): void {
-    this.ws?.listen<any>().pipe(filter(res => res.command === 'search')).subscribe(res => {
-      this.openDialog(res.data.streams);
-    });
-    this.ws?.listen<any>().pipe(filter(res => res.command === 'data')).subscribe(res => {
-      console.dir(res);
-    });
+    this.ws?.listen<any>().pipe(filter(res => res.command === 'search')).subscribe(
+      res => { this.openDialog(res.data.streams); },
+      _error => { this.snackbar.open("An error occurred when searching for streams.") }
+    );
+    this.ws?.listen<any>().pipe(filter(res => res.command === 'data')).subscribe(
+      res => { console.dir(res); },
+      _error => { this.snackbar.open("An error occurred when receiving data.") }
+    );
   }
 
   onDoubleClick(event: Event) {

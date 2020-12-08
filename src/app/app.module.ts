@@ -12,6 +12,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 // CDK Modules
 import { DragDropModule } from '@angular/cdk/drag-drop';
 // Application Components
@@ -54,6 +55,7 @@ import { DialogComponent } from './components/dialog/dialog.component';
     MatButtonModule,
     MatDialogModule,
     MatCheckboxModule,
+    MatSnackBarModule,
     // CDK Modules
     DragDropModule
   ],
