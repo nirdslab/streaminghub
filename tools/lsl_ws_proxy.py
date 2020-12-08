@@ -11,11 +11,14 @@ import asyncio
 import json
 import os
 import threading
-from typing import List, Callable
+from http import HTTPStatus
+from typing import List, Callable, Union
 
 import numpy as np
 import websockets
 from pylsl import resolve_stream, StreamInlet, LostError
+from websockets.http import Headers
+from websockets.server import HTTPResponse
 
 from tools.util import stream_info_to_dict
 
@@ -90,9 +93,18 @@ async def lsl_connector(streams: List[StreamInlet], push: Callable):
         print('streams unsubscribed')
 
 
+async def process_request(path: str, request_headers: Headers) -> Union[HTTPResponse, None]:
+    if path == '/ws':
+        return None
+    elif path == '/':
+        return HTTPStatus(200), [], b''
+    else:
+        return HTTPStatus(404), [], b''
+
+
 if __name__ == '__main__':
     port = int(os.getenv("PORT"))
-    start_server = websockets.serve(ws_handler, "0.0.0.0", port)
+    start_server = websockets.serve(ws_handler, "0.0.0.0", port, process_request=process_request)
     try:
         asyncio.get_event_loop().run_until_complete(start_server)
         print('started websocket server.')
