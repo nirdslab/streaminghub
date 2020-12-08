@@ -20,7 +20,7 @@ stages:
   - cleanup
 
 
-test_python:
+angular_tests:
   image: buildkite/puppeteer
   before_script:
     - npm install
