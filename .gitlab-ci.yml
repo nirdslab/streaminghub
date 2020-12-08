@@ -24,7 +24,7 @@ test_python:
   image: node:lts
   before_script:
     - npm install
-    - apt-get update && apt-get install -y libnss3
+    - apt-get update && apt-get install chromium-browser
   stage: test
   script:
     - npm run test
