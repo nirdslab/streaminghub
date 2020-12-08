@@ -41,17 +41,25 @@ SCREEN_SIZE = 21  # 21 in
 DISTANCE = 22.02  # 22.02 in
 DIGIT_CHARS = '0123456789'
 PTR = 0
+DATASET_DIR = os.getenv("DATASET_DIR")
 
 
 def load_meta_file(dataset: str, file_format: str) -> MetaFile:
-    base_dir = os.getenv("DATASET_DIR")
-    path = f'{base_dir}/{dataset}.{file_format}'
+    path = f'{DATASET_DIR}/{dataset}.{file_format}'
     assert file_format in ['json', 'xml'], f"Invalid File Format.\nExpected JSON or XML file"
     # load meta-file
     print(f'Loading meta-file: {path}...', end=' ', flush=True)
     meta_file = get_meta_file(path, file_format)
     print('DONE')
     return meta_file
+
+
+def load_data_file(dataset: str, file_name: str) -> pd.DataFrame:
+    path = f'{DATASET_DIR}/{dataset}/{file_name}'
+    print(f'Loading: {path}...', end=' ', flush=True)
+    df = pd.read_csv(path)
+    print(f'DONE')
+    return df
 
 
 def create_meta_streams(meta_file: MetaFile) -> List[MetaStream]:
@@ -72,15 +80,6 @@ def create_meta_streams(meta_file: MetaFile) -> List[MetaStream]:
         meta_streams.append(meta_stream)
     print('DONE')
     return meta_streams
-
-
-def load_data_from_file(dataset: str, file_name: str) -> pd.DataFrame:
-    base_dir = os.getenv("DATASET_DIR")
-    path = f'{base_dir}/{dataset}/{file_name}'
-    print(f'Loading: {path}...', end=' ', flush=True)
-    df = pd.read_csv(path)
-    print(f'DONE')
-    return df
 
 
 def create_streaming_task(meta: MetaStream, df: pd.DataFrame):
@@ -107,6 +106,10 @@ async def emit(source_id: str, meta: MetaStream, idx: int, df: pd.DataFrame):
     current_thread = threading.current_thread()
     current_thread.alive = True
     print(f'stream started - {stream.name}')
+    # calculate low/high/range values of selected channels
+    d_l = df[stream.channels].min().values
+    d_h = df[stream.channels].max().values
+    d_r = (d_h - d_l)
     global PTR
     while current_thread.alive:
         # # wait for a consumer or timeout (currently using a large timeout for debugging)
@@ -114,10 +117,10 @@ async def emit(source_id: str, meta: MetaStream, idx: int, df: pd.DataFrame):
             if outlet.have_consumers():
                 packet = df.iloc[PTR][stream.channels]
                 [t, d] = packet.name, packet.values
-                d_l = df[stream.channels].min().values
-                d_h = df[stream.channels].max().values
-                d_n = (d - d_l) / (d_h - d_l)
+                # normalize data
+                d_n = (d - d_l) / d_r
                 outlet.push_sample(d_n, t)
+                # increment pointer (rolling)
                 PTR = (PTR + 1) % df.index.size
             # if stream frequency is zero, schedule next sample after a random time.
             # if not, schedule after (1 / f) time
@@ -138,15 +141,15 @@ def main():
     print(f'File: {file_name}')
     # load datasets
     meta_file = load_meta_file(dataset_name, 'json')
+    idx_cols = next(filter(lambda x: x.type == "index", meta_file.links)).fields
+    df = load_data_file(dataset_name, file_name).set_index(idx_cols)
+    # create meta-streams
     meta_streams = create_meta_streams(meta_file)
     assert len(meta_streams) > 0, f"Meta-file does not have meta-streams"
-
-    idx_cols = next(filter(lambda x: x.type == "index", meta_file.links)).fields
-    df = load_data_from_file(dataset_name, file_name).set_index(idx_cols)
-    # spawn a thread for each stream
+    # spawn a thread for each meta-stream
     print('\n=== Initiating streaming tasks ===')
     threads = [threading.Thread(target=create_streaming_task, args=(meta, df)) for (i, meta) in enumerate(meta_streams)]
-    # start each data stream
+    # start streaming data
     for t in threads:
         t.start()
     # add interrupt handler
