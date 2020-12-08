@@ -2,6 +2,7 @@ image: alpine:latest
 
 variables:
   POSTGRES_ENABLED: "false"
+  ROLLOUT_RESOURCE_TYPE: deployment
 
 stages:
   - build
@@ -20,7 +21,7 @@ stages:
   - cleanup
 
 
-angular_tests:
+ng_tests:
   image: buildkite/puppeteer
   before_script:
     - npm install
