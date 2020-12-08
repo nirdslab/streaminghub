@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import unittest
 
-from tools.simulator import load_meta_file, load_data_file
+from tools.simulator import load_meta_file, load_data_file, create_meta_streams
 
 
 class TestSimulator(unittest.TestCase):
@@ -34,8 +34,18 @@ class TestSimulator(unittest.TestCase):
         """
         Test if the correct meta-streams are generated from a meta-file
         """
-        # TODO
-        self.assertEqual(False, False)
+        test_meta_file_format = 'json'
+        # load the meta-file
+        meta_file = load_meta_file(self.test_dataset_name, test_meta_file_format, dataset_dir=self.test_dataset_dir)
+        meta_streams = create_meta_streams(meta_file)
+        self.assertEqual(len(meta_streams), len(meta_file.sources.meta_streams))
+        for i in range(len(meta_streams)):
+            self.assertEqual(meta_streams[i].device, meta_file.sources.meta_streams[i].device)
+            self.assertEqual(meta_streams[i].fields, meta_file.fields)
+            self.assertEqual(meta_streams[i].streams, meta_file.sources.meta_streams[i].streams)
+            # info
+            self.assertEqual(meta_streams[i].info.version, meta_file.info.version)
+            self.assertEqual(meta_streams[i].info.checksum, meta_file.info.checksum)
 
     def test_create_streaming_task(self):
         """

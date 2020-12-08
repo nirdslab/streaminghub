@@ -31,7 +31,6 @@ def __read_spec(meta_path: str, schema_path: str, schema_name) -> dict:
     :param schema_path: path to JSON schema file
     """
     meta = __load(meta_path)
-    print(meta)
     schema = __load(schema_path)
     schema["$ref"] = f"#/definitions/{schema_name}"
     try:
