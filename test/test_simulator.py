@@ -1,28 +1,34 @@
 #!/usr/bin/env python3
-import os
 import unittest
 
-from tools.simulator import load_meta_file
+from tools.simulator import load_meta_file, load_data_file
 
 
 class TestSimulator(unittest.TestCase):
+    test_dataset_name = 'adhd-sin'
+    test_dataset_dir = './datasets'
 
     def test_load_meta_file(self):
         """
         Test if the correct meta-file is loaded for the given arguments
         """
-        test_dataset_name = 'adhd-sin'
-        test_file_format = 'json'
-        test_dataset_dir = os.getenv("TEST_DATASET_DIR")
-        meta_file = load_meta_file(test_dataset_name, test_file_format, dataset_dir=test_dataset_dir)
-        self.assertEqual(meta_file.info.checksum, "010203040506070809000A0B0C0D0E0F")
+        test_meta_file_format = 'json'
+        test_meta_file_checksum = '010203040506070809000A0B0C0D0E0F'
+        # load the meta-file
+        meta_file = load_meta_file(self.test_dataset_name, test_meta_file_format, dataset_dir=self.test_dataset_dir)
+        # assertion
+        self.assertEqual(meta_file.info.checksum, test_meta_file_checksum)
 
     def test_load_data_file(self):
         """
         Test if the correct data file is loaded for the given arguments
         """
-        # TODO
-        self.assertEqual(False, False)
+        test_file_name = '003ADHD_AV_01.csv'
+        test_file_size = 47232
+        # load the data-file
+        data_file = load_data_file(self.test_dataset_name, test_file_name, dataset_dir=self.test_dataset_dir)
+        # assertion
+        self.assertEqual(data_file.size, test_file_size)
 
     def test_create_meta_streams(self):
         """
