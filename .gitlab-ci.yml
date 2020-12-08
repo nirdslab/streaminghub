@@ -25,6 +25,7 @@ test_cases:
   image: python:3-slim
   before_script:
     - pip install -r requirements.txt
+    - export PYTHONTEST=.
   stage: test
   script:
     - python3 -m unittest
