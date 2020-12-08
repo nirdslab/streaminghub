@@ -33,21 +33,24 @@ async def ws_handler(websocket: websockets.WebSocketServerProtocol, path: str):
 
 
 async def consumer(message: str, callback: Callable):
-    payload = json.loads(message)
-    command = payload['command']
-    response = {'command': command, 'error': None, 'data': None}
+    try:
+        payload = json.loads(message)
+        command = payload['command']
+        response = {'command': command, 'error': None, 'data': None}
 
-    if command == 'search':
-        streams = resolve_stream()
-        response['data'] = {'streams': [*map(stream_info_to_dict, streams)]}
-    if command == 'subscribe':
-        data: dict = payload['data']
-        source_id, source_name, source_type = data['id'], data['name'], data['type']
-        # create stream inlets to pull data from
-        streams: List[StreamInlet] = [StreamInlet(x, max_chunklen=1, recover=False) for x in resolve_stream('source_id', source_id) if x.name() == source_name and x.type() == source_type]
-        # create thread (with its own event loop) to proxy LSL data into websockets
-        thread = threading.Thread(target=create_lsl_proxy, args=(streams, callback))
-        thread.start()
+        if command == 'search':
+            streams = resolve_stream()
+            response['data'] = {'streams': [*map(stream_info_to_dict, streams)]}
+        if command == 'subscribe':
+            data: dict = payload['data']
+            source_id, source_name, source_type = data['id'], data['name'], data['type']
+            # create stream inlets to pull data from
+            streams: List[StreamInlet] = [StreamInlet(x, max_chunklen=1, recover=False) for x in resolve_stream('source_id', source_id) if x.name() == source_name and x.type() == source_type]
+            # create thread (with its own event loop) to proxy LSL data into websockets
+            thread = threading.Thread(target=create_lsl_proxy, args=(streams, callback))
+            thread.start()
+    except:
+        response = {'error': 'bad request'}
     await callback(response)
 
 

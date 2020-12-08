@@ -129,6 +129,3 @@ dmypy.json
 
 # IDEA
 .idea/
-
-# Datasets
-datasets/*/
