@@ -22,6 +22,8 @@ from websockets.server import HTTPResponse
 
 from tools.util import stream_info_to_dict
 
+ERROR_BAD_REQUEST = "Bad Request"
+
 
 async def ws_handler(websocket: websockets.WebSocketServerProtocol, path: str):
     async def callback(data):
@@ -44,7 +46,7 @@ async def consumer(message: str, callback: Callable):
         if command == 'search':
             streams = resolve_stream()
             response['data'] = {'streams': [*map(stream_info_to_dict, streams)]}
-        if command == 'subscribe':
+        elif command == 'subscribe':
             data: dict = payload['data']
             source_id, source_name, source_type = data['id'], data['name'], data['type']
             # create stream inlets to pull data from
@@ -52,8 +54,10 @@ async def consumer(message: str, callback: Callable):
             # create thread (with its own event loop) to proxy LSL data into websockets
             thread = threading.Thread(target=create_lsl_proxy, args=(streams, callback))
             thread.start()
+        else:
+            raise Exception()
     except:
-        response = {'error': 'bad request'}
+        response = {'command': None, 'error': ERROR_BAD_REQUEST, 'data': None}
     await callback(response)
 
 
