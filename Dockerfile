@@ -6,7 +6,7 @@ RUN npm run build
 
 FROM nginx:alpine AS runner
 
-ARG PORT=8080
+ARG PORT=5000
 ENV PORT=${PORT}
 EXPOSE ${PORT}
 
