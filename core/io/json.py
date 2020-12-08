@@ -6,7 +6,7 @@ import jsonschema
 from core.errors import DoesNotMatchSchemaError
 from core.io import parser
 
-__schema_path = f'{os.path.dirname(__file__)}/../../dfs/json/dfs.jsd'
+__schema_path = f'{"/".join(os.path.dirname(__file__).split("/")[:-2])}/dfs/json/dfs.jsd'
 
 
 def __load(path: str) -> dict:
@@ -31,6 +31,7 @@ def __read_spec(meta_path: str, schema_path: str, schema_name) -> dict:
     :param schema_path: path to JSON schema file
     """
     meta = __load(meta_path)
+    print(meta)
     schema = __load(schema_path)
     schema["$ref"] = f"#/definitions/{schema_name}"
     try:
