@@ -24,7 +24,7 @@ stages:
 ng_tests:
   image: buildkite/puppeteer
   before_script:
-    - npm install
+    - npm install && npm rebuild
   stage: test
   script:
     - npm run test
