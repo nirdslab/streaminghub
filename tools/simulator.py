@@ -7,19 +7,6 @@ datasets-stream based on the device specifications.
 
 It can be used to replay an experimental setup from
 the datasets that's already collected.
-
-
-SCENE = 'SceneName'
-DIAGNOSIS = "[Diagnosis]Value"
-GENDER = "[Gender]Value"
-TIMESTAMP = "RecordingTimestamp"
-LEFT_GAZE_X = "GazePointLeftX (ADCSpx)"
-LEFT_GAZE_Y = "GazePointLeftY (ADCSpx)"
-LEFT_PUPIL_SIZE = "PupilLeft"
-RIGHT_GAZE_X = "GazePointRightX (ADCSpx)"
-RIGHT_GAZE_Y = "GazePointRightY (ADCSpx)"
-RIGHT_PUPIL_SIZE = "PupilRight
-
 """
 
 import asyncio
@@ -35,10 +22,7 @@ from core.io import get_meta_file
 from core.lsl_outlet import create_outlet
 from core.types import MetaFile, MetaStream
 
-SYNTAX = "simulator [dataset-name] [participant_id] [noise_level] [question]"
-RESOLUTION = [1920, 1080]  # 1920x1080
-SCREEN_SIZE = 21  # 21 in
-DISTANCE = 22.02  # 22.02 in
+SYNTAX = "simulator [dataset_name] [file_name]"
 DIGIT_CHARS = '0123456789'
 DATASET_DIR = os.getenv("DATASET_DIR")
 SHUTDOWN_FLAG = threading.Event()
@@ -83,21 +67,19 @@ def create_meta_streams(meta_file: MetaFile) -> List[MetaStream]:
 
 
 def create_streaming_task(meta: MetaStream, df: pd.DataFrame):
+    _id = str.join('', [random.choice(DIGIT_CHARS) for _ in range(5)])
+    print(f'Created streaming task: {_id} - Device: {meta.device.model}, {meta.device.manufacturer} ({meta.device.category})', flush=True)
     # create an event loop and begin data stream
     inner_loop = asyncio.new_event_loop()
     asyncio.set_event_loop(inner_loop)
-    inner_loop.run_until_complete(begin_data_stream(meta, df))
+    inner_loop.run_until_complete(begin_data_stream(_id, meta, df))
     inner_loop.close()
-
-
-async def begin_data_stream(meta: MetaStream, df: pd.DataFrame):
-    _id = str.join('', [random.choice(DIGIT_CHARS) for _ in range(5)])
-    print(f'Created streaming task: {_id} - Device: {meta.device.model}, {meta.device.manufacturer} ({meta.device.category})', flush=True)
-    # create a job for each stream defined in the meta-stream
-    jobs = [emit(_id, meta, _idx, df) for _idx in range(len(meta.streams))]
-    # start all jobs
-    await asyncio.gather(*jobs)
     print(f'Ended streaming task: {_id}')
+
+
+async def begin_data_stream(_id: str, meta: MetaStream, df: pd.DataFrame):
+    jobs = [emit(_id, meta, _idx, df) for _idx in range(len(meta.streams))]
+    await asyncio.gather(*jobs)
 
 
 async def emit(source_id: str, meta: MetaStream, idx: int, df: pd.DataFrame):
@@ -114,10 +96,11 @@ async def emit(source_id: str, meta: MetaStream, idx: int, df: pd.DataFrame):
     while not SHUTDOWN_FLAG.is_set():
         # calculate wait time
         dt = (1. / f) if f > 0 else (random.randrange(0, 10) / 10.0)
-        # wait for consumers to show up
-        if outlet.wait_for_consumers(dt):
-            packet = df.iloc[ptr][stream.channels]
-            [t, d] = packet.name, packet.values
+        # check if any consumers are available
+        if outlet.have_consumers():
+            # push sample if consumers are available
+            sample = df.iloc[ptr][stream.channels]
+            [t, d] = sample.name, sample.values
             # normalize data
             d_n = (d - d_l) / d_r
             outlet.push_sample(d_n, t)
@@ -126,8 +109,8 @@ async def emit(source_id: str, meta: MetaStream, idx: int, df: pd.DataFrame):
             if ptr == n:
                 print(f'end of stream reached - {stream.name}')
                 return
-            # sleep until next sample is due
-            await asyncio.sleep(dt)
+        # sleep until next sample is due
+        await asyncio.sleep(dt)
     print(f'stream terminated - {stream.name}')
 
 
