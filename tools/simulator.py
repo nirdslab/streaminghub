@@ -68,20 +68,19 @@ def create_meta_streams(meta_file: MetaFile) -> List[MetaStream]:
 
 async def begin_streaming(meta_streams: List[MetaStream], df: pd.DataFrame):
     tasks = []
-    for (i, meta_stream) in enumerate(meta_streams):
+    for meta_stream in meta_streams:
         # create new id for each meta_stream
         source_id = str.join('', [random.choice(DIGIT_CHARS) for _ in range(5)])
-        for _idx in range(len(meta_stream.streams)):
-            tasks.append(emit(source_id, meta_stream, _idx, df))
+        for stream in meta_stream.streams:
+            tasks.append(emit(source_id, meta_stream.device, stream, df))
         print(f'Task [{source_id}]: Device: {meta_stream.device.model}, {meta_stream.device.manufacturer} ({meta_stream.device.category})', flush=True)
     print(f'Started all streaming tasks')
     await asyncio.gather(*tasks)
     print(f'Ended all streaming tasks')
 
 
-async def emit(source_id: str, meta: MetaStream, idx: int, df: pd.DataFrame):
-    stream = meta.streams[idx]
-    outlet = create_outlet(source_id, meta.device, stream)
+async def emit(source_id: str, device: MetaStream.DeviceInfo, stream: MetaStream.StreamInfo, df: pd.DataFrame):
+    outlet = create_outlet(source_id, device, stream)
     print(f'Task [{source_id}]: stream started - {stream.name}')
     # calculate low/high/range values of selected channels
     d_l = df[stream.channels].min().values
