@@ -90,7 +90,11 @@ async def emit(source_id: str, meta: MetaStream, idx: int, df: pd.DataFrame):
     f = stream.frequency
     n = df.index.size
     ptr = 0
-    while not SHUTDOWN_FLAG.is_set():
+    while ptr < n:
+        # graceful shutdown
+        if SHUTDOWN_FLAG.is_set():
+            print(f'Task [{source_id}]: stream terminated - {stream.name}')
+            break
         # calculate wait time
         dt = (1. / f) if f > 0 else (random.randrange(0, 10) / 10.0)
         # check if any consumers are available
@@ -103,11 +107,10 @@ async def emit(source_id: str, meta: MetaStream, idx: int, df: pd.DataFrame):
             outlet.push_sample(d_n, t)
             # increment pointer (rolling)
             ptr = ptr + 1
-            if ptr == n:
-                print(f'Task [{source_id}]: end of stream reached - {stream.name}')
         # sleep until next sample is due
         await asyncio.sleep(dt)
-    print(f'Task [{source_id}]: stream terminated - {stream.name}')
+    else:
+        print(f'Task [{source_id}]: end of stream reached - {stream.name}')
 
 
 def main():
