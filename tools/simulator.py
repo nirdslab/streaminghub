@@ -66,26 +66,23 @@ def create_meta_streams(meta_file: MetaFile) -> List[MetaStream]:
     return meta_streams
 
 
-def create_streaming_task(meta: MetaStream, df: pd.DataFrame):
-    _id = str.join('', [random.choice(DIGIT_CHARS) for _ in range(5)])
-    print(f'Created streaming task: {_id} - Device: {meta.device.model}, {meta.device.manufacturer} ({meta.device.category})', flush=True)
-    # create an event loop and begin data stream
-    inner_loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(inner_loop)
-    inner_loop.run_until_complete(begin_data_stream(_id, meta, df))
-    inner_loop.close()
-    print(f'Ended streaming task: {_id}')
-
-
-async def begin_data_stream(_id: str, meta: MetaStream, df: pd.DataFrame):
-    jobs = [emit(_id, meta, _idx, df) for _idx in range(len(meta.streams))]
-    await asyncio.gather(*jobs)
+async def begin_streaming(meta_streams: List[MetaStream], df: pd.DataFrame):
+    tasks = []
+    for (i, meta_stream) in enumerate(meta_streams):
+        # create new id for each meta_stream
+        source_id = str.join('', [random.choice(DIGIT_CHARS) for _ in range(5)])
+        for _idx in range(len(meta_stream.streams)):
+            tasks.append(emit(source_id, meta_stream, _idx, df))
+        print(f'Task [{source_id}]: Device: {meta_stream.device.model}, {meta_stream.device.manufacturer} ({meta_stream.device.category})', flush=True)
+    print(f'Started all streaming tasks')
+    await asyncio.gather(*tasks)
+    print(f'Ended all streaming tasks')
 
 
 async def emit(source_id: str, meta: MetaStream, idx: int, df: pd.DataFrame):
     stream = meta.streams[idx]
     outlet = create_outlet(source_id, meta.device, stream)
-    print(f'stream started - {stream.name}')
+    print(f'Task [{source_id}]: stream started - {stream.name}')
     # calculate low/high/range values of selected channels
     d_l = df[stream.channels].min().values
     d_h = df[stream.channels].max().values
@@ -107,11 +104,10 @@ async def emit(source_id: str, meta: MetaStream, idx: int, df: pd.DataFrame):
             # increment pointer (rolling)
             ptr = ptr + 1
             if ptr == n:
-                print(f'end of stream reached - {stream.name}')
-                return
+                print(f'Task [{source_id}]: end of stream reached - {stream.name}')
         # sleep until next sample is due
         await asyncio.sleep(dt)
-    print(f'stream terminated - {stream.name}')
+    print(f'Task [{source_id}]: stream terminated - {stream.name}')
 
 
 def main():
@@ -130,22 +126,19 @@ def main():
     # create meta-streams
     meta_streams = create_meta_streams(meta_file)
     assert len(meta_streams) > 0, f"Meta-file does not have meta-streams"
-    # spawn a thread for each meta-stream
-    print('\n=== Initiating streaming tasks ===')
-    threads = [threading.Thread(target=create_streaming_task, args=(meta, df)) for (i, meta) in enumerate(meta_streams)]
-    # start streaming threads
-    for t in threads:
-        t.start()
+    # spawn a worker thread for streaming
+    print('\n=== Begin streaming ===')
+    worker = threading.Thread(target=asyncio.run, args=(begin_streaming(meta_streams, df),))
+    worker.start()
     # add interrupt handler
     try:
         SHUTDOWN_FLAG.wait()
     except InterruptedError or KeyboardInterrupt:
         print('\nInterrupt received. Ending all stream tasks...\n')
         SHUTDOWN_FLAG.set()
-        for t in threads:
-            t.join()
-    finally:
-        print('\nAll streaming tasks ended\n')
+    # wait for worker to close
+    worker.join()
+    print('\nAll streaming tasks ended\n')
 
 
 if __name__ == '__main__':
