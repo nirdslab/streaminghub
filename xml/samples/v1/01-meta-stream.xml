@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<meta-stream xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://www.cs.odu.edu/~yasith/dfs/v1/dfs.xsd">
+  <info>
+    <version>1.0.0</version>
+    <checksum>010203040506070809000A0B0C0D0E0F</checksum>
+  </info>
+  <device>
+    <model>E4</model>
+    <manufacturer>Empatica</manufacturer>
+    <category>Wristband</category>
+  </device>
+  <fields>
+    <field>
+      <id>acc_x</id>
+      <name>x - acceleration</name>
+      <description>Acceleration in the X axis</description>
+      <dtype>float</dtype>
+    </field>
+    <field>
+      <id>acc_y</id>
+      <name>y - acceleration</name>
+      <description>Acceleration in the Y axis</description>
+      <dtype>float</dtype>
+    </field>
+    <field>
+      <id>acc_z</id>
+      <name>z - acceleration</name>
+      <description>Acceleration in the Z axis</description>
+      <dtype>float</dtype>
+    </field>
+    <field>
+      <id>bvp</id>
+      <name>blood volume pulse</name>
+      <description>Blood Volume Pulse</description>
+      <dtype>float</dtype>
+    </field>
+    <field>
+      <id>gsr</id>
+      <name>galvanic skin response</name>
+      <description>Galvanic Skin Response</description>
+      <dtype>float</dtype>
+    </field>
+    <field>
+      <id>ibi</id>
+      <name>inter beat interval</name>
+      <description>The interval between two consecutive heartbeats</description>
+      <dtype>float</dtype>
+    </field>
+    <field>
+      <id>tmp</id>
+      <name>skin temperature</name>
+      <description>Skin Temperature on the Wrist</description>
+      <dtype>float</dtype>
+    </field>
+    <field>
+      <id>bat</id>
+      <name>battery level</name>
+      <description>Battery Level of the Device</description>
+      <dtype>float</dtype>
+    </field>
+    <field>
+      <id>tag</id>
+      <name>tag</name>
+      <description>Press of the Tag Button</description>
+      <dtype>float</dtype>
+    </field>
+  </fields>
+  <streams>
+    <stream>
+      <name>acceleration</name>
+      <description>3-axis acceleration (unit - gravity)</description>
+      <unit>g</unit>
+      <frequency>32</frequency>
+      <channels>
+        <channel>acc_x</channel>
+        <channel>acc_y</channel>
+        <channel>acc_z</channel>
+      </channels>
+    </stream>
+    <stream>
+      <name>blood volume pulse</name>
+      <description>Blood Volume Pulse (unit - lumen)</description>
+      <unit>lm</unit>
+      <frequency>64</frequency>
+      <channels>
+        <channel>bvp</channel>
+      </channels>
+    </stream>
+    <stream>
+      <name>galvanic skin response</name>
+      <description>Galvanic Skin Response (unit - micro siemens)</description>
+      <unit>μS</unit>
+      <frequency>0</frequency>
+      <channels>
+        <channel>gsr</channel>
+      </channels>
+    </stream>
+    <stream>
+      <name>inter-beat interval</name>
+      <description>Inter-Beat Interval (unit - seconds)</description>
+      <unit>s</unit>
+      <frequency>0</frequency>
+      <channels>
+        <channel>ibi</channel>
+      </channels>
+    </stream>
+    <stream>
+      <name>skin temperature</name>
+      <description>Skin Temperature (unit - celsius)</description>
+      <unit>c</unit>
+      <frequency>0</frequency>
+      <channels>
+        <channel>tmp</channel>
+      </channels>
+    </stream>
+    <stream>
+      <name>battery level</name>
+      <description>Device Battery (unit - percent)</description>
+      <unit>%</unit>
+      <frequency>0</frequency>
+      <channels>
+        <channel>bat</channel>
+      </channels>
+    </stream>
+    <stream>
+      <name>tag</name>
+      <description>Tag recorded upon button press</description>
+      <unit/>
+      <frequency>0</frequency>
+      <channels>
+        <channel>tag</channel>
+      </channels>
+    </stream>
+  </streams>
+</meta-stream>

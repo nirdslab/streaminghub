@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <meta-stream xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:noNamespaceSchemaLocation="../dfs.xsd">
+             xsi:noNamespaceSchemaLocation="../../dfs.xsd">
   <info>
     <version>1.0.0</version>
     <checksum>010203040506070809000A0B0C0D0E0F</checksum>
