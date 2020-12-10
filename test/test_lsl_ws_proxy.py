@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
 import asyncio
 import unittest
-
+import logging
+import sys
 from tools.lsl_ws_proxy import consumer, ERROR_BAD_REQUEST
+
+logger = logging.getLogger()
+logger.level = logging.DEBUG
+stream_handler = logging.StreamHandler(sys.stdout)
+logger.addHandler(stream_handler)
 
 
 class TestLslWsProxy(unittest.TestCase):
