@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""
+DESCRIPTION = """
 This command-line executable simulates the datasets
 stream of data in real-time, and generates a
 datasets-stream based on the device specifications.
@@ -9,6 +9,7 @@ It can be used to replay an experimental setup from
 the datasets that's already collected.
 """
 
+import argparse
 import asyncio
 import os
 import random
@@ -22,14 +23,12 @@ from core.io import get_meta_file
 from core.lsl_outlet import create_outlet
 from core.types import MetaFile, MetaStream
 
-SYNTAX = "simulator [dataset_name] [file_name]"
 DIGIT_CHARS = '0123456789'
-DATASET_DIR = os.getenv("DATASET_DIR")
 SHUTDOWN_FLAG = threading.Event()
 
 
-def load_meta_file(dataset: str, file_format: str, dataset_dir=DATASET_DIR) -> MetaFile:
-    path = f'{dataset_dir}/{dataset}.{file_format}'
+def load_meta_file(dataset_dir: str, dataset_name: str, file_format: str) -> MetaFile:
+    path = f'{dataset_dir}/{dataset_name}.{file_format}'
     assert file_format in ['json', 'xml'], f"Invalid File Format.\nExpected JSON or XML file"
     # load meta-file
     print(f'Loading meta-file: {path}...', end=' ', flush=True)
@@ -38,7 +37,7 @@ def load_meta_file(dataset: str, file_format: str, dataset_dir=DATASET_DIR) -> M
     return meta_file
 
 
-def load_data_file(dataset: str, file_name: str, dataset_dir=DATASET_DIR) -> pd.DataFrame:
+def load_data_file(dataset_dir: str, dataset: str, file_name: str) -> pd.DataFrame:
     path = f'{dataset_dir}/{dataset}/{file_name}'
     print(f'Loading: {path}...', end=' ', flush=True)
     df = pd.read_csv(path)
@@ -113,18 +112,28 @@ async def emit(source_id: str, device: MetaStream.DeviceInfo, stream: MetaStream
 
 
 def main():
-    # parse command-line args
-    args = sys.argv
-    assert len(args) == 3, f"Invalid Syntax.\nExpected: {SYNTAX}"
-    dataset_name = args[1].strip()
-    file_name = args[2].strip()
+    # get default args
+    default_dir = os.getenv("DATASET_DIR")
+    default_name = os.getenv("DATASET_NAME")
+    default_file = os.getenv("DATASET_FILE")
+    # create parser and parse args
+    parser = argparse.ArgumentParser(prog='simulator.py', description=DESCRIPTION)
+    parser.add_argument('--dataset-dir', '-d', required=default_dir is None, default=default_dir)
+    parser.add_argument('--dataset-name', '-n', required=default_name is None, default=default_name)
+    parser.add_argument('--dataset-file', '-f', required=default_file is None, default=default_file)
+    args: argparse.Namespace = parser.parse_args()
+    # assign args to variables
+    dataset_dir = args.dataset_dir or default_dir
+    dataset_name = args.dataset_name or default_name
+    dataset_file = args.dataset_file or default_file
     # print args
-    print(f'Dataset: {dataset_name}')
-    print(f'File: {file_name}')
+    print(f'Dataset Directory: {dataset_dir}')
+    print(f'Dataset Name: {dataset_name}')
+    print(f'Dataset File: {dataset_file}')
     # load datasets
-    meta_file = load_meta_file(dataset_name, 'json')
+    meta_file = load_meta_file(dataset_dir, dataset_name, 'json')
     idx_cols = next(filter(lambda x: x.type == "index", meta_file.links)).fields
-    df = load_data_file(dataset_name, file_name).set_index(idx_cols)
+    df = load_data_file(dataset_dir, dataset_name, dataset_file).set_index(idx_cols)
     # create meta-streams
     meta_streams = create_meta_streams(meta_file)
     assert len(meta_streams) > 0, f"Meta-file does not have meta-streams"

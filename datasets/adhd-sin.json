@@ -1,5 +1,5 @@
 {
-  "$schema": "../dfs/json/meta-file.jsd",
+  "$schema": "https://www.cs.odu.edu/~yasith/dfs/v1/meta-file.jsd",
   "info": {
     "version": "1.0.0",
     "created": "2020-09-20T00:00:00",

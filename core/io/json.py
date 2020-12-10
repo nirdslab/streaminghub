@@ -34,7 +34,7 @@ def __read_spec(meta_path: str, schema_path: str, schema_name) -> dict:
     schema = __load(schema_path)
     schema["$ref"] = f"#/definitions/{schema_name}"
     try:
-        jsonschema.validate(meta, schema)
+        jsonschema.validate(meta, schema, jsonschema.Draft7Validator)
         return meta
     except jsonschema.ValidationError as e:
         raise DoesNotMatchSchemaError()
