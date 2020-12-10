@@ -9,16 +9,14 @@ It can be used to replay an experimental setup from
 the datasets that's already collected.
 """
 
+import logging
 import argparse
 import asyncio
 import os
 import random
-import sys
 import threading
 from typing import List
-
 import pandas as pd
-
 from core.io import get_meta_file
 from core.lsl_outlet import create_outlet
 from core.types import MetaFile, MetaStream
@@ -26,27 +24,30 @@ from core.types import MetaFile, MetaStream
 DIGIT_CHARS = '0123456789'
 SHUTDOWN_FLAG = threading.Event()
 
+FORMAT = '%(asctime)-15s %(message)s'
+logging.basicConfig(format=FORMAT, level=logging.INFO)
+logger = logging.getLogger()
+# logger.addHandler(logging.StreamHandler())
+
 
 def load_meta_file(dataset_dir: str, dataset_name: str, file_format: str) -> MetaFile:
     path = f'{dataset_dir}/{dataset_name}.{file_format}'
-    assert file_format in ['json', 'xml'], f"Invalid File Format.\nExpected JSON or XML file"
-    # load meta-file
-    print(f'Loading meta-file: {path}...', end=' ', flush=True)
+    logger.debug(f'Loading meta-file: {path}')
     meta_file = get_meta_file(path, file_format)
-    print('DONE')
+    logger.debug(f'Loaded meta-file: {path}')
     return meta_file
 
 
 def load_data_file(dataset_dir: str, dataset: str, file_name: str) -> pd.DataFrame:
     path = f'{dataset_dir}/{dataset}/{file_name}'
-    print(f'Loading: {path}...', end=' ', flush=True)
+    logger.debug(f'Loading data-file: {path}')
     df = pd.read_csv(path)
-    print(f'DONE')
+    logger.debug(f'Loaded data-file: {path}')
     return df
 
 
 def create_meta_streams(meta_file: MetaFile) -> List[MetaStream]:
-    print(f'Creating meta-streams from meta-file...', end=' ', flush=True)
+    logger.debug(f'Creating meta-streams from meta-file')
     meta_stream_infos = meta_file.sources.meta_streams
     meta_streams: List[MetaStream] = []
     for meta_stream_info in meta_stream_infos:
@@ -61,7 +62,7 @@ def create_meta_streams(meta_file: MetaFile) -> List[MetaStream]:
         meta_stream.info.checksum = meta_file.info.checksum
         # append to meta-stream list
         meta_streams.append(meta_stream)
-    print('DONE')
+    logger.debug(f'Created meta-streams from meta-file')
     return meta_streams
 
 
@@ -72,16 +73,17 @@ async def begin_streaming(meta_streams: List[MetaStream], df: pd.DataFrame):
         source_id = str.join('', [random.choice(DIGIT_CHARS) for _ in range(5)])
         for stream in meta_stream.streams:
             tasks.append(emit(source_id, meta_stream.device, stream, df))
-        print(f'Task [{source_id}]: Device: {meta_stream.device.model}, {meta_stream.device.manufacturer} ({meta_stream.device.category})', flush=True)
-    print(f'Started all streaming tasks')
+        logger.info(f'Task [{source_id}]: Device: {meta_stream.device.model}, {meta_stream.device.manufacturer} ({meta_stream.device.category})')
+    logger.debug(f'Started all streaming tasks')
     await asyncio.gather(*tasks)
-    print(f'Ended all streaming tasks')
+    logger.debug(f'Ended all streaming tasks')
 
 
 async def emit(source_id: str, device: MetaStream.DeviceInfo, stream: MetaStream.StreamInfo, df: pd.DataFrame):
     outlet = create_outlet(source_id, device, stream)
-    print(f'Task [{source_id}]: stream started - {stream.name}')
+    logger.info(f'Task [{source_id}]: stream started - {stream.name}')
     # calculate low/high/range values of selected channels
+    d_l = df[stream.channels].min().values
     d_l = df[stream.channels].min().values
     d_h = df[stream.channels].max().values
     d_r = (d_h - d_l)
@@ -91,7 +93,7 @@ async def emit(source_id: str, device: MetaStream.DeviceInfo, stream: MetaStream
     while ptr < n:
         # graceful shutdown
         if SHUTDOWN_FLAG.is_set():
-            print(f'Task [{source_id}]: stream terminated - {stream.name}')
+            logger.info(f'Task [{source_id}]: stream terminated - {stream.name}')
             break
         # calculate wait time
         dt = (1. / f) if f > 0 else (random.randrange(0, 10) / 10.0)
@@ -108,7 +110,7 @@ async def emit(source_id: str, device: MetaStream.DeviceInfo, stream: MetaStream
         # sleep until next sample is due
         await asyncio.sleep(dt)
     else:
-        print(f'Task [{source_id}]: end of stream reached - {stream.name}')
+        logger.info(f'Task [{source_id}]: end of stream reached - {stream.name}')
 
 
 def main():
@@ -127,9 +129,9 @@ def main():
     dataset_name = args.dataset_name or default_name
     dataset_file = args.dataset_file or default_file
     # print args
-    print(f'Dataset Directory: {dataset_dir}')
-    print(f'Dataset Name: {dataset_name}')
-    print(f'Dataset File: {dataset_file}')
+    logger.info(f'Dataset Directory: {dataset_dir}')
+    logger.info(f'Dataset Name: {dataset_name}')
+    logger.info(f'Dataset File: {dataset_file}')
     # load datasets
     meta_file = load_meta_file(dataset_dir, dataset_name, 'json')
     idx_cols = next(filter(lambda x: x.type == "index", meta_file.links)).fields
@@ -138,22 +140,22 @@ def main():
     meta_streams = create_meta_streams(meta_file)
     assert len(meta_streams) > 0, f"Meta-file does not have meta-streams"
     # spawn a worker thread for streaming
-    print('\n=== Begin streaming ===')
+    logger.info('=== Begin streaming ===')
     worker = threading.Thread(target=asyncio.run, args=(begin_streaming(meta_streams, df),))
     worker.start()
     # add interrupt handler
     try:
         SHUTDOWN_FLAG.wait()
     except InterruptedError or KeyboardInterrupt:
-        print('\nInterrupt received. Ending all stream tasks...\n')
+        logger.info('Interrupt received. Ending all stream tasks..')
         SHUTDOWN_FLAG.set()
     # wait for worker to close
     worker.join()
-    print('\nAll streaming tasks ended\n')
+    logger.info('All streaming tasks ended')
 
 
 if __name__ == '__main__':
     try:
         main()
     except AssertionError as e:
-        print(f'Error: {e}', file=sys.stderr)
+        logger.error(f'Error: {e}')
