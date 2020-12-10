@@ -23,11 +23,8 @@ from core.types import MetaFile, MetaStream
 
 DIGIT_CHARS = '0123456789'
 SHUTDOWN_FLAG = threading.Event()
-
-FORMAT = '%(asctime)-15s %(message)s'
-logging.basicConfig(format=FORMAT, level=logging.INFO)
+logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
 logger = logging.getLogger()
-# logger.addHandler(logging.StreamHandler())
 
 
 def load_meta_file(dataset_dir: str, dataset_name: str, file_format: str) -> MetaFile:

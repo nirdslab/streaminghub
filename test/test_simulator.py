@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 import unittest
 
+import logging
+import sys
 from tools.simulator import load_meta_file, load_data_file, create_meta_streams
+
+logger = logging.getLogger()
+logger.level = logging.DEBUG
+stream_handler = logging.StreamHandler(sys.stdout)
+logger.addHandler(stream_handler)
 
 
 class TestSimulator(unittest.TestCase):
