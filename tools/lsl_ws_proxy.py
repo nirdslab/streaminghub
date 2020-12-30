@@ -10,81 +10,41 @@ via WebSockets.
 import asyncio
 import json
 import os
-import threading
+from concurrent.futures.thread import ThreadPoolExecutor
+from functools import wraps, partial
 from http import HTTPStatus
-from typing import List, Callable, Union
+from typing import Tuple, Iterable, Optional, List
 
-import numpy as np
 import websockets
-from pylsl import resolve_stream, StreamInlet, LostError
+import numpy as np
+from pylsl import StreamInlet, resolve_stream, LostError
 from websockets.http import Headers
-from websockets.server import HTTPResponse
 
 from tools.util import stream_info_to_dict
 
 ERROR_BAD_REQUEST = "Bad Request"
+EXECUTOR = ThreadPoolExecutor(max_workers=16)
+RESPONSES = asyncio.Queue()
 
 
-async def ws_handler(websocket: websockets.WebSocketServerProtocol, path: str):
-    async def callback(data):
-        await ws_push(data, websocket)
+def run_async(func):
+    @wraps(func)
+    async def run(*args, **kwargs):
+        return await loop.run_in_executor(EXECUTOR, partial(func, *args, **kwargs))
 
-    try:
-        async for message in websocket:
-            print(f"< {message}")
-            await consumer(message, callback)
-    except Exception:
-        print('websocket handler closed')
+    return run
 
 
-async def consumer(message: str, callback: Callable):
-    try:
-        payload = json.loads(message)
-        command = payload['command']
-        response = {'command': command, 'error': None, 'data': None}
-
-        if command == 'search':
-            streams = resolve_stream()
-            response['data'] = {'streams': [*map(stream_info_to_dict, streams)]}
-        elif command == 'subscribe':
-            data: dict = payload['data']
-            source_id, source_name, source_type = data['id'], data['name'], data['type']
-            # create stream inlets to pull data from
-            streams: List[StreamInlet] = [StreamInlet(x, max_chunklen=1, recover=False) for x in resolve_stream('source_id', source_id) if x.name() == source_name and x.type() == source_type]
-            # create thread (with its own event loop) to proxy LSL data into websockets
-            thread = threading.Thread(target=create_lsl_proxy, args=(streams, callback))
-            thread.start()
-        else:
-            raise Exception()
-    except:
-        response = {'command': None, 'error': ERROR_BAD_REQUEST, 'data': None}
-    await callback(response)
-
-
-async def ws_push(payload: dict, websocket: websockets.WebSocketServerProtocol):
-    message = json.dumps(payload)
-    print(f"> {message}")
-    await websocket.send(message)
-
-
-def create_lsl_proxy(streams: List[StreamInlet], push: Callable):
-    # create an event loop and begin data stream
-    inner_loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(inner_loop)
-    inner_loop.run_until_complete(lsl_connector(streams, push))
-    inner_loop.close()
-
-
-async def lsl_connector(streams: List[StreamInlet], push: Callable):
+async def create_lsl_proxy(streams: List[StreamInlet]):
     keepalive = True
     while keepalive:
         try:
             for stream in streams:
-                sample, timestamps = stream.pull_chunk(0.0)
+                sample, timestamps = await run_async(stream.pull_chunk)(0.0)
                 typ = stream.info().type()
                 if len(sample) == 0:
                     continue
-                await push({'command': 'data', 'data': {'stream': typ, 'chunk': np.nan_to_num(sample, nan=-1).tolist()}})
+                await RESPONSES.put({'command': 'data', 'data': {'stream': typ, 'chunk': np.nan_to_num(sample, nan=-1).tolist()}})
         except LostError:
             keepalive = False
             print(f'LSL connection lost')
@@ -92,12 +52,57 @@ async def lsl_connector(streams: List[StreamInlet], push: Callable):
             keepalive = False
             print(f'websocket connection lost')
             for stream in streams:
-                stream.close_stream()
+                await run_async(stream.close_stream)()
     else:
         print('streams unsubscribed')
 
 
-async def process_request(path: str, request_headers: Headers) -> Union[HTTPResponse, None]:
+async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path: str):
+    async for message in websocket:
+        payload = json.loads(message)
+        command = payload['command']
+        response = {'command': command, 'error': None, 'data': None}
+
+        # search command
+        if command == 'search':
+            streams = await run_async(resolve_stream)()
+            response['data'] = {'streams': [*map(stream_info_to_dict, streams)]}
+        # subscribe command
+        elif command == 'subscribe':
+            data: dict = payload['data']
+            source_id, source_name, source_type = data['id'], data['name'], data['type']
+            # get streams
+            streams = await run_async(resolve_stream)(f"source_id='{source_id}' and name='{source_name}' and type='{source_type}'")
+            # create stream inlets to pull data from
+            stream_inlets: List[StreamInlet] = [StreamInlet(x, max_chunklen=1, recover=False) for x in streams]
+            # create task to proxy LSL data into websockets
+            loop.create_task(create_lsl_proxy(stream_inlets))
+            response['data'] = {'status': 'started'}
+        # unknown command
+        else:
+            response = {'command': None, 'error': ERROR_BAD_REQUEST, 'data': None}
+
+        await RESPONSES.put(response)
+        print(f'queued: {response}')
+
+
+async def producer_handler(websocket: websockets.WebSocketServerProtocol, _path: str):
+    while True:
+        response = await RESPONSES.get()
+        message = json.dumps(response)
+        await websocket.send(message)
+        print(f'sent: {message}')
+
+
+async def ws_handler(websocket: websockets.WebSocketServerProtocol, path: str):
+    consumer_task = asyncio.create_task(consumer_handler(websocket, path))
+    producer_task = asyncio.create_task(producer_handler(websocket, path))
+    done, pending = await asyncio.wait([consumer_task, producer_task], return_when=asyncio.FIRST_COMPLETED)
+    for task in pending:
+        task.cancel()
+
+
+async def process_request(path: str, _: websockets.http.Headers) -> Optional[Tuple[HTTPStatus, Iterable[Tuple[str, str]], bytes]]:
     if path == '/ws':
         return None
     elif path == '/':
@@ -109,9 +114,10 @@ async def process_request(path: str, request_headers: Headers) -> Union[HTTPResp
 if __name__ == '__main__':
     port = int(os.getenv("PORT"))
     start_server = websockets.serve(ws_handler, "0.0.0.0", port, process_request=process_request)
+    loop = asyncio.get_event_loop()
     try:
-        asyncio.get_event_loop().run_until_complete(start_server)
-        print('started websocket server.')
-        asyncio.get_event_loop().run_forever()
+        loop.run_until_complete(start_server)
+        print(f'started websocket server on port={port}')
+        loop.run_forever()
     except KeyboardInterrupt:
         print('stopped websockets server.\n')

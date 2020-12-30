@@ -81,16 +81,19 @@ async def emit(source_id: str, device: MetaStream.DeviceInfo, stream: MetaStream
     logger.info(f'Task [{source_id}]: stream started - {stream.name}')
     # calculate low/high/range values of selected channels
     d_l = df[stream.channels].min().values
-    d_l = df[stream.channels].min().values
     d_h = df[stream.channels].max().values
     d_r = (d_h - d_l)
     f = stream.frequency
     n = df.index.size
     ptr = 0
-    while ptr < n:
+    while True:
         # graceful shutdown
         if SHUTDOWN_FLAG.is_set():
             logger.info(f'Task [{source_id}]: stream terminated - {stream.name}')
+            break
+        # end of stream
+        if ptr == n:
+            logger.info(f'Task [{source_id}]: end of stream reached - {stream.name}')
             break
         # calculate wait time
         dt = (1. / f) if f > 0 else (random.randrange(0, 10) / 10.0)
@@ -106,8 +109,6 @@ async def emit(source_id: str, device: MetaStream.DeviceInfo, stream: MetaStream
             ptr = ptr + 1
         # sleep until next sample is due
         await asyncio.sleep(dt)
-    else:
-        logger.info(f'Task [{source_id}]: end of stream reached - {stream.name}')
 
 
 def main():
@@ -143,7 +144,7 @@ def main():
     # add interrupt handler
     try:
         SHUTDOWN_FLAG.wait()
-    except InterruptedError or KeyboardInterrupt:
+    except (KeyboardInterrupt, InterruptedError):
         logger.info('Interrupt received. Ending all stream tasks..')
         SHUTDOWN_FLAG.set()
     # wait for worker to close
