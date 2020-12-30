@@ -121,7 +121,7 @@ def main():
     parser.add_argument('--dataset-dir', '-d', required=default_dir is None, default=default_dir)
     parser.add_argument('--dataset-name', '-n', required=default_name is None, default=default_name)
     parser.add_argument('--dataset-file', '-f', required=default_file is None, default=default_file)
-    args: argparse.Namespace = parser.parse_args()
+    args = parser.parse_args()
     # assign args to variables
     dataset_dir = args.dataset_dir or default_dir
     dataset_name = args.dataset_name or default_name
@@ -140,12 +140,12 @@ def main():
     # spawn a worker thread for streaming
     logger.info('=== Begin streaming ===')
     worker = threading.Thread(target=asyncio.run, args=(begin_streaming(meta_streams, df),))
-    worker.start()
-    # add interrupt handler
     try:
-        SHUTDOWN_FLAG.wait()
+        worker.start()
+        worker.join()
     except (KeyboardInterrupt, InterruptedError):
         logger.info('Interrupt received. Ending all stream tasks..')
+        # set flag for graceful shutdown
         SHUTDOWN_FLAG.set()
     # wait for worker to close
     worker.join()

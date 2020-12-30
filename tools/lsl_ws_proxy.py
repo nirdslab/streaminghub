@@ -9,6 +9,7 @@ via WebSockets.
 
 import asyncio
 import json
+import logging
 import os
 from concurrent.futures.thread import ThreadPoolExecutor
 from functools import wraps, partial
@@ -22,7 +23,10 @@ from websockets.http import Headers
 
 from tools.util import stream_info_to_dict
 
-ERROR_BAD_REQUEST = "Bad Request"
+logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
+logger = logging.getLogger()
+
+ERROR_BAD_REQUEST = "Unknown Request"
 EXECUTOR = ThreadPoolExecutor(max_workers=16)
 RESPONSES = asyncio.Queue()
 
@@ -47,18 +51,19 @@ async def create_lsl_proxy(streams: List[StreamInlet]):
                 await RESPONSES.put({'command': 'data', 'data': {'stream': typ, 'chunk': np.nan_to_num(sample, nan=-1).tolist()}})
         except LostError:
             keepalive = False
-            print(f'LSL connection lost')
+            logger.debug(f'LSL connection lost')
         except Exception:
             keepalive = False
-            print(f'websocket connection lost')
+            logger.debug(f'websocket connection lost')
             for stream in streams:
                 await run_async(stream.close_stream)()
     else:
-        print('streams unsubscribed')
+        logger.debug('streams unsubscribed')
 
 
 async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path: str):
     async for message in websocket:
+        logger.info(f'<: {message}')
         payload = json.loads(message)
         command = payload['command']
         response = {'command': command, 'error': None, 'data': None}
@@ -83,7 +88,7 @@ async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path:
             response = {'command': None, 'error': ERROR_BAD_REQUEST, 'data': None}
 
         await RESPONSES.put(response)
-        print(f'queued: {response}')
+        logger.debug(f'queued: {response}')
 
 
 async def producer_handler(websocket: websockets.WebSocketServerProtocol, _path: str):
@@ -91,7 +96,7 @@ async def producer_handler(websocket: websockets.WebSocketServerProtocol, _path:
         response = await RESPONSES.get()
         message = json.dumps(response)
         await websocket.send(message)
-        print(f'sent: {message}')
+        logger.info(f'>: {message}')
 
 
 async def ws_handler(websocket: websockets.WebSocketServerProtocol, path: str):
@@ -117,7 +122,7 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     try:
         loop.run_until_complete(start_server)
-        print(f'started websocket server on port={port}')
+        logger.info(f'started websocket server on port={port}')
         loop.run_forever()
-    except KeyboardInterrupt:
-        print('stopped websockets server.\n')
+    except (KeyboardInterrupt, InterruptedError):
+        logger.info('stopped websockets server.\n')
