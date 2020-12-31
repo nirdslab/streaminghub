@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-DESCRIPTION = """
+"""
 This command-line executable simulates the datasets
 stream of data in real-time, and generates a
 datasets-stream based on the device specifications.
@@ -117,7 +117,7 @@ def main():
     default_name = os.getenv("DATASET_NAME")
     default_file = os.getenv("DATASET_FILE")
     # create parser and parse args
-    parser = argparse.ArgumentParser(prog='simulator.py', description=DESCRIPTION)
+    parser = argparse.ArgumentParser(prog='simulator.py')
     parser.add_argument('--dataset-dir', '-d', required=default_dir is None, default=default_dir)
     parser.add_argument('--dataset-name', '-n', required=default_name is None, default=default_name)
     parser.add_argument('--dataset-file', '-f', required=default_file is None, default=default_file)

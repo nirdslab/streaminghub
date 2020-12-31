@@ -117,7 +117,8 @@ async def process_request(path: str, _: websockets.http.Headers) -> Optional[Tup
 
 
 if __name__ == '__main__':
-    port = int(os.getenv("PORT"))
+    default_port = os.getenv("PORT")
+    port = int(default_port)
     start_server = websockets.serve(ws_handler, "0.0.0.0", port, process_request=process_request)
     loop = asyncio.get_event_loop()
     try:
@@ -125,4 +126,4 @@ if __name__ == '__main__':
         logger.info(f'started websocket server on port={port}')
         loop.run_forever()
     except (KeyboardInterrupt, InterruptedError):
-        logger.info('stopped websockets server.\n')
+        logger.info('interrupt received. stopped websockets server.\n')
