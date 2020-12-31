@@ -62,7 +62,12 @@ async def create_lsl_proxy(streams: List[StreamInlet]):
 
 
 async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path: str):
-    async for message in websocket:
+    while websocket.open:
+        try:
+            message = await websocket.recv()
+        except websockets.exceptions.ConnectionClosed:
+            logger.info(f'client connection closed: {websocket.remote_address}')
+            break
         logger.info(f'<: {message}')
         payload = json.loads(message)
         command = payload['command']
@@ -92,7 +97,7 @@ async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path:
 
 
 async def producer_handler(websocket: websockets.WebSocketServerProtocol, _path: str):
-    while True:
+    while websocket.open:
         response = await RESPONSES.get()
         message = json.dumps(response)
         await websocket.send(message)
@@ -100,11 +105,13 @@ async def producer_handler(websocket: websockets.WebSocketServerProtocol, _path:
 
 
 async def ws_handler(websocket: websockets.WebSocketServerProtocol, path: str):
+    logger.info(f'client connected: {websocket.remote_address}')
     consumer_task = asyncio.create_task(consumer_handler(websocket, path))
     producer_task = asyncio.create_task(producer_handler(websocket, path))
     done, pending = await asyncio.wait([consumer_task, producer_task], return_when=asyncio.FIRST_COMPLETED)
     for task in pending:
         task.cancel()
+    logger.info(f'client disconnected: {websocket.remote_address}')
 
 
 async def process_request(path: str, _: websockets.http.Headers) -> Optional[Tuple[HTTPStatus, Iterable[Tuple[str, str]], bytes]]:
