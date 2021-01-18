@@ -120,7 +120,7 @@ class Connector(object):
 
 
 async def main():
-    # get meta-stream for pupil core
+    # get meta-stream for pupil model
     meta = get_meta_stream(f"{os.path.dirname(__file__)}/spec.json", "json")
     # set random device id
     device_id = "1234564321"
