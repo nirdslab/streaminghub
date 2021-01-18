@@ -87,19 +87,13 @@ class Process:
             self.pupil_d.append(Point(d, d / pfe, t, err))
 
     def smooth(self, file_name, w, h, hertz, sf_degree, sf_cutoff, smooth):
-
         if smooth:
             # use Butterworth filter for smoothing
             self.smooth_points = apply_bw_filter(self.gaze_points, sf_degree, hertz, sf_cutoff)
         else:
             self.smooth_points = self.gaze_points
-        outfile = open(file_name, 'w')
-        for pt in self.smooth_points:
-            x = pt.at(0) * float(w)
-            y = pt.at(1) * float(h)
-            text = "%f %f %f\n" % (pt.get_timestamp(), x, y)
-            outfile.write(text)
-        outfile.close()
+
+        # self.write_smooth_to_file(file_name, w, h)
 
     def differentiate(self, file_name, w, h, screen, dist, hertz, df_width, df_degree, df_o):
 
@@ -143,14 +137,7 @@ class Process:
             acc_x, acc_y = get_rate(deg_x, deg_y)
             self.acceleration.append(Point(acc_x, acc_y, pt.get_timestamp(), pt.get_status()))
 
-        outfile = open(file_name, 'w')
-        for pt in self.velocity:
-            # don't scale by w,h here, already did so above
-            x = pt.at(0)
-            y = pt.at(1)
-            line = "%f %f %f\n" % (pt.get_timestamp(), x, y)
-            outfile.write(line)
-        outfile.close()
+        # self.write_differentiate_to_file(file_name, w, h)
 
     def threshold(self, file_name, w, h, t, monitor, t_type, proximity):
 
@@ -310,24 +297,47 @@ class Process:
         for i in range(len(self.fixations)):
             self.fixations[i].normalize_duration(min_dur, max_dur)
 
+        self.write_threshold_to_file(file_name, w, h)
+
+    def write_smooth_to_file(self, file_name, w, h):
+        outfile = open(file_name, 'w')
+        for pt in self.smooth_points:
+            x = pt.at(0) * float(w)
+            y = pt.at(1) * float(h)
+            text = "%.12f %.12f %.12f\n" % (pt.get_timestamp(), x, y)
+            outfile.write(text)
+        outfile.close()
+
+    def write_differentiate_to_file(self, file_name, w, h):
+        outfile = open(file_name, 'w')
+        for pt in self.velocity:
+            # don't scale by w,h here, already did so above
+            x = pt.at(0)
+            y = pt.at(1)
+            line = "%.12f %.12f %.12f\n" % (pt.get_timestamp(), x, y)
+            outfile.write(line)
+        outfile.close()
+
+    def write_threshold_to_file(self, file_name, w, h):
         outfile = open(file_name, 'w')
         sac_dur = 0.0
         for i in range(len(self.fixations)):
             x = self.fixations[i].at(0)  # * float(w) (commented out to keep normalized coordinates)
             y = self.fixations[i].at(1)  # * float(h) (commented out to keep normalized coordinates)
-            t = self.fixations[i].get_timestamp()
+            # t = self.fixations[i].get_timestamp()
             fxn_dur = self.fixations[i].get_duration()
-            st = t  # fixation timestamp is its start_time (st)
-            tt = fxn_dur  # fixation duration is its end_time - start_ime (et - st)
-            et = st + tt
-            if i < len(self.fixations) - 1:
-                dx = x - (self.fixations[i + 1].at(0))  # * float(w))
-                dy = y - (self.fixations[i + 1].at(1))  # * float(h))
-                sac_dur = self.fixations[i + 1].get_timestamp() - et
-                sac_amp = math.sqrt(dx ** 2 + dy ** 2)
-            else:
-                sac_amp = 0.0
-            line = "%f %f %f %f %f %f\n" % (x, y, fxn_dur, sac_amp, sac_dur, t)
+            # st = t  # fixation timestamp is its start_time (st)
+            # tt = fxn_dur  # fixation duration is its end_time - start_ime (et - st)
+            # et = st + tt
+            # if i < len(self.fixations) - 1:
+            #     dx = x - (self.fixations[i + 1].at(0))  # * float(w))
+            #     dy = y - (self.fixations[i + 1].at(1))  # * float(h))
+            #     sac_dur = self.fixations[i + 1].get_timestamp() - et
+            #     sac_amp = math.sqrt(dx ** 2 + dy ** 2)
+            # else:
+            #     sac_amp = 0.0
+            # line = "%f %f %f %f %f %f\n" % (x, y, fxn_dur, sac_amp, sac_dur, t)
+            line = "%.12f %.12f %.12f\n" % (x, y, fxn_dur)
             outfile.write(line)
 
         outfile.close()
