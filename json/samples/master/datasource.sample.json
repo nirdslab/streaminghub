@@ -1,0 +1,138 @@
+{
+	"$schema": "../../datasource.schema.json",
+	"info": {
+		"version": "1.0.0",
+		"timestamp": "2020-01-01T00:00:00Z",
+		"checksum": "010203040506070809000A0B0C0D0E0F"
+	},
+	"device": {
+		"model": "E4",
+		"manufacturer": "Empatica",
+		"category": "Wristband"
+	},
+	"fields": {
+		"acc_x": {
+			"name": "x - acceleration",
+			"description": "Acceleration in the X axis",
+			"dtype": "float"
+		},
+		"acc_y": {
+			"name": "y - acceleration",
+			"description": "Acceleration in the Y axis",
+			"dtype": "float"
+		},
+		"acc_z": {
+			"name": "z - acceleration",
+			"description": "Acceleration in the Z axis",
+			"dtype": "float"
+		},
+		"bvp": {
+			"name": "blood volume pulse",
+			"description": "Blood Volume Pulse",
+			"dtype": "float"
+		},
+		"gsr": {
+			"name": "galvanic skin response",
+			"description": "Galvanic Skin Response",
+			"dtype": "float"
+		},
+		"ibi": {
+			"name": "inter beat interval",
+			"description": "The interval between two consecutive heartbeats",
+			"dtype": "float"
+		},
+		"tmp": {
+			"name": "skin temperature",
+			"description": "Skin Temperature on the Wrist",
+			"dtype": "float"
+		},
+		"bat": {
+			"name": "battery level",
+			"description": "Battery Level of the Device",
+			"dtype": "float"
+		},
+		"tag": {
+			"name": "tag",
+			"description": "Press of the Tag Button",
+			"dtype": "float"
+		},
+		"t": {
+			"name": "timestamp",
+			"description": "Recording timestamp",
+			"dtype": "float"
+		}
+	},
+	"streams": {
+		"acc": {
+			"name": "acceleration",
+			"description": "3-axis acceleration (unit - gravity)",
+			"unit": "g",
+			"frequency": 32,
+			"index": "t",
+			"channels": [
+				"#/fields/acc_x",
+				"#/fields/acc_y",
+				"#/fields/acc_z"
+			]
+		},
+		"bvp": {
+			"name": "blood volume pulse",
+			"description": "Blood Volume Pulse (unit - lumen)",
+			"unit": "lm",
+			"frequency": 64,
+			"index": "t",
+			"channels": [
+				"#/fields/bvp"
+			]
+		},
+		"gsr": {
+			"name": "galvanic skin response",
+			"description": "Galvanic Skin Response (unit - micro siemens)",
+			"unit": "S",
+			"frequency": 0,
+			"index": "t",
+			"channels": [
+				"#/fields/gsr"
+			]
+		},
+		"ibi": {
+			"name": "inter-beat interval",
+			"description": "Inter-Beat Interval (unit - seconds)",
+			"unit": "s",
+			"frequency": 0,
+			"channels": [
+				"#/fields/ibi"
+			]
+		},
+		"tmp": {
+			"name": "skin temperature",
+			"description": "Skin Temperature (unit - celsius)",
+			"unit": "c",
+			"frequency": 0,
+			"index": "t",
+			"channels": [
+				"#/fields/tmp"
+			]
+		},
+		"bat": {
+			"name": "battery level",
+			"description": "Device Battery (unit - percent)",
+			"unit": "%",
+			"frequency": 0,
+			"index": "t",
+			"channels": [
+				"#/fields/bat"
+			]
+		},
+		"tag": {
+			"name": "tag",
+			"description": "Tag recorded upon button press",
+			"unit": "",
+			"frequency": 0,
+			"index": "t",
+			"channels": [
+				"#/fields/tag"
+			]
+		}
+	}
+}

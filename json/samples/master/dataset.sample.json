@@ -1,0 +1,43 @@
+{
+	"$schema": "../../dataset.schema.json",
+	"info": {
+		"version": "1.0.0",
+		"timestamp": "2020-01-01T00:00:00Z",
+		"checksum": "010203040506070809000A0B0C0D0E0F"
+	},
+	"name": "Heart Rate and GSR of Two Participants During a Running Task",
+	"description": "This dataset contains recordings of heart rate of two participants during a running task. Recordings were obtained from an Empatica E4.",
+	"keywords": [
+		"heart-rate",
+		"running"
+	],
+	"authors": [
+		{
+			"name": "John Doe",
+			"affiliation": "Example University",
+			"email": "john@example.edu"
+		},
+		{
+			"name": "Jane Doe",
+			"affiliation": "Example University",
+			"email": "jane@example.edu"
+		}
+	],
+	"sources": {
+		"e4": "datasource.sample.json",
+		"analytic": "analytic.sample.json"
+	},
+	"fields": {
+		"gsr": "#/sources/e4/fields/gsr",
+		"t": "#/sources/e4/fields/t",
+		"hr": "#/sources/analytic/fields/hr"
+	},
+	"links": [
+		{
+			"type": "index",
+			"fields": {
+				"t": "#/fields/t"
+			}
+		}
+	]
+}

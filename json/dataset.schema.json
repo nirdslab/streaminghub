@@ -1,0 +1,61 @@
+{
+	"$schema": "https://json-schema.org/draft-07/schema",
+	"description": "schema of a dataset",
+	"type": "object",
+	"required": [
+		"$schema",
+		"info",
+		"name",
+		"description",
+		"keywords",
+		"authors",
+		"sources",
+		"fields",
+		"links"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"$schema": {
+			"type": "string"
+		},
+		"info": {
+			"$ref": "dfs.schema.json#/definitions/info"
+		},
+		"name": {
+			"description": "name of the dataset",
+			"type": "string"
+		},
+		"description": {
+			"description": "description of the dataset",
+			"type": "string"
+		},
+		"keywords": {
+			"description": "keywords that best describes the dataset",
+			"type": "array",
+			"minItems": 1,
+			"items": {
+				"description": "a keyword",
+				"type": "string"
+			}
+		},
+		"authors": {
+			"description": "authors of the dataset",
+			"type": "array",
+			"minItems": 1,
+			"items": {
+				"$ref": "dfs.schema.json#/definitions/author"
+			}
+		},
+		"sources": {
+			"description": "data sources for the dataset",
+			"$ref": "dfs.schema.json#/definitions/refs"
+		},
+		"fields": {
+			"$ref": "dfs.schema.json#/definitions/fields"
+		},
+		"links": {
+			"description": "field-level links of the dataset",
+			"$ref": "dfs.schema.json#/definitions/links"
+		}
+	}
+}
