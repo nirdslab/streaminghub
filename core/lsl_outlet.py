@@ -1,9 +1,9 @@
 from pylsl import StreamInfo, StreamOutlet
 
-from core.types import MetaStream
+from core.types import Datasource
 
 
-def create_outlet(source_id: str, device: MetaStream.DeviceInfo, stream: MetaStream.StreamInfo) -> StreamOutlet:
+def create_outlet(source_id: str, device: Datasource.DeviceInfo, stream: Datasource.StreamInfo) -> StreamOutlet:
     """
     Generate LSL outlet from Metadata
     :rtype: StreamOutlet

@@ -17,12 +17,12 @@ import time
 
 from core.io import get_meta_stream
 from core.lsl_outlet import create_outlet
-from core.types import MetaStream
+from core.types import Datasource
 
 SYNTAX = "data-stream-generator [schema_file]"
 
 
-async def emit(source_id: str, meta: MetaStream, idx: int, t_start: int):
+async def emit(source_id: str, meta: Datasource, idx: int, t_start: int):
     stream = meta.streams[idx]
     outlet = create_outlet(source_id, meta.device, stream)
     print(f'created stream: {stream.name}')
@@ -35,7 +35,7 @@ async def emit(source_id: str, meta: MetaStream, idx: int, t_start: int):
         await asyncio.sleep(dt)
 
 
-async def begin_data_stream(meta: MetaStream):
+async def begin_data_stream(meta: Datasource):
     t_start = time.time_ns()
     try:
         print('Starting data stream...')

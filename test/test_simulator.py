@@ -45,11 +45,11 @@ class TestSimulator(unittest.TestCase):
         # load the meta-file
         meta_file = load_meta_file(self.test_dataset_dir, self.test_dataset_name, test_meta_file_format)
         meta_streams = create_meta_streams(meta_file)
-        self.assertEqual(len(meta_streams), len(meta_file.sources.meta_streams))
+        self.assertEqual(len(meta_streams), len(meta_file.sources.sources))
         for i in range(len(meta_streams)):
-            self.assertEqual(meta_streams[i].device, meta_file.sources.meta_streams[i].device)
+            self.assertEqual(meta_streams[i].device, meta_file.sources.sources[i].device)
             self.assertEqual(meta_streams[i].fields, meta_file.fields)
-            self.assertEqual(meta_streams[i].streams, meta_file.sources.meta_streams[i].streams)
+            self.assertEqual(meta_streams[i].streams, meta_file.sources.sources[i].streams)
             # info
             self.assertEqual(meta_streams[i].info.version, meta_file.info.version)
             self.assertEqual(meta_streams[i].info.checksum, meta_file.info.checksum)

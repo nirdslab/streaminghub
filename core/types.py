@@ -1,9 +1,9 @@
 from typing import List
 
 
-class MetaStream(dict):
+class Datasource(dict):
     """
-    Meta-stream object
+    Datasource object
     """
 
     def __init__(self, d=None) -> None:
@@ -197,9 +197,9 @@ class MetaStream(dict):
         self['streams'] = value
 
 
-class MetaFile(dict):
+class Dataset(dict):
     """
-    Meta-file object
+    Dataset object
     """
 
     def __init__(self, d=None) -> None:
@@ -398,99 +398,39 @@ class MetaFile(dict):
         def __init__(self, d=None) -> None:
             super().__init__()
             if d is not None:
-                self.meta_streams = [self.MetaStreamInfo(field) for field in d['meta-streams']]
-                self.files = [self.FileInfo(field) for field in d['files']]
+                self.sources = [self.MetaStreamInfo(source) for source in d]
 
         class MetaStreamInfo(dict):
 
             def __init__(self, d=None) -> None:
                 super().__init__()
                 if d is not None:
-                    self.device = MetaStream.DeviceInfo(d['device'])
-                    self.streams = [MetaStream.StreamInfo(field) for field in d['streams']]
+                    self.device = Datasource.DeviceInfo(d['device'])
+                    self.streams = [Datasource.StreamInfo(field) for field in d['streams']]
 
             @property
-            def device(self) -> MetaStream.DeviceInfo:
+            def device(self) -> Datasource.DeviceInfo:
                 return self['device']
 
             @device.setter
-            def device(self, value: MetaStream.DeviceInfo):
+            def device(self, value: Datasource.DeviceInfo):
                 self['device'] = value
 
             @property
-            def streams(self) -> List[MetaStream.StreamInfo]:
+            def streams(self) -> List[Datasource.StreamInfo]:
                 return self['streams']
 
             @streams.setter
-            def streams(self, value: List[MetaStream.StreamInfo]):
+            def streams(self, value: List[Datasource.StreamInfo]):
                 self['streams'] = value
 
-        class FileInfo(dict):
-
-            def __init__(self, d=None) -> None:
-                super().__init__()
-                if d is not None:
-                    self.checksum = d['checksum']
-                    self.path = d['path']
-                    self.encoding = d['encoding']
-                    self.description = d['description']
-                    self.keys = [str(field) for field in d['keys']]
-
-            @property
-            def checksum(self) -> str:
-                return self['checksum']
-
-            @checksum.setter
-            def checksum(self, value: str):
-                self['checksum'] = value
-
-            @property
-            def path(self) -> str:
-                return self['path']
-
-            @path.setter
-            def path(self, value: str):
-                self['path'] = value
-
-            @property
-            def encoding(self) -> str:
-                return self['encoding']
-
-            @encoding.setter
-            def encoding(self, value: str):
-                self['encoding'] = value
-
-            @property
-            def description(self) -> str:
-                return self['description']
-
-            @description.setter
-            def description(self, value: str):
-                self['description'] = value
-
-            @property
-            def keys(self) -> List[str]:
-                return self['keys']
-
-            @keys.setter
-            def keys(self, value: List[str]):
-                self['keys'] = value
-
         @property
-        def meta_streams(self) -> List[MetaStreamInfo]:
+        def sources(self) -> List[MetaStreamInfo]:
             return self['meta_streams']
 
-        @meta_streams.setter
-        def meta_streams(self, value: List[MetaStreamInfo]):
+        @sources.setter
+        def sources(self, value: List[MetaStreamInfo]):
             self['meta_streams'] = value
-
-        @property
-        def files(self) -> List[FileInfo]:
-            return self['files']
-
-        @files.setter
-        def files(self, value: List[FileInfo]):
-            self['files'] = value
 
     @property
     def info(self) -> Info:
@@ -533,8 +473,8 @@ class MetaFile(dict):
         self['sources'] = value
 
 
-class AnalyticStream(dict):
+class Analytic(dict):
     """
-    Analytic-stream object
+    Analytic object
     """
     pass

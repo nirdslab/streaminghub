@@ -13,7 +13,7 @@ from pylsl import StreamOutlet
 
 from core.io import get_meta_stream
 from core.lsl_outlet import create_outlet
-from core.types import MetaStream
+from core.types import Datasource
 
 ZMQ_REQ = zmq.REQ
 ZMQ_SUB = zmq.SUB
@@ -23,7 +23,7 @@ CONF_THRESHOLD = 0.8
 
 class Connector(object):
 
-    def __init__(self, device_id: str, host: str, port: int, meta: MetaStream) -> None:
+    def __init__(self, device_id: str, host: str, port: int, meta: Datasource) -> None:
         super().__init__()
         self.device_id = device_id
         self.host = host

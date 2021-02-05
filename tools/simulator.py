@@ -19,7 +19,7 @@ from typing import List
 import pandas as pd
 from core.io import get_meta_file
 from core.lsl_outlet import create_outlet
-from core.types import MetaFile, MetaStream
+from core.types import Dataset, Datasource
 
 DIGIT_CHARS = '0123456789'
 SHUTDOWN_FLAG = threading.Event()
@@ -27,7 +27,7 @@ logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
 logger = logging.getLogger()
 
 
-def load_meta_file(dataset_dir: str, dataset_name: str, file_format: str) -> MetaFile:
+def load_meta_file(dataset_dir: str, dataset_name: str, file_format: str) -> Dataset:
     path = f'{dataset_dir}/{dataset_name}.{file_format}'
     logger.debug(f'Loading meta-file: {path}')
     meta_file = get_meta_file(path, file_format)
@@ -43,18 +43,18 @@ def load_data_file(dataset_dir: str, dataset: str, file_name: str) -> pd.DataFra
     return df
 
 
-def create_meta_streams(meta_file: MetaFile) -> List[MetaStream]:
+def create_meta_streams(meta_file: Dataset) -> List[Datasource]:
     logger.debug(f'Creating meta-streams from meta-file')
-    meta_stream_infos = meta_file.sources.meta_streams
-    meta_streams: List[MetaStream] = []
+    meta_stream_infos = meta_file.sources.sources
+    meta_streams: List[Datasource] = []
     for meta_stream_info in meta_stream_infos:
-        meta_stream = MetaStream()
+        meta_stream = Datasource()
         # add meta-stream field information
         meta_stream.device = meta_stream_info.device
         meta_stream.fields = meta_file.fields
         meta_stream.streams = meta_stream_info.streams
         # info
-        meta_stream.info = MetaStream.Info()
+        meta_stream.info = Datasource.Info()
         meta_stream.info.version = meta_file.info.version
         meta_stream.info.checksum = meta_file.info.checksum
         # append to meta-stream list
@@ -63,7 +63,7 @@ def create_meta_streams(meta_file: MetaFile) -> List[MetaStream]:
     return meta_streams
 
 
-async def begin_streaming(meta_streams: List[MetaStream], df: pd.DataFrame):
+async def begin_streaming(meta_streams: List[Datasource], df: pd.DataFrame):
     tasks = []
     for meta_stream in meta_streams:
         # create new id for each meta_stream
@@ -76,7 +76,7 @@ async def begin_streaming(meta_streams: List[MetaStream], df: pd.DataFrame):
     logger.debug(f'Ended all streaming tasks')
 
 
-async def emit(source_id: str, device: MetaStream.DeviceInfo, stream: MetaStream.StreamInfo, df: pd.DataFrame):
+async def emit(source_id: str, device: Datasource.DeviceInfo, stream: Datasource.StreamInfo, df: pd.DataFrame):
     outlet = create_outlet(source_id, device, stream)
     logger.info(f'Task [{source_id}]: stream started - {stream.name}')
     # calculate low/high/range values of selected channels

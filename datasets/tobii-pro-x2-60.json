@@ -1,0 +1,94 @@
+{
+  "$schema": "https://www.cs.odu.edu/~yasith/dfs/v2/datasource.schema.json",
+  "info": {
+    "version": "1.0.0",
+    "timestamp": "2021-02-05T03:25:00-05:00",
+    "checksum": "010203040506070809000A0B0C0D0E0F"
+  },
+  "device": {
+    "model": "Pro X2-60",
+    "manufacturer": "Tobii",
+    "category": "Eye Tracker"
+  },
+  "fields": {
+    "RecordingTimestamp": {
+      "name": "timestamp",
+      "description": "Recording Timestamp",
+      "dtype": "float"
+    },
+    "GazePointLeftX (ADCSpx)": {
+      "name": "left x",
+      "description": "Normalized X-Gaze Point of Left Eye",
+      "dtype": "float"
+    },
+    "GazePointLeftY (ADCSpx)": {
+      "name": "left y",
+      "description": "Normalized Y-Gaze Point of Left Eye",
+      "dtype": "float"
+    },
+    "PupilLeft": {
+      "name": "left d",
+      "description": "Pupil Diameter of Left Eye",
+      "dtype": "float"
+    },
+    "GazePointRightX (ADCSpx)": {
+      "name": "right x",
+      "description": "Normalized X-Gaze Point of Right Eye",
+      "dtype": "float"
+    },
+    "GazePointRightY (ADCSpx)": {
+      "name": "right y",
+      "description": "Normalized Y-Gaze Point of Right Eye",
+      "dtype": "float"
+    },
+    "PupilRight": {
+      "name": "right d",
+      "description": "Pupil Diameter of Right Eye",
+      "dtype": "float"
+    }
+  },
+  "streams": {
+    "gaze_l": {
+      "name": "Gaze (L)",
+      "description": "gaze point of left eye",
+      "unit": "px",
+      "frequency": 60,
+      "index": "#/fields/RecordingTimestamp",
+      "channels": [
+        "#/fields/GazePointLeftX (ADCSpx)",
+        "#/fields/GazePointLeftY (ADCSpx)"
+      ]
+    },
+    "pupil_l": {
+      "name": "Pupil (L)",
+      "description": "pupil diameter of left eye",
+      "unit": "mm",
+      "frequency": 60,
+      "index": "#/fields/RecordingTimestamp",
+      "channels": [
+        "#/fields/PupilLeft"
+      ]
+    },
+    "gaze_r": {
+      "name": "Gaze (R)",
+      "description": "gaze point of right eye",
+      "unit": "px",
+      "frequency": 60,
+      "index": "#/fields/RecordingTimestamp",
+      "channels": [
+        "#/fields/GazePointRightX (ADCSpx)",
+        "#/fields/GazePointRightY (ADCSpx)"
+      ]
+    },
+    "pupil_r": {
+      "name": "Pupil (R)",
+      "description": "pupil diameter of right eye",
+      "unit": "mm",
+      "frequency": 60,
+      "index": "#/fields/RecordingTimestamp",
+      "channels": [
+        "#/fields/PupilRight"
+      ]
+    }
+  }
+}

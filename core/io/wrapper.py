@@ -1,10 +1,10 @@
 import core.io.json as json_parser
 import core.io.xml as xml_parser
 from core.errors import UnknownFileFormatError
-from core.types import MetaStream, MetaFile, AnalyticStream
+from core.types import Datasource, Dataset, Analytic
 
 
-def get_meta_stream(path: str, file_type: str) -> MetaStream:
+def get_meta_stream(path: str, file_type: str) -> Datasource:
     if file_type == "json":
         return json_parser.meta_stream(path)
     elif file_type == "xml":
@@ -13,7 +13,7 @@ def get_meta_stream(path: str, file_type: str) -> MetaStream:
         raise UnknownFileFormatError()
 
 
-def get_meta_file(path: str, file_type: str) -> MetaFile:
+def get_meta_file(path: str, file_type: str) -> Dataset:
     if file_type == "json":
         return json_parser.meta_file(path)
     elif file_type == "xml":
@@ -22,7 +22,7 @@ def get_meta_file(path: str, file_type: str) -> MetaFile:
         raise UnknownFileFormatError()
 
 
-def get_analytic_stream(path: str, file_type: str) -> AnalyticStream:
+def get_analytic_stream(path: str, file_type: str) -> Analytic:
     if file_type == "json":
         return json_parser.analytic_stream(path)
     elif file_type == "xml":
