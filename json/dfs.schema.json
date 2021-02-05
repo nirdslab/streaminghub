@@ -1,224 +1,251 @@
 {
-	"$schema": "https://json-schema.org/draft-07/schema",
-	"description": "JSON schemas for DFS",
-	"definitions": {
-		"checksum": {
-			"description": "MD5 checksum",
-			"type": "string",
-			"pattern": "[0-9A-F]{32}"
-		},
-		"version": {
-			"description": "semantic version",
-			"type": "string",
-			"pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
-		},
-		"timestamp": {
-			"description": "timestamp",
-			"type": "string",
-			"pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(\\.\\d+)?(([+-]\\d\\d:\\d\\d)|Z)?$"
-		},
-		"info": {
-			"description": "identification information for metadata",
-			"type": "object",
-			"required": [
-				"version",
-				"timestamp",
-				"checksum"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"version": {
-					"$ref": "#/definitions/version"
-				},
-				"timestamp": {
-					"$ref": "#/definitions/timestamp"
-				},
-				"checksum": {
-					"$ref": "#/definitions/checksum"
-				}
-			}
-		},
-		"email": {
-			"description": "email address",
-			"type": "string",
-			"pattern": "[^@]+@[^.]+\\..+"
-		},
-		"author": {
-			"description": "information about the author",
-			"type": "object",
-			"required": [
-				"name",
-				"affiliation",
-				"email"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"name": {
-					"description": "name of the author",
-					"type": "string"
-				},
-				"affiliation": {
-					"description": "affiliation of the author",
-					"type": "string"
-				},
-				"email": {
-					"description": "email address of the author",
-					"$ref": "#/definitions/email"
-				}
-			}
-		},
-		"ref": {
-			"type": "string",
-			"format": "uri-reference"
-		},
-		"refs": {
-			"type": "object",
-			"minProperties": 1,
-			"patternProperties": {
-				".*": {
-					"$ref": "#/definitions/ref"
-				}
-			}
-		},
-		"device": {
-			"description": "information about the recording device",
-			"type": "object",
-			"required": [
-				"model",
-				"manufacturer",
-				"category"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"model": {
-					"description": "model of the device",
-					"type": "string"
-				},
-				"manufacturer": {
-					"description": "manufacturer of the device",
-					"type": "string"
-				},
-				"category": {
-					"description": "category of the device",
-					"type": "string"
-				}
-			}
-		},
-		"stream": {
-			"description": "information about the data stream",
-			"type": "object",
-			"required": [
-				"name",
-				"description",
-				"unit",
-				"frequency",
-				"index",
-				"channels"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"name": {
-					"description": "name of the data stream",
-					"type": "string"
-				},
-				"description": {
-					"description": "description of the data stream",
-					"type": "string"
-				},
-				"unit": {
-					"description": "unit of measurement",
-					"type": "string"
-				},
-				"frequency": {
-					"description": "sampling frequency (Hz)",
-					"type": "integer",
-					"minimum": 0
-				},
-				"index": {
-					"$ref": "#/definitions/ref"
-				},
-				"channels": {
-					"description": "channels in the data stream, given as field references",
-					"type": "array",
-					"items": {
-						"$ref": "#/definitions/ref"
-					}
-				}
-			}
-		},
-		"streams": {
-			"description": "information about each stream",
-			"type": "object",
-			"minProperties": 1,
-			"patternProperties": {
-				".*": {
-					"$ref": "#/definitions/stream"
-				}
-			}
-		},
-		"field": {
-			"description": "information about the field",
-			"type": "object",
-			"required": [
-				"dtype",
-				"name",
-				"description"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"dtype": {
-					"description": "data type of field",
-					"type": "string"
-				},
-				"name": {
-					"description": "name of the field",
-					"type": "string"
-				},
-				"description": {
-					"description": "description of the field",
-					"type": "string"
-				}
-			}
-		},
-		"fields": {
-			"description": "information about all fields in the current scope",
-			"type": "object",
-			"minProperties": 1,
-			"patternProperties": {
-				".*": {
-					"anyOf": [
-						{
-							"$ref": "#/definitions/ref"
-						},
-						{
-							"$ref": "#/definitions/field"
-						}
-					]
-				}
-			}
-		},
-		"links": {
-			"description": "information about all links in the current scope",
-			"type": "array",
-			"items": {
-				"description": "information about the link",
-				"type": "object",
-				"required": [
-					"type",
-					"fields"
-				],
-				"additionalProperties": false,
-				"properties": {
-					"type": {
-						"description": "type of link",
-						"type": "string"
-					},
-					"fields": {
-						"description": "linked fields, given as field references",
-						"$ref": "#/definitions/refs"
-					}
-				}
-			}
-		}
-	}
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "description": "JSON schemas for DFS",
+  "definitions": {
+    "checksum": {
+      "description": "MD5 checksum",
+      "type": "string",
+      "pattern": "[0-9A-F]{32}"
+    },
+    "version": {
+      "description": "semantic version",
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+    },
+    "timestamp": {
+      "description": "timestamp",
+      "type": "string",
+      "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(\\.\\d+)?(([+-]\\d\\d:\\d\\d)|Z)?$"
+    },
+    "info": {
+      "description": "identification information for metadata",
+      "type": "object",
+      "required": [
+        "version",
+        "timestamp",
+        "checksum"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "$ref": "#/definitions/version"
+        },
+        "timestamp": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "checksum": {
+          "$ref": "#/definitions/checksum"
+        }
+      }
+    },
+    "email": {
+      "description": "email address",
+      "type": "string",
+      "pattern": "[^@]+@[^.]+\\..+"
+    },
+    "author": {
+      "description": "information about the author",
+      "type": "object",
+      "required": [
+        "name",
+        "affiliation",
+        "email"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "name of the author",
+          "type": "string"
+        },
+        "affiliation": {
+          "description": "affiliation of the author",
+          "type": "string"
+        },
+        "email": {
+          "description": "email address of the author",
+          "$ref": "#/definitions/email"
+        }
+      }
+    },
+    "ref": {
+      "type": "string",
+      "format": "uri-reference"
+    },
+    "refs": {
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        ".*": {
+          "$ref": "#/definitions/ref"
+        }
+      }
+    },
+    "device": {
+      "description": "information about the recording device",
+      "type": "object",
+      "required": [
+        "model",
+        "manufacturer",
+        "category"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "description": "model of the device",
+          "type": "string"
+        },
+        "manufacturer": {
+          "description": "manufacturer of the device",
+          "type": "string"
+        },
+        "category": {
+          "description": "category of the device",
+          "type": "string"
+        }
+      }
+    },
+    "stream": {
+      "description": "information about the data stream",
+      "type": "object",
+      "required": [
+        "name",
+        "description",
+        "unit",
+        "frequency",
+        "index",
+        "channels"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "name of the data stream",
+          "type": "string"
+        },
+        "description": {
+          "description": "description of the data stream",
+          "type": "string"
+        },
+        "unit": {
+          "description": "unit of measurement",
+          "type": "string"
+        },
+        "frequency": {
+          "description": "sampling frequency (Hz)",
+          "type": "integer",
+          "minimum": 0
+        },
+        "index": {
+          "$ref": "#/definitions/ref"
+        },
+        "channels": {
+          "description": "channels in the data stream, given as field references",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ref"
+          }
+        }
+      }
+    },
+    "streams": {
+      "description": "information about each stream",
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        ".*": {
+          "$ref": "#/definitions/stream"
+        }
+      }
+    },
+    "field": {
+      "description": "information about the field",
+      "type": "object",
+      "required": [
+        "dtype",
+        "name",
+        "description"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "dtype": {
+          "description": "data type of field",
+          "type": "string"
+        },
+        "name": {
+          "description": "name of the field",
+          "type": "string"
+        },
+        "description": {
+          "description": "description of the field",
+          "type": "string"
+        }
+      }
+    },
+    "fields": {
+      "description": "information about all fields in the current scope",
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        ".*": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ref"
+            },
+            {
+              "$ref": "#/definitions/field"
+            }
+          ]
+        }
+      }
+    },
+    "groups": {
+      "description": "information about how data can be grouped",
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        ".*": {
+          "description": "information about a grouping",
+          "type": "object",
+          "required": [
+            "description",
+            "values"
+          ],
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "values": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "links": {
+      "description": "information about all links in the current scope",
+      "type": "array",
+      "items": {
+        "description": "information about the link",
+        "type": "object",
+        "required": [
+          "type",
+          "fields"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "description": "type of link",
+            "type": "string"
+          },
+          "fields": {
+            "description": "linked fields, given as field references",
+            "$ref": "#/definitions/refs"
+          }
+        }
+      }
+    }
+  }
 }

@@ -32,12 +32,21 @@
     "t": "#/sources/e4/fields/t",
     "hr": "#/sources/analytic/fields/hr"
   },
-  "links": [
-    {
-      "type": "index",
-      "fields": {
-        "t": "#/fields/t"
-      }
+  "groups": {
+    "subject": {
+      "description": "ID of the subject",
+      "values": [
+        "001",
+        "002"
+      ]
+    },
+    "task": {
+      "description": "ID of the running task",
+      "values": [
+        "T1",
+        "T2",
+        "T3"
+      ]
     }
-  ]
+  }
 }
