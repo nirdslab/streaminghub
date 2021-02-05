@@ -73,6 +73,74 @@
       ]
     }
   ],
+  "categories": [
+    {
+      "name": "diagnosis",
+      "description": "The diagnosis of each subject",
+      "values": [
+        "ADHD",
+        "NT"
+      ]
+    },
+    {
+      "name": "subject",
+      "description": "The ID of each subject",
+      "values": [
+        "003",
+        "005",
+        "012",
+        "014",
+        "018",
+        "021",
+        "024",
+        "026",
+        "030",
+        "032",
+        "034",
+        "035",
+        "036",
+        "037",
+        "038",
+        "047"
+      ]
+    },
+    {
+      "name": "noise",
+      "description": "The noise level of each question",
+      "values": [
+        "0",
+        "5",
+        "10",
+        "15",
+        "20",
+        "25"
+      ]
+    },
+    {
+      "name": "question",
+      "description": "The ID of in each question",
+      "values": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18"
+      ]
+    }
+  ],
   "sources": {
     "meta-streams": [
       {
