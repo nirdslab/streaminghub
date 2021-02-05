@@ -25,6 +25,7 @@
 				"timestamp",
 				"checksum"
 			],
+			"additionalProperties": false,
 			"properties": {
 				"version": {
 					"$ref": "#/definitions/version"
@@ -50,6 +51,7 @@
 				"affiliation",
 				"email"
 			],
+			"additionalProperties": false,
 			"properties": {
 				"name": {
 					"description": "name of the author",
@@ -86,6 +88,7 @@
 				"manufacturer",
 				"category"
 			],
+			"additionalProperties": false,
 			"properties": {
 				"model": {
 					"description": "model of the device",
@@ -109,8 +112,10 @@
 				"description",
 				"unit",
 				"frequency",
+				"index",
 				"channels"
 			],
+			"additionalProperties": false,
 			"properties": {
 				"name": {
 					"description": "name of the data stream",
@@ -128,6 +133,9 @@
 					"description": "sampling frequency (Hz)",
 					"type": "integer",
 					"minimum": 0
+				},
+				"index": {
+					"$ref": "#/definitions/ref"
 				},
 				"channels": {
 					"description": "channels in the data stream, given as field references",
@@ -156,6 +164,7 @@
 				"name",
 				"description"
 			],
+			"additionalProperties": false,
 			"properties": {
 				"dtype": {
 					"description": "data type of field",
@@ -198,6 +207,7 @@
 					"type",
 					"fields"
 				],
+				"additionalProperties": false,
 				"properties": {
 					"type": {
 						"description": "type of link",

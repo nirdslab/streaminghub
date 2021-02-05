@@ -23,7 +23,6 @@
 	"streams": {
 		"hr": {
 			"name": "heart rate",
-			"dtype": "float",
 			"description": "heart rate calculated using IBI and BVP sensory data",
 			"unit": "bpm",
 			"frequency": 0,
