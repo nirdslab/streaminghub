@@ -19,7 +19,7 @@
     }
   ],
   "sources": {
-    "tobii": "./tobii-pro-x2-60.json"
+    "tobii": "tobii-pro-x2-60.json"
   },
   "fields": {
     "RecordingTimestamp": "#/sources/tobii/fields/RecordingTimestamp",
@@ -33,14 +33,14 @@
   "groups": {
     "diagnosis": {
       "description": "The diagnosis of each subject",
-      "values": [
+      "attributes": [
         "ADHD",
         "NT"
       ]
     },
     "subject": {
       "description": "The ID of each subject",
-      "values": [
+      "attributes": [
         "003",
         "005",
         "012",
@@ -61,7 +61,7 @@
     },
     "noise": {
       "description": "The noise level of each question",
-      "values": [
+      "attributes": [
         "0",
         "5",
         "10",
@@ -72,7 +72,7 @@
     },
     "question": {
       "description": "The ID of in each question",
-      "values": [
+      "attributes": [
         "1",
         "2",
         "3",

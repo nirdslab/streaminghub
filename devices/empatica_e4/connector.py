@@ -6,7 +6,7 @@ from typing import List
 
 from pylsl import StreamOutlet
 
-from core.io import get_meta_stream
+from core.io import get_datasource_spec
 from core.lsl_outlet import create_outlet
 
 
@@ -45,7 +45,7 @@ class Connector:
         self.device_id = ...
         self.outlets: dict = {}
         self.srv_state = E4ServerState.NEW__
-        self.meta_stream = get_meta_stream(f"{os.path.dirname(__file__)}/spec.xml", 'xml')
+        self.meta_stream = get_datasource_spec(f"{os.path.dirname(__file__)}/spec.xml", 'xml')
 
     def set_devices_connected(self, num: int, devices: List[str]):
         print('%d device(s) found: %s' % (num, ', '.join([id_ for id_, name_ in devices])))

@@ -15,14 +15,14 @@ import random
 import sys
 import time
 
-from core.io import get_meta_stream
+from core.io import get_datasource_spec
 from core.lsl_outlet import create_outlet
-from core.types import Datasource
+from core.types import DataSourceSpec
 
 SYNTAX = "data-stream-generator [schema_file]"
 
 
-async def emit(source_id: str, meta: Datasource, idx: int, t_start: int):
+async def emit(source_id: str, meta: DataSourceSpec, idx: int, t_start: int):
     stream = meta.streams[idx]
     outlet = create_outlet(source_id, meta.device, stream)
     print(f'created stream: {stream.name}')
@@ -35,7 +35,7 @@ async def emit(source_id: str, meta: Datasource, idx: int, t_start: int):
         await asyncio.sleep(dt)
 
 
-async def begin_data_stream(meta: Datasource):
+async def begin_data_stream(meta: DataSourceSpec):
     t_start = time.time_ns()
     try:
         print('Starting data stream...')
@@ -62,7 +62,7 @@ def main():
     assert file_format in ['json', 'xml'], f"Invalid File Format.\nExpected JSON or XML file"
     # load meta-stream
     print('Loading meta-stream...')
-    meta_stream = get_meta_stream(meta_stream_path, file_format)
+    meta_stream = get_datasource_spec(meta_stream_path, file_format)
     print('Loaded')
     # start data stream
     asyncio.get_event_loop().run_until_complete(begin_data_stream(meta_stream))

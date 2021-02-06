@@ -13,7 +13,7 @@ proposed standards.
 import sys
 
 from core.errors import DoesNotMatchSchemaError
-from core.io import get_meta_stream
+from core.io import get_datasource_spec
 
 SYNTAX = "meta-stream-validator [path_to_meta_stream]"
 
@@ -21,7 +21,7 @@ SYNTAX = "meta-stream-validator [path_to_meta_stream]"
 def validate_xml_schema(path: str):
     print('Validating...')
     try:
-        meta = get_meta_stream(path, 'xml')
+        meta = get_datasource_spec(path, 'xml')
         print(meta)
         print('Great work! Your meta-stream is valid!')
     except DoesNotMatchSchemaError as e:
@@ -31,7 +31,7 @@ def validate_xml_schema(path: str):
 def validate_json_schema(path: str):
     print('Validating...')
     try:
-        meta = get_meta_stream(path, 'json')
+        meta = get_datasource_spec(path, 'json')
         print(meta)
         print('Great work! Your meta-stream is valid!')
     except DoesNotMatchSchemaError as e:

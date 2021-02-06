@@ -9,17 +9,19 @@ It can be used to replay an experimental setup from
 the datasets that's already collected.
 """
 
-import logging
 import argparse
 import asyncio
+import logging
 import os
 import random
 import threading
-from typing import List
+from typing import Dict
+
 import pandas as pd
-from core.io import get_meta_file
+
+from core.io import get_dataset_spec
 from core.lsl_outlet import create_outlet
-from core.types import Dataset, Datasource
+from core.types import DataSetSpec, DataSourceSpec, DeviceInfo, StreamInfo
 
 DIGIT_CHARS = '0123456789'
 SHUTDOWN_FLAG = threading.Event()
@@ -27,56 +29,39 @@ logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
 logger = logging.getLogger()
 
 
-def load_meta_file(dataset_dir: str, dataset_name: str, file_format: str) -> Dataset:
+def load_dataset_spec(dataset_dir: str, dataset_name: str, file_format: str) -> DataSetSpec:
     path = f'{dataset_dir}/{dataset_name}.{file_format}'
-    logger.debug(f'Loading meta-file: {path}')
-    meta_file = get_meta_file(path, file_format)
-    logger.debug(f'Loaded meta-file: {path}')
+    logger.debug(f'Loading dataset spec: {path}')
+    meta_file = get_dataset_spec(path, file_format)
+    logger.debug(f'Loaded dataset spec: {path}')
     return meta_file
 
 
-def load_data_file(dataset_dir: str, dataset: str, file_name: str) -> pd.DataFrame:
+def load_data(dataset_dir: str, dataset: str, file_name: str) -> pd.DataFrame:
     path = f'{dataset_dir}/{dataset}/{file_name}'
-    logger.debug(f'Loading data-file: {path}')
+    logger.debug(f'Loading data of dataset: {path}')
     df = pd.read_csv(path)
-    logger.debug(f'Loaded data-file: {path}')
+    logger.debug(f'Loaded data of dataset: {path}')
     return df
 
 
-def create_meta_streams(meta_file: Dataset) -> List[Datasource]:
-    logger.debug(f'Creating meta-streams from meta-file')
-    meta_stream_infos = meta_file.sources.sources
-    meta_streams: List[Datasource] = []
-    for meta_stream_info in meta_stream_infos:
-        meta_stream = Datasource()
-        # add meta-stream field information
-        meta_stream.device = meta_stream_info.device
-        meta_stream.fields = meta_file.fields
-        meta_stream.streams = meta_stream_info.streams
-        # info
-        meta_stream.info = Datasource.Info()
-        meta_stream.info.version = meta_file.info.version
-        meta_stream.info.checksum = meta_file.info.checksum
-        # append to meta-stream list
-        meta_streams.append(meta_stream)
-    logger.debug(f'Created meta-streams from meta-file')
-    return meta_streams
-
-
-async def begin_streaming(meta_streams: List[Datasource], df: pd.DataFrame):
+async def begin_streaming(data_sources: Dict[str, DataSourceSpec], df: pd.DataFrame):
     tasks = []
-    for meta_stream in meta_streams:
-        # create new id for each meta_stream
-        source_id = str.join('', [random.choice(DIGIT_CHARS) for _ in range(5)])
-        for stream in meta_stream.streams:
-            tasks.append(emit(source_id, meta_stream.device, stream, df))
-        logger.info(f'Task [{source_id}]: Device: {meta_stream.device.model}, {meta_stream.device.manufacturer} ({meta_stream.device.category})')
+    for data_source in data_sources.values():
+        # create new id for each data source
+        data_source_id = str.join('', [random.choice(DIGIT_CHARS) for _ in range(5)])
+        device = data_source.device
+        for stream in data_source.streams.values():
+            tasks.append(emit(data_source_id, device, stream, df))
+        logger.info(f'Task [{data_source_id}]: Device: {device.model}, {device.manufacturer} ({device.category})')
     logger.debug(f'Started all streaming tasks')
     await asyncio.gather(*tasks)
     logger.debug(f'Ended all streaming tasks')
 
 
-async def emit(source_id: str, device: Datasource.DeviceInfo, stream: Datasource.StreamInfo, df: pd.DataFrame):
+async def emit(source_id: str, device: DeviceInfo, stream: StreamInfo, df: pd.DataFrame):
+    # TODO update index of df before starting every stream
+    stream.index.name
     outlet = create_outlet(source_id, device, stream)
     logger.info(f'Task [{source_id}]: stream started - {stream.name}')
     # calculate low/high/range values of selected channels
@@ -130,16 +115,16 @@ def main():
     logger.info(f'Dataset Directory: {dataset_dir}')
     logger.info(f'Dataset Name: {dataset_name}')
     logger.info(f'Dataset File: {dataset_file}')
-    # load datasets
-    meta_file = load_meta_file(dataset_dir, dataset_name, 'json')
-    idx_cols = next(filter(lambda x: x.type == "index", meta_file.links)).fields
-    df = load_data_file(dataset_dir, dataset_name, dataset_file).set_index(idx_cols)
-    # create meta-streams
-    meta_streams = create_meta_streams(meta_file)
-    assert len(meta_streams) > 0, f"Meta-file does not have meta-streams"
+    # load dataset spec
+    dataset_spec = load_dataset_spec(dataset_dir, dataset_name, 'json')
+    # idx_cols = next(filter(lambda x: x.type == "index", dataset_spec.links)).fields
+    df = load_data(dataset_dir, dataset_name, dataset_file)
+    # get data sources
+    data_sources = dataset_spec.sources
+    assert len(data_sources) > 0, f"Dataset does not have data sources"
     # spawn a worker thread for streaming
     logger.info('=== Begin streaming ===')
-    worker = threading.Thread(target=asyncio.run, args=(begin_streaming(meta_streams, df),))
+    worker = threading.Thread(target=asyncio.run, args=(begin_streaming(data_sources, df),))
     try:
         worker.start()
         worker.join()
