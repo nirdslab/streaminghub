@@ -18,4 +18,4 @@ def find_data_slice(dataset_json, q_diagnosis=None, q_subject=None, q_noise=None
 
 
 def fetch_data_slice(data_slice):
-
+    return

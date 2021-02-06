@@ -93,5 +93,6 @@
         "18"
       ]
     }
-  }
+  },
+  "resolver": "adhd-sin.py"
 }

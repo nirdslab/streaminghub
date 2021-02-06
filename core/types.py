@@ -290,6 +290,7 @@ class DataSetSpec(dict):
             self.sources = {source: DataSourceSpec(d['sources'][source]) for source in d['sources']}
             self.fields = {field: FieldInfo(d['fields'][field]) for field in d['fields']}
             self.groups = {group: GroupInfo(d['groups'][group]) for group in d['groups']}
+            self.resolver = d['resolver']
 
     @property
     def info(self) -> IdInfo:
@@ -354,6 +355,14 @@ class DataSetSpec(dict):
     @groups.setter
     def groups(self, value: Dict[str, GroupInfo]):
         self['groups'] = value
+
+    @property
+    def resolver(self) -> str:
+        return self['resolver']
+
+    @resolver.setter
+    def resolver(self, value: str):
+        self['resolver'] = value
 
 
 class AnalyticSpec(dict):
