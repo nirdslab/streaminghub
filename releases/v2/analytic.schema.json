@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "description": "schema of an analytic",
+  "type": "object",
+  "required": [
+    "$schema",
+    "info",
+    "sources",
+    "fields",
+    "inputs",
+    "streams"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "info": {
+      "$ref": "dfs.schema.json#/definitions/info"
+    },
+    "sources": {
+      "description": "data sources for generating the analytic",
+      "$ref": "dfs.schema.json#/definitions/refs"
+    },
+    "fields": {
+      "$ref": "dfs.schema.json#/definitions/fields"
+    },
+    "inputs": {
+      "description": "information on the inputs consumed",
+      "$ref": "dfs.schema.json#/definitions/refs"
+    },
+    "streams": {
+      "description": "information on the output streams generated",
+      "$ref": "dfs.schema.json#/definitions/streams"
+    }
+  }
+}
