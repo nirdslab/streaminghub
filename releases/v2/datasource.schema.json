@@ -15,16 +15,16 @@
       "type": "string"
     },
     "info": {
-      "$ref": "dfs.schema.json#/definitions/info"
+      "$ref": "https://www.cs.odu.edu/~yasith/dfs/v2/dfs.schema.json#/definitions/info"
     },
     "device": {
-      "$ref": "dfs.schema.json#/definitions/device"
+      "$ref": "https://www.cs.odu.edu/~yasith/dfs/v2/dfs.schema.json#/definitions/device"
     },
     "fields": {
-      "$ref": "dfs.schema.json#/definitions/fields"
+      "$ref": "https://www.cs.odu.edu/~yasith/dfs/v2/dfs.schema.json#/definitions/fields"
     },
     "streams": {
-      "$ref": "dfs.schema.json#/definitions/streams"
+      "$ref": "https://www.cs.odu.edu/~yasith/dfs/v2/dfs.schema.json#/definitions/streams"
     }
   }
 }
