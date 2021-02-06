@@ -35,14 +35,14 @@
   "groups": {
     "subject": {
       "description": "ID of the subject",
-      "values": [
+      "attributes": [
         "001",
         "002"
       ]
     },
     "task": {
       "description": "ID of the running task",
-      "values": [
+      "attributes": [
         "T1",
         "T2",
         "T3"

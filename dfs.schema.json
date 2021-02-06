@@ -207,13 +207,13 @@
           "type": "object",
           "required": [
             "description",
-            "values"
+            "attributes"
           ],
           "properties": {
             "description": {
               "type": "string"
             },
-            "values": {
+            "attributes": {
               "type": "array",
               "minItems": 1,
               "items": {
