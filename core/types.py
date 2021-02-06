@@ -172,8 +172,8 @@ class StreamInfo(dict):
             self.description = _d['description']
             self.unit = _d['unit']
             self.frequency = _d['frequency']
-            self.index = FieldInfo(_d['index'])
-            self.channels = [FieldInfo(channel) for channel in _d['channels']]
+            self.index = {index: FieldInfo(_d['index'][index]) for index in _d['index']}
+            self.channels = {channel: FieldInfo(_d['channels'][channel]) for channel in _d['channels']}
 
     @property
     def name(self) -> str:
@@ -208,19 +208,19 @@ class StreamInfo(dict):
         self['frequency'] = float(value)
 
     @property
-    def index(self) -> FieldInfo:
+    def index(self) -> Dict[str, FieldInfo]:
         return self['index']
 
     @index.setter
-    def index(self, value: FieldInfo):
+    def index(self, value: Dict[str, FieldInfo]):
         self['index'] = value
 
     @property
-    def channels(self) -> List[FieldInfo]:
+    def channels(self) -> Dict[str, FieldInfo]:
         return self['channels']
 
     @channels.setter
-    def channels(self, value: List[FieldInfo]):
+    def channels(self, value: Dict[str, FieldInfo]):
         self['channels'] = value
 
 

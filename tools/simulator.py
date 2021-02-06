@@ -60,8 +60,7 @@ async def begin_streaming(data_sources: Dict[str, DataSourceSpec], df: pd.DataFr
 
 
 async def emit(source_id: str, device: DeviceInfo, stream: StreamInfo, df: pd.DataFrame):
-    # TODO update index of df before starting every stream
-    stream.index.name
+    df = df.set_index(list(stream.index.keys()))
     outlet = create_outlet(source_id, device, stream)
     logger.info(f'Task [{source_id}]: stream started - {stream.name}')
     # calculate low/high/range values of selected channels
