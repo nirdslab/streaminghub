@@ -1,3 +1,0 @@
-[submodule "dfs"]
-	path = dfs
-	url = git@github.com:nirdslab/streaminghub-dfs.git
