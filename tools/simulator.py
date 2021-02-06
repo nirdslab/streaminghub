@@ -15,6 +15,8 @@ import logging
 import os
 import random
 import threading
+import importlib
+from pprint import pprint
 from typing import Dict
 
 import pandas as pd
@@ -35,7 +37,13 @@ def load_dataset_spec(dataset_dir: str, dataset_name: str, file_format: str) -> 
     return meta_file
 
 
-def load_data(dataset_dir: str, dataset: str, file_name: str) -> pd.DataFrame:
+def load_data(spec: DataSetSpec, dataset_dir: str, dataset: str, file_name: str) -> pd.DataFrame:
+    # TODO still testing, complete this section
+    module = importlib.import_module('datasets.adhd_sin')
+    [resolve, stream] = [getattr(module, 'resolve'), getattr(module, 'stream')]
+    for data in stream(spec, subject='003'):
+        pprint(data)
+    # previous implementation
     path = f'{dataset_dir}/{dataset}/{file_name}'
     logger.debug(f'Loading data of dataset: {path}')
     df = pd.read_csv(path)
@@ -115,7 +123,7 @@ def main():
     # load dataset spec
     dataset_spec = load_dataset_spec(dataset_dir, dataset_name, 'json')
     # idx_cols = next(filter(lambda x: x.type == "index", dataset_spec.links)).fields
-    df = load_data(dataset_dir, dataset_name, dataset_file)
+    df = load_data(dataset_spec, dataset_dir, dataset_name, dataset_file)
     # get data sources
     data_sources = dataset_spec.sources
     assert len(data_sources) > 0, f"Dataset does not have data sources"

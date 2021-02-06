@@ -12,7 +12,7 @@ logger.addHandler(stream_handler)
 
 
 class TestSimulator(unittest.TestCase):
-    test_dataset_name = 'adhd-sin'
+    test_dataset_name = 'adhd_sin'
     test_dataset_dir = './datasets'
 
     def test_load_meta_file(self):

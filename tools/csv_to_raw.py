@@ -3,9 +3,9 @@ import glob
 import pandas as pd
 
 if __name__ == '__main__':
-    files = glob.glob('../datasets/nback-csv/*.csv')
+    files = glob.glob('../datasets/nback_csv/*.csv')
     for file in files:
         print(file)
         df = pd.read_csv(file)
         df = df[['x', 'y', 't']]
-        df.to_csv(file.replace('nback-csv', 'nback-raw').replace('.csv', '.raw'), sep=' ', index=False, header=False)
+        df.to_csv(file.replace('nback_csv', 'nback_raw').replace('.csv', '.raw'), sep=' ', index=False, header=False)

@@ -12,7 +12,7 @@ logger = logging.getLogger()
 np.set_printoptions(precision=3)
 
 if __name__ == '__main__':
-    df = pd.read_csv('../datasets/nback-csv/S1-task-4-2back-center.csv').set_index('t')
+    df = pd.read_csv('../datasets/nback_csv/S1-task-4-2back-center.csv').set_index('t')
 
     # raw signal
     df_x = np.array(df.x)

@@ -19,7 +19,7 @@
     }
   ],
   "sources": {
-    "tobii": "tobii-pro-x2-60.json"
+    "tobii": "../datasources/tobii-pro-x2-60.json"
   },
   "fields": {
     "RecordingTimestamp": "#/sources/tobii/fields/RecordingTimestamp",
@@ -31,32 +31,34 @@
     "PupilRight": "#/sources/tobii/fields/PupilRight"
   },
   "groups": {
-    "diagnosis": {
-      "description": "The diagnosis of each subject",
-      "attributes": [
-        "ADHD",
-        "NT"
-      ]
-    },
     "subject": {
       "description": "The ID of each subject",
       "attributes": [
         "003",
-        "005",
         "012",
-        "014",
         "018",
-        "021",
         "024",
         "026",
         "030",
         "032",
         "034",
-        "035",
         "036",
-        "037",
         "038",
         "047"
+      ]
+    },
+    "diagnosis": {
+      "description": "The diagnosis of each subject",
+      "attributes": [
+        "ADHD",
+        "NTYP"
+      ]
+    },
+    "question": {
+      "description": "The ID of in each question",
+      "attributes": [
+        "SET_A",
+        "SET_B"
       ]
     },
     "noise": {
@@ -68,29 +70,6 @@
         "15",
         "20",
         "25"
-      ]
-    },
-    "question": {
-      "description": "The ID of in each question",
-      "attributes": [
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "10",
-        "11",
-        "12",
-        "13",
-        "14",
-        "15",
-        "16",
-        "17",
-        "18"
       ]
     }
   },
