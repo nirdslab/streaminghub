@@ -11,7 +11,8 @@
     "authors",
     "sources",
     "fields",
-    "groups"
+    "groups",
+    "resolver"
   ],
   "additionalProperties": false,
   "properties": {
@@ -55,6 +56,10 @@
     },
     "groups": {
       "$ref": "dfs.schema.json#/definitions/groups"
+    },
+    "resolver": {
+      "description": "script to resolve data",
+      "$ref": "dfs.schema.json#/definitions/ref"
     }
   }
 }

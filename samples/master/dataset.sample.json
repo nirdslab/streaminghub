@@ -48,5 +48,6 @@
         "T3"
       ]
     }
-  }
+  },
+  "resolver": "resolver.sample.py"
 }
