@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from urllib.parse import urlparse, urljoin
 from urllib.request import urlopen
@@ -7,6 +8,8 @@ import jsonschema
 
 from core.errors import DoesNotMatchSchemaError, SchemaNotMentionedError
 from core.types import DataSourceSpec, DataSetSpec, AnalyticSpec
+
+logger = logging.getLogger()
 
 
 def __fetch(path: str) -> dict:
@@ -24,13 +27,15 @@ def __fetch(path: str) -> dict:
             if not os.path.exists(abs_path):
                 raise FileNotFoundError(path, abs_path)
             path = abs_path
-        print(f'Fetch [file://{path}]')
+        logger.debug(f'Fetching: file://{path}')
         with open(path) as payload:
             content = json.load(payload)
+            logger.debug(f'Fetched: file://{path}')
     else:
-        print(f'Fetch [{path}]')
+        logger.debug(f'Fetching: {path}')
         with urlopen(path) as payload:
             content = json.load(payload)
+            logger.debug(f'Fetched: {path}')
     return content
 
 
@@ -100,6 +105,7 @@ def __fetch_spec(spec_uri: str) -> dict:
         # Task 2: next, dereference any JSON paths
         __recursive_dereference(spec, spec, path)
         # return the validated, dereferenced spec
+        logger.debug(f'Validated Spec: {path}')
         return spec
 
     return __fetch_and_validate(spec_uri)
@@ -108,16 +114,19 @@ def __fetch_spec(spec_uri: str) -> dict:
 def datasource(path: str) -> DataSourceSpec:
     data = __fetch_spec(path)
     spec = DataSourceSpec(d=data)
+    logger.debug(f'Created DataSourceSpec: {path}')
     return spec
 
 
 def dataset(path: str):
     data = __fetch_spec(path)
     spec = DataSetSpec(d=data)
+    logger.debug(f'Created DataSetSpec: {path}')
     return spec
 
 
 def analytic(path: str):
     data = __fetch_spec(path)
     spec = AnalyticSpec(d=data)
+    logger.debug(f'Created AnalyticSpec: {path}')
     return spec

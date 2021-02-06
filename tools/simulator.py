@@ -25,15 +25,13 @@ from core.types import DataSetSpec, DataSourceSpec, DeviceInfo, StreamInfo
 
 DIGIT_CHARS = '0123456789'
 SHUTDOWN_FLAG = threading.Event()
-logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.DEBUG)
 logger = logging.getLogger()
 
 
 def load_dataset_spec(dataset_dir: str, dataset_name: str, file_format: str) -> DataSetSpec:
     path = f'{dataset_dir}/{dataset_name}.{file_format}'
-    logger.debug(f'Loading dataset spec: {path}')
     meta_file = get_dataset_spec(path, file_format)
-    logger.debug(f'Loaded dataset spec: {path}')
     return meta_file
 
 
