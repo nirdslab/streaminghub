@@ -11,6 +11,7 @@ sensory device.
 """
 
 import asyncio
+import logging
 import random
 import sys
 import time
@@ -20,56 +21,64 @@ from core.lsl_outlet import create_outlet
 from core.types import DataSourceSpec
 
 SYNTAX = "data-stream-generator [schema_file]"
+DIGIT_CHARS = '0123456789'
+
+logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.DEBUG)
+logger = logging.getLogger()
 
 
-async def emit(source_id: str, meta: DataSourceSpec, idx: int, t_start: int):
-    stream = meta.streams[idx]
-    outlet = create_outlet(source_id, meta.device, stream)
-    print(f'created stream: {stream.name}')
+async def emit(source_id: str, spec: DataSourceSpec, stream_id: str):
+    stream = spec.streams[stream_id]
+    f = stream.frequency
+    outlet = create_outlet(source_id, spec.device, stream)
+    logger.info(f'created stream: {stream.name}')
     while True:
-        t = (time.time_ns() - t_start) * 1e-9
-        outlet.push_sample([random.gauss(0, random.random() / 2) for _ in range(len(stream.channels))], t)
-        # if stream frequency is zero, schedule next sample after a random time.
-        # if not, schedule after (1 / f) time
-        dt = (1. / stream.frequency) if stream.frequency > 0 else (random.randrange(0, 10) / 10.0)
+        # calculate dt from f. if f=0, assign a random dt
+        dt = (1. / f) if f > 0 else (random.randrange(0, 10) / 10.0)
+        if outlet.have_consumers():
+            t1 = time.time_ns() * 1e-9
+            sample = [random.gauss(0, random.random() / 2) for _ in range(len(stream.channels))]
+            logger.debug(f'DataSource [{source_id}]: T={t1}, Sample={sample}')
+            outlet.push_sample(sample, t1)
+            # offset dt by cpu time
+            t2 = time.time_ns() * 1e-9
+            dt -= (t2 - t1)
         await asyncio.sleep(dt)
 
 
-async def begin_data_stream(meta: DataSourceSpec):
-    t_start = time.time_ns()
+async def begin_streaming_random_data(spec: DataSourceSpec):
+    source_id = str.join('', [random.choice(DIGIT_CHARS) for _ in range(5)])
     try:
-        print('Starting data stream...')
-        print(f'Device Name: {meta.device.model}, {meta.device.manufacturer} ({meta.device.category})')
-        _id = '12345'
+        logger.info(f'DataSource [{source_id}]: Device: {spec.device.model}, {spec.device.manufacturer} ({spec.device.category})')
         # create a job for each stream defined in the meta-stream
-        jobs = [emit(_id, meta, _idx, t_start) for _idx in range(len(meta.streams))]
+        jobs = [emit(source_id, spec, stream_id) for stream_id in spec.streams]
         # start all jobs
-        print('Data stream started')
+        logger.info(f'DataSource [{source_id}]: Started streams')
         await asyncio.gather(*jobs)
     except KeyboardInterrupt:
-        print('Interrupt received. Ending data stream...')
+        logger.info(f'DataSource [{source_id}]: Interrupt received. Closing streams...')
     finally:
-        print('Data stream ended')
+        logger.info(f'DataSource [{source_id}]: Closed streams')
 
 
 def main():
     # parse command-line args
     args = sys.argv
     assert len(args) == 2, f"Invalid Syntax.\nExpected: {SYNTAX}"
-    meta_stream_path = args[1]
-    print(f'File: {meta_stream_path}')
-    file_format = meta_stream_path.rsplit('.', maxsplit=1)[-1].lower()
-    assert file_format in ['json', 'xml'], f"Invalid File Format.\nExpected JSON or XML file"
-    # load meta-stream
-    print('Loading meta-stream...')
-    meta_stream = get_datasource_spec(meta_stream_path, file_format)
-    print('Loaded')
+    spec_path = args[1]
+    logger.info(f'DataSourceSpec: {spec_path}')
+    file_format = spec_path.rsplit('.', maxsplit=1)[-1].lower()
+    assert file_format == 'json', f"Invalid File Format.\nExpected JSON"
+    # load DataSourceSpec
+    logger.info('Loading DataSourceSpec...')
+    spec = get_datasource_spec(spec_path, file_format)
+    logger.info('Loaded')
     # start data stream
-    asyncio.get_event_loop().run_until_complete(begin_data_stream(meta_stream))
+    asyncio.get_event_loop().run_until_complete(begin_streaming_random_data(spec))
 
 
 if __name__ == '__main__':
     try:
         main()
     except AssertionError as e:
-        print(f'Error: {e}', file=sys.stderr)
+        logger.error(f'Error: {e}', file=sys.stderr)
