@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import List, Tuple, Iterator
+from typing import List, Tuple, Dict, Any, Generator
 
 from core.types import DataSetSpec
 
@@ -30,7 +30,7 @@ SUMMARY = [
 ]
 
 
-def resolve(spec: DataSetSpec, **kwargs) -> List[Tuple[Tuple, str]]:
+def resolve(spec: DataSetSpec, **kwargs) -> List[Tuple[Dict[str, Any], str]]:
     # initialize empty parameters with default values from spec
     subject = kwargs.get('subject', spec.groups.get("subject").attributes)
     diagnosis = kwargs.get('diagnosis', spec.groups.get('diagnosis').attributes)
@@ -58,11 +58,12 @@ def resolve(spec: DataSetSpec, **kwargs) -> List[Tuple[Tuple, str]]:
                 filename = f'{f_subject}ADHD_AV_{n}{f_question}.csv'
                 abs_path = os.path.join(base_dir, 'adhd_sin', filename)
                 if os.path.exists(abs_path):
-                    files.append(((f_subject, f_diagnosis, question, n), abs_path))
+                    attrs = {"subject": f_subject, "diagnosis": f_diagnosis, "question": question, "noise": n}
+                    files.append((attrs, abs_path))
     return files
 
 
-def stream(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[Tuple, dict]]:
+def stream(spec: DataSetSpec, **kwargs) -> Generator[Tuple[Dict[str, Any], Dict[str, Any]], None, None]:
     files = resolve(spec, **kwargs)
     fields = spec.fields.keys()
     for attrs, file in files:
@@ -70,7 +71,9 @@ def stream(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[Tuple, dict]]:
             logger.debug('Opened file: %s', file)
             header = str(next(f)).strip().split(',')  # skip the header line of each file, and get column names
             mapping = {field: header.index(field) for field in fields}
+            assert -1 not in mapping.values(), "Some headers not found"
             for row in f:
-                data = row.strip().split(',')
-                yield attrs, {field: data[mapping[field]] for field in fields}
+                data_list = row.strip().split(',')
+                data_dict = {field: data_list[mapping[field]] for field in fields}
+                yield attrs, data_dict
         logger.debug('Closed file: %s', file)
