@@ -11,19 +11,20 @@ the datasets that's already collected.
 
 import argparse
 import asyncio
+import importlib
 import logging
 import os
 import random
 import threading
-import importlib
-from pprint import pprint
-from typing import Dict
+from time import time_ns
+from typing import Dict, Callable, Any, Generator
 
-import pandas as pd
+import numpy as np
+from pylsl import StreamOutlet
 
 from core.io import get_dataset_spec
 from core.lsl_outlet import create_outlet
-from core.types import DataSetSpec, DataSourceSpec, DeviceInfo, StreamInfo
+from core.types import DataSetSpec, DataSourceSpec, StreamInfo
 
 DIGIT_CHARS = '0123456789'
 SHUTDOWN_FLAG = threading.Event()
@@ -31,73 +32,69 @@ logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.DEBUG)
 logger = logging.getLogger()
 
 
-def load_dataset_spec(dataset_dir: str, dataset_name: str, file_format: str) -> DataSetSpec:
-    path = f'{dataset_dir}/{dataset_name}.{file_format}'
-    meta_file = get_dataset_spec(path, file_format)
-    return meta_file
-
-
-def load_data(spec: DataSetSpec, dataset_dir: str, dataset: str, file_name: str) -> pd.DataFrame:
-    # TODO still testing, complete this section
+def get_data_stream(spec: DataSetSpec, **kwargs) -> Generator[tuple[tuple, dict[str, float]], None, None]:
     module = importlib.import_module('datasets.adhd_sin')
-    [resolve, stream] = [getattr(module, 'resolve'), getattr(module, 'stream')]
-    for data in stream(spec, subject='003'):
-        pprint(data)
-    # previous implementation
-    path = f'{dataset_dir}/{dataset}/{file_name}'
-    logger.debug(f'Loading data of dataset: {path}')
-    df = pd.read_csv(path)
-    logger.debug(f'Loaded data of dataset: {path}')
-    return df
+    stream: Callable[[DataSetSpec, ...], Any] = getattr(module, 'stream')
+    yield from stream(spec, **kwargs)
 
 
-async def begin_streaming(data_sources: Dict[str, DataSourceSpec], df: pd.DataFrame):
+async def begin_streaming(dataset_spec: DataSetSpec, **kwargs):
+    loop = asyncio.get_event_loop()
+    data_sources = dataset_spec.sources
+    # map each data source by a random id
+    r_sources: Dict[str, DataSourceSpec] = {str.join('', [random.choice(DIGIT_CHARS) for _ in range(5)]): data_source for data_source in data_sources.values()}
+    # initialize all outlets
+    r_outlets = {}
+    for source_id in r_sources:
+        source = r_sources[source_id]
+        logger.info(f'Source [{source_id}]: {source.device.model}, {source.device.manufacturer} ({source.device.category})')
+        logger.info(f'Source [{source_id}]: Initialization Started')
+        source_outlets = {}
+        for stream_id in source.streams:
+            stream = source.streams[stream_id]
+            outlet = create_outlet(source_id, source.device, stream)
+            source_outlets[stream_id] = outlet
+            logger.info(f'Source [{source_id}]: initialized stream [{stream.name}]')
+        r_outlets[source_id] = source_outlets
+        logger.info(f'Source [{source_id}]: Initialization Completed')
+
+    # initiate data streaming via emit() function
+    logger.debug(f'Started data streaming')
     tasks = []
-    for data_source in data_sources.values():
-        # create new id for each data source
-        data_source_id = str.join('', [random.choice(DIGIT_CHARS) for _ in range(5)])
-        device = data_source.device
-        for stream in data_source.streams.values():
-            tasks.append(emit(data_source_id, device, stream, df))
-        logger.info(f'Task [{data_source_id}]: Device: {device.model}, {device.manufacturer} ({device.category})')
-    logger.debug(f'Started all streaming tasks')
+    for source_id in r_sources:
+        source = r_sources[source_id]
+        for stream_id in source.streams:
+            stream = source.streams[stream_id]
+            task = loop.create_task(emit(r_outlets[source_id][stream_id], get_data_stream(dataset_spec, **kwargs), stream))
+            tasks.append(task)
     await asyncio.gather(*tasks)
-    logger.debug(f'Ended all streaming tasks')
+    logger.debug(f'Ended data streaming')
 
 
-async def emit(source_id: str, device: DeviceInfo, stream: StreamInfo, df: pd.DataFrame):
-    df = df.set_index(list(stream.index.keys()))
-    outlet = create_outlet(source_id, device, stream)
-    logger.info(f'Task [{source_id}]: stream started - {stream.name}')
-    # calculate low/high/range values of selected channels
-    d_l = df[stream.channels].min().values
-    d_h = df[stream.channels].max().values
-    d_r = (d_h - d_l)
+async def emit(outlet: StreamOutlet, data_stream: Generator[tuple[tuple, dict[str, float]], None, None], stream: StreamInfo):
+    # get sampling frequency
     f = stream.frequency
-    n = df.index.size
-    ptr = 0
     while True:
+        t1 = time_ns() * 10e-9
         # graceful shutdown
         if SHUTDOWN_FLAG.is_set():
-            logger.info(f'Task [{source_id}]: stream terminated - {stream.name}')
+            logger.info(f'Shutdown initiated: stopped data stream')
+            data_stream.close()
             break
-        # end of stream
-        if ptr == n:
-            logger.info(f'Task [{source_id}]: end of stream reached - {stream.name}')
-            break
-        # calculate wait time
+        # calculate wait time (assign random wait time if frequency not set)
         dt = (1. / f) if f > 0 else (random.randrange(0, 10) / 10.0)
         # check if any consumers are available
         if outlet.have_consumers():
+            # get relevant slice of data from sample
+            [attrs, data] = next(data_stream)
+            index = float(data[next(iter(stream.index))])  # assuming single-level indexes
+            sample = [float(data[ch]) if data[ch] else np.nan for ch in stream.channels]
             # push sample if consumers are available
-            sample = df.iloc[ptr][stream.channels]
-            [t, d] = sample.name, sample.values
-            # normalize data
-            d_n = (d - d_l) / d_r
-            outlet.push_sample(d_n, t)
-            # increment pointer (rolling)
-            ptr = ptr + 1
-        # sleep until next sample is due
+            outlet.push_sample(sample, index)
+        # offset dt to account for cpu time
+        t2 = time_ns() * 10e-9
+        dt -= (t2 - t1)
+        # sleep for dt to maintain stream frequency
         await asyncio.sleep(dt)
 
 
@@ -105,31 +102,24 @@ def main():
     # get default args
     default_dir = os.getenv("DATASET_DIR")
     default_name = os.getenv("DATASET_NAME")
-    default_file = os.getenv("DATASET_FILE")
     # create parser and parse args
     parser = argparse.ArgumentParser(prog='simulator.py')
     parser.add_argument('--dataset-dir', '-d', required=default_dir is None, default=default_dir)
     parser.add_argument('--dataset-name', '-n', required=default_name is None, default=default_name)
-    parser.add_argument('--dataset-file', '-f', required=default_file is None, default=default_file)
     args = parser.parse_args()
     # assign args to variables
     dataset_dir = args.dataset_dir or default_dir
     dataset_name = args.dataset_name or default_name
-    dataset_file = args.dataset_file or default_file
     # print args
     logger.info(f'Dataset Directory: {dataset_dir}')
     logger.info(f'Dataset Name: {dataset_name}')
-    logger.info(f'Dataset File: {dataset_file}')
-    # load dataset spec
-    dataset_spec = load_dataset_spec(dataset_dir, dataset_name, 'json')
-    # idx_cols = next(filter(lambda x: x.type == "index", dataset_spec.links)).fields
-    df = load_data(dataset_spec, dataset_dir, dataset_name, dataset_file)
+    # get dataset spec
+    dataset_spec = get_dataset_spec(f'{dataset_dir}/{dataset_name}.json', 'json')
     # get data sources
-    data_sources = dataset_spec.sources
-    assert len(data_sources) > 0, f"Dataset does not have data sources"
+    assert len(dataset_spec.sources) > 0, f"Dataset does not have data sources"
     # spawn a worker thread for streaming
     logger.info('=== Begin streaming ===')
-    worker = threading.Thread(target=asyncio.run, args=(begin_streaming(data_sources, df),))
+    worker = threading.Thread(target=asyncio.run, args=(begin_streaming(dataset_spec),))
     try:
         worker.start()
         worker.join()

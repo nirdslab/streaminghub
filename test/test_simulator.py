@@ -3,7 +3,7 @@ import unittest
 
 import logging
 import sys
-from tools.simulator import load_dataset_spec, load_data
+from tools.simulator import get_dataset_spec, get_data_stream
 
 logger = logging.getLogger()
 logger.level = logging.DEBUG
@@ -22,7 +22,7 @@ class TestSimulator(unittest.TestCase):
         test_meta_file_format = 'json'
         test_meta_file_checksum = '010203040506070809000A0B0C0D0E0F'
         # load the meta-file
-        meta_file = load_dataset_spec(self.test_dataset_dir, self.test_dataset_name, test_meta_file_format)
+        meta_file = get_dataset_spec(self.test_dataset_dir, self.test_dataset_name, test_meta_file_format)
         # assertion
         self.assertEqual(meta_file.info.checksum, test_meta_file_checksum)
 
@@ -33,7 +33,7 @@ class TestSimulator(unittest.TestCase):
         test_file_name = '003ADHD_AV_01.csv'
         test_file_size = 47232
         # load the data-file
-        data_file = load_data(self.test_dataset_dir, self.test_dataset_name, test_file_name)
+        data_file = get_data_stream(self.test_dataset_dir, self.test_dataset_name, test_file_name)
         # assertion
         self.assertEqual(data_file.size, test_file_size)
 
@@ -43,7 +43,7 @@ class TestSimulator(unittest.TestCase):
         """
         test_meta_file_format = 'json'
         # load the meta-file
-        meta_file = load_dataset_spec(self.test_dataset_dir, self.test_dataset_name, test_meta_file_format)
+        meta_file = get_dataset_spec(self.test_dataset_dir, self.test_dataset_name, test_meta_file_format)
         meta_streams = create_data_sources(meta_file)
         self.assertEqual(len(meta_streams), len(meta_file.sources.sources))
         for i in range(len(meta_streams)):

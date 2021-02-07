@@ -27,12 +27,12 @@ SUMMARY = [
 ]
 
 
-def resolve(spec: DataSetSpec, subject: list = None, diagnosis: list = None, question: list = None, noise: list = None, ) -> List[Tuple[Tuple, str]]:
+def resolve(spec: DataSetSpec, **kwargs) -> List[Tuple[Tuple, str]]:
     # initialize empty parameters with default values from spec
-    subject = subject or spec.groups.get("subject").attributes
-    diagnosis = diagnosis or spec.groups.get('diagnosis').attributes
-    question = question or spec.groups.get("question").attributes
-    noise = noise or spec.groups.get("noise").attributes
+    subject = kwargs.get('subject', spec.groups.get("subject").attributes)
+    diagnosis = kwargs.get('diagnosis', spec.groups.get('diagnosis').attributes)
+    question = kwargs.get('question', spec.groups.get("question").attributes)
+    noise = kwargs.get('noise', spec.groups.get("noise").attributes)
 
     # filter by resolve values
     filtered = []
@@ -59,13 +59,13 @@ def resolve(spec: DataSetSpec, subject: list = None, diagnosis: list = None, que
     return files
 
 
-def stream(spec: DataSetSpec, subject: list = None, diagnosis: list = None, question: list = None, noise: list = None) -> Iterator[Tuple[Tuple, dict]]:
-    files = resolve(spec, subject, diagnosis, question, noise)
+def stream(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[Tuple, dict]]:
+    files = resolve(spec, **kwargs)
     fields = spec.fields.keys()
-    for attr, file in files:
+    for attrs, file in files:
         with open(file, 'r') as f:
             header = str(next(f)).strip().split(',')  # skip the header line of each file, and get column names
             mapping = {field: header.index(field) for field in fields}
             for row in f:
                 data = row.strip().split(',')
-                yield attr, {field: data[mapping[field]] for field in fields}
+                yield attrs, {field: data[mapping[field]] for field in fields}

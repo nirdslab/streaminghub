@@ -17,7 +17,7 @@ def create_outlet(source_id: str, device: DeviceInfo, stream: StreamInfo) -> LSL
         name=f'{device.model}, {device.manufacturer} ({device.category})',
         type=stream.name,
         channel_count=len(stream.channels),
-        nominal_srate=stream.frequency
+        nominal_srate=stream.frequency,
     )
     # create stream description
     desc = info.desc()
