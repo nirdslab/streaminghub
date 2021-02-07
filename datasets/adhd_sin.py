@@ -1,7 +1,10 @@
+import logging
 import os
 from typing import List, Tuple, Iterator
 
 from core.types import DataSetSpec
+
+logger = logging.getLogger()
 
 QUESTION_SET_A = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 QUESTION_SET_B = [10, 11, 12, 13, 14, 15, 16, 17, 18]
@@ -64,8 +67,10 @@ def stream(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[Tuple, dict]]:
     fields = spec.fields.keys()
     for attrs, file in files:
         with open(file, 'r') as f:
+            logger.debug('Opened file: %s', file)
             header = str(next(f)).strip().split(',')  # skip the header line of each file, and get column names
             mapping = {field: header.index(field) for field in fields}
             for row in f:
                 data = row.strip().split(',')
                 yield attrs, {field: data[mapping[field]] for field in fields}
+        logger.debug('Closed file: %s', file)

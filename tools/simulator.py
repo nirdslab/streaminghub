@@ -89,8 +89,9 @@ async def emit(outlet: StreamOutlet, data_stream: Generator[tuple[tuple, dict[st
             [attrs, data] = next(data_stream)
             index = float(data[next(iter(stream.index))])  # assuming single-level indexes
             sample = [float(data[ch]) if data[ch] else np.nan for ch in stream.channels]
-            # push sample if consumers are available
-            outlet.push_sample(sample, index)
+            if not all([i == np.nan for i in sample]):
+                # push sample if consumers are available, and data exists
+                outlet.push_sample(sample, index)
         # offset dt to account for cpu time
         t2 = time_ns() * 10e-9
         dt -= (t2 - t1)
