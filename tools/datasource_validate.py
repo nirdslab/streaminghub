@@ -15,7 +15,7 @@ import sys
 from core.errors import DoesNotMatchSchemaError
 from core.io import get_datasource_spec
 
-SYNTAX = "datasource_validator [path/to/datasource/spec]"
+SYNTAX = "datasource_validate [path/to/datasource/spec]"
 
 
 def validate_datasource_spec(path: str):

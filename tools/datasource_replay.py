@@ -104,7 +104,7 @@ def main():
     default_dir = os.getenv("DATASET_DIR")
     default_name = os.getenv("DATASET_NAME")
     # create parser and parse args
-    parser = argparse.ArgumentParser(prog='datasource_from_dataset.py')
+    parser = argparse.ArgumentParser(prog='datasource_replay.py')
     parser.add_argument('--dataset-dir', '-d', required=default_dir is None, default=default_dir)
     parser.add_argument('--dataset-name', '-n', required=default_name is None, default=default_name)
     args = parser.parse_args()
