@@ -15,27 +15,17 @@ import sys
 from core.errors import DoesNotMatchSchemaError
 from core.io import get_datasource_spec
 
-SYNTAX = "meta-stream-validator [path_to_meta_stream]"
+SYNTAX = "datasource_validator [path/to/datasource/spec]"
 
 
-def validate_xml_schema(path: str):
-    print('Validating...')
-    try:
-        meta = get_datasource_spec(path, 'xml')
-        print(meta)
-        print('Great work! Your meta-stream is valid!')
-    except DoesNotMatchSchemaError as e:
-        print('ERROR - does not match schema', file=sys.stderr)
-
-
-def validate_json_schema(path: str):
+def validate_datasource_spec(path: str):
     print('Validating...')
     try:
         meta = get_datasource_spec(path, 'json')
         print(meta)
-        print('Great work! Your meta-stream is valid!')
+        print('Great work! Your DataSourceSpec is valid!')
     except DoesNotMatchSchemaError as e:
-        print('ERROR - does not match schema', file=sys.stderr)
+        print('ERROR - does not match schema', e, file=sys.stderr)
 
 
 def main():
@@ -45,14 +35,11 @@ def main():
     meta_stream_path = args[1]
     print(f'File: {meta_stream_path}')
     file_format = meta_stream_path.rsplit('.', maxsplit=1)[-1].lower()
-    assert file_format in ['json', 'xml'], f"Invalid File Format.\nExpected JSON or XML file"
+    assert file_format == 'json', f"Invalid File Format.\nExpected JSON"
     # validate schema
-    if file_format == 'xml':
-        print('Found XML schema')
-        validate_xml_schema(meta_stream_path)
     if file_format == 'json':
         print('Found JSON schema')
-        validate_json_schema(meta_stream_path)
+        validate_datasource_spec(meta_stream_path)
 
 
 if __name__ == '__main__':

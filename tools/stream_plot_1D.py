@@ -17,7 +17,7 @@ from typing import List
 import numpy as np
 from pylsl import resolve_stream, StreamInlet
 
-SYNTAX = "1d-stream-plot [stream_name]"
+SYNTAX = "stream_plot_1D [stream_name]"
 
 
 def plot_data(_streams: List[StreamInlet]):

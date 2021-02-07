@@ -3,7 +3,7 @@ import unittest
 
 import logging
 import sys
-from tools.simulator import get_dataset_spec, get_data_stream
+from tools.datasource_from_dataset import get_dataset_spec, get_data_stream
 
 logger = logging.getLogger()
 logger.level = logging.DEBUG

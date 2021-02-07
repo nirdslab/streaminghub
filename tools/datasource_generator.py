@@ -20,7 +20,7 @@ from core.io import get_datasource_spec
 from core.lsl_outlet import create_outlet
 from core.types import DataSourceSpec
 
-SYNTAX = "data-stream-generator [schema_file]"
+SYNTAX = "datasource_generator [path/to/datasource/spec]"
 DIGIT_CHARS = '0123456789'
 
 logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.DEBUG)

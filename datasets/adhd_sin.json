@@ -19,7 +19,7 @@
     }
   ],
   "sources": {
-    "tobii": "../datasources/tobii-pro-x2-60.json"
+    "tobii": "../datasources/tobii_pro_x2_60.json"
   },
   "fields": {
     "RecordingTimestamp": "#/sources/tobii/fields/RecordingTimestamp",
