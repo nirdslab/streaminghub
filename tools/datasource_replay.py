@@ -32,13 +32,13 @@ logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.DEBUG)
 logger = logging.getLogger()
 
 
-def get_data_stream(spec: DataSetSpec, **kwargs) -> Generator[tuple[tuple, dict[str, float]], None, None]:
-    module = importlib.import_module('datasets.adhd_sin')
+def get_data_stream(spec: DataSetSpec, dataset_name: str, **kwargs) -> Generator[tuple[tuple, dict[str, float]], None, None]:
+    module = importlib.import_module(f'datasets.{dataset_name}')
     stream: Callable[[DataSetSpec, ...], Any] = getattr(module, 'stream')
     yield from stream(spec, **kwargs)
 
 
-async def begin_streaming(dataset_spec: DataSetSpec, **kwargs):
+async def begin_streaming(dataset_spec: DataSetSpec, dataset_name: str, **kwargs):
     loop = asyncio.get_event_loop()
     data_sources = dataset_spec.sources
     # map each data source by a random id
@@ -65,7 +65,7 @@ async def begin_streaming(dataset_spec: DataSetSpec, **kwargs):
         source = r_sources[source_id]
         for stream_id in source.streams:
             stream = source.streams[stream_id]
-            task = loop.create_task(emit(r_outlets[source_id][stream_id], get_data_stream(dataset_spec, **kwargs), stream))
+            task = loop.create_task(emit(r_outlets[source_id][stream_id], get_data_stream(dataset_spec, dataset_name, **kwargs), stream))
             tasks.append(task)
     await asyncio.gather(*tasks)
     logger.debug(f'Ended data streaming')
@@ -120,7 +120,7 @@ def main():
     assert len(dataset_spec.sources) > 0, f"Dataset does not have data sources"
     # spawn a worker thread for streaming
     logger.info('=== Begin streaming ===')
-    worker = threading.Thread(target=asyncio.run, args=(begin_streaming(dataset_spec),))
+    worker = threading.Thread(target=asyncio.run, args=(begin_streaming(dataset_spec, dataset_name),))
     try:
         worker.start()
         worker.join()

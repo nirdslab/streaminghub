@@ -51,15 +51,22 @@
         "S19"
       ]
     },
-    "xtype": {
-      "description": "The type of experiment",
+    "mode": {
+      "description": "The mode of experiment",
       "attributes": [
         "baseline",
         "task"
       ]
     },
     "task": {
-      "description": "The ID of each task",
+      "description": "The ID of the task",
+      "attributes": [
+        "1back",
+        "2back"
+      ]
+    },
+    "position": {
+      "description": "The position of each task",
       "attributes": [
         "top_left",
         "top_right",

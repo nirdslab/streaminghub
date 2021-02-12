@@ -37,7 +37,7 @@
       "name": "Gaze",
       "description": "gaze point",
       "unit": "px",
-      "frequency": 60,
+      "frequency": 1000,
       "index": "#/fields/t",
       "channels": [
         "#/fields/x",
@@ -48,7 +48,7 @@
       "name": "Pupil",
       "description": "pupil diameter",
       "unit": "mm",
-      "frequency": 60,
+      "frequency": 1000,
       "index": "#/fields/t",
       "channels": [
         "#/fields/d"

@@ -1,35 +1,30 @@
 import logging
 import os
-from typing import List, Tuple, Dict, Any, Generator
+from typing import Tuple, Dict, Any, Generator, Iterator
 
 from core.types import DataSetSpec
 
 logger = logging.getLogger()
 
 
-def resolve(spec: DataSetSpec, **kwargs) -> List[Tuple[Dict[str, Any], str]]:
+def resolve(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[Dict[str, Any], str]]:
     # initialize empty parameters with default values from spec
-    subject = kwargs.get('subject', spec.groups.get("subject").attributes)
-    xtype = kwargs.get('xtype', spec.groups.get('xtype').attributes)
-    task = kwargs.get('task', spec.groups.get("task").attributes)
+    subject = kwargs.get('subject', spec.groups.get('subject').attributes)
+    mode = kwargs.get('mode', spec.groups.get('mode').attributes)
+    task = kwargs.get('task', spec.groups.get('task').attributes)
+    position = kwargs.get('position', spec.groups.get('position').attributes)
 
     # filter by resolve values
-    filtered = []
-    for d_subject in subject:
-        for d_xtype in xtype:
-            for d_task in task:
-                filtered.append((d_subject, d_xtype, d_task))
+    filtered = ((s, m, t, p) for s in subject for m in mode for t in task for p in position)
 
-    # generate (and return) target file paths
-    files = []
+    # generate (and yield) target file paths
     base_dir = os.path.dirname(__file__)
-    for (f_subject, f_xtype, f_task) in filtered:
-        filename = f'{f_subject}-{f_xtype}-{f_task}.csv'
+    for (f_subject, f_mode, f_task, f_position) in filtered:
+        filename = f'{f_subject}-{f_mode}-{f_task}-{f_position}.csv'
         abs_path = os.path.join(base_dir, 'n_back', filename)
         if os.path.exists(abs_path):
-            attrs = {"subject": f_subject, "xtype": f_xtype, "task": f_task}
-            files.append((attrs, abs_path))
-    return files
+            attrs = {"subject": f_subject, "mode": f_mode, "task": f_task, "position": f_position}
+            yield attrs, abs_path
 
 
 def stream(spec: DataSetSpec, **kwargs) -> Generator[Tuple[Dict[str, Any], Dict[str, Any]], None, None]:

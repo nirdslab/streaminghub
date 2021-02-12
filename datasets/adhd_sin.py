@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import List, Tuple, Dict, Any, Generator
+from typing import Tuple, Dict, Any, Generator, Iterator
 
 from core.types import DataSetSpec
 
@@ -8,6 +8,7 @@ logger = logging.getLogger()
 
 QUESTION_SET_A = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 QUESTION_SET_B = [10, 11, 12, 13, 14, 15, 16, 17, 18]
+RESOLUTION = [1920, 1080]
 
 SUMMARY = [
     # subject, diagnosis, question
@@ -30,7 +31,7 @@ SUMMARY = [
 ]
 
 
-def resolve(spec: DataSetSpec, **kwargs) -> List[Tuple[Dict[str, Any], str]]:
+def resolve(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[Dict[str, Any], str]]:
     # initialize empty parameters with default values from spec
     subject = kwargs.get('subject', spec.groups.get("subject").attributes)
     diagnosis = kwargs.get('diagnosis', spec.groups.get('diagnosis').attributes)
@@ -58,9 +59,8 @@ def resolve(spec: DataSetSpec, **kwargs) -> List[Tuple[Dict[str, Any], str]]:
                 filename = f'{f_subject}ADHD_AV_{n}{f_question}.csv'
                 abs_path = os.path.join(base_dir, 'adhd_sin', filename)
                 if os.path.exists(abs_path):
-                    attrs = {"subject": f_subject, "diagnosis": f_diagnosis, "question": question, "noise": n}
-                    files.append((attrs, abs_path))
-    return files
+                    attrs = {"subject": f_subject, "diagnosis": f_diagnosis, "question": question, "noise": n, "resolution": RESOLUTION}
+                    yield attrs, abs_path
 
 
 def stream(spec: DataSetSpec, **kwargs) -> Generator[Tuple[Dict[str, Any], Dict[str, Any]], None, None]:
