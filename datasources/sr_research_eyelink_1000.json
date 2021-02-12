@@ -1,0 +1,58 @@
+{
+  "$schema": "https://www.cs.odu.edu/~yasith/dfs/v2/datasource.schema.json",
+  "info": {
+    "version": "1.0.0",
+    "timestamp": "2021-02-05T03:25:00-05:00",
+    "checksum": "010203040506070809000A0B0C0D0E0F"
+  },
+  "device": {
+    "model": "Eyelink 1000",
+    "manufacturer": "SR Research",
+    "category": "Eye Tracker"
+  },
+  "fields": {
+    "t": {
+      "name": "timestamp",
+      "description": "Recording Timestamp",
+      "dtype": "float"
+    },
+    "x": {
+      "name": "x",
+      "description": "Normalized X-Gaze Point",
+      "dtype": "float"
+    },
+    "y": {
+      "name": "y",
+      "description": "Normalized Y-Gaze Point",
+      "dtype": "float"
+    },
+    "d": {
+      "name": "d",
+      "description": "Pupil Diameter",
+      "dtype": "float"
+    }
+  },
+  "streams": {
+    "gaze": {
+      "name": "Gaze",
+      "description": "gaze point",
+      "unit": "px",
+      "frequency": 60,
+      "index": "#/fields/t",
+      "channels": [
+        "#/fields/x",
+        "#/fields/y"
+      ]
+    },
+    "pupil": {
+      "name": "Pupil",
+      "description": "pupil diameter",
+      "unit": "mm",
+      "frequency": 60,
+      "index": "#/fields/t",
+      "channels": [
+        "#/fields/d"
+      ]
+    }
+  }
+}

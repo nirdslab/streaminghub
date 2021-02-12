@@ -5,8 +5,8 @@
     "timestamp": "2020-09-20T00:00:00",
     "checksum": "010203040506070809000A0B0C0D0E0F"
   },
-  "name": "ADHD Audiovisual SIN Dataset",
-  "description": "Gaze recordings of participants during an audiovisual SIN task",
+  "name": "ADHD-SIN Dataset",
+  "description": "Eye movements of participants during an audiovisual-SIN task",
   "keywords": [
     "SIN",
     "ADHD"
@@ -73,5 +73,5 @@
       ]
     }
   },
-  "resolver": "adhd-sin.py"
+  "resolver": "adhd_sin.py"
 }
