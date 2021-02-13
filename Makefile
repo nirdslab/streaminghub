@@ -1,9 +1,9 @@
 # variables for n-back dataset
-DATASET_FILE="n_back"
-DATASOURCE_FILE="datasources/sr_research_eyelink_1000.json"
+#DATASET_FILE="n_back"
+#DATASOURCE_FILE="datasources/sr_research_eyelink_1000.json"
 # variables for adhd_sin dataset
-#DATASET_FILE="adhd_sin"
-#DATASOURCE_FILE="datasources/tobii_pro_x2_60.json"
+DATASET_FILE="adhd_sin"
+DATASOURCE_FILE="datasources/tobii_pro_x2_60.json"
 PROXY_PORT=8765
 
 replay:

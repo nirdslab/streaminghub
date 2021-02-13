@@ -6,9 +6,9 @@ from core.types import DataSetSpec
 
 logger = logging.getLogger()
 
-QUESTION_SET_A = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-QUESTION_SET_B = [10, 11, 12, 13, 14, 15, 16, 17, 18]
-RESOLUTION = [1920, 1080]
+QUESTION_SET_A = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+QUESTION_SET_B = ['10', '11', '12', '13', '14', '15', '16', '17', '18']
+RESOLUTION = "1920x1080"
 
 DICT = Dict[str, Any]
 DICT_GENERATOR = Generator[DICT, None, None]
@@ -61,7 +61,7 @@ def resolve(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[DICT, str]]:
                 filename = f'{f_subject}ADHD_AV_{n}{f_question}.csv'
                 abs_path = os.path.join(base_dir, 'adhd_sin', filename)
                 if os.path.exists(abs_path):
-                    attrs = {"subject": f_subject, "diagnosis": f_diagnosis, "question": question, "noise": n, "resolution": RESOLUTION}
+                    attrs = {"subject": f_subject, "diagnosis": f_diagnosis, "question": f_question, "noise": n, "resolution": RESOLUTION}
                     yield attrs, abs_path
 
 
