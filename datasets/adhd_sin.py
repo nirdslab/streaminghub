@@ -36,7 +36,7 @@ SUMMARY = [
 
 def resolve(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[DICT, str]]:
     # initialize empty parameters with default values from spec
-    subject = kwargs.get('subject', spec.groups.get("subject").attributes)
+    subject = kwargs.get('subject', spec.groups.get("subject").attributes)[:3]
     diagnosis = kwargs.get('diagnosis', spec.groups.get('diagnosis').attributes)
     question = kwargs.get('question', spec.groups.get("question").attributes)
     noise = kwargs.get('noise', spec.groups.get("noise").attributes)
