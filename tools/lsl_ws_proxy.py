@@ -18,7 +18,7 @@ from typing import Tuple, Iterable, Optional, List
 
 import numpy as np
 import websockets
-from pylsl import StreamInlet, resolve_stream, LostError
+from pylsl import StreamInlet, StreamInfo, resolve_stream, LostError
 from websockets.http import Headers
 
 from tools.util import stream_info_to_dict
@@ -68,8 +68,8 @@ async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path:
         except websockets.exceptions.ConnectionClosed:
             logger.info(f'client connection closed: {websocket.remote_address}')
             break
-        logger.info(f'<: {message}')
         payload = json.loads(message)
+        logger.info(f'<: {json.dumps(payload, indent=1)}')
         command = payload['command']
         response = {'command': command, 'error': None, 'data': None}
 
@@ -79,12 +79,27 @@ async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path:
             response['data'] = {'streams': [*map(stream_info_to_dict, streams)]}
         # subscribe command
         elif command == 'subscribe':
-            data: dict = payload['data']
-            source_id, source_name, source_type = data['id'], data['name'], data['type']
-            # get streams
-            streams = await run_async(resolve_stream)(f"source_id='{source_id}' and name='{source_name}' and type='{source_type}'")
+            props = ['source_id', 'name', 'type']
+            queries = [(d['id'], d['name'], d['type'], d['attributes']) for d in payload['data']]
+            pred_str = ' and '.join('(' + " or ".join([f"{props[i]}='{x}'" for x in set(c)]) + ')' for i, c in enumerate(list(zip(*queries))[:-1]))
+            # run one query to get a superset of the requested streams
+            result_streams: List[StreamInfo] = await run_async(resolve_stream)(pred_str)
+            # filter streams by individual queries
+            selected_streams: List[StreamInfo] = []
+            for stream in result_streams:
+                for (ds_id, ds_name, ds_type, ds_attributes) in queries:
+                    if stream.source_id() == ds_id and stream.name() == ds_name and stream.type() == ds_type:
+                        if not ds_attributes or len(ds_attributes) == 0:
+                            selected_streams.append(stream)
+                        else:
+                            # compare attributes and select only if all attributes match
+                            d: dict = stream_info_to_dict(stream).get("attributes", None)
+                            if d and all(d[k] == ds_attributes.get(k, None) for k in d):
+                                selected_streams.append(stream)
+            logger.info("found %d streams matching the queries", len(selected_streams))
+            input()
             # create stream inlets to pull data from
-            stream_inlets: List[StreamInlet] = [StreamInlet(x, max_chunklen=1, recover=False) for x in streams]
+            stream_inlets: List[StreamInlet] = [StreamInlet(x, max_chunklen=1, recover=False) for x in selected_streams]
             # create task to proxy LSL data into websockets
             loop.create_task(create_lsl_proxy(stream_inlets))
             response['data'] = {'status': 'started'}
@@ -99,7 +114,7 @@ async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path:
 async def producer_handler(websocket: websockets.WebSocketServerProtocol, _path: str):
     while websocket.open:
         response = await RESPONSES.get()
-        message = json.dumps(response,indent=1)
+        message = json.dumps(response, indent=1)
         await websocket.send(message)
         logger.info(f'>: {message}')
 
