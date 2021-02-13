@@ -3,7 +3,7 @@ import unittest
 
 import logging
 import sys
-from tools.datasource_replay import get_dataset_spec, get_data_stream
+from tools.datasource_replay import get_dataset_spec, get_attrs_and_streams
 
 logger = logging.getLogger()
 logger.level = logging.DEBUG
@@ -33,7 +33,7 @@ class TestSimulator(unittest.TestCase):
         test_file_name = '003ADHD_AV_01.csv'
         test_file_size = 47232
         # load the data-file
-        data_file = get_data_stream(self.test_dataset_dir, self.test_dataset_name, test_file_name)
+        data_file = get_attrs_and_streams(self.test_dataset_dir, self.test_dataset_name, test_file_name)
         # assertion
         self.assertEqual(data_file.size, test_file_size)
 

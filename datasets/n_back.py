@@ -6,8 +6,11 @@ from core.types import DataSetSpec
 
 logger = logging.getLogger()
 
+DICT = Dict[str, Any]
+DICT_GENERATOR = Generator[DICT, None, None]
 
-def resolve(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[Dict[str, Any], str]]:
+
+def resolve(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[DICT, str]]:
     # initialize empty parameters with default values from spec
     subject = kwargs.get('subject', spec.groups.get('subject').attributes)
     mode = kwargs.get('mode', spec.groups.get('mode').attributes)
@@ -27,17 +30,19 @@ def resolve(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[Dict[str, Any], str]]
             yield attrs, abs_path
 
 
-def stream(spec: DataSetSpec, **kwargs) -> Generator[Tuple[Dict[str, Any], Dict[str, Any]], None, None]:
+def d_stream(file: str, fields: Iterator[str]) -> DICT_GENERATOR:
+    with open(file, 'r') as f:
+        logger.debug('Opened file: %s', file)
+        header = str(next(f)).strip().split(',')  # skip the header line of each file, and get column names
+        mapping = {field: header.index(field) for field in fields}
+        assert -1 not in mapping.values(), "Some headers not found"
+        for row in f:
+            row_data = row.strip().split(',')
+            yield {field: row_data[mapping[field]] for field in fields}
+    logger.debug('Closed file: %s', file)
+
+
+def stream(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[DICT, DICT_GENERATOR]]:
     files = resolve(spec, **kwargs)
-    fields = spec.fields.keys()
-    for attrs, file in files:
-        with open(file, 'r') as f:
-            logger.debug('Opened file: %s', file)
-            header = str(next(f)).strip().split(',')  # skip the header line of each file, and get column names
-            mapping = {field: header.index(field) for field in fields}
-            assert -1 not in mapping.values(), "Some headers not found"
-            for row in f:
-                data_list = row.strip().split(',')
-                data_dict = {field: data_list[mapping[field]] for field in fields}
-                yield attrs, data_dict
-        logger.debug('Closed file: %s', file)
+    fields = [*spec.fields.keys()]
+    return [(attrs, d_stream(file, fields)) for attrs, file in files]

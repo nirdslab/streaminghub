@@ -16,8 +16,8 @@ from functools import wraps, partial
 from http import HTTPStatus
 from typing import Tuple, Iterable, Optional, List
 
-import websockets
 import numpy as np
+import websockets
 from pylsl import StreamInlet, resolve_stream, LostError
 from websockets.http import Headers
 
@@ -99,7 +99,7 @@ async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path:
 async def producer_handler(websocket: websockets.WebSocketServerProtocol, _path: str):
     while websocket.open:
         response = await RESPONSES.get()
-        message = json.dumps(response)
+        message = json.dumps(response,indent=1)
         await websocket.send(message)
         logger.info(f'>: {message}')
 

@@ -1,15 +1,21 @@
+import logging
+from typing import Dict, Any
+
 from pylsl import StreamInfo as LSLStreamInfo, StreamOutlet as LSLStreamOutlet
 
 from core.types import DeviceInfo, StreamInfo
 
+logger = logging.getLogger()
 
-def create_outlet(source_id: str, device: DeviceInfo, stream: StreamInfo) -> LSLStreamOutlet:
+
+def create_outlet(source_id: str, device: DeviceInfo, stream: StreamInfo, attrs: Dict[str, str] = None) -> LSLStreamOutlet:
     """
     Generate LSL outlet from Metadata
     :rtype: StreamOutlet
     :param source_id: id for the device, usually the manufacturer and device type combined
-    :param device: device information (from meta-stream)
-    :param stream: stream information (from meta-stream)
+    :param device: device information (from data-source)
+    :param stream: stream information (from data-source)
+    :param attrs: any additional information (from data-set)
     :return: StreamOutlet object to send data streams through
     """
     info = LSLStreamInfo(
@@ -17,7 +23,7 @@ def create_outlet(source_id: str, device: DeviceInfo, stream: StreamInfo) -> LSL
         name=f'{device.model}, {device.manufacturer} ({device.category})',
         type=stream.name,
         channel_count=len(stream.channels),
-        nominal_srate=stream.frequency,
+        nominal_srate=stream.frequency
     )
     # create stream description
     desc = info.desc()
@@ -26,5 +32,12 @@ def create_outlet(source_id: str, device: DeviceInfo, stream: StreamInfo) -> LSL
     channels = desc.append_child("channels")
     for channel in stream.channels.keys():
         channels.append_child_value("channel", channel)
+    # append attrs if present
+    if attrs and len(attrs.keys()) > 0:
+        attributes = desc.append_child("attributes")
+        for attr in attrs.keys():
+            attributes.append_child_value(attr, attrs[attr])
+    else:
+        logger.warning("Creating outlet without attributes")
     # return stream outlet
     return LSLStreamOutlet(info)

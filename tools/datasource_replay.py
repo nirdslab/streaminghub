@@ -17,7 +17,7 @@ import os
 import random
 import threading
 from time import time_ns
-from typing import Dict, Callable, Any, Generator
+from typing import Dict, Callable, Any, Generator, Iterator, Tuple
 
 import numpy as np
 from pylsl import StreamOutlet
@@ -32,7 +32,7 @@ logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.DEBUG)
 logger = logging.getLogger()
 
 
-def get_data_stream(spec: DataSetSpec, dataset_name: str, **kwargs) -> Generator[tuple[tuple, dict[str, float]], None, None]:
+def get_attrs_and_streams(spec: DataSetSpec, dataset_name: str, **kwargs) -> Iterator[Tuple[Dict[str, Any], Generator[Dict[str, float], None, None]]]:
     module = importlib.import_module(f'datasets.{dataset_name}')
     stream: Callable[[DataSetSpec, ...], Any] = getattr(module, 'stream')
     yield from stream(spec, **kwargs)
@@ -43,35 +43,26 @@ async def begin_streaming(dataset_spec: DataSetSpec, dataset_name: str, **kwargs
     data_sources = dataset_spec.sources
     # map each data source by a random id
     r_sources: Dict[str, DataSourceSpec] = {str.join('', [random.choice(DIGIT_CHARS) for _ in range(5)]): data_source for data_source in data_sources.values()}
-    # initialize all outlets
-    r_outlets = {}
-    for source_id in r_sources:
-        source = r_sources[source_id]
-        logger.info(f'Source [{source_id}]: {source.device.model}, {source.device.manufacturer} ({source.device.category})')
-        logger.info(f'Source [{source_id}]: Initialization Started')
-        source_outlets = {}
-        for stream_id in source.streams:
-            stream = source.streams[stream_id]
-            outlet = create_outlet(source_id, source.device, stream)
-            source_outlets[stream_id] = outlet
-            logger.info(f'Source [{source_id}]: initialized stream [{stream.name}]')
-        r_outlets[source_id] = source_outlets
-        logger.info(f'Source [{source_id}]: Initialization Completed')
-
     # initiate data streaming via emit() function
-    logger.debug(f'Started data streaming')
     tasks = []
     for source_id in r_sources:
         source = r_sources[source_id]
+        logger.info(f'Source [{source_id}]: {source.device.model}, {source.device.manufacturer} ({source.device.category})')
         for stream_id in source.streams:
-            stream = source.streams[stream_id]
-            task = loop.create_task(emit(r_outlets[source_id][stream_id], get_data_stream(dataset_spec, dataset_name, **kwargs), stream))
-            tasks.append(task)
+            stream_info = source.streams[stream_id]
+            logger.info(f'Source [{source_id}]: initialized stream [{stream_info.name}]')
+            # TODO for now sending everything in same outlet, later find a way to split outlets by attrs (or create a new outlet for each distinct attr)
+            for attrs, data_stream in get_attrs_and_streams(dataset_spec, dataset_name, **kwargs):
+                # create outlet for every nested attr, and create hierarchy
+                outlet = create_outlet(source_id, source.device, stream_info, attrs)
+                task = loop.create_task(emit(outlet, data_stream, stream_info, ))
+                tasks.append(task)
+        logger.info(f'Source [{source_id}]: Initialization Completed')
     await asyncio.gather(*tasks)
     logger.debug(f'Ended data streaming')
 
 
-async def emit(outlet: StreamOutlet, data_stream: Generator[tuple[tuple, dict[str, float]], None, None], stream: StreamInfo):
+async def emit(outlet: StreamOutlet, data_stream: Generator[Dict[str, float], None, None], stream: StreamInfo):
     # get sampling frequency
     f = stream.frequency
     while True:
@@ -86,7 +77,11 @@ async def emit(outlet: StreamOutlet, data_stream: Generator[tuple[tuple, dict[st
         # check if any consumers are available
         if outlet.have_consumers():
             # get relevant slice of data from sample
-            [attrs, data] = next(data_stream)
+            data = next(data_stream, None)
+            # end of data stream
+            if data is None:
+                logger.info(f'Reached end of data stream')
+                break
             index = float(data[next(iter(stream.index))])  # assuming single-level indexes
             sample = [float(data[ch]) if data[ch] else np.nan for ch in stream.channels]
             if not all([i == np.nan for i in sample]):

@@ -10,6 +10,9 @@ QUESTION_SET_A = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 QUESTION_SET_B = [10, 11, 12, 13, 14, 15, 16, 17, 18]
 RESOLUTION = [1920, 1080]
 
+DICT = Dict[str, Any]
+DICT_GENERATOR = Generator[DICT, None, None]
+
 SUMMARY = [
     # subject, diagnosis, question
     ('003', 'NTYP', 'SET_A'),
@@ -31,7 +34,7 @@ SUMMARY = [
 ]
 
 
-def resolve(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[Dict[str, Any], str]]:
+def resolve(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[DICT, str]]:
     # initialize empty parameters with default values from spec
     subject = kwargs.get('subject', spec.groups.get("subject").attributes)
     diagnosis = kwargs.get('diagnosis', spec.groups.get('diagnosis').attributes)
@@ -44,8 +47,7 @@ def resolve(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[Dict[str, Any], str]]
         if d_subject in subject and d_diagnosis in diagnosis and d_question in question:
             filtered.append((d_subject, d_diagnosis, d_question))
 
-    # generate (and return) target file paths
-    files = []
+    # yield resolved attributes and their file paths
     base_dir = os.path.dirname(__file__)
     for (f_subject, f_diagnosis, f_question_set) in filtered:
         if f_question_set == 'SET_A':
@@ -63,17 +65,19 @@ def resolve(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[Dict[str, Any], str]]
                     yield attrs, abs_path
 
 
-def stream(spec: DataSetSpec, **kwargs) -> Generator[Tuple[Dict[str, Any], Dict[str, Any]], None, None]:
+def d_stream(file: str, fields: Iterator[str]) -> DICT_GENERATOR:
+    with open(file, 'r') as f:
+        logger.debug('Opened file: %s', file)
+        header = str(next(f)).strip().split(',')  # skip the header line of each file, and get column names
+        mapping = {field: header.index(field) for field in fields}
+        assert -1 not in mapping.values(), "Some headers not found"
+        for row in f:
+            row_data = row.strip().split(',')
+            yield {field: row_data[mapping[field]] for field in fields}
+    logger.debug('Closed file: %s', file)
+
+
+def stream(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[DICT, DICT_GENERATOR]]:
     files = resolve(spec, **kwargs)
-    fields = spec.fields.keys()
-    for attrs, file in files:
-        with open(file, 'r') as f:
-            logger.debug('Opened file: %s', file)
-            header = str(next(f)).strip().split(',')  # skip the header line of each file, and get column names
-            mapping = {field: header.index(field) for field in fields}
-            assert -1 not in mapping.values(), "Some headers not found"
-            for row in f:
-                data_list = row.strip().split(',')
-                data_dict = {field: data_list[mapping[field]] for field in fields}
-                yield attrs, data_dict
-        logger.debug('Closed file: %s', file)
+    fields = [*spec.fields.keys()]
+    return [(attrs, d_stream(file, fields)) for attrs, file in files]
