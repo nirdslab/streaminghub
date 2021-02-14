@@ -16,7 +16,7 @@ SCREEN = 22
 BASELINE_T = 2.0
 END_T = 180.0
 # what I had for testing but we reverted back to 100.0
-VT = 200.0
+VT = 100.0
 
 XTILES = 8
 YTILES = 4
@@ -25,9 +25,9 @@ INDIR  =
 IMGDIR =
 
 PLTDIR = ./plots
-OUTDIR = ../out
-RAWDIR = ../datasets/nback-raw
-CSVDIR = ../datasets/nback-csv
+OUTDIR = ../datasets/n_back_fxn
+#RAWDIR = ../datasets/nback-raw
+CSVDIR = ../datasets/n_back
 
 #all: dirs raw process graph collate stats
  all: off

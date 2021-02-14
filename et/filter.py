@@ -166,16 +166,17 @@ def main(argv):
         print("path: %s, base: %s, filename: %s, ext: %s" % (path, base, filename, ext))
         subj = filename.split('-')[0]
         group = filename.split('-')[1]
-        block = filename.split('-')[2]
-        task = filename.split('-')[3]
-        typ = filename.split('-')[4]
-        print("subj: %s, group: %s, block: %s, task: %s, type: %s" % (subj, group, block, task, typ))
+        # block = filename.split('-')[2] # removed for convenience
+        task = filename.split('-')[2]
+        typ = filename.split('-')[3]
+        print("subj: %s, group: %s, task: %s, type: %s" % (subj, group, task, typ))
 
-        process = Process()
-        process.parse_file(file, width, height, screen, dist)
-        process.smooth("%s/%s-smth%s" % (outdir, filename, ".raw"), width, height, hertz, sfdegree, sfcutoff, smooth)
-        process.differentiate("%s/%s-diff%s" % (outdir, filename, ".raw"), width, height, screen, dist, hertz, dfwidth, dfdegree, dfo)
-        process.threshold("%s/%s-fxtn%s" % (outdir, filename, ".raw"), width, height, vt, monitor, typ, proximity)
+        process = Process(width, height, screen, dist, hertz)
+        process.parse_file(file)
+        process.smooth(sfdegree, sfcutoff, smooth)
+        process.differentiate(dfwidth, dfdegree, dfo)
+        process.threshold(vt, monitor, typ, proximity)
+        process.write_threshold_to_file("%s/%s-fxtn%s" % (outdir, filename, ".csv"))
         del process
 
 
