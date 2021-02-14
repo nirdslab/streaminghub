@@ -11,83 +11,47 @@
     "category": "Eye Tracker"
   },
   "fields": {
-    "RecordingTimestamp": {
+    "t": {
       "name": "timestamp",
       "description": "Recording Timestamp",
       "dtype": "float"
     },
-    "GazePointLeftX (ADCSpx)": {
-      "name": "left x",
-      "description": "Normalized X-Gaze Point of Left Eye",
+    "x": {
+      "name": "gaze x",
+      "description": "Normalized X-Gaze Point",
       "dtype": "float"
     },
-    "GazePointLeftY (ADCSpx)": {
-      "name": "left y",
-      "description": "Normalized Y-Gaze Point of Left Eye",
+    "y": {
+      "name": "gaze y",
+      "description": "Normalized Y-Gaze Point",
       "dtype": "float"
     },
-    "PupilLeft": {
-      "name": "left d",
-      "description": "Pupil Diameter of Left Eye",
-      "dtype": "float"
-    },
-    "GazePointRightX (ADCSpx)": {
-      "name": "right x",
-      "description": "Normalized X-Gaze Point of Right Eye",
-      "dtype": "float"
-    },
-    "GazePointRightY (ADCSpx)": {
-      "name": "right y",
-      "description": "Normalized Y-Gaze Point of Right Eye",
-      "dtype": "float"
-    },
-    "PupilRight": {
-      "name": "right d",
-      "description": "Pupil Diameter of Right Eye",
+    "d": {
+      "name": "pupil d",
+      "description": "Pupil Diameter",
       "dtype": "float"
     }
   },
   "streams": {
-    "gaze_l": {
-      "name": "Gaze (L)",
-      "description": "gaze point of left eye",
-      "unit": "px",
+    "gaze": {
+      "name": "Gaze",
+      "description": "gaze point",
+      "unit": "",
       "frequency": 60,
-      "index": "#/fields/RecordingTimestamp",
+      "index": "#/fields/t",
       "channels": [
-        "#/fields/GazePointLeftX (ADCSpx)",
-        "#/fields/GazePointLeftY (ADCSpx)"
+        "#/fields/x",
+        "#/fields/y"
       ]
     },
-    "pupil_l": {
-      "name": "Pupil (L)",
-      "description": "pupil diameter of left eye",
+    "pupil": {
+      "name": "Pupil",
+      "description": "pupil diameter",
       "unit": "mm",
       "frequency": 60,
-      "index": "#/fields/RecordingTimestamp",
+      "index": "#/fields/t",
       "channels": [
-        "#/fields/PupilLeft"
-      ]
-    },
-    "gaze_r": {
-      "name": "Gaze (R)",
-      "description": "gaze point of right eye",
-      "unit": "px",
-      "frequency": 60,
-      "index": "#/fields/RecordingTimestamp",
-      "channels": [
-        "#/fields/GazePointRightX (ADCSpx)",
-        "#/fields/GazePointRightY (ADCSpx)"
-      ]
-    },
-    "pupil_r": {
-      "name": "Pupil (R)",
-      "description": "pupil diameter of right eye",
-      "unit": "mm",
-      "frequency": 60,
-      "index": "#/fields/RecordingTimestamp",
-      "channels": [
-        "#/fields/PupilRight"
+        "#/fields/d"
       ]
     }
   }

@@ -51,10 +51,10 @@ class Process:
             entry = line.split(',')
 
             # coords should already be normalized
-            x = float(entry[0])
-            y = float(entry[1])
-            d = float(entry[2])
-            t = float(entry[3])
+            t = float(entry[0])
+            x = float(entry[1])
+            y = float(entry[2])
+            d = float(entry[3])
             err = 'None'
 
             # record first time stamp
@@ -317,9 +317,9 @@ class Process:
         outfile.write("t,x,y,fd,sa,sd\n")  # csv header
         sac_dur = 0.0
         for i in range(len(self.fixations)):
+            t = self.fixations[i].get_timestamp()
             x = self.fixations[i].at(0)  # * float(w) (commented out to keep normalized coordinates)
             y = self.fixations[i].at(1)  # * float(h) (commented out to keep normalized coordinates)
-            t = self.fixations[i].get_timestamp()
             fxn_dur = self.fixations[i].get_duration()
             st = t  # fixation timestamp is its start_time (st)
             tt = fxn_dur  # fixation duration is its end_time - start_ime (et - st)

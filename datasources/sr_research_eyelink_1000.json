@@ -17,17 +17,17 @@
       "dtype": "float"
     },
     "x": {
-      "name": "x",
+      "name": "gaze x",
       "description": "Normalized X-Gaze Point",
       "dtype": "float"
     },
     "y": {
-      "name": "y",
+      "name": "gaze y",
       "description": "Normalized Y-Gaze Point",
       "dtype": "float"
     },
     "d": {
-      "name": "d",
+      "name": "pupil d",
       "description": "Pupil Diameter",
       "dtype": "float"
     }
@@ -36,7 +36,7 @@
     "gaze": {
       "name": "Gaze",
       "description": "gaze point",
-      "unit": "px",
+      "unit": "",
       "frequency": 1000,
       "index": "#/fields/t",
       "channels": [

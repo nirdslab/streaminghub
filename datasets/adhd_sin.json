@@ -22,13 +22,10 @@
     "tobii": "../datasources/tobii_pro_x2_60.json"
   },
   "fields": {
-    "RecordingTimestamp": "#/sources/tobii/fields/RecordingTimestamp",
-    "GazePointLeftX (ADCSpx)": "#/sources/tobii/fields/GazePointLeftX (ADCSpx)",
-    "GazePointLeftY (ADCSpx)": "#/sources/tobii/fields/GazePointLeftY (ADCSpx)",
-    "PupilLeft": "#/sources/tobii/fields/PupilLeft",
-    "GazePointRightX (ADCSpx)": "#/sources/tobii/fields/GazePointRightX (ADCSpx)",
-    "GazePointRightY (ADCSpx)": "#/sources/tobii/fields/GazePointRightY (ADCSpx)",
-    "PupilRight": "#/sources/tobii/fields/PupilRight"
+    "t": "#/sources/tobii/fields/t",
+    "x": "#/sources/tobii/fields/x",
+    "y": "#/sources/tobii/fields/y",
+    "dl": "#/sources/tobii/fields/d"
   },
   "groups": {
     "subject": {

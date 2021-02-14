@@ -26,11 +26,15 @@ IMGDIR =
 
 PLTDIR = ./plots
 OUTDIR = ../datasets/n_back_fxn
+SYNDIR = ../datasets/n_back_syn
+SYN_NOISE_PROFILE =p,0.85,0.4 # pink noise profile (gain=0.85,alpha=0.4)
+#SYN_NOISE_PROFILE =b,1.15 # butterworth noise profile (limit=1.15)
+#SYN_NOISE_PROFILE =n # no noise profile
 #RAWDIR = ../datasets/nback-raw
 CSVDIR = ../datasets/n_back
 
 #all: dirs raw process graph collate stats
- all: off
+all: off
 
 off:
 	@echo "Currently turned off so as not to trigger the whole run."
@@ -98,4 +102,4 @@ clean:
 	rm -rf figs/TMS
 
 simulate:
-	$(foreach file, $(wildcard $(OUTDIR)/*-fxtn.raw), ./autorun -i $(file) -o $(file) -f $(HERTZ) -n p,0.85,0.4;)
+	$(foreach file, $(wildcard $(OUTDIR)/*-fxtn.csv), ./autorun -i $(file) -o $(subst _fxn/,_syn/,$(subst -fxtn.csv,,$(file))) -f $(HERTZ) -n $(SYN_NOISE_PROFILE);)
