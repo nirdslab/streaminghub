@@ -44,7 +44,7 @@ class Process:
         # read lines, throwing away first one (header)
         lines = f.read().splitlines()
         is_first_line = True
-        assert lines[0] == 'x,y,d,t'  # ensure csv is in expected format
+        assert lines[0] == 't,x,y,d'  # ensure csv is in expected format
 
         st = 0.0
         for line in lines[1:]:
@@ -188,22 +188,26 @@ class Process:
                         # don't add fixation with -ve duration
                         # (due to spurious timestamp in .raw file)
                         if st > 0.0 and tt > 0.0:
-                            # need to clamp fixation centroid: it could have gone negative
                             ux, uy = self.clamp(ux, uy)
+                            if t_type in monitor.n_dict:
+                                # need to clamp fixation centroid: it could have gone negative
 
-                            sx = monitor.S[monitor.n_dict[t_type], 0]
-                            sy = monitor.S[monitor.n_dict[t_type], 1]
+                                sx = monitor.S[monitor.n_dict[t_type], 0]
+                                sy = monitor.S[monitor.n_dict[t_type], 1]
 
-                            dx = ux - sx
-                            dy = uy - sy
-                            dist = math.sqrt(dx * dx + dy * dy)
+                                dx = ux - sx
+                                dy = uy - sy
+                                dist = math.sqrt(dx * dx + dy * dy)
 
-                            #             how I used to do it in old micro-saccade code
-                            #             dx = 2*math.degrees(math.atan2((ux - sx)/dpi,2*D))
-                            #             dy = 2*math.degrees(math.atan2((uy - sy)/dpi,2*D))
-                            #             f_deg_away = math.sqrt(dx*dx + dy*dy)
-                            # if we restrict to 3.0 or 3.5 degrees, we won't get enough
-                            # micro-saccades (not enough fixations)
+                                #             how I used to do it in old micro-saccade code
+                                #             dx = 2*math.degrees(math.atan2((ux - sx)/dpi,2*D))
+                                #             dy = 2*math.degrees(math.atan2((uy - sy)/dpi,2*D))
+                                #             f_deg_away = math.sqrt(dx*dx + dy*dy)
+                                # if we restrict to 3.0 or 3.5 degrees, we won't get enough
+                                # micro-saccades (not enough fixations)
+                            else:
+                                # fixation centroids not defined, calculate distance based on current mean
+                                dist = math.sqrt(ux * ux + uy * uy)
 
                             if proximity and monitor.px_to_deg(dist) < 3.0:
                                 self.fixations.append(Fixation(ux, uy, st, tt))

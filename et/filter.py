@@ -164,12 +164,13 @@ def main(argv):
         filename, ext = os.path.splitext(base)
 
         print("path: %s, base: %s, filename: %s, ext: %s" % (path, base, filename, ext))
-        subj = filename.split('-')[0]
-        group = filename.split('-')[1]
-        # block = filename.split('-')[2] # removed for convenience
-        task = filename.split('-')[2]
-        typ = filename.split('-')[3]
-        print("subj: %s, group: %s, task: %s, type: %s" % (subj, group, task, typ))
+        # removed for file naming flexibility
+        # subj = filename.split('-')[0]
+        # group = filename.split('-')[1]
+        # block = filename.split('-')[2]
+        # task = filename.split('-')[2]
+        typ = filename.rsplit('-')[-1]
+        # print("subj: %s, group: %s, block: %s, task: %s" % (subj, group, block, task))
 
         process = Process(width, height, screen, dist, hertz)
         process.parse_file(file)

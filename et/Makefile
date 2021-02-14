@@ -7,11 +7,22 @@ SMOOTH = False
 
 # use fixation proximity test (e.g., 5 deg away)?
 PROXIMITY = True
+
+# config for n-back dataset
+#DATASET_NAME=n_back
+#WIDTH = 1920
+#HEIGHT = 1200
+#HERTZ = 1000
+#DIST = 21.65 # 55 cm
+#SCREEN = 22
+
+# config for adhd-sin dataset
+DATASET_NAME=adhd_sin
 WIDTH = 1920
-HEIGHT = 1200
-HERTZ = 1000
-DIST = 21.65 # 55 cm
-SCREEN = 22
+HEIGHT = 1080
+HERTZ = 60
+DIST = 20.47 # 52 cm
+SCREEN = 21
 
 BASELINE_T = 2.0
 END_T = 180.0
@@ -25,13 +36,13 @@ INDIR  =
 IMGDIR =
 
 PLTDIR = ./plots
-OUTDIR = ../datasets/n_back_fxn
-SYNDIR = ../datasets/n_back_syn
+OUTDIR = ../datasets/$(DATASET_NAME)_fxtn
+SYNDIR = ../datasets/$(DATASET_NAME)_synt
 SYN_NOISE_PROFILE =p,0.85,0.4 # pink noise profile (gain=0.85,alpha=0.4)
 #SYN_NOISE_PROFILE =b,1.15 # butterworth noise profile (limit=1.15)
 #SYN_NOISE_PROFILE =n # no noise profile
-#RAWDIR = ../datasets/nback-raw
-CSVDIR = ../datasets/n_back
+#RAWDIR = ../datasets/$(DATASET_NAME)-raw
+CSVDIR = ../datasets/$(DATASET_NAME)
 
 #all: dirs raw process graph collate stats
 all: off
@@ -101,5 +112,9 @@ clean:
 	rm -f *.pdf
 	rm -rf figs/TMS
 
-simulate:
-	$(foreach file, $(wildcard $(OUTDIR)/*-fxtn.csv), ./autorun -i $(file) -o $(subst _fxn/,_syn/,$(subst -fxtn.csv,,$(file))) -f $(HERTZ) -n $(SYN_NOISE_PROFILE);)
+prepare:
+	$(PYTHON) gen_adhd_sin.py
+	#$(PYTHON) gen_n_back.py
+
+synthesis:
+	$(foreach file, $(wildcard $(OUTDIR)/*-fxtn.csv), ./autorun -i $(file) -o $(subst _fxtn/,_synt/,$(subst -fxtn.csv,,$(file))) -f $(HERTZ) -n $(SYN_NOISE_PROFILE);)

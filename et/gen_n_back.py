@@ -13,10 +13,10 @@ if __name__ == '__main__':
     file_names = list(map(os.path.basename, files))
     for file_name in file_names:
         df = pd.read_csv(f'{SRC_DIR}/{file_name}').set_index('t')[['x', 'y', 'd']].sort_index().reset_index()
-        # fill blanks (order=interpolate(inter)->bfill+ffill(edges))
-        df = df.apply(lambda x: x.interpolate().fillna(method="bfill").fillna(method="ffill"))
+        # fill blanks (order=interpolate(inter)->bfill+ffill(edges))->zerofill
+        df = df.apply(lambda x: x.interpolate().fillna(method="bfill").fillna(method="ffill")).fillna(0)
         # start with t=0
         df['t'] = df['t'] - df['t'].min()
-        df = df.round(4).set_index('t')
+        df = df.round(6).set_index('t')
         df.to_csv(f'{OUT_DIR}/{file_name}')
         print(f'Processed: {file_name}')
