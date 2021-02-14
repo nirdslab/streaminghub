@@ -39,24 +39,29 @@ def run_async(func):
     return run
 
 
+def pull_chunk(stream: StreamInlet, timeout: float):
+    try:
+        sample, timestamps = stream.pull_chunk(timeout)
+        return sample, timestamps, None
+    except Exception as e:
+        logger.debug(f'LSL connection lost')
+        return None, None, e
+
+
 async def create_lsl_proxy(streams: List[StreamInlet]):
     keepalive = True
     while keepalive:
         try:
             for stream in streams:
-                sample, timestamps = await run_async(stream.pull_chunk)(0.0)
+                sample, timestamps, error = await run_async(pull_chunk)(stream, 0.0)
+                if error:
+                    raise error
                 typ = stream.info().type()
                 if len(sample) == 0:
                     continue
                 await RESPONSES.put({'command': 'data', 'data': {'stream': typ, 'chunk': np.nan_to_num(sample, nan=-1).tolist()}})
         except LostError:
             keepalive = False
-            logger.debug(f'LSL connection lost')
-        except Exception:
-            keepalive = False
-            logger.debug(f'websocket connection lost')
-            for stream in streams:
-                await run_async(stream.close_stream)()
     else:
         logger.debug('streams unsubscribed')
 
@@ -69,7 +74,7 @@ async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path:
             logger.info(f'client connection closed: {websocket.remote_address}')
             break
         payload = json.loads(message)
-        logger.info(f'<: {json.dumps(payload, indent=1)}')
+        logger.debug(f'<: {json.dumps(payload)}')
         command = payload['command']
         response = {'command': command, 'error': None, 'data': None}
 
@@ -80,7 +85,7 @@ async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path:
         # subscribe command
         elif command == 'subscribe':
             props = ['source_id', 'name', 'type']
-            queries = [(d['id'], d['name'], d['type'], d['attributes']) for d in payload['data']]
+            queries = [(d.get('id', None), d.get('name', None), d.get('type', None), d.get('attributes', None)) for d in payload['data']]
             pred_str = ' and '.join('(' + " or ".join([f"{props[i]}='{x}'" for x in set(c)]) + ')' for i, c in enumerate(list(zip(*queries))[:-1]))
             # run one query to get a superset of the requested streams
             result_streams: List[StreamInfo] = await run_async(resolve_stream)(pred_str)
@@ -96,8 +101,7 @@ async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path:
                             d: dict = stream_info_to_dict(stream).get("attributes", None)
                             if d and all(d[k] == ds_attributes.get(k, None) for k in d):
                                 selected_streams.append(stream)
-            logger.info("found %d streams matching the queries", len(selected_streams))
-            input()
+            logger.info("found %d streams matching the %d queries", len(selected_streams), len(queries))
             # create stream inlets to pull data from
             stream_inlets: List[StreamInlet] = [StreamInlet(x, max_chunklen=1, recover=False) for x in selected_streams]
             # create task to proxy LSL data into websockets
@@ -114,9 +118,9 @@ async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path:
 async def producer_handler(websocket: websockets.WebSocketServerProtocol, _path: str):
     while websocket.open:
         response = await RESPONSES.get()
-        message = json.dumps(response, indent=1)
+        message = json.dumps(response)
         await websocket.send(message)
-        logger.info(f'>: {message}')
+        logger.debug(f'>: {message}')
 
 
 async def ws_handler(websocket: websockets.WebSocketServerProtocol, path: str):

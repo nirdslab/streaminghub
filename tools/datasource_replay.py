@@ -28,7 +28,7 @@ from core.types import DataSetSpec, DataSourceSpec, StreamInfo
 
 DIGIT_CHARS = '0123456789'
 SHUTDOWN_FLAG = threading.Event()
-logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
 logger = logging.getLogger()
 
 
@@ -55,11 +55,11 @@ async def begin_streaming(dataset_spec: DataSetSpec, dataset_name: str, **kwargs
             for attrs, data_stream in get_attrs_and_streams(dataset_spec, dataset_name, **kwargs):
                 # create outlet for every nested attr, and create hierarchy
                 outlet = create_outlet(source_id, source.device, stream_info, attrs)
-                task = loop.create_task(emit(outlet, data_stream, stream_info, ))
+                task = loop.create_task(emit(outlet, data_stream, stream_info))
                 tasks.append(task)
         logger.info(f'Source [{source_id}]: Initialization Completed')
     await asyncio.gather(*tasks)
-    logger.debug(f'Ended data streaming')
+    logger.info(f'Ended data streaming')
 
 
 async def emit(outlet: StreamOutlet, data_stream: Generator[Dict[str, float], None, None], stream: StreamInfo):
@@ -69,7 +69,7 @@ async def emit(outlet: StreamOutlet, data_stream: Generator[Dict[str, float], No
         t1 = time_ns() * 10e-9
         # graceful shutdown
         if SHUTDOWN_FLAG.is_set():
-            logger.info(f'Shutdown initiated: stopped data stream')
+            logger.debug(f'Shutdown initiated: stopped data stream')
             data_stream.close()
             break
         # calculate wait time (assign random wait time if frequency not set)
@@ -94,6 +94,10 @@ async def emit(outlet: StreamOutlet, data_stream: Generator[Dict[str, float], No
         await asyncio.sleep(dt)
 
 
+def parse_attrs(attrs: str) -> dict:
+    return {attr.split("=", 1)[0]: attr.split("=", 1)[1].split(",") for attr in attrs.split(' ')} if attrs else {}
+
+
 def main():
     # get default args
     default_dir = os.getenv("DATASET_DIR")
@@ -102,10 +106,12 @@ def main():
     parser = argparse.ArgumentParser(prog='datasource_replay.py')
     parser.add_argument('--dataset-dir', '-d', required=default_dir is None, default=default_dir)
     parser.add_argument('--dataset-name', '-n', required=default_name is None, default=default_name)
+    parser.add_argument('--attributes', '-a', required=False)
     args = parser.parse_args()
     # assign args to variables
     dataset_dir = args.dataset_dir or default_dir
     dataset_name = args.dataset_name or default_name
+    dataset_attrs = parse_attrs(args.attributes)
     # print args
     logger.info(f'Dataset Directory: {dataset_dir}')
     logger.info(f'Dataset Name: {dataset_name}')
@@ -115,7 +121,7 @@ def main():
     assert len(dataset_spec.sources) > 0, f"Dataset does not have data sources"
     # spawn a worker thread for streaming
     logger.info('=== Begin streaming ===')
-    worker = threading.Thread(target=asyncio.run, args=(begin_streaming(dataset_spec, dataset_name),))
+    worker = threading.Thread(target=asyncio.run, args=(begin_streaming(dataset_spec, dataset_name, **dataset_attrs),))
     try:
         worker.start()
         worker.join()

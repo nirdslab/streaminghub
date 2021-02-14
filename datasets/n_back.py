@@ -16,6 +16,7 @@ def resolve(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[DICT, str]]:
     mode = kwargs.get('mode', spec.groups.get('mode').attributes)
     task = kwargs.get('task', spec.groups.get('task').attributes)
     position = kwargs.get('position', spec.groups.get('position').attributes)
+    logger.debug(f"requested: {subject}, {mode}, {task}, {position}")
 
     # filter by resolve values
     filtered = ((s, m, t, p) for s in subject for m in mode for t in task for p in position)

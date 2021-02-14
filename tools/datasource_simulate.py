@@ -23,7 +23,7 @@ from core.types import DataSourceSpec
 SYNTAX = "datasource_simulate [path/to/datasource/spec]"
 DIGIT_CHARS = '0123456789'
 
-logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
 logger = logging.getLogger()
 
 
