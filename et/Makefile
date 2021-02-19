@@ -9,25 +9,25 @@ SMOOTH = False
 PROXIMITY = True
 
 # config for n-back dataset
-#DATASET_NAME=n_back
-#WIDTH = 1920
-#HEIGHT = 1200
-#HERTZ = 1000
-#DIST = 21.65 # 55 cm
-#SCREEN = 22
+DATASET_NAME=n_back_synt
+WIDTH = 1920
+HEIGHT = 1200
+HERTZ = 1000
+DIST = 21.65 # 55 cm
+SCREEN = 22
 
 # config for adhd-sin dataset
-DATASET_NAME=adhd_sin
-WIDTH = 1920
-HEIGHT = 1080
-HERTZ = 60
-DIST = 20.47 # 52 cm
-SCREEN = 21
+#DATASET_NAME=adhd_sin
+#WIDTH = 1920
+#HEIGHT = 1080
+#HERTZ = 60
+#DIST = 20.47 # 52 cm
+#SCREEN = 21
 
 BASELINE_T = 2.0
 END_T = 180.0
 # what I had for testing but we reverted back to 100.0
-VT = 100.0
+VT = 70.0
 
 XTILES = 8
 YTILES = 4
@@ -38,9 +38,9 @@ IMGDIR =
 PLTDIR = ./plots
 OUTDIR = ../datasets/$(DATASET_NAME)_fxtn
 SYNDIR = ../datasets/$(DATASET_NAME)_synt
-SYN_NOISE_PROFILE =p,0.85,0.4 # pink noise profile (gain=0.85,alpha=0.4)
-#SYN_NOISE_PROFILE =b,1.15 # butterworth noise profile (limit=1.15)
-#SYN_NOISE_PROFILE =n # no noise profile
+SYN_NOISE_PROFILE_1 =p,0.85,0.4 # pink noise profile (gain=0.85,alpha=0.4)
+SYN_NOISE_PROFILE_2 =b,1.15 # butterworth noise profile (limit=1.15)
+SYN_NOISE_PROFILE_3 =n # no noise profile
 #RAWDIR = ../datasets/$(DATASET_NAME)-raw
 CSVDIR = ../datasets/$(DATASET_NAME)
 
@@ -117,4 +117,6 @@ prepare:
 	#$(PYTHON) gen_n_back.py
 
 synthesis:
-	$(foreach file, $(wildcard $(OUTDIR)/*-fxtn.csv), ./autorun -i $(file) -o $(subst _fxtn/,_synt/,$(subst -fxtn.csv,,$(file))) -f $(HERTZ) -n $(SYN_NOISE_PROFILE);)
+	$(foreach file, $(wildcard $(OUTDIR)/*-fxtn.csv), ./autorun -i $(file) -o $(subst _fxtn/,_synt/,$(subst -fxtn.csv,,$(file))) -f $(HERTZ) -n $(SYN_NOISE_PROFILE_1);)
+	$(foreach file, $(wildcard $(OUTDIR)/*-fxtn.csv), ./autorun -i $(file) -o $(subst _fxtn/,_synt/,$(subst -fxtn.csv,,$(file))) -f $(HERTZ) -n $(SYN_NOISE_PROFILE_2);)
+	$(foreach file, $(wildcard $(OUTDIR)/*-fxtn.csv), ./autorun -i $(file) -o $(subst _fxtn/,_synt/,$(subst -fxtn.csv,,$(file))) -f $(HERTZ) -n $(SYN_NOISE_PROFILE_3);)
