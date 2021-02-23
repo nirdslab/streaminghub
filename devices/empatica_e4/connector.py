@@ -38,18 +38,18 @@ class Connector:
 
     def __init__(self) -> None:
         super().__init__()
-        self.sub_codes = ['acc', 'bvp', 'gsr', 'ibi', 'tmp', 'bat', 'tag']
-        self.res_codes = ['E4_Acc', 'E4_Bvp', 'E4_Gsr', 'E4_Ibi', 'E4_Temp', 'E4_Bat', 'E4_Tag']
+        self.stream_ids = ['acc', 'bvp', 'gsr', 'ibi', 'tmp', 'bat', 'tag']
+        self.res_ids = ['E4_Acc', 'E4_Bvp', 'E4_Gsr', 'E4_Ibi', 'E4_Temp', 'E4_Bat', 'E4_Tag']
         self.buffer_size = 4096
         self.sub_streams = 0
         self.device_id = ...
         self.outlets: dict = {}
-        self.srv_state = E4ServerState.NEW__
-        self.meta_stream = get_datasource_spec(f"{os.path.dirname(__file__)}/spec.xml", 'xml')
+        self.server_state = E4ServerState.NEW__
+        self.datasource_spec = get_datasource_spec(f"{os.path.dirname(__file__)}/spec.json", 'json')
 
     def set_devices_connected(self, num: int, devices: List[str]):
         print('%d device(s) found: %s' % (num, ', '.join([id_ for id_, name_ in devices])))
-        self.srv_state = E4ServerState.NO_DEVICES__ if num == 0 else E4ServerState.DEVICES_FOUND__
+        self.server_state = E4ServerState.NO_DEVICES__ if num == 0 else E4ServerState.DEVICES_FOUND__
         if num > 1:
             # ask user to select device
             id_ = input('Select device id: ')
@@ -99,7 +99,7 @@ class Connector:
                         exit(1)
                     elif status == "OK":
                         print('Connected to device')
-                        self.srv_state = E4ServerState.CONNECTED_TO_DEVICE__
+                        self.server_state = E4ServerState.CONNECTED_TO_DEVICE__
                 # PAUSE response
                 elif cmd[:i] == E4ServerCommand.PAUSE__:
                     cmd = cmd[i + 1:]
@@ -111,10 +111,10 @@ class Connector:
                         exit(1)
                     elif status == "ON":
                         print('Streaming on hold')
-                        self.srv_state = E4ServerState.READY_TO_SUBSCRIBE__
+                        self.server_state = E4ServerState.READY_TO_SUBSCRIBE__
                     elif status == "OFF":
                         print('Streaming started')
-                        self.srv_state = E4ServerState.STREAMING__
+                        self.server_state = E4ServerState.STREAMING__
                 # DEVICE SUBSCRIBE response
                 elif cmd[:i] == E4ServerCommand.DEVICE_SUBSCRIBE__:
                     cmd = cmd[i + 1:]
@@ -130,23 +130,23 @@ class Connector:
                     elif status == "OK":
                         print('Subscribed: %s' % stream_type)
                         self.sub_streams += 1
-                        if self.sub_streams == len(self.sub_codes):
-                            self.srv_state = E4ServerState.SUBSCRIBE_COMPLETED__
+                        if self.sub_streams == len(self.stream_ids):
+                            self.server_state = E4ServerState.SUBSCRIBE_COMPLETED__
                         else:
-                            self.srv_state = E4ServerState.READY_TO_SUBSCRIBE__
+                            self.server_state = E4ServerState.READY_TO_SUBSCRIBE__
             # Handle data stream
-            elif self.srv_state == E4ServerState.STREAMING__:
+            elif self.server_state == E4ServerState.STREAMING__:
                 self.process_data_stream(cmd)
 
     def get_outlet(self, res_code: str) -> StreamOutlet:
         if res_code not in self.outlets:
-            _meta = self.meta_stream
-            _idx = self.res_codes.index(res_code)
-            self.outlets[res_code] = create_outlet(self.device_id, _meta.device, _meta.streams[_idx])
+            _spec = self.datasource_spec
+            _stream_id = self.stream_ids[self.res_ids.index(res_code)]
+            self.outlets[res_code] = create_outlet(self.device_id, _spec.device, _spec.streams[_stream_id])
         return self.outlets[res_code]
 
     def process_data_stream(self, cmd: str):
-        res_code: str = next(filter(cmd.startswith, self.res_codes), None)
+        res_code: str = next(filter(cmd.startswith, self.res_ids), None)
         if res_code is not None:
             # server sent data. handle accordingly
             try:
@@ -173,35 +173,35 @@ class Connector:
             print('Unknown message: ', cmd)
 
     def handle_outgoing_msgs(self, s: socket):
-        if self.srv_state == E4ServerState.NEW__:
+        if self.server_state == E4ServerState.NEW__:
             # request devices list
             print('Getting list of devices...')
             s.send(msg(E4ServerCommand.DEVICE_LIST__))
-            self.srv_state = E4ServerState.WAITING__
-        elif self.srv_state == E4ServerState.NO_DEVICES__:
+            self.server_state = E4ServerState.WAITING__
+        elif self.server_state == E4ServerState.NO_DEVICES__:
             print('No devices found!')
             exit(1)
-        elif self.srv_state == E4ServerState.DEVICES_FOUND__:
+        elif self.server_state == E4ServerState.DEVICES_FOUND__:
             # connect to device
             print('Connecting to device...')
             s.send(msg("%s %s" % (E4ServerCommand.DEVICE_CONNECT__, self.device_id)))
-            self.srv_state = E4ServerState.WAITING__
-        elif self.srv_state == E4ServerState.CONNECTED_TO_DEVICE__:
+            self.server_state = E4ServerState.WAITING__
+        elif self.server_state == E4ServerState.CONNECTED_TO_DEVICE__:
             # pause streaming initially
             print('Initializing...')
             s.send(msg("%s ON" % E4ServerCommand.PAUSE__))
-            self.srv_state = E4ServerState.WAITING__
-        elif self.srv_state == E4ServerState.READY_TO_SUBSCRIBE__:
+            self.server_state = E4ServerState.WAITING__
+        elif self.server_state == E4ServerState.READY_TO_SUBSCRIBE__:
             # subscribe to streams
-            stream = self.sub_codes[self.sub_streams]
+            stream = self.stream_ids[self.sub_streams]
             print('Subscribing to stream: %s' % stream)
             s.send(msg("%s %s ON" % (E4ServerCommand.DEVICE_SUBSCRIBE__, stream)))
-            self.srv_state = E4ServerState.WAITING__
-        elif self.srv_state == E4ServerState.SUBSCRIBE_COMPLETED__:
+            self.server_state = E4ServerState.WAITING__
+        elif self.server_state == E4ServerState.SUBSCRIBE_COMPLETED__:
             # begin streaming data
             print('Requesting data')
             s.send(msg("%s OFF" % E4ServerCommand.PAUSE__))
-            self.srv_state = E4ServerState.STREAMING__
+            self.server_state = E4ServerState.STREAMING__
 
     def start(self):
         # Create socket connection
