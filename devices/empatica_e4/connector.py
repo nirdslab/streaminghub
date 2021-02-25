@@ -42,26 +42,34 @@ class Connector:
         self.res_ids = ['E4_Acc', 'E4_Bvp', 'E4_Gsr', 'E4_Ibi', 'E4_Temp', 'E4_Bat', 'E4_Tag']
         self.buffer_size = 4096
         self.sub_streams = 0
+        self.device_list = ...
         self.device_id = ...
         self.outlets: dict = {}
         self.server_state = E4ServerState.NEW__
         self.datasource_spec = get_datasource_spec(f"{os.path.dirname(__file__)}/spec.json", 'json')
 
-    def set_devices_connected(self, num: int, devices: List[str]):
-        print('%d device(s) found: %s' % (num, ', '.join([id_ for id_, name_ in devices])))
+    def set_device_list(self, devices: List[str]):
+        self.device_list = devices
+        num = len(devices)
+        print(f"{num} device(s) found: {devices}")
         self.server_state = E4ServerState.NO_DEVICES__ if num == 0 else E4ServerState.DEVICES_FOUND__
         if num > 1:
-            # ask user to select device
-            id_ = input('Select device id: ')
-            if id_ in [y for x, y in devices]:
-                self.device_id = id_
-            else:
-                print('Invalid device id')
-                exit(1)
+            while True:
+                # prompt user to select device
+                device_id = input(f'Select device: ')
+                if self.select_device(device_id):
+                    break
         elif num == 1:
-            id_ = devices[0][0]
-            print('Selecting %s' % id_)
-            self.device_id = id_
+            self.select_device(devices[0])
+
+    def select_device(self, device_id: str) -> bool:
+        if device_id in self.device_list:
+            print(f'Selected Device: {device_id}')
+            self.device_id = device_id
+            return True
+        else:
+            print(f'Invalid selection. Please select one from: {self.device_list}')
+            return False
 
     def process_incoming_msgs(self, s: socket):
         in_msg: str = codecs.decode(s.recv(self.buffer_size))
@@ -84,10 +92,10 @@ class Connector:
                     if num > 0:
                         commands = cmd[i + 3:].split(' | ')
                         if len(commands) != num:
-                            print('device count mismatch')
+                            print(f'device count mismatch: expected {num}, got {len(commands)} instead')
                             exit(1)
-                        devices = [x.split(' ') for x in commands]
-                    self.set_devices_connected(num, devices)
+                        devices = [x.split(' ')[0].strip() for x in commands]
+                    self.set_device_list(devices)
                 # DEVICE_CONNECT response
                 elif cmd[:i] == E4ServerCommand.DEVICE_CONNECT__:
                     cmd = cmd[i + 1:]
@@ -149,6 +157,7 @@ class Connector:
         res_code: str = next(filter(cmd.startswith, self.res_ids), None)
         if res_code is not None:
             # server sent data. handle accordingly
+            print(cmd)
             try:
                 OUTLET = self.get_outlet(res_code)
                 # only parse command if outlet has consumers
