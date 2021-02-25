@@ -182,7 +182,7 @@ async def main():
         exit(0)
 
 
-if (__name__ == "__main__"):
+if __name__ == "__main__":
     # In try-except to suppress irrelevant errors
     try:
         asyncio.run(main(), debug=True)
