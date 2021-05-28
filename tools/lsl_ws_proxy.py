@@ -19,7 +19,6 @@ from typing import Tuple, Iterable, Optional, List
 import numpy as np
 import websockets
 from pylsl import StreamInlet, StreamInfo, resolve_stream, LostError
-from websockets.http import Headers
 
 from tools.util import stream_info_to_dict
 
@@ -70,7 +69,7 @@ async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path:
     while websocket.open:
         try:
             message = await websocket.recv()
-        except websockets.exceptions.ConnectionClosed:
+        except websockets.ConnectionClosed:
             logger.info(f'client connection closed: {websocket.remote_address}')
             break
         payload = json.loads(message)
@@ -133,7 +132,7 @@ async def ws_handler(websocket: websockets.WebSocketServerProtocol, path: str):
     logger.info(f'client disconnected: {websocket.remote_address}')
 
 
-async def process_request(path: str, _: websockets.http.Headers) -> Optional[Tuple[HTTPStatus, Iterable[Tuple[str, str]], bytes]]:
+async def process_request(path: str, _: list) -> Optional[Tuple[HTTPStatus, Iterable[Tuple[str, str]], bytes]]:
     if path == '/ws':
         return None
     elif path == '/':
