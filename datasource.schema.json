@@ -15,16 +15,16 @@
       "type": "string"
     },
     "info": {
-      "$ref": "dfs.schema.json#/definitions/info"
+      "$ref": "./dfs.schema.json#/definitions/info"
     },
     "device": {
-      "$ref": "dfs.schema.json#/definitions/device"
+      "$ref": "./dfs.schema.json#/definitions/device"
     },
     "fields": {
-      "$ref": "dfs.schema.json#/definitions/fields"
+      "$ref": "./dfs.schema.json#/definitions/fields"
     },
     "streams": {
-      "$ref": "dfs.schema.json#/definitions/streams"
+      "$ref": "./dfs.schema.json#/definitions/streams"
     }
   }
 }
