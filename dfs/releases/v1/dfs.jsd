@@ -1,0 +1,437 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "definitions": {
+    "checksum": {
+      "description": "MD5 checksum",
+      "type": "string",
+      "pattern": "[0-9A-F]{32}"
+    },
+    "email": {
+      "description": "an email address",
+      "type": "string",
+      "pattern": "[^@]+@[^.]+\\..+"
+    },
+    "ref": {
+      "description": "reference to a pre-declared field",
+      "type": "string"
+    },
+    "device": {
+      "description": "information about the recording device",
+      "type": "object",
+      "required": [
+        "model",
+        "manufacturer",
+        "category"
+      ],
+      "properties": {
+        "model": {
+          "description": "model of the device",
+          "type": "string"
+        },
+        "manufacturer": {
+          "description": "manufacturer of the device",
+          "type": "string"
+        },
+        "category": {
+          "description": "category of the device",
+          "type": "string"
+        }
+      }
+    },
+    "stream": {
+      "description": "information about the data stream",
+      "type": "object",
+      "required": [
+        "name",
+        "description",
+        "unit",
+        "frequency",
+        "channels"
+      ],
+      "properties": {
+        "name": {
+          "description": "name of the data stream",
+          "type": "string"
+        },
+        "description": {
+          "description": "description of the data stream",
+          "type": "string"
+        },
+        "unit": {
+          "description": "unit of measurement",
+          "type": "string"
+        },
+        "frequency": {
+          "description": "sampling frequency (Hz)",
+          "type": "integer",
+          "minimum": 0
+        },
+        "channels": {
+          "$ref": "#/definitions/channels"
+        }
+      }
+    },
+    "author": {
+      "description": "information about the author",
+      "type": "object",
+      "required": [
+        "name",
+        "affiliation",
+        "email"
+      ],
+      "properties": {
+        "name": {
+          "description": "name of the author",
+          "type": "string"
+        },
+        "affiliation": {
+          "description": "affiliation of the author",
+          "type": "string"
+        },
+        "email": {
+          "description": "email address of the author",
+          "$ref": "#/definitions/email"
+        }
+      }
+    },
+    "dataset": {
+      "description": "information about the dataset",
+      "type": "object",
+      "required": [
+        "name",
+        "description",
+        "keywords",
+        "authors"
+      ],
+      "properties": {
+        "name": {
+          "description": "name of the dataset",
+          "type": "string"
+        },
+        "description": {
+          "description": "description of the dataset",
+          "type": "string"
+        },
+        "keywords": {
+          "$ref": "#/definitions/keywords"
+        },
+        "authors": {
+          "$ref": "#/definitions/authors"
+        }
+      }
+    },
+    "file": {
+      "description": "information about the file",
+      "type": "object",
+      "required": [
+        "path",
+        "encoding",
+        "description",
+        "keys",
+        "checksum"
+      ],
+      "properties": {
+        "path": {
+          "description": "path to the file",
+          "type": "string"
+        },
+        "encoding": {
+          "description": "file format",
+          "type": "string"
+        },
+        "description": {
+          "description": "description of the file",
+          "type": "string"
+        },
+        "keys": {
+          "description": "references to each key in the file",
+          "$ref": "#/definitions/keys"
+        },
+        "checksum": {
+          "$ref": "#/definitions/checksum"
+        }
+      }
+    },
+    "field": {
+      "description": "information about the field",
+      "type": "object",
+      "required": [
+        "id",
+        "dtype",
+        "name",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "description": "id of the field",
+          "type": "string"
+        },
+        "dtype": {
+          "description": "data type of field",
+          "type": "string"
+        },
+        "name": {
+          "description": "name of the field",
+          "type": "string"
+        },
+        "description": {
+          "description": "description of the field",
+          "type": "string"
+        }
+      }
+    },
+    "link": {
+      "description": "information about the link",
+      "type": "object",
+      "required": [
+        "type",
+        "fields"
+      ],
+      "properties": {
+        "type": {
+          "description": "type of link",
+          "type": "string"
+        },
+        "fields": {
+          "description": "references to pre-declared fields",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ref"
+          }
+        }
+      }
+    },
+    "channels": {
+      "description": "channels in the data stream",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "description": "information about each channel in the meta-stream",
+        "type": "string"
+      }
+    },
+    "authors": {
+      "description": "information about each author in the dataset",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/author"
+      }
+    },
+    "keywords": {
+      "description": "keywords that best describes the dataset",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "description": "a keyword",
+        "type": "string"
+      }
+    },
+    "streams": {
+      "description": "information about each data stream in the meta-stream",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/stream"
+      }
+    },
+    "keys": {
+      "description": "keys contained in a file",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/ref"
+      }
+    },
+    "fields": {
+      "description": "information about all fields in the current scope",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/field"
+      }
+    },
+    "links": {
+      "description": "information about all links in the current scope",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/link"
+      }
+    },
+    "analytic-stream": {
+      "description": "schema of an analytic-stream",
+      "type": "object",
+      "required": [
+        "info",
+        "fields",
+        "inputs",
+        "outputs"
+      ],
+      "properties": {
+        "info": {
+          "description": "information about the analytics-stream",
+          "type": "object",
+          "properties": {
+            "analytics": {
+              "type": "array",
+              "description": "details of an analytic obtained",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "name of the analytic"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "fields": {
+          "$ref": "#/definitions/fields"
+        },
+        "inputs": {
+          "description": "source meta-streams used to obtain the analytics",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/meta-stream-ref"
+          }
+        },
+        "outputs": {
+          "description": "information about all keys referenced in a file",
+          "$ref": "#/definitions/keys"
+        }
+      }
+    },
+    "meta-file": {
+      "description": "schema of a meta-file",
+      "type": "object",
+      "required": [
+        "info",
+        "dataset",
+        "fields",
+        "links",
+        "sources"
+      ],
+      "properties": {
+        "info": {
+          "description": "information about the meta-file",
+          "type": "object",
+          "required": [
+            "version",
+            "created",
+            "modified",
+            "checksum"
+          ],
+          "properties": {
+            "version": {
+              "description": "semantic version",
+              "type": "string"
+            },
+            "created": {
+              "description": "creation date/time",
+              "type": "string"
+            },
+            "modified": {
+              "description": "last modified date/time",
+              "type": "string"
+            },
+            "checksum": {
+              "description": "checksum of content",
+              "$ref": "#/definitions/checksum"
+            }
+          }
+        },
+        "dataset": {
+          "$ref": "#/definitions/dataset"
+        },
+        "fields": {
+          "$ref": "#/definitions/fields"
+        },
+        "links": {
+          "$ref": "#/definitions/links"
+        },
+        "sources": {
+          "description": "information on all referenced data sources",
+          "type": "object",
+          "minProperties": 1,
+          "properties": {
+            "meta-streams": {
+              "description": "information about all meta-streams referenced in a meta-file",
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/definitions/meta-stream-ref"
+              }
+            },
+            "files": {
+              "description": "information about all files referenced in a meta-file",
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/definitions/file"
+              }
+            }
+          }
+        }
+      }
+    },
+    "meta-stream": {
+      "description": "schema of a meta-stream",
+      "type": "object",
+      "required": [
+        "info",
+        "device",
+        "streams",
+        "fields"
+      ],
+      "properties": {
+        "info": {
+          "description": "information about the meta-stream",
+          "type": "object",
+          "required": [
+            "version",
+            "checksum"
+          ],
+          "properties": {
+            "version": {
+              "description": "semantic version",
+              "type": "string"
+            },
+            "checksum": {
+              "description": "checksum of content",
+              "$ref": "#/definitions/checksum"
+            }
+          }
+        },
+        "device": {
+          "$ref": "#/definitions/device"
+        },
+        "streams": {
+          "$ref": "#/definitions/streams"
+        },
+        "fields": {
+          "$ref": "#/definitions/fields"
+        }
+      }
+    },
+    "meta-stream-ref": {
+      "description": "schema for a reference to a meta-stream",
+      "type": "object",
+      "required": [
+        "device",
+        "streams"
+      ],
+      "properties": {
+        "device": {
+          "$ref": "#/definitions/device"
+        },
+        "streams": {
+          "$ref": "#/definitions/streams"
+        }
+      }
+    }
+  },
+  "title": "JSON Metadata schemas for DFS"
+}
