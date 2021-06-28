@@ -1,0 +1,12 @@
+numpy
+pandas
+pylsl
+websockets
+pillow
+lxml
+jsonschema
+scipy
+msgpack
+pyzmq
+matplotlib
+PyWavelets
