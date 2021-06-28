@@ -8,7 +8,7 @@ replay-n_back:
 replay-adhd_sin:
 	tools/datasource_replay.py -n "adhd_sin" -a "subject=003,047 noise=15"
 replay-pg_weather:
-	tools/datasource_replay.py -n "pg_weather" -a "state=virginia"
+	tools/datasource_replay.py -n "pg_weather" -a "state=florida"
 simulate:
 	tools/datasource_simulate.py $(DATASOURCE_FILE)
 validate:
