@@ -1,0 +1,16 @@
+<h1 mat-dialog-title>{{data.name}}: Options</h1>
+<div mat-dialog-content>
+  <ng-container *ngIf="options.length > 0">
+    <p>Select your streams</p>
+    <div style="display: flex; flex-direction: column;">
+      <mat-checkbox *ngFor="let option of options" [(ngModel)]="option.selected">{{option.name}} [{{option.type}}]</mat-checkbox>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="options.length == 0">
+    <p>You currently don't have any available streams</p>
+  </ng-container>
+</div>
+<div mat-dialog-actions>
+  <button mat-button [mat-dialog-close]="null">Close</button>
+  <button mat-button [mat-dialog-close]="options">OK</button>
+</div>

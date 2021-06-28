@@ -1,0 +1,4 @@
+appId: "com.nirdslab.streaminhgub.webflow"
+files: ["dist/native/**/*"]
+directories:
+  output: "release/"

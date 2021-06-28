@@ -1,0 +1,72 @@
+<mat-card>
+  <mat-card-title>Configuration</mat-card-title>
+  <mat-card-content>
+    <form #inputForm>
+      <!-- Device Information -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Device Information</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="responsive-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Model</mat-label>
+              <input [(ngModel)]="metadata.device.model" name="metadata.device.model" type="text" matInput required>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Manufacturer</mat-label>
+              <input [(ngModel)]="metadata.device.manufacturer" name="metadata.device.manufacturer" type="text" matInput required>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Category</mat-label>
+              <input [(ngModel)]="metadata.device.category" name="metadata.device.category" type="text" matInput required>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <br>
+
+      <!-- Stream Information -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Stream(s) Information&nbsp;<button mat-mini-fab color="primary" (click)="addNewStream()">+</button></mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <ng-container *ngFor="let stream of metadata.streams; index as i">
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Stream {{i + 1}}&nbsp;<button mat-mini-fab color="primary" (click)="removeStream(i)">-</button></mat-card-title>
+              </mat-card-header>
+              <div class="responsive-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>Name</mat-label>
+                  <input [(ngModel)]="metadata.streams[i].name" name="stream.name" type="text" matInput required>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Description</mat-label>
+                  <input [(ngModel)]="metadata.streams[i].description" name="stream.description" type="text" matInput required>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Unit</mat-label>
+                  <input [(ngModel)]="metadata.streams[i].unit" name="stream.unit" type="text" matInput>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Frequency</mat-label>
+                  <input [(ngModel)]="metadata.streams[i].frequency" name="stream.frequency" type="text" matInput>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Channels</mat-label>
+                  <input [(ngModel)]="metadata.streams[i].channels" name="stream.channels" type="text" matInput required>
+                </mat-form-field>
+              </div>
+            </mat-card>
+            <br>
+          </ng-container>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-raised-button color="primary" (click)="onUpdate.emit(metadata)">Update</button>
+  </mat-card-actions>
+</mat-card>

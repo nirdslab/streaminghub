@@ -1,0 +1,46 @@
+image: alpine:latest
+
+variables:
+  POSTGRES_ENABLED: "false"
+  ROLLOUT_RESOURCE_TYPE: deployment
+
+stages:
+  - build
+  - test
+  - deploy  # dummy stage to follow the template guidelines
+  - review
+  - dast
+  - staging
+  - canary
+  - production
+  - incremental rollout 10%
+  - incremental rollout 25%
+  - incremental rollout 50%
+  - incremental rollout 100%
+  - performance
+  - cleanup
+
+
+ng_tests:
+  image: buildkite/puppeteer
+  before_script:
+    - npm install && npm rebuild
+  stage: test
+  script:
+    - npm run test
+
+
+include:
+  - template: Jobs/Build.gitlab-ci.yml
+  #- template: Jobs/Test.gitlab-ci.yml (commented to run custom tests)
+  - template: Jobs/Code-Quality.gitlab-ci.yml
+  - template: Jobs/Code-Intelligence.gitlab-ci.yml
+  - template: Jobs/Deploy.gitlab-ci.yml
+  # - template: Jobs/DAST-Default-Branch-Deploy.gitlab-ci.yml (commented as it's not needed)
+  - template: Jobs/Browser-Performance-Testing.gitlab-ci.yml
+  # - template: Security/DAST.gitlab-ci.yml (commented as it's not needed)
+  - template: Security/Container-Scanning.gitlab-ci.yml
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
+  - template: Security/License-Scanning.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
