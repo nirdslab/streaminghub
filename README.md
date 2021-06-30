@@ -1,29 +1,46 @@
-# Streaminghub
+# StreamingHub
 
 <img src="https://i.imgur.com/xSieE3V.png" height="100px">
 
-This repository hosts the implementation of streaming-hub, a visual programming toolkit built on DFS to simplify data analysis workflows.
-It the following subprojects,
-* dfs
-* conduit
-* orange
-* webui
+StreamingHub is a visual programming framework to simplify data analysis workflows.<br>
+This repository hosts the following subprojects,
 
 ## DFS
-
+A collection of JSON schemas to describe data streams, data sets, and analytics, plus a few samples.<br>
+**Technologies:** JSON, JSON Schema
 
 ## Conduit
-Conduit is a collection of connectors for reading data from sensory devices, and publishing them as LSL streams, annotated with DFS metadata.
-It currently supports the following devices:
-* Empatica E4 (ongoing)
-* Pupil Core (ongoing)
-* CGX Quick-30 (TBD)
-We are working on adding more devices, and streamlining the metadata format to better provide data semantics.
-
-## Orange
-Orange Streaming is a Python package that adds support for DFS data-streams in Orange3.
-It provides a set of widgets to read data-streams from LSL, and their metadata in compliance with the original meta-stream and meta-file specifications.
+Scripts to stream sensory data in real-time, replay stored data from datasets, and stream mock data for testing.<br>
+**Technologies:** Python, PyLSL
 
 ## WebUI
+Web interface to generate and validate DFS metadata.<br>
+**Technologies:** Angular, Typescript, Monaco Editor
 
+## Orange3 Add-ons
+Orange3 support package to use StreamingHub.<br>
+It adds widgets to discover data streams, display their metadata, and subscribe to them.<br>
+**Technologies:** Python, PyQt5, Orange3, PyLSL.
 
+## Node-RED Add-ons
+Node-RED support package to use StreamingHub.<br>
+It adds widgets to discover data streams, display metadata, auto-populate
+**Technologies:** Javascript, JSON, Vega
+
+<hr/>
+
+## Citation
+If you found this work useful in your research, please consider citing us.
+```bibtex
+@inproceedings {jayawardana2020streaminghub
+author       = {Jayawardana, Yasith and Jayarathna, Sampath},
+title        = {Streaming Analytics and Workflow Automation for DFS},
+doi          = {10.1145/3383583.3398589},
+pages        = {513–514},
+location     = {Virtual Event, China},
+series       = {JCDL '20},
+year         = {2020},
+publisher    = {Association for Computing Machinery},
+address      = {New York, NY, USA}
+}
+```
