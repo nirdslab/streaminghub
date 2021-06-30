@@ -1,9 +1,14 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
+.dockerignore
+.gitignore
+.git
+Dockerfile
 
 # compiled output
 /dist
 /tmp
 /out-tsc
+/release
 # Only exists if Bazel was run
 /bazel-out
 
@@ -12,6 +17,7 @@
 
 # profiling files
 chrome-profiler-events*.json
+speed-measure-plugin*.json
 
 # IDEs and editors
 /.idea
