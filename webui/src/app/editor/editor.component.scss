@@ -1,0 +1,46 @@
+$split_v: 400px;
+$split_h: 50%;
+$margin: 4px;
+$pad: 1em;
+$border: 1px solid grey;
+
+.editor-left {
+  position: absolute;
+  top: 0;
+  bottom: $split_h;
+  left: 0;
+  width: $split_v - $margin * 2;
+  margin: $margin;
+  padding: $pad;
+  border: $border;
+
+  .form-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-bottom: $pad/2;
+  }
+}
+
+.editor-right {
+  position: absolute;
+  top: 0;
+  bottom: $split_h;
+  left: $split_v;
+  right: 0;
+  margin: $margin;
+  margin-left: 0;
+  padding: $pad;
+  border: $border;
+}
+
+.editor-bottom {
+  position: absolute;
+  top: $split_h;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: $margin;
+  margin-top: 0;
+  border: $border;
+}
