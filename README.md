@@ -4,7 +4,7 @@
 
 StreamingHub is a visual programming framework to simplify data analysis workflows.<br>
 
-<img src="docs/demo-animated.gif">
+<img src="docs/demo-animated.gif" width="100%">
 
 This repository hosts the following subprojects,
 
