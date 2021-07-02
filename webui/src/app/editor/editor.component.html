@@ -1,21 +1,44 @@
-<form class="editor-left">
+<form class="editor-left" *ngIf="selection == 'DATASET'">
   <div class="form-row">
-    <label>Name</label><input type="text" placeholder="Name">
+    <label>Name</label><input type="text" placeholder="Name" [(ngModel)]="datasetSpec.name">
   </div>
   <div class="form-row">
-    <label>Description</label><input type="text" placeholder="Description">
+    <label>Description</label><input type="text" placeholder="Description" [(ngModel)]="datasetSpec.description">
+  </div>
+  <!-- KEYWORDS -->
+  <div class="form-row">
+    <label>Keywords</label>
+    <button type="button" (click)="datasetSpec.keywords.push('');">Add</button>
+  </div>
+  <div class="form-row" *ngFor="let x of datasetSpec.keywords; let i = index;">
+    <label><i>&nbsp;&nbsp;Keyword {{i+1}}</i></label>
+    <input type="text" placeholder="Keyword" [(ngModel)]="datasetSpec.keywords[i]">
+  </div>
+  <!-- AUTHORS -->
+  <div class="form-row">
+    <label>Authors</label>
+    <button type="button" (click)="datasetSpec.authors.push({name: '', affiliation: '', email: ''});">Add</button>
+  </div>
+  <div class="form-row" *ngFor="let x of datasetSpec.authors; let i = index;">
+    <label><i>&nbsp;&nbsp;Author {{i+1}}</i></label>
+    <input type="text" placeholder="Name" [(ngModel)]="datasetSpec.authors[i].name">
+    <input type="text" placeholder="Affiliation" [(ngModel)]="datasetSpec.authors[i].affiliation">
+    <input type="text" placeholder="Email" [(ngModel)]="datasetSpec.authors[i].email">
+  </div>
+  <!-- GROUPS -->
+  <div class="form-row">
+    <label>Groups</label>
+    <input #groupId type="text" placeholder="Group ID">
+    <button type="button" (click)="datasetSpec.groups[groupId.value] = {description: '', attributes: []};">Add</button>
+  </div>
+  <div class="form-row" *ngFor="let x of datasetSpec.groups | keyvalue">
+    <label><i>&nbsp;&nbsp;Group {{x.key}}</i></label>
+    <input type="text" placeholder="Description" [(ngModel)]="x.value.description">
+    <input type="text" placeholder="Attributes" [(ngModel)]="x.value.attributes">
   </div>
   <div class="form-row">
-    <label>Keywords</label><input type="text" placeholder="Keywords">
-  </div>
-  <div class="form-row">
-    <label>Authors</label><input type="text" placeholder="Authors">
-  </div>
-  <div class="form-row">
-    <label>Groups</label><input type="text" placeholder="Groups">
-  </div>
-  <div class="form-row">
-    <label>Info</label><input type="text" placeholder="Info">
+    <label>Info</label>
+    <input type="text" placeholder="Info">
   </div>
   <div class="form-row">
     <label>Sources</label><input type="text" placeholder="Sources">
@@ -27,5 +50,5 @@
     <label>Resolver</label><input type="text" placeholder="Resolver">
   </div>
 </form>
-<div class="editor-right">Hello</div>
-<div #editor class="editor-bottom"></div>
+<div #editor class="editor-right"></div>
+<div class="editor-bottom">Hello</div>

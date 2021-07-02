@@ -1,5 +1,5 @@
-$split_v: 400px;
-$split_h: 50%;
+$split_v: 40%;
+$split_h: 75%;
 $margin: 4px;
 $pad: 1em;
 $border: 1px solid grey;
@@ -7,9 +7,9 @@ $border: 1px solid grey;
 .editor-left {
   position: absolute;
   top: 0;
-  bottom: $split_h;
+  bottom: 100% - $split_h;
   left: 0;
-  width: $split_v - $margin * 2;
+  right: 100% - $split_v;
   margin: $margin;
   padding: $pad;
   border: $border;
@@ -25,12 +25,11 @@ $border: 1px solid grey;
 .editor-right {
   position: absolute;
   top: 0;
-  bottom: $split_h;
+  bottom: 100% - $split_h;
   left: $split_v;
   right: 0;
   margin: $margin;
   margin-left: 0;
-  padding: $pad;
   border: $border;
 }
 
@@ -41,6 +40,7 @@ $border: 1px solid grey;
   left: 0;
   right: 0;
   margin: $margin;
+  padding: $pad;
   margin-top: 0;
   border: $border;
 }
