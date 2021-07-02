@@ -15,16 +15,16 @@
       "type": "string"
     },
     "info": {
-      "$ref": "./dfs.schema.json#/definitions/info"
+      "$ref": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfs/dfs.schema.json#/definitions/info"
     },
     "device": {
-      "$ref": "./dfs.schema.json#/definitions/device"
+      "$ref": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfs/dfs.schema.json#/definitions/device"
     },
     "fields": {
-      "$ref": "./dfs.schema.json#/definitions/fields"
+      "$ref": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfs/dfs.schema.json#/definitions/fields"
     },
     "streams": {
-      "$ref": "./dfs.schema.json#/definitions/streams"
+      "$ref": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfs/dfs.schema.json#/definitions/streams"
     }
   }
 }

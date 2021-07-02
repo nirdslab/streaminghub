@@ -20,7 +20,7 @@
       "type": "string"
     },
     "info": {
-      "$ref": "./dfs.schema.json#/definitions/info"
+      "$ref": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfs/dfs.schema.json#/definitions/info"
     },
     "name": {
       "description": "name of the dataset",
@@ -44,22 +44,22 @@
       "type": "array",
       "minItems": 1,
       "items": {
-        "$ref": "./dfs.schema.json#/definitions/author"
+        "$ref": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfs/dfs.schema.json#/definitions/author"
       }
     },
     "sources": {
       "description": "data sources for the dataset",
-      "$ref": "./dfs.schema.json#/definitions/refs"
+      "$ref": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfs/dfs.schema.json#/definitions/refs"
     },
     "fields": {
-      "$ref": "./dfs.schema.json#/definitions/fields"
+      "$ref": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfs/dfs.schema.json#/definitions/fields"
     },
     "groups": {
-      "$ref": "./dfs.schema.json#/definitions/groups"
+      "$ref": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfs/dfs.schema.json#/definitions/groups"
     },
     "resolver": {
       "description": "script to resolve data",
-      "$ref": "./dfs.schema.json#/definitions/ref"
+      "$ref": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfs/dfs.schema.json#/definitions/ref"
     }
   }
 }
