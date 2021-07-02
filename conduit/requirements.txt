@@ -5,8 +5,6 @@ websockets
 pillow
 lxml
 jsonschema
-scipy
 msgpack
 pyzmq
 matplotlib
-PyWavelets
