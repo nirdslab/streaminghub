@@ -17,3 +17,5 @@ proxy:
 	PORT=8765 tools/lsl_ws_proxy.py
 workflow:
 	node-red
+clean:
+	rm -rf **/__pycache__
