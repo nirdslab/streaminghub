@@ -1,0 +1,14 @@
+README.md
+pyproject.toml
+setup.py
+src/dfs/__init__.py
+src/dfs/errors.py
+src/dfs/io.py
+src/dfs/outlet.py
+src/dfs/parser.py
+src/dfs/types.py
+src/streaminghub_pydfs.egg-info/PKG-INFO
+src/streaminghub_pydfs.egg-info/SOURCES.txt
+src/streaminghub_pydfs.egg-info/dependency_links.txt
+src/streaminghub_pydfs.egg-info/requires.txt
+src/streaminghub_pydfs.egg-info/top_level.txt

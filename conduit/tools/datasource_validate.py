@@ -12,8 +12,8 @@ proposed standards.
 
 import sys
 
-from dfs.errors import DoesNotMatchSchemaError
 from dfs import get_datasource_spec
+from dfs.errors import DoesNotMatchSchemaError
 
 SYNTAX = "datasource_validate [path/to/datasource/spec]"
 

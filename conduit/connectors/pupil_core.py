@@ -11,9 +11,7 @@ import zmq.asyncio
 from PIL import Image
 from pylsl import StreamOutlet
 
-from dfs import get_datasource_spec
-from dfs.lsl_outlet import create_outlet
-from dfs.types import DataSourceSpec
+from dfs import get_datasource_spec, create_outlet, DataSourceSpec
 
 ZMQ_REQ = zmq.REQ
 ZMQ_SUB = zmq.SUB

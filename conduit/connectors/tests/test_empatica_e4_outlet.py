@@ -3,7 +3,7 @@ import asyncio
 import random
 import time
 
-from connectors.empatica_e4 import Connector
+from ..empatica_e4 import Connector
 
 
 async def emit(conn: Connector, name: str, freq: int, channels: int):

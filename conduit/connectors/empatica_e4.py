@@ -6,8 +6,7 @@ from typing import List
 
 from pylsl import StreamOutlet
 
-from dfs import get_datasource_spec
-from dfs.lsl_outlet import create_outlet
+from dfs import get_datasource_spec, create_outlet
 
 
 # server states (enum)

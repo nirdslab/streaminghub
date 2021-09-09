@@ -16,9 +16,7 @@ import random
 import sys
 import time
 
-from dfs import get_datasource_spec
-from dfs.lsl_outlet import create_outlet
-from dfs.types import DataSourceSpec
+from dfs import create_outlet, get_datasource_spec, DataSourceSpec
 
 SYNTAX = "datasource_simulate [path/to/datasource/spec]"
 DIGIT_CHARS = '0123456789'

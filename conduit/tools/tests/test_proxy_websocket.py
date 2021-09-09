@@ -4,7 +4,7 @@ import logging
 import sys
 import unittest
 
-from tools.lsl_ws_proxy import ERROR_BAD_REQUEST
+from ..proxy_websocket import ERROR_BAD_REQUEST, consumer_handler
 
 logger = logging.getLogger()
 logger.level = logging.DEBUG
