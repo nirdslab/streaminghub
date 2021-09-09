@@ -25,6 +25,7 @@ from .util import stream_info_to_dict
 
 logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
 logger = logging.getLogger()
+loop = asyncio.get_event_loop()
 
 ERROR_BAD_REQUEST = "Unknown Request"
 EXECUTOR = ThreadPoolExecutor(max_workers=16)
@@ -74,16 +75,16 @@ async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path:
       break
     payload = json.loads(message)
     logger.debug(f'<: {json.dumps(payload)}')
-    response: Dict[str, Any] = {'command': payload['command'], 'error': None, 'data': None}
     # consume payload, and generate response
-    response = await consume(payload, response)
+    response = await consume(payload)
 
     await RESPONSES.put(response)
     logger.debug(f'queued: {response}')
 
 
-async def consume(payload: Any, response: Dict[str, Any]):
+async def consume(payload: Any):
   command = payload['command']
+  response: Dict[str, Any] = {'command': command, 'error': None, 'data': None}
   # search command
   if command == 'search':
     live_streams = await asyncify(resolve_stream)()
@@ -153,7 +154,6 @@ if __name__ == '__main__':
   default_port = os.getenv("PORT")
   port = int(default_port)
   start_server = websockets.serve(ws_handler, "0.0.0.0", port, process_request=process_request)
-  loop = asyncio.get_event_loop()
   try:
     loop.run_until_complete(start_server)
     logger.info(f'started websocket server on port={port}')

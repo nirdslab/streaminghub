@@ -7,8 +7,8 @@ import glob
 import os
 import sys
 
-from model.monitor import Monitor
-from model.process import Process
+from model import Monitor
+from model import Process
 
 
 def usage():

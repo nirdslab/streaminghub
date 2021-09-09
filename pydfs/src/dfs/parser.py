@@ -8,6 +8,7 @@ import jsonschema
 
 from .errors import DoesNotMatchSchemaError, SchemaNotMentionedError, UnknownFileFormatError
 from .types import DataSourceSpec, DataSetSpec, AnalyticSpec
+from .util import get_meta_dir
 
 logger = logging.getLogger()
 
@@ -117,21 +118,24 @@ def __fetch_spec(spec_uri: str) -> dict:
   return __fetch_and_validate(spec_uri)
 
 
-def get_datasource_spec(path: str) -> DataSourceSpec:
+def get_datasource_spec(name: str, fmt: str = 'json') -> DataSourceSpec:
+  path = f'{get_meta_dir()}/datasets/{name}.{fmt}'
   data = __fetch_spec(path)
   spec = DataSourceSpec(d=data)
   logger.debug(f'Created DataSourceSpec: {path}')
   return spec
 
 
-def get_dataset_spec(path: str):
+def get_dataset_spec(name: str, fmt: str = 'json') -> DataSetSpec:
+  path = f'{get_meta_dir()}/datasets/{name}.{fmt}'
   data = __fetch_spec(path)
   spec = DataSetSpec(d=data)
   logger.debug(f'Created DataSetSpec: {path}')
   return spec
 
 
-def get_analytic_spec(path: str):
+def get_analytic_spec(name: str, fmt: str = 'json') -> AnalyticSpec:
+  path = f'{get_meta_dir()}/datasets/{name}.{fmt}'
   data = __fetch_spec(path)
   spec = AnalyticSpec(d=data)
   logger.debug(f'Created AnalyticSpec: {path}')

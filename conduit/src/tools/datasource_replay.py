@@ -32,8 +32,8 @@ logger = logging.getLogger()
 
 def get_attrs_and_streams(spec: DataSetSpec, dataset_name: str, **kwargs) -> Iterator[
   Tuple[Dict[str, Any], Generator[Dict[str, float], None, None]]]:
-  module = importlib.import_module(f'datasets.{dataset_name}')
-  stream: Callable[[DataSetSpec, ...], Any] = getattr(module, 'stream')
+  resolver = importlib.import_module(f'resolvers.{dataset_name}')
+  stream: Callable[[DataSetSpec, ...], Any] = getattr(resolver, 'stream')
   yield from stream(spec, **kwargs)
 
 

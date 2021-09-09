@@ -2,7 +2,10 @@
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/conduit/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/conduit/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/pydfs/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/meta" isTestSource="false" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.7 (streaminghub)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
