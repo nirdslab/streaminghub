@@ -53,7 +53,7 @@ def resolve(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[DICT, str]]:
       filtered.append((d_subject, d_diagnosis, d_question))
 
   # yield resolved attributes and their file paths
-  base_dir = os.getenv('STREAMINGHUB_DATA_DIR')
+  base_dir = os.getenv("STREAMINGHUB_DATA_DIR")
   for (f_subject, f_diagnosis, f_question_set) in filtered:
     if f_question_set == 'SET_A':
       f_questions = QUESTION_SET_A

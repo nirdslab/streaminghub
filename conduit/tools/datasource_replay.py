@@ -108,7 +108,7 @@ def parse_attrs(attrs: str) -> dict:
 
 def main():
   # get default args
-  default_dir = os.getenv("STREAMINGHUB_DATA_DIR")
+  default_dir = f"{os.path.dirname(__file__)}/../datasets"
   default_name = os.getenv("DATASET_NAME")
   # create parser and parse args
   parser = argparse.ArgumentParser(prog='datasource_replay.py')

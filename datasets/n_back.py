@@ -26,7 +26,7 @@ def resolve(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[DICT, str]]:
   filtered = ((s, m, t, p) for s in subject for m in mode for t in task for p in position)
 
   # generate (and yield) target file paths
-  base_dir = os.path.dirname(__file__)
+  base_dir = os.getenv("STREAMINGHUB_DATA_DIR")
   for (f_subject, f_mode, f_task, f_position) in filtered:
     filename = f'{f_subject}-{f_mode}-{f_task}-{f_position}.csv'
     abs_path = os.path.join(base_dir, 'n_back', filename)

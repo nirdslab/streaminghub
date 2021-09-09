@@ -22,7 +22,7 @@ def resolve(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[DICT, str]]:
   filtered = ((s, c) for s in state for c in city)
 
   # generate (and yield) target file paths
-  base_dir = os.path.dirname(__file__)
+  base_dir = os.getenv("STREAMINGHUB_DATA_DIR")
   for (f_state, f_city) in filtered:
     filename = f'{f_state}-{f_city}.csv'
     abs_path = os.path.join(base_dir, 'pg_weather', filename)
