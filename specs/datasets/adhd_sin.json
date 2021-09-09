@@ -29,12 +29,19 @@
   },
   "groups": {
     "subject": {
-      "description": "The Group of Subjects",
+      "description": "The ID of each subject",
       "attributes": [
-        "multi1", "multi2", "multi3",
-        "img1", "img2", "img3", "img4", "img5",
-        "rtg1", "rtg2", "rtg3",
-        "sng1", "sng2", "sng3", "sng4"
+        "003",
+        "012",
+        "018",
+        "024",
+        "026",
+        "030",
+        "032",
+        "034",
+        "036",
+        "038",
+        "047"
       ]
     },
     "diagnosis": {
@@ -63,5 +70,5 @@
       ]
     }
   },
-  "resolver": "adhd_sin.py"
+  "resolver": "../resolvers/adhd_sin.py"
 }

@@ -1,24 +1,24 @@
-import dfs.parser as parser
-from dfs.errors import UnknownFileFormatError
-from dfs.types import DataSourceSpec, DataSetSpec, AnalyticSpec
+from .errors import UnknownFileFormatError
+from .parser import datasource, dataset, analytic
+from .types import DataSourceSpec, DataSetSpec, AnalyticSpec
 
 
 def get_datasource_spec(path: str, file_type: str) -> DataSourceSpec:
   if file_type == "json":
-    return parser.datasource(path)
+    return datasource(path)
   else:
     raise UnknownFileFormatError()
 
 
 def get_dataset_spec(path: str, file_type: str) -> DataSetSpec:
   if file_type == "json":
-    return parser.dataset(path)
+    return dataset(path)
   else:
     raise UnknownFileFormatError()
 
 
 def get_analytic_spec(path: str, file_type: str) -> AnalyticSpec:
   if file_type == "json":
-    return parser.analytic(path)
+    return analytic(path)
   else:
     raise UnknownFileFormatError()

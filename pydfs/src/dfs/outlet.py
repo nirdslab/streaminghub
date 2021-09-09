@@ -3,7 +3,7 @@ from typing import Dict
 
 from pylsl import StreamInfo as LSLStreamInfo, StreamOutlet as LSLStreamOutlet
 
-from dfs.types import DeviceInfo, StreamInfo
+from .types import DeviceInfo, StreamInfo
 
 logger = logging.getLogger()
 

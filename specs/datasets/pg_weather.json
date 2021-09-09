@@ -119,9 +119,9 @@
         "indiana",
         "iowa",
         "kentucky",
-        "lousiana",
+        "louisiana",
         "maine",
-        "massachussetts",
+        "massachusetts",
         "michigan",
         "minnesota",
         "mississippi",
@@ -143,9 +143,9 @@
         "utah",
         "washington",
         "washington dc",
-        "wiscousin"
+        "wisconsin"
       ]
     }
   },
-  "resolver": "pg_weather.py"
+  "resolver": "../resolvers/pg_weather.py"
 }
