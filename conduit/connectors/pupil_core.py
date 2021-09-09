@@ -121,7 +121,7 @@ class Connector(object):
 
 async def main():
   # get meta-stream for pupil model
-  datasource_spec = get_datasource_spec(f"{os.getenv('DATASOURCE_DIR')}/pupil_core.json", 'json')
+  datasource_spec = get_datasource_spec(f"{os.path.dirname(__file__)}/../datasources/pupil_core.json", 'json')
   # set random device id
   device_id = "1234564321"
   connector = Connector(device_id, '127.0.0.1', 50020, datasource_spec)

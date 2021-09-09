@@ -46,7 +46,7 @@ class Connector:
     self.device_id = ...
     self.outlets: dict = {}
     self.server_state = E4ServerState.NEW__
-    self.datasource_spec = get_datasource_spec(f"{os.getenv('DATASOURCE_DIR')}/empatica_e4.json", 'json')
+    self.datasource_spec = get_datasource_spec(f"{os.path.dirname(__file__)}/../datasources/empatica_e4.json", 'json')
 
   def set_device_list(self, devices: List[str]):
     self.device_list = devices
