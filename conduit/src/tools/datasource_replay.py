@@ -15,6 +15,7 @@ import importlib
 import logging
 import os
 import random
+import sys
 import threading
 from time import time_ns
 from typing import Dict, Callable, Any, Generator, Iterator, Tuple
@@ -22,6 +23,7 @@ from typing import Dict, Callable, Any, Generator, Iterator, Tuple
 import numpy as np
 from pylsl import StreamOutlet
 
+from dfs import get_data_dir, get_datasource_dir, get_dataset_dir, get_analytic_dir, get_meta_dir
 from dfs import get_dataset_spec, create_outlet, DataSetSpec, DataSourceSpec, StreamInfo
 
 DIGIT_CHARS = '0123456789'
@@ -32,6 +34,8 @@ logger = logging.getLogger()
 
 def get_attrs_and_streams(spec: DataSetSpec, dataset_name: str, **kwargs) -> Iterator[
   Tuple[Dict[str, Any], Generator[Dict[str, float], None, None]]]:
+  if get_meta_dir() not in sys.path:
+    sys.path.append(get_meta_dir())
   resolver = importlib.import_module(f'resolvers.{dataset_name}')
   stream: Callable[[DataSetSpec, ...], Any] = getattr(resolver, 'stream')
   yield from stream(spec, **kwargs)
@@ -106,28 +110,42 @@ def parse_attrs(attrs: str) -> dict:
 
 def main():
   # get default args
-  default_dir = f"{os.path.dirname(__file__)}/../datasets"
-  default_name = os.getenv("DATASET_NAME")
   # create parser and parse args
   parser = argparse.ArgumentParser(prog='datasource_replay.py')
-  parser.add_argument('--dataset-dir', '-d', required=default_dir is None, default=default_dir)
-  parser.add_argument('--dataset-name', '-n', required=default_name is None, default=default_name)
+  # required args
+  parser.add_argument('--dataset-name', '-n', required=True)
+  # optional args
   parser.add_argument('--attributes', '-a', required=False)
+  parser.add_argument('--data-dir', '-d', required=False)
+  parser.add_argument('--meta-dir', '-m', required=False)
+  # parse all args
   args = parser.parse_args()
-  # assign args to variables
-  dataset_dir = args.dataset_dir or default_dir
-  dataset_name = args.dataset_name or default_name
-  dataset_attrs = parse_attrs(args.attributes)
+  dataset_name = args.dataset_name
+  # update environment variables if directories are overridden
+  if args.data_dir is not None:
+    logger.info(f'changing streaminghub data directory to: {args.data_dir}')
+    os.environ['STREAMINGHUB_DATA_DIR'] = args.data_dir
+    os.putenv('STREAMINGHUB_DATA_DIR', args.data_dir)
+  if args.meta_dir is not None:
+    logger.info(f'changing streaminghub meta directory to: {args.meta_dir}')
+    os.putenv('STREAMINGHUB_META_DIR', args.meta_dir)
+    os.environ['STREAMINGHUB_META_DIR'] = args.meta_dir
   # print args
-  logger.info(f'Dataset Directory: {dataset_dir}')
   logger.info(f'Dataset Name: {dataset_name}')
+  logger.info(f'Data Directory: {get_data_dir()}')
+  logger.info(f'Datasource Meta Directory: {get_datasource_dir()}')
+  logger.info(f'Dataset Meta Directory: {get_dataset_dir()}')
+  logger.info(f'Analytic Meta Directory: {get_analytic_dir()}')
   # get dataset spec
-  dataset_spec = get_dataset_spec(f'{dataset_dir}/{dataset_name}.json', 'json')
+  dataset_spec = get_dataset_spec(dataset_name)
   # get data sources
   assert len(dataset_spec.sources) > 0, f"Dataset does not have data sources"
   # spawn a worker thread for streaming
   logger.info('=== Begin streaming ===')
-  worker = threading.Thread(target=asyncio.run, args=(begin_streaming(dataset_spec, dataset_name, **dataset_attrs),))
+  worker = threading.Thread(
+    target=asyncio.run,
+    args=(begin_streaming(dataset_spec, dataset_name, **parse_attrs(args.attributes)),)
+  )
   try:
     worker.start()
     worker.join()

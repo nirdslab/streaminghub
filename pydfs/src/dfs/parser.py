@@ -8,7 +8,7 @@ import jsonschema
 
 from .errors import DoesNotMatchSchemaError, SchemaNotMentionedError, UnknownFileFormatError
 from .types import DataSourceSpec, DataSetSpec, AnalyticSpec
-from .util import get_meta_dir
+from .util import get_datasource_dir, get_dataset_dir, get_analytic_dir
 
 logger = logging.getLogger()
 
@@ -119,7 +119,7 @@ def __fetch_spec(spec_uri: str) -> dict:
 
 
 def get_datasource_spec(name: str, fmt: str = 'json') -> DataSourceSpec:
-  path = f'{get_meta_dir()}/datasets/{name}.{fmt}'
+  path = os.path.join(get_datasource_dir(), f'{name}.{fmt}')
   data = __fetch_spec(path)
   spec = DataSourceSpec(d=data)
   logger.debug(f'Created DataSourceSpec: {path}')
@@ -127,7 +127,7 @@ def get_datasource_spec(name: str, fmt: str = 'json') -> DataSourceSpec:
 
 
 def get_dataset_spec(name: str, fmt: str = 'json') -> DataSetSpec:
-  path = f'{get_meta_dir()}/datasets/{name}.{fmt}'
+  path = os.path.join(get_dataset_dir(), f'{name}.{fmt}')
   data = __fetch_spec(path)
   spec = DataSetSpec(d=data)
   logger.debug(f'Created DataSetSpec: {path}')
@@ -135,7 +135,7 @@ def get_dataset_spec(name: str, fmt: str = 'json') -> DataSetSpec:
 
 
 def get_analytic_spec(name: str, fmt: str = 'json') -> AnalyticSpec:
-  path = f'{get_meta_dir()}/datasets/{name}.{fmt}'
+  path = os.path.join(get_analytic_dir(), f'{name}.{fmt}')
   data = __fetch_spec(path)
   spec = AnalyticSpec(d=data)
   logger.debug(f'Created AnalyticSpec: {path}')

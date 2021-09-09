@@ -64,13 +64,11 @@ def main():
   # parse command-line args
   args = sys.argv
   assert len(args) == 2, f"Invalid Syntax.\nExpected: {SYNTAX}"
-  spec_path = args[1]
-  logger.info(f'DataSourceSpec: {spec_path}')
-  file_format = spec_path.rsplit('.', maxsplit=1)[-1].lower()
-  assert file_format == 'json', f"Invalid File Format.\nExpected JSON"
+  spec_name = args[1]
+  logger.info(f'DataSourceSpec: {spec_name}')
   # load DataSourceSpec
   logger.info('Loading DataSourceSpec...')
-  spec = get_datasource_spec(spec_path, file_format)
+  spec = get_datasource_spec(spec_name)
   logger.info('Loaded')
   # start data stream
   asyncio.get_event_loop().run_until_complete(begin_streaming_random_data(spec))
