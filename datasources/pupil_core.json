@@ -1,0 +1,133 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfs/datasource.schema.json",
+  "info": {
+    "version": "1.0.0",
+    "timestamp": "2021-02-23T12:00:00-05:00",
+    "checksum": "010203040506070809000A0B0C0D0E0F"
+  },
+  "device": {
+    "model": "Pupil Core",
+    "manufacturer": "Pupil Labs",
+    "category": "Eye Tracker"
+  },
+  "fields": {
+    "camera_r": {
+      "name": "camera - red channel",
+      "description": "Red Channel in the World Camera Feed",
+      "dtype": "float"
+    },
+    "camera_g": {
+      "name": "camera - green channel",
+      "description": "Green Channel in the World Camera Feed",
+      "dtype": "float"
+    },
+    "camera_b": {
+      "name": "camera - blue channel",
+      "description": "Blue Channel in the World Camera Feed",
+      "dtype": "float"
+    },
+    "gaze.0_x": {
+      "name": "eye 0 gaze - x coord",
+      "description": "Normalized X Coordinate of Gaze, in Eye 0",
+      "dtype": "float"
+    },
+    "gaze.0_y": {
+      "name": "eye 0 gaze - y coord",
+      "description": "Normalized Y Coordinate of Gaze, in Eye 0",
+      "dtype": "float"
+    },
+    "gaze.0_c": {
+      "name": "eye 0 gaze - confidence",
+      "description": "Confidence of Predicted Gaze Coordinate in Eye 0",
+      "dtype": "float"
+    },
+    "gaze.1_x": {
+      "name": "eye 1 gaze - x coord",
+      "description": "Normalized X Coordinate of Gaze, in Eye 1",
+      "dtype": "float"
+    },
+    "gaze.1_y": {
+      "name": "eye 1 gaze - y coord",
+      "description": "Normalized Y Coordinate of Gaze, in Eye 1",
+      "dtype": "float"
+    },
+    "gaze.1_c": {
+      "name": "eye 1 gaze - confidence",
+      "description": "Confidence of Predicted Gaze Coordinate in Eye 1",
+      "dtype": "float"
+    },
+    "fxn_x": {
+      "name": "fixation - x coord",
+      "description": "Normalized X Coordinate of Detected Fixation",
+      "dtype": "float"
+    },
+    "fxn_y": {
+      "name": "fixation - y coord",
+      "description": "Normalized Y Coordinate of Detected Fixation",
+      "dtype": "float"
+    },
+    "fxn_w": {
+      "name": "fixation dispersion",
+      "description": "Dispersion of Detected Fixation",
+      "dtype": "float"
+    },
+    "fxn_d": {
+      "name": "fixation duration",
+      "description": "Duration of Detected Fixation",
+      "dtype": "float"
+    },
+    "fxn_c": {
+      "name": "fixation confidence",
+      "description": "Confidence of the Predicted Fixatino",
+      "dtype": "float"
+    },
+    "t": {
+      "name": "t",
+      "description": "Timestamp",
+      "dtype": "float"
+    }
+  },
+  "streams": {
+    "camera": {
+      "name": "Camera Feed",
+      "description": "Camera (World)",
+      "frequency": 128,
+      "index": "#/fields/t",
+      "unit": "",
+      "channels": [
+        "#/fields/camera_r",
+        "#/fields/camera_g",
+        "#/fields/camera_b"
+      ]
+    },
+    "gaze": {
+      "name": "Gaze Position",
+      "description": "Binocular Gaze Position of Eye.0(L) and Eye.1(R)",
+      "frequency": 128,
+      "index": "#/fields/t",
+      "unit": "",
+      "channels": [
+        "#/fields/gaze.0_x",
+        "#/fields/gaze.0_y",
+        "#/fields/gaze.0_c",
+        "#/fields/gaze.1_x",
+        "#/fields/gaze.1_y",
+        "#/fields/gaze.1_c"
+      ]
+    },
+    "fxn": {
+      "name": "fixation",
+      "description": "Fixations",
+      "frequency": 0,
+      "index": "#/fields/t",
+      "unit": "",
+      "channels": [
+        "fxn_x",
+        "fxn_y",
+        "fxn_w",
+        "fxn_d",
+        "fxn_c"
+      ]
+    }
+  }
+}
