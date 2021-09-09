@@ -1,6 +1,6 @@
-import core.io.parser as parser
-from core.errors import UnknownFileFormatError
-from core.types import DataSourceSpec, DataSetSpec, AnalyticSpec
+import dfs.parser as parser
+from dfs.errors import UnknownFileFormatError
+from dfs.types import DataSourceSpec, DataSetSpec, AnalyticSpec
 
 
 def get_datasource_spec(path: str, file_type: str) -> DataSourceSpec:

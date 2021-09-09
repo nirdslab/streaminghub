@@ -11,9 +11,9 @@ import zmq.asyncio
 from PIL import Image
 from pylsl import StreamOutlet
 
-from core.io import get_datasource_spec
-from core.lsl_outlet import create_outlet
-from core.types import DataSourceSpec
+from dfs import get_datasource_spec
+from dfs.lsl_outlet import create_outlet
+from dfs.types import DataSourceSpec
 
 ZMQ_REQ = zmq.REQ
 ZMQ_SUB = zmq.SUB
@@ -121,10 +121,10 @@ class Connector(object):
 
 async def main():
   # get meta-stream for pupil model
-  meta = get_datasource_spec(f"{os.path.dirname(__file__)}/spec.json", "json")
+  datasource_spec = get_datasource_spec(f"{os.getenv('DATASOURCE_DIR')}/pupil_core.json", 'json')
   # set random device id
   device_id = "1234564321"
-  connector = Connector(device_id, '127.0.0.1', 50020, meta)
+  connector = Connector(device_id, '127.0.0.1', 50020, datasource_spec)
   await connector.run()
 
 

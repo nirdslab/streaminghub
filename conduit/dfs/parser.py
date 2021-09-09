@@ -6,8 +6,8 @@ from urllib.request import urlopen
 
 import jsonschema
 
-from core.errors import DoesNotMatchSchemaError, SchemaNotMentionedError
-from core.types import DataSourceSpec, DataSetSpec, AnalyticSpec
+from dfs.errors import DoesNotMatchSchemaError, SchemaNotMentionedError
+from dfs.types import DataSourceSpec, DataSetSpec, AnalyticSpec
 
 logger = logging.getLogger()
 

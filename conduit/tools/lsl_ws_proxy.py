@@ -11,6 +11,7 @@ import asyncio
 import json
 import logging
 import os
+from pathlib import Path
 from concurrent.futures.thread import ThreadPoolExecutor
 from functools import wraps, partial
 from http import HTTPStatus
@@ -30,7 +31,7 @@ EXECUTOR = ThreadPoolExecutor(max_workers=16)
 RESPONSES = asyncio.Queue()
 
 
-def run_async(func):
+def asyncify(func):
   @wraps(func)
   async def run(*args, **kwargs):
     return await loop.run_in_executor(EXECUTOR, partial(func, *args, **kwargs))
@@ -48,11 +49,10 @@ def pull_chunk(stream: StreamInlet, timeout: float):
 
 
 async def create_lsl_proxy(streams: List[StreamInlet]):
-  keepalive = True
-  while keepalive:
+  while True:
     try:
       for stream in streams:
-        sample, timestamps, error = await run_async(pull_chunk)(stream, 0.0)
+        sample, timestamps, error = await asyncify(pull_chunk)(stream, 0.0)
         if error:
           raise error
         typ = stream.info().type()
@@ -61,9 +61,8 @@ async def create_lsl_proxy(streams: List[StreamInlet]):
         await RESPONSES.put(
           {'command': 'data', 'data': {'stream': typ, 'chunk': np.nan_to_num(sample, nan=-1).tolist()}})
     except LostError:
-      keepalive = False
-  else:
-    logger.debug('streams unsubscribed')
+      break
+  logger.debug('streams unsubscribed')
 
 
 async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path: str):
@@ -80,8 +79,9 @@ async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path:
 
     # search command
     if command == 'search':
-      streams = await run_async(resolve_stream)()
-      response['data'] = {'streams': [*map(stream_info_to_dict, streams)]}
+      live_streams = await asyncify(resolve_stream)()
+      dataset_specs = Path('../datasets').glob("*.json")
+      response['data'] = {'streams': [*map(stream_info_to_dict, live_streams)]}
     # subscribe command
     elif command == 'subscribe':
       props = ['source_id', 'name', 'type']
@@ -90,7 +90,7 @@ async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path:
       pred_str = ' and '.join(
         '(' + " or ".join([f"{props[i]}='{x}'" for x in set(c)]) + ')' for i, c in enumerate(list(zip(*queries))[:-1]))
       # run one query to get a superset of the requested streams
-      result_streams: List[StreamInfo] = await run_async(resolve_stream)(pred_str)
+      result_streams: List[StreamInfo] = await asyncify(resolve_stream)(pred_str)
       # filter streams by individual queries
       selected_streams: List[StreamInfo] = []
       for stream in result_streams:

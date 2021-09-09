@@ -22,9 +22,9 @@ from typing import Dict, Callable, Any, Generator, Iterator, Tuple
 import numpy as np
 from pylsl import StreamOutlet
 
-from core.io import get_dataset_spec
-from core.lsl_outlet import create_outlet
-from core.types import DataSetSpec, DataSourceSpec, StreamInfo
+from dfs import get_dataset_spec
+from dfs.lsl_outlet import create_outlet
+from dfs.types import DataSetSpec, DataSourceSpec, StreamInfo
 
 DIGIT_CHARS = '0123456789'
 SHUTDOWN_FLAG = threading.Event()

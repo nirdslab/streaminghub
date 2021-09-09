@@ -6,8 +6,8 @@ from typing import List
 
 from pylsl import StreamOutlet
 
-from core.io import get_datasource_spec
-from core.lsl_outlet import create_outlet
+from dfs import get_datasource_spec
+from dfs.lsl_outlet import create_outlet
 
 
 # server states (enum)
@@ -46,7 +46,7 @@ class Connector:
     self.device_id = ...
     self.outlets: dict = {}
     self.server_state = E4ServerState.NEW__
-    self.datasource_spec = get_datasource_spec(f"{os.path.dirname(__file__)}/spec.json", 'json')
+    self.datasource_spec = get_datasource_spec(f"{os.getenv('DATASOURCE_DIR')}/empatica_e4.json", 'json')
 
   def set_device_list(self, devices: List[str]):
     self.device_list = devices

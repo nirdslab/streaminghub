@@ -3,8 +3,9 @@ import logging
 import sys
 import unittest
 
-from core.lsl_outlet import create_outlet
-from tools.datasource_replay import get_dataset_spec, get_attrs_and_streams
+from dfs.lsl_outlet import create_outlet
+from dfs import get_dataset_spec
+from tools.datasource_replay import get_attrs_and_streams
 
 logger = logging.getLogger()
 logger.level = logging.DEBUG

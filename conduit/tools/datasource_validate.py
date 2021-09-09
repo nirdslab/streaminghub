@@ -12,8 +12,8 @@ proposed standards.
 
 import sys
 
-from core.errors import DoesNotMatchSchemaError
-from core.io import get_datasource_spec
+from dfs.errors import DoesNotMatchSchemaError
+from dfs import get_datasource_spec
 
 SYNTAX = "datasource_validate [path/to/datasource/spec]"
 
