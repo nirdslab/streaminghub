@@ -2,7 +2,7 @@ import logging
 import os
 from typing import Tuple, Dict, Any, Generator, Iterator
 
-from dfs.types import DataSetSpec
+from dfs import DataSetSpec
 
 logger = logging.getLogger()
 

@@ -3,7 +3,7 @@ import logging
 import sys
 import unittest
 
-from dfs import get_dataset_spec, create_outlet
+from dfs import get_dataset_spec, create_outlet, get_meta_dir
 from ..datasource_replay import get_attrs_and_streams
 
 logger = logging.getLogger()
@@ -14,9 +14,8 @@ logger.addHandler(stream_handler)
 
 class TestSimulator(unittest.TestCase):
   dataset_name = 'adhd_sin'
-  dataset_dir = '../datasets'
   dataset_spec_fmt = 'json'
-  dataset_spec_fp = f'{dataset_dir}/{dataset_name}.{dataset_spec_fmt}'
+  dataset_spec_fp = f'{get_meta_dir()}/datasets/{dataset_name}.{dataset_spec_fmt}'
 
   def test_load_dataset_spec(self):
     """
@@ -48,7 +47,7 @@ class TestSimulator(unittest.TestCase):
     """
     test_meta_file_format = 'json'
     # load the meta-file
-    meta_file = get_dataset_spec(self.dataset_dir, self.dataset_name, test_meta_file_format)
+    meta_file = get_dataset_spec(self.dataset_spec_fp, self.dataset_spec_fmt)
     meta_streams = create_data_sources(meta_file)
     self.assertEqual(len(meta_streams), len(meta_file.sources.sources))
     for i in range(len(meta_streams)):

@@ -6,7 +6,7 @@ from urllib.request import urlopen
 
 import jsonschema
 
-from .errors import DoesNotMatchSchemaError, SchemaNotMentionedError
+from .errors import DoesNotMatchSchemaError, SchemaNotMentionedError, UnknownFileFormatError
 from .types import DataSourceSpec, DataSetSpec, AnalyticSpec
 
 logger = logging.getLogger()
@@ -29,12 +29,18 @@ def __fetch(path: str) -> dict:
       path = abs_path
     logger.debug(f'Fetching: file://{path}')
     with open(path) as payload:
-      content = json.load(payload)
+      try:
+        content = json.load(payload)
+      except json.JSONDecodeError:
+        raise UnknownFileFormatError()
       logger.debug(f'Fetched: file://{path}')
   else:
     logger.debug(f'Fetching: {path}')
     with urlopen(path) as payload:
-      content = json.load(payload)
+      try:
+        content = json.load(payload)
+      except json.JSONDecodeError:
+        raise UnknownFileFormatError()
       logger.debug(f'Fetched: {path}')
   return content
 
@@ -43,7 +49,7 @@ def __fetch_spec(spec_uri: str) -> dict:
   """
   First, fetch the spec, validate against its schema.
   Next, recursively dereference and replace "sources" and values in the form "{uri}#/{path}".
-  If external specs are loaded during this process, validate them as well.
+  If external meta are loaded during this process, validate them as well.
 
   @param spec_uri: path for the JSON spec
   @return: dict containing the validated, dereferenced spec
@@ -111,21 +117,21 @@ def __fetch_spec(spec_uri: str) -> dict:
   return __fetch_and_validate(spec_uri)
 
 
-def datasource(path: str) -> DataSourceSpec:
+def get_datasource_spec(path: str) -> DataSourceSpec:
   data = __fetch_spec(path)
   spec = DataSourceSpec(d=data)
   logger.debug(f'Created DataSourceSpec: {path}')
   return spec
 
 
-def dataset(path: str):
+def get_dataset_spec(path: str):
   data = __fetch_spec(path)
   spec = DataSetSpec(d=data)
   logger.debug(f'Created DataSetSpec: {path}')
   return spec
 
 
-def analytic(path: str):
+def get_analytic_spec(path: str):
   data = __fetch_spec(path)
   spec = AnalyticSpec(d=data)
   logger.debug(f'Created AnalyticSpec: {path}')

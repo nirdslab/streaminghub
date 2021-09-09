@@ -5,15 +5,17 @@ import os
 
 import pandas as pd
 
-SRC_DIR = "../datasets/adhd_sin_orig"
-OUT_DIR = "../datasets/adhd_sin"
+from dfs import get_data_dir
+
+SRC_DIR = f"{get_data_dir()}/adhd_sin_orig"
+OUT_DIR = f"{get_data_dir()}/adhd_sin"
 
 if __name__ == '__main__':
   files = glob.glob(f"{SRC_DIR}/*.csv")
   file_names = list(map(os.path.basename, files))
   for file_name in file_names:
-    df: pd.DataFrame = pd.read_csv(f'{SRC_DIR}/{file_name}').set_index('EyeTrackerTimestamp')[
-      ['GazePointX (ADCSpx)', 'GazePointY (ADCSpx)', 'PupilLeft', 'PupilRight']].sort_index().reset_index()
+    df: pd.DataFrame = pd.read_csv(f'{SRC_DIR}/{file_name}').set_index('EyeTrackerTimestamp').sort_index()[
+      ['GazePointX (ADCSpx)', 'GazePointY (ADCSpx)', 'PupilLeft', 'PupilRight']].reset_index()
     df.columns = ['t', 'x', 'y', 'dl', 'dr']
     # fill blanks (order=interpolate(inter)->bfill+ffill(edges))->zerofill
     df = df.apply(lambda x: x.interpolate().fillna(method="bfill").fillna(method="ffill")).fillna(0)

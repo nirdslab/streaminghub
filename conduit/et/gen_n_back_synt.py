@@ -5,11 +5,13 @@ import os
 
 import pandas as pd
 
+from dfs import get_data_dir
+
 NOISE_PROFILES = ["p", "b", "n"]
 ET_PROFILE = ["ideal", "noisy"]
 
-SRC_DIR = "../datasets/n_back_synt_orig"
-OUT_DIR = "../datasets/n_back_synt"
+SRC_DIR = f"{get_data_dir()}/n_back_synt_orig"
+OUT_DIR = f"{get_data_dir()}/n_back_synt"
 
 if __name__ == '__main__':
   for np in NOISE_PROFILES:
@@ -18,8 +20,8 @@ if __name__ == '__main__':
       files = glob.glob(f"{SRC_DIR}/*-{np}*-{ep}.csv")
       file_names = list(map(os.path.basename, files))
       for file_name in file_names:
-        df: pd.DataFrame = pd.read_csv(f'{SRC_DIR}/{file_name}').set_index('t')[
-          ['fx', 'fy', 'd']].sort_index().reset_index()
+        df: pd.DataFrame = pd.read_csv(f'{SRC_DIR}/{file_name}').set_index('t').sort_index()[
+          ['fx', 'fy', 'd']].reset_index()
         cols = ['t', 'x', 'y', 'd']
         df.columns = cols
         df = df[cols].round(6).set_index('t')

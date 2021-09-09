@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 import codecs
-import os
 import socket
 from typing import List
 
 from pylsl import StreamOutlet
 
-from dfs import get_datasource_spec, create_outlet
+from dfs import get_datasource_spec, create_outlet, get_meta_dir
 
 
 # server states (enum)
@@ -45,7 +44,7 @@ class Connector:
     self.device_id = ...
     self.outlets: dict = {}
     self.server_state = E4ServerState.NEW__
-    self.datasource_spec = get_datasource_spec(f"{os.path.dirname(__file__)}/../datasources/empatica_e4.json", 'json')
+    self.datasource_spec = get_datasource_spec(f"{get_meta_dir()}/datasources/empatica_e4.json")
 
   def set_device_list(self, devices: List[str]):
     self.device_list = devices

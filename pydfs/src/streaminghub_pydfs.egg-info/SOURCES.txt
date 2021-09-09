@@ -7,6 +7,7 @@ src/dfs/io.py
 src/dfs/outlet.py
 src/dfs/parser.py
 src/dfs/types.py
+src/dfs/util.py
 src/streaminghub_pydfs.egg-info/PKG-INFO
 src/streaminghub_pydfs.egg-info/SOURCES.txt
 src/streaminghub_pydfs.egg-info/dependency_links.txt

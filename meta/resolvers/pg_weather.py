@@ -2,7 +2,7 @@ import logging
 import os
 from typing import Tuple, Dict, Any, Generator, Iterator
 
-from dfs.types import DataSetSpec
+from dfs import DataSetSpec
 
 logger = logging.getLogger()
 
@@ -12,26 +12,22 @@ DICT_GENERATOR = Generator[DICT, None, None]
 
 def resolve(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[DICT, str]]:
   # initialize empty parameters with default values from spec
-  subject = kwargs.get('subject', spec.groups.get('subject').attributes)
-  mode = kwargs.get('mode', spec.groups.get('mode').attributes)
-  task = kwargs.get('task', spec.groups.get('task').attributes)
-  position = kwargs.get('position', spec.groups.get('position').attributes)
+  state = kwargs.get('state', spec.groups.get('state').attributes)
+  city = kwargs.get('city', spec.groups.get('city').attributes)
   logger.info(f"requested: "
-              f"[Subject]:{','.join(subject):.40}{'...' * bool(','.join(subject)[40:])}, "
-              f"[Mode]:{','.join(mode):.40}{'...' * bool(','.join(mode)[40:])}, "
-              f"[Task]:{','.join(task):.40}{'...' * bool(','.join(task)[40:])}, "
-              f"[Position]:{','.join(position):.40}{'...' * bool(','.join(position)[40:])}")
+              f"[State]:{','.join(state):.40}{'...' * bool(','.join(state)[40:])}, "
+              f"[City]:{','.join(city):.40}{'...' * bool(','.join(city)[40:])}")
 
   # filter by resolve values
-  filtered = ((s, m, t, p) for s in subject for m in mode for t in task for p in position)
+  filtered = ((s, c) for s in state for c in city)
 
   # generate (and yield) target file paths
   base_dir = os.getenv("STREAMINGHUB_DATA_DIR")
-  for (f_subject, f_mode, f_task, f_position) in filtered:
-    filename = f'{f_subject}-{f_mode}-{f_task}-{f_position}.csv'
-    abs_path = os.path.join(base_dir, 'n_back', filename)
+  for (f_state, f_city) in filtered:
+    filename = f'{f_state}-{f_city}.csv'
+    abs_path = os.path.join(base_dir, 'pg_weather', filename)
     if os.path.isfile(abs_path):
-      attrs = {"subject": f_subject, "mode": f_mode, "task": f_task, "position": f_position}
+      attrs = {"city": f_city, "state": f_state}
       yield attrs, abs_path
 
 

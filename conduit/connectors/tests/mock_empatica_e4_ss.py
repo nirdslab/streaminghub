@@ -9,12 +9,11 @@ Source: git@github.com:nirdslab/ee4ss_pretender.git
 """
 
 import asyncio
-import sys
 import logging
-from threading import Thread
+import sys
 from asyncio.streams import StreamReader, StreamWriter
-
 from datetime import datetime
+from threading import Thread
 from typing import Dict
 
 logger = logging.getLogger(__file__)
