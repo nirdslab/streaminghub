@@ -5,7 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/pydfs/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/datamux/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/datamux/tests" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/meta" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/metadata" isTestSource="false" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.7 (streaminghub)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

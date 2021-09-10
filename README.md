@@ -1,41 +1,62 @@
 # StreamingHub
 
-<img src="https://i.imgur.com/xSieE3V.png" height="100px">
-
+<img src="https://i.imgur.com/xSieE3V.png" height="100px"><br>
 StreamingHub is a visual programming framework to simplify data analysis workflows.<br>
-
-
-## 1 Minute Demo
 <img src="docs/demo-animated.gif" width="100%">
 
 This repository hosts the following subprojects,
 
-## DFS
-A collection of JSON schemas to describe data streams, data sets, and analytics, plus a few samples.<br>
+## DataMux | ```datamux/```
+
+Scripts to stream sensory data in real-time, replay stored data from datasets, and stream mock data for testing.<br>
+**Technologies:** Python, PyLSL, WebSockets
+
+## DFS | ```dfs/```
+
+JSON schemas to describe data streams, data sets, and analytics, along with a few samples.<br>
 **Technologies:** JSON, JSON Schema
 
-## Conduit
-Scripts to stream sensory data in real-time, replay stored data from datasets, and stream mock data for testing.<br>
-**Technologies:** Python, PyLSL
+## Metadata | ```metadata/```
 
-## WebUI
-Web interface to generate and validate DFS metadata.<br>
-**Technologies:** Angular, Typescript, Monaco Editor
+A collection of DFS metadata files (JSON) and resolvers (Python) for several datasets and datasources used within the
+project.<br>
+**Technologies:** DFS, JSON, Python
 
-## Orange3 Add-ons
-Orange3 support package to use StreamingHub.<br>
-It adds widgets to discover data streams, display their metadata, and subscribe to them.<br>
-**Technologies:** Python, PyQt5, Orange3, PyLSL.
+## Node-RED Addons | ```node-red-addons/```
 
-## Node-RED Add-ons
 Node-RED support package to use StreamingHub.<br>
 It adds widgets to discover data streams, display metadata, auto-populate
 **Technologies:** Javascript, JSON, Vega
 
+## PyDFS | ```pydfs/```
+
+A Python package for using DFS in StreamingHub projects.
+**Technologies:** Python, PyLSL
+
+## Archived Projects
+
+### Orange3 Addons | ```old/orange3-addons```
+
+Orange3 support package to use StreamingHub.<br>
+It adds widgets to discover data streams, display their metadata, and subscribe to them.<br>
+**Technologies:** Python, PyQt5, Orange3, PyLSL.
+
+### WebUI | ```old/webui```
+
+Web interface to generate and validate DFS metadata.<br>
+**Technologies:** Angular, Typescript, Monaco Editor
+
+### Old WebUI | ```old/webui-old```
+
+Web interface to generate and validate DFS metadata.<br>
+**Technologies:** Angular, Typescript, Monaco Editor
+
 <hr/>
 
 ## Citation
+
 If you found this work useful in your research, please consider citing us.
+
 ```bibtex
 @inproceedings{jayawardana2021streaminghub,
 author       = {Jayawardana, Yasith and Jayawardena, Gavindya and Duchowski, Andrew T. and Jayarathna, Sampath},
