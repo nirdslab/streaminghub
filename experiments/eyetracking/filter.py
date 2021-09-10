@@ -7,8 +7,8 @@ import glob
 import os
 import sys
 
-from model import Monitor
-from model import Process
+from pipeline import Monitor
+from pipeline import Process
 
 
 def usage():
