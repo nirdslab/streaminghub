@@ -6,47 +6,52 @@ StreamingHub is a visual programming framework to simplify data analysis workflo
 
 This repository hosts the following subprojects,
 
-## DataMux | ```datamux/```
+## DataMux | `datamux/`
 
 Scripts to stream sensory data in real-time, replay stored data from datasets, and stream mock data for testing.<br>
 **Technologies:** Python, PyLSL, WebSockets
 
-## DFS | ```dfs/```
+## DFS | `dfs/`
 
 JSON schemas to describe data streams, data sets, and analytics, along with a few samples.<br>
 **Technologies:** JSON, JSON Schema
 
-## Metadata | ```metadata/```
+## Experiments | `experiments/`
+
+A collection of experiments conducted using StreamingHub for different use cases.<br/>
+**Technologies:** DFS, JSON, Python, OpenGL
+
+## Metadata | `metadata/`
 
 A collection of DFS metadata files (JSON) and resolvers (Python) for several datasets and datasources used within the
 project.<br>
 **Technologies:** DFS, JSON, Python
 
-## Node-RED Addons | ```node-red-addons/```
+## Node-RED Addons | `node-red-addons/`
 
 Node-RED support package to use StreamingHub.<br>
 It adds widgets to discover data streams, display metadata, auto-populate
 **Technologies:** Javascript, JSON, Vega
 
-## PyDFS | ```pydfs/```
+## PyDFS | `pydfs/`
 
 A Python package for using DFS in StreamingHub projects.
 **Technologies:** Python, PyLSL
 
 ## Archived Projects
 
-### Orange3 Addons | ```old/orange3-addons```
+### Orange3 Addons | `old/orange3-addons`
 
 Orange3 support package to use StreamingHub.<br>
 It adds widgets to discover data streams, display their metadata, and subscribe to them.<br>
 **Technologies:** Python, PyQt5, Orange3, PyLSL.
 
-### WebUI | ```old/webui```
+### WebUI | `old/webui`
 
 Web interface to generate and validate DFS metadata.<br>
 **Technologies:** Angular, Typescript, Monaco Editor
 
-### Old WebUI | ```old/webui-old```
+### Old WebUI | `old/webui-old`
 
 Web interface to generate and validate DFS metadata.<br>
 **Technologies:** Angular, Typescript, Monaco Editor
