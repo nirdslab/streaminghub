@@ -4,7 +4,7 @@
 StreamingHub is a visual programming framework to simplify data analysis workflows.<br>
 <img src="docs/demo-animated.gif" width="100%">
 
-This repository hosts the following subprojects,
+This repository hosts the following modules,
 
 ## DataMux | `datamux/`
 
@@ -38,6 +38,10 @@ A Python package for using DFS in StreamingHub projects.
 Streaminghub modules that are still in experimental stage.
 These modules aim to improve the architecture and performance of streaminghub, and would likely be promoted into core 
 streaminghub modules in the future.<br/>
+
+## Projects
+A collection of projects conducted using StreamingHub for different use cases.<br/>
+**Technologies:** DFS, JSON, Python, OpenGL
 
 ## Archived Projects
 

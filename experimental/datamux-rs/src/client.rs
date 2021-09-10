@@ -1,8 +1,8 @@
-use hello_world::greeter_client::GreeterClient;
-use hello_world::HelloRequest;
+use datamux::greeter_client::GreeterClient;
+use datamux::HelloRequest;
 
-pub mod hello_world {
-    tonic::include_proto!("helloworld");
+pub mod datamux {
+    tonic::include_proto!("datamux");
 }
 
 #[tokio::main]

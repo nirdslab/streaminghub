@@ -1,10 +1,10 @@
 use tonic::{transport::Server, Request, Response, Status};
 
-use hello_world::greeter_server::{Greeter, GreeterServer};
-use hello_world::{HelloReply, HelloRequest};
+use datamux::greeter_server::{Greeter, GreeterServer};
+use datamux::{HelloReply, HelloRequest};
 
-pub mod hello_world {
-    tonic::include_proto!("helloworld");
+pub mod datamux {
+    tonic::include_proto!("datamux");
 }
 
 #[derive(Debug, Default)]
@@ -14,7 +14,7 @@ pub struct MyGreeter {}
 impl Greeter for MyGreeter {
     async fn say_hello(&self, request: Request<HelloRequest>) -> Result<Response<HelloReply>, Status> {
         println!("Got a request: {:?}", request);
-        let reply = hello_world::HelloReply {
+        let reply = datamux::HelloReply {
             message: format!("Hello {}!", request.into_inner().name).into()
         };
         Ok(Response::new(reply))

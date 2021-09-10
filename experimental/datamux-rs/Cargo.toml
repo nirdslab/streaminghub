@@ -1,14 +1,14 @@
 [package]
-name = "helloworld-tonic"
+name = "datamux"
 version = "0.1.0"
 edition = "2018"
 
-[[bin]] # Bin to run the HelloWorld gRPC server
-name = "helloworld-server"
+[[bin]]
+name = "datamux-server"
 path = "src/server.rs"
 
-[[bin]] # Bin to run the HelloWorld gRPC client
-name = "helloworld-client"
+[[bin]]
+name = "datamux-client"
 path = "src/client.rs"
 
 [dependencies]
