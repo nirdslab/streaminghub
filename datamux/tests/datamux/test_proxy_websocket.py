@@ -4,7 +4,7 @@ import logging
 import sys
 import unittest
 
-from tools.proxy_websocket import ERROR_BAD_REQUEST, consume
+from datamux.proxy_websocket import ERROR_BAD_REQUEST, consume
 
 logger = logging.getLogger()
 logger.level = logging.DEBUG

@@ -21,7 +21,7 @@ import numpy as np
 import websockets
 from pylsl import StreamInlet, StreamInfo, resolve_stream, LostError
 
-from .util import stream_info_to_dict
+from datamux.util import stream_info_to_dict
 
 logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
 logger = logging.getLogger()
