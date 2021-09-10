@@ -10,7 +10,7 @@ export class WebSocketService {
   private ws: WebSocketSubject<any>;
 
   constructor() {
-    this.ws = webSocket<any>('wss://streaminghub-streaminghub-conduit-staging.35.222.43.57.nip.io/ws');
+    this.ws = webSocket<any>('wss://streaminghub-streaminghub-datamux-staging.35.222.43.57.nip.io/ws');
   }
 
   public setAddress(address: string): void {
