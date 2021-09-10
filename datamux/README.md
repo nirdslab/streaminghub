@@ -5,6 +5,6 @@
 **DataMux** is a collection of scripts to assist real-time data analysis.
 It provides the modes listed below.
 
-* **Live Mode**: to stream sensory data in real-time
+* **Proxy Mode**: to interface and proxy live data from sensors
 * **Replay Mode**: to replay stored data from datasets
-* **Simulation Mode**: to stream guided/unguided mock data for testing
+* **Simulate Mode**: to stream guided/unguided mock data for testing
