@@ -7,7 +7,9 @@
       <sourceFolder url="file://$MODULE_DIR$/datamux/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/metadata" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/pydfs/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/experimental/datamux-rust/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/docs" />
+      <excludeFolder url="file://$MODULE_DIR$/experimental/datamux-rust/target" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.7 (streaminghub)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

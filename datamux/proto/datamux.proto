@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package datamux;
+
+service DataMux {
+  rpc GetServerResponse(Request) returns (stream Response) {}
+}
+
+message Request {
+  string command = 1;
+  string data = 2;
+  string error = 3;
+}
+
+message Response {
+  string command = 1;
+  string data = 2;
+  string error = 3;
+}

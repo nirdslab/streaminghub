@@ -16,11 +16,6 @@ Scripts to stream sensory data in real-time, replay stored data from datasets, a
 JSON schemas to describe data streams, data sets, and analytics, along with a few samples.<br>
 **Technologies:** JSON, JSON Schema
 
-## Experiments | `experiments/`
-
-A collection of experiments conducted using StreamingHub for different use cases.<br/>
-**Technologies:** DFS, JSON, Python, OpenGL
-
 ## Metadata | `metadata/`
 
 A collection of DFS metadata files (JSON) and resolvers (Python) for several datasets and datasources used within the
@@ -37,6 +32,12 @@ It adds widgets to discover data streams, display metadata, auto-populate
 
 A Python package for using DFS in StreamingHub projects.
 **Technologies:** Python, PyLSL
+
+## Experimental | `experimental/`
+
+Streaminghub modules that are still in experimental stage.
+These modules aim to improve the architecture and performance of streaminghub, and would likely be promoted into core 
+streaminghub modules in the future.<br/>
 
 ## Archived Projects
 
