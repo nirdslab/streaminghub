@@ -4,7 +4,7 @@ import logging
 import sys
 import unittest
 
-from datamux.proxy_websocket import ERROR_BAD_REQUEST, consume
+from datamux.server import ERROR_BAD_REQUEST, consume
 
 logger = logging.getLogger()
 logger.level = logging.DEBUG
@@ -12,7 +12,7 @@ stream_handler = logging.StreamHandler(sys.stdout)
 logger.addHandler(stream_handler)
 
 
-class TestProxyWebsocket(unittest.TestCase):
+class TestServer(unittest.TestCase):
 
   def test_consumer_search_command(self):
     """

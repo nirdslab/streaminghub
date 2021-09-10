@@ -2,12 +2,12 @@
 
 """
 This command-line executable program accepts a
-meta-stream as an input, and checks for its
+metadata spec as an input, and checks for its
 validity.
 
-It can be used for testing meta-streams and
-finding whether they are compliant with the
-proposed standards.
+It can be used for testing datasource, dataset,
+and analytic metadata and finding whether they
+are compliant with DFS schemas.
 """
 
 import sys
@@ -15,7 +15,7 @@ import sys
 from dfs import get_datasource_spec
 from dfs.errors import DoesNotMatchSchemaError
 
-SYNTAX = "datasource_validate [path/to/datasource/spec]"
+SYNTAX = "validate [path/to/spec]"
 
 
 def validate_datasource_spec(path: str):

@@ -111,7 +111,7 @@ def parse_attrs(attrs: str) -> dict:
 def main():
   # get default args
   # create parser and parse args
-  parser = argparse.ArgumentParser(prog='datasource_replay.py')
+  parser = argparse.ArgumentParser(prog='replay.py')
   # required args
   parser.add_argument('--dataset-name', '-n', required=True)
   # optional args

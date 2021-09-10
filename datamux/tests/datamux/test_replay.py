@@ -3,7 +3,7 @@ import logging
 import sys
 import unittest
 
-from datamux.datasource_replay import get_attrs_and_streams
+from datamux.replay import get_attrs_and_streams
 from dfs import get_dataset_spec, create_outlet
 
 logger = logging.getLogger()
@@ -12,7 +12,7 @@ stream_handler = logging.StreamHandler(sys.stdout)
 logger.addHandler(stream_handler)
 
 
-class TestDataSourceReplay(unittest.TestCase):
+class TestReplay(unittest.TestCase):
 
   def setUp(self) -> None:
     super().setUp()
