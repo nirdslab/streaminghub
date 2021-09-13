@@ -162,6 +162,9 @@ class DeviceInfo(dict):
   def category(self, value: str):
     self['category'] = value
 
+  def __str__(self) -> str:
+    return f"{self.manufacturer} {self.model}"
+
 
 class StreamInfo(dict):
 

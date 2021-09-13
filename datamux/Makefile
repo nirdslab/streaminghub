@@ -13,7 +13,7 @@ simulate:
 	src/datamux/simulate.py $(DATASOURCE_FILE)
 validate:
 	src/datamux/validate.py $(DATASOURCE_FILE)
-proxy:
+server:
 	PORT=8765 src/datamux/server.py
 workflow:
 	node-red

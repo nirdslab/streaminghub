@@ -11,34 +11,24 @@ the datasets that's already collected.
 
 import argparse
 import asyncio
-import importlib
 import logging
 import os
 import random
-import sys
 import threading
 from time import time_ns
-from typing import Dict, Callable, Any, Generator, Iterator, Tuple
+from typing import Dict, Generator
 
 import numpy as np
 from pylsl import StreamOutlet
 
-from dfs import get_data_dir, get_datasource_dir, get_dataset_dir, get_analytic_dir, get_meta_dir
+from datamux.util import dataset_attrs_and_data
+from dfs import get_data_dir, get_datasource_dir, get_dataset_dir, get_analytic_dir
 from dfs import get_dataset_spec, create_outlet, DataSetSpec, DataSourceSpec, StreamInfo
 
 DIGIT_CHARS = '0123456789'
 SHUTDOWN_FLAG = threading.Event()
 logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
 logger = logging.getLogger()
-
-
-def get_attrs_and_streams(spec: DataSetSpec, dataset_name: str, **kwargs) -> Iterator[
-  Tuple[Dict[str, Any], Generator[Dict[str, float], None, None]]]:
-  if get_meta_dir() not in sys.path:
-    sys.path.append(get_meta_dir())
-  resolver = importlib.import_module(f'resolvers.{dataset_name}')
-  stream: Callable[[DataSetSpec, ...], Any] = getattr(resolver, 'stream')
-  yield from stream(spec, **kwargs)
 
 
 async def begin_streaming(dataset_spec: DataSetSpec, dataset_name: str, **kwargs):
@@ -56,7 +46,7 @@ async def begin_streaming(dataset_spec: DataSetSpec, dataset_name: str, **kwargs
       stream_info = source.streams[stream_id]
       logger.info(f'Source [{source_id}]: initialized stream [{stream_info.name}]')
       # TODO for now sending everything in same outlet, later find a way to split outlets by attrs (or create a new outlet for each distinct attr)
-      for attrs, data_stream in get_attrs_and_streams(dataset_spec, dataset_name, **kwargs):
+      for attrs, data_stream in dataset_attrs_and_data(dataset_spec, dataset_name, **kwargs):
         # create outlet for every nested attr, and create hierarchy
         outlet = create_outlet(source_id, source.device, stream_info, attrs)
         task = loop.create_task(emit(outlet, data_stream, stream_info))

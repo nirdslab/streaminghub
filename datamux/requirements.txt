@@ -8,3 +8,5 @@ jsonschema
 msgpack
 pyzmq
 matplotlib
+grpcio
+grpcio-tools
