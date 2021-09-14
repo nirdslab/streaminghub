@@ -76,10 +76,12 @@ async def start_live_stream(
   stream: StreamInlet,
   queue: asyncio.Queue
 ):
+  logger.debug('initializing live stream')
   stream_info = stream.info()
   s_source = stream_info.source_id()
   s_type = stream_info.type()
   s_attrs = map_live_stream_info_to_dict(stream_info)
+  logger.debug('started live stream')
   # TODO find what works best between a per-stream single-threaded executor and a per-client multi-threaded executor
   with ThreadPoolExecutor(max_workers=1) as executor:
     while True:
@@ -105,7 +107,7 @@ async def start_live_stream(
         await queue.put(res)
       except LostError:
         break
-    logger.debug('streams unsubscribed')
+  logger.debug('ended live stream')
 
 
 async def start_repl_stream(
@@ -116,7 +118,7 @@ async def start_repl_stream(
   s_attrs: DICT,
   queue: asyncio.Queue
 ):
-  logger.info(f'Started replay')
+  logger.info(f'started replay')
   # prepare static vars
   stream_info = spec.sources[s_source].streams[s_type]
   f = stream_info.frequency
@@ -143,7 +145,7 @@ async def start_repl_stream(
     await queue.put(res)
     await asyncio.sleep(dt)
   # end of data stream
-  logger.info(f'Replay ended')
+  logger.info(f'ended replay')
 
 
 def pull_lsl_stream_chunk(stream: StreamInlet, timeout: float):
@@ -158,6 +160,6 @@ def pull_lsl_stream_chunk(stream: StreamInlet, timeout: float):
 def asyncify(func, executor):
   @wraps(func)
   async def run(*args, **kwargs):
-    return await asyncio.get_event_loop().run_in_executor(executor, partial(func, *args, **kwargs))
+    return asyncio.get_event_loop().run_in_executor(executor, partial(func, *args, **kwargs))
 
   return run

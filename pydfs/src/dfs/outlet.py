@@ -18,17 +18,19 @@ def create_outlet_for_stream(
   """
   Generate LSL outlet from Metadata
   :rtype: StreamOutlet
-  :param source_id: unique id to identify the stream
+  :param source_id: unique id to identify the source
   :param source: device information (from data-source)
   :param stream_id: id of the stream
   :param stream: stream information (from data-source)
   :param attrs: any additional information (from data-set)
   :return: StreamOutlet object to send data streams through
   """
+  name = f'{source.manufacturer} {source.model}'
+  source_id = f'{name} [{source_id}]'
   info = LSLStreamInfo(
     source_id=source_id,
     type=stream_id,
-    name=f'{source.manufacturer} {source.model}',
+    name=name,
     channel_count=len(stream.channels),
     nominal_srate=stream.frequency
   )
