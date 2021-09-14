@@ -26,7 +26,7 @@ from pylsl import resolve_streams as resolve_all_live_streams
 
 import dfs
 from datamux.util import map_live_stream_info_to_dict, start_live_stream, find_repl_streams, \
-  start_repl_stream, DICT_GENERATOR, DICT
+  start_repl_stream
 
 logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
 logger = logging.getLogger()
@@ -76,31 +76,28 @@ class ProxyMode:
         [f"{props[i]}='{x}'" for x in set(c)]
       ) + ')' for i, c in enumerate(list(zip(*stream_query))[:-1])
     )
+    # count of queries and tasks
+    num_queries = len(stream_query)
+    num_tasks = 0
     # run one query to get a superset of the requested streams
     available_live_stream_info: List[LiveStreamInfo] = resolve_live_streams_by_pred_str(pred_str)
-    # filter streams by individual queries
-    selected_live_stream_info: List[LiveStreamInfo] = []
+    # iterate each query and start live streams
     for live_stream_info in available_live_stream_info:
       for (sq_source, sq_type, sq_attrs) in stream_query:
         if live_stream_info.source_id() == sq_source and live_stream_info.type() == sq_type:
-          if not sq_attrs or len(sq_attrs) == 0:
-            selected_live_stream_info.append(live_stream_info)
-          else:
-            # compare attributes and select only if all attributes match
-            sq_attrs: dict = map_live_stream_info_to_dict(live_stream_info).get("attributes", None)
-            if sq_attrs and all(sq_attrs[k] == sq_attrs.get(k, None) for k in sq_attrs):
-              selected_live_stream_info.append(live_stream_info)
-    logger.info("found %d streams matching the %d queries", len(selected_live_stream_info), len(stream_query))
-    # create tasks to proxy selected streams
-    for live_stream_info in selected_live_stream_info:
-      # create stream inlet for selected stream
-      loop.create_task(start_live_stream(
-        LiveStreamInlet(live_stream_info, max_chunklen=1, recover=False),
-        RESPONSES
-      ))
+          # compare attributes and select only if all attributes match
+          s_attrs: dict = map_live_stream_info_to_dict(live_stream_info).get("attributes", {})
+          if all(sq_attrs[k] == s_attrs.get(k, None) for k in sq_attrs):
+            # create task to live-stream data
+            loop.create_task(start_live_stream(
+              LiveStreamInlet(live_stream_info, max_chunklen=1, recover=False),
+              RESPONSES
+            ))
+            num_tasks += 1
+    logger.info("started %d live stream tasks for the %d queries", num_tasks, num_queries)
     return {
       'command': 'notification',
-      'data': {'message': f'started {len(selected_live_stream_info)} live streams'},
+      'data': {'message': f'started {num_tasks} live stream tasks for the {num_queries} queries'},
       'error': None
     }
 
@@ -144,22 +141,20 @@ class ReplayMode:
       str(d.get('type', '')),
       dict(d.get('attributes', {}))
     ) for d in data]
-    # list of selected streams
-    selected_repl_streams: List[Tuple[DICT_GENERATOR, str, str, DICT]] = []
-    # populate list of selected streams by iterating each dataset and filtering streams by attributes
+    # count of queries and tasks
+    num_queries = len(stream_query)
+    num_tasks = 0
+    # iterate each query and start repl streams
     for sq_dataset, sq_source, sq_type, sq_attrs in stream_query:
       dataset_spec = dfs.get_dataset_spec(sq_dataset)
       for repl_stream, s_attrs in find_repl_streams(dataset_spec, **sq_attrs):
-        # add source and type information to attrs, for filtering
-        selected_repl_streams.append((repl_stream, sq_source, sq_type, s_attrs))
-    logger.info("matched %d streams for the %d queries", len(selected_repl_streams), len(stream_query))
-    # create tasks to replay selected streams
-    for repl_stream, s_source, s_type, s_attrs in selected_repl_streams:
-      # create task to replay data
-      loop.create_task(start_repl_stream(repl_stream, s_source, s_type, s_attrs, RESPONSES))
+        # create task to replay data
+        loop.create_task(start_repl_stream(dataset_spec, repl_stream, sq_source, sq_type, s_attrs, RESPONSES))
+        num_tasks += 1
+    logger.info("started %d repl stream tasks for the %d queries", num_tasks, num_queries)
     return {
       'command': 'notification',
-      'data': {'message': f'started {len(selected_repl_streams)} repl streams'},
+      'data': {'message': f'started {num_tasks} repl stream tasks for the {num_queries} queries'},
       'error': None
     }
 

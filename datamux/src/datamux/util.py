@@ -41,9 +41,15 @@ def map_live_stream_desc_to_dict(e: XMLElement, depth=0) -> Union[DICT, List[Any
   return d
 
 
-def map_live_stream_info_to_dict(x: LSLStreamInfo):
-  temp_inlet = StreamInlet(x)
-  desc = temp_inlet.info().desc()
+def map_live_stream_info_to_dict(x: Union[LSLStreamInfo, StreamInlet]):
+  if isinstance(x, LSLStreamInfo):
+    temp_inlet = StreamInlet(x)
+    desc = temp_inlet.info().desc()
+    temp_inlet.close_stream()
+  elif isinstance(x, StreamInlet):
+    desc = x.info().desc()
+  else:
+    raise RuntimeError("the argument 'x' is neither a StreamInfo nor a StreamInlet")
   result = {
     'id': x.source_id(),
     'channel_count': x.channel_count(),
@@ -51,7 +57,6 @@ def map_live_stream_info_to_dict(x: LSLStreamInfo):
     'type': x.type(),
     **map_live_stream_desc_to_dict(desc)
   }
-  temp_inlet.close_stream()
   return result
 
 
@@ -73,6 +78,7 @@ async def start_live_stream(
   stream_info = stream.info()
   s_source = stream_info.source_id()
   s_type = stream_info.type()
+  s_attrs = map_live_stream_info_to_dict(stream_info)
   # TODO find what works best between a per-stream single-threaded executor and a per-client multi-threaded executor
   with ThreadPoolExecutor(max_workers=1) as executor:
     while True:
@@ -87,7 +93,8 @@ async def start_live_stream(
           'data': {
             'stream': {
               'source': s_source,
-              'type': s_type
+              'type': s_type,
+              'attributes': s_attrs
             },
             'chunk': np.nan_to_num(samples, nan=-1).tolist()
           }
@@ -98,6 +105,7 @@ async def start_live_stream(
 
 
 async def start_repl_stream(
+  spec: DataSetSpec,
   repl_stream: DICT_GENERATOR,
   s_source: str,
   s_type: str,
@@ -107,10 +115,37 @@ async def start_repl_stream(
   # TODO find what works best between a per-stream single-threaded executor and a per-client multi-threaded executor
   with ThreadPoolExecutor(max_workers=1) as executor:
     logger.info(f'Started replay')
+    # get each sample of data from repl_stream
     for sample in repl_stream:
-      await responses.put({'command': 'data', 'data': {'stream': s_type, 'chunk': [sample]}})
-    task = loop.create_task(emit(outlet, data_stream, stream_info))
-    logger.info(f'Ended replay')
+      await responses.put({
+        'command': 'data',
+        'data': {
+          'stream': {
+            'source': s_source,
+            'type': s_type,
+            'attributes': s_attrs
+          },
+          'chunk': [sample]
+        }
+      })
+      # sleep until next cycle
+      # --------- TODO copy pasted code, fix it ---------
+      index = float(data[next(iter(stream.index))])  # assuming single-level indexes
+      sample = [float(data[ch]) if data[ch] else np.nan for ch in stream.channels]
+      if not all([i == np.nan for i in sample]):
+        ts = time_ns() * 1e-9
+        # push sample if consumers are available, and data exists
+        outlet.push_sample(sample, index)
+        # update prev_dt
+        if prev_ts is not None:
+          prev_dt = ts - prev_ts
+        # update prev_ts
+        prev_ts = ts
+      # sleep for dt + correction to maintain stream frequency
+      # --------- TODO end of copy pasted code ---------
+      await asyncio.sleep(dt + (dt - prev_dt))
+    # end of data stream
+    logger.info(f'Replay ended')
 
 
 def pull_lsl_stream_chunk(stream: StreamInlet, timeout: float):
