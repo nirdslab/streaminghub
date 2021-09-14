@@ -16,13 +16,17 @@ import logging
 import os
 from http import HTTPStatus
 from pathlib import Path
-from typing import Tuple, Iterable, Optional, List, Dict, Any, Generator
+from typing import Tuple, Iterable, Optional, List, Dict, Any, Union
 
 import websockets
-from pylsl import StreamInlet, StreamInfo, resolve_streams, resolve_bypred
+from pylsl import StreamInfo as LiveStreamInfo
+from pylsl import StreamInlet as LiveStreamInlet
+from pylsl import resolve_bypred as resolve_live_streams_by_pred_str
+from pylsl import resolve_streams as resolve_all_live_streams
 
 import dfs
-from datamux.util import map_lsl_stream_info_to_dict, proxy_lsl_stream, dataset_attrs_and_data, replay_data
+from datamux.util import map_live_stream_info_to_dict, start_live_stream, find_repl_streams, \
+  start_repl_stream, DICT_GENERATOR, DICT
 
 logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
 logger = logging.getLogger()
@@ -47,109 +51,144 @@ async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path:
     logger.info(f'queued: {response}')
 
 
-def proxy_mode_get_live_streams(response: Dict[str, Any]):
-  live_streams = resolve_streams()
-  response['command'] = 'live_streams'
-  response['data'] = {'streams': [*map(map_lsl_stream_info_to_dict, live_streams)]}
+class ProxyMode:
+
+  @staticmethod
+  def get_live_streams():
+    live_streams = resolve_all_live_streams()
+    return {
+      'command': 'live_streams',
+      'data': {'streams': [*map(map_live_stream_info_to_dict, live_streams)]},
+      'error': None
+    }
+
+  @staticmethod
+  def sub_live_streams(data: List[Dict[str, Union[str, dict]]]):
+    # source = <source_id> | type = <stream_id>
+    stream_query = [(
+      str(d.get('source', '')),
+      str(d.get('type', '')),
+      dict(d.get('attributes', {}))
+    ) for d in data]
+    props = ['source_id', 'type']
+    pred_str = ' and '.join(
+      '(' + " or ".join(
+        [f"{props[i]}='{x}'" for x in set(c)]
+      ) + ')' for i, c in enumerate(list(zip(*stream_query))[:-1])
+    )
+    # run one query to get a superset of the requested streams
+    available_live_stream_info: List[LiveStreamInfo] = resolve_live_streams_by_pred_str(pred_str)
+    # filter streams by individual queries
+    selected_live_stream_info: List[LiveStreamInfo] = []
+    for live_stream_info in available_live_stream_info:
+      for (sq_source, sq_type, sq_attrs) in stream_query:
+        if live_stream_info.source_id() == sq_source and live_stream_info.type() == sq_type:
+          if not sq_attrs or len(sq_attrs) == 0:
+            selected_live_stream_info.append(live_stream_info)
+          else:
+            # compare attributes and select only if all attributes match
+            sq_attrs: dict = map_live_stream_info_to_dict(live_stream_info).get("attributes", None)
+            if sq_attrs and all(sq_attrs[k] == sq_attrs.get(k, None) for k in sq_attrs):
+              selected_live_stream_info.append(live_stream_info)
+    logger.info("found %d streams matching the %d queries", len(selected_live_stream_info), len(stream_query))
+    # create tasks to proxy selected streams
+    for live_stream_info in selected_live_stream_info:
+      # create stream inlet for selected stream
+      loop.create_task(start_live_stream(
+        LiveStreamInlet(live_stream_info, max_chunklen=1, recover=False),
+        RESPONSES
+      ))
+    return {
+      'command': 'notification',
+      'data': {'message': f'started {len(selected_live_stream_info)} live streams'},
+      'error': None
+    }
 
 
-def proxy_mode_sub_live_streams(data: List[Dict], response: Dict[str, Any]):
-  props = ['source_id', 'name', 'type']
-  queries = [(d.get('id', None), d.get('name', None), d.get('type', None), d.get('attributes', None)) for d in data]
-  pred_str = ' and '.join(
-    '(' + " or ".join([f"{props[i]}='{x}'" for x in set(c)]) + ')' for i, c in enumerate(list(zip(*queries))[:-1]))
-  # run one query to get a superset of the requested streams
-  result_streams: List[StreamInfo] = resolve_bypred(pred_str)
-  # filter streams by individual queries
-  selected_streams: List[StreamInfo] = []
-  for stream in result_streams:
-    for (ds_id, ds_name, ds_type, ds_attributes) in queries:
-      if stream.source_id() == ds_id and stream.name() == ds_name and stream.type() == ds_type:
-        if not ds_attributes or len(ds_attributes) == 0:
-          selected_streams.append(stream)
-        else:
-          # compare attributes and select only if all attributes match
-          d: dict = map_lsl_stream_info_to_dict(stream).get("attributes", None)
-          if d and all(d[k] == ds_attributes.get(k, None) for k in d):
-            selected_streams.append(stream)
-  logger.info("found %d streams matching the %d queries", len(selected_streams), len(queries))
-  # create tasks to proxy selected streams
-  for x in selected_streams:
-    # create stream inlet for selected stream
-    stream_inlet = StreamInlet(x, max_chunklen=1, recover=False)
-    loop.create_task(proxy_lsl_stream(stream_inlet, RESPONSES))
-  response['command'] = 'live_streams'
-  response['data'] = {'status': 'started'}
+class ReplayMode:
 
+  @staticmethod
+  def get_datasets():
+    dataset_names = [*map(lambda x: x[:-5], Path(dfs.get_dataset_dir()).glob("*.json"))]
+    dataset_specs: List[dfs.DataSetSpec] = [*map(dfs.get_dataset_spec, dataset_names)]
+    return {
+      'command': 'datasets',
+      'data': {'datasets': dataset_specs},
+      'error': None
+    }
 
-def replay_mode_get_datasets(response: Dict[str, Any]):
-  dataset_names = [*map(lambda x: x[:-5], Path(dfs.get_dataset_dir()).glob("*.json"))]
-  dataset_specs: List[dfs.DataSetSpec] = [*map(dfs.get_dataset_spec, dataset_names)]
-  response['command'] = 'datasets'
-  response['data'] = {'datasets': dataset_specs}
+  @staticmethod
+  def get_repl_streams(dataset_name: str):
+    dataset_spec = dfs.get_dataset_spec(dataset_name)
+    repl_stream_info: List[Dict[str, Union[str, dict]]] = []
+    for repl_stream, s_attrs in find_repl_streams(dataset_spec):
+      sources = dataset_spec.sources
+      for source_id in sources:
+        source = sources[source_id]
+        streams = source.streams
+        for stream_id in streams:
+          stream = streams[stream_id]
+          repl_stream_info.append({**s_attrs, 'stream': stream, 'device': source.device})
+    return {
+      'command': 'repl_streams',
+      'data': {'streams': repl_stream_info},
+      'error': None
+    }
 
-
-def replay_mode_get_repl_streams(dataset_name: str, response: Dict[str, Any]):
-  dataset_spec = dfs.get_dataset_spec(dataset_name)
-  attrs_and_streams = []
-  for attrs, data_stream in dataset_attrs_and_data(dataset_spec, dataset_name):
-    sources = dataset_spec.sources
-    for source_id in sources:
-      source = sources[source_id]
-      streams = source.streams
-      for stream_id in streams:
-        stream = streams[stream_id]
-        attrs_and_streams.append({**attrs, 'stream': stream, 'device': source.device})
-  response['command'] = 'repl_streams'
-  response['data'] = {'streams': attrs_and_streams}
-
-
-def replay_mode_sub_repl_streams(data: List[Dict], response: Dict[str, Any]):
-  # TODO update this to replay without LSL
-  queries = [(d.get('id', None), d.get('name', None), d.get('type', None), d.get('attributes', None)) for d in data]
-  # list of selected streams
-  selected_streams: List[Tuple[Dict[str, Any], Generator[Dict[str, float], None, None]]] = []
-  # populate list of selected streams by iterating each dataset and filtering streams by attributes
-  for (ds_id, ds_name, ds_type, ds_attributes) in queries:
-    dataset_spec = dfs.get_dataset_spec(ds_name)
-    for attrs_and_data in dataset_attrs_and_data(dataset_spec, ds_name):
-      attrs, data_stream = attrs_and_data
-      # compare attributes and select only if all attributes match
-      if attrs and all(attrs[k] == ds_attributes.get(k, None) for k in attrs):
-        selected_streams.append(attrs_and_data)
-  logger.info("matched %d streams for the %d queries", len(selected_streams), len(queries))
-  # create tasks to replay selected streams
-  for attrs, data_stream in selected_streams:
-    # create task to replay data
-    loop.create_task(replay_data(attrs, data_stream, RESPONSES))
-  response['command'] = 'repl_streams'
-  response['data'] = {'status': 'started'}
+  @staticmethod
+  def sub_repl_streams(data: List[Dict[str, Union[str, dict]]]):
+    # dataset = <dataset_id> | source = <source_id> | type = <stream_id>
+    stream_query = [(
+      str(d.get('dataset', '')),
+      str(d.get('source', '')),
+      str(d.get('type', '')),
+      dict(d.get('attributes', {}))
+    ) for d in data]
+    # list of selected streams
+    selected_repl_streams: List[Tuple[DICT_GENERATOR, str, str, DICT]] = []
+    # populate list of selected streams by iterating each dataset and filtering streams by attributes
+    for sq_dataset, sq_source, sq_type, sq_attrs in stream_query:
+      dataset_spec = dfs.get_dataset_spec(sq_dataset)
+      for repl_stream, s_attrs in find_repl_streams(dataset_spec, **sq_attrs):
+        # add source and type information to attrs, for filtering
+        selected_repl_streams.append((repl_stream, sq_source, sq_type, s_attrs))
+    logger.info("matched %d streams for the %d queries", len(selected_repl_streams), len(stream_query))
+    # create tasks to replay selected streams
+    for repl_stream, s_source, s_type, s_attrs in selected_repl_streams:
+      # create task to replay data
+      loop.create_task(start_repl_stream(repl_stream, s_source, s_type, s_attrs, RESPONSES))
+    return {
+      'command': 'notification',
+      'data': {'message': f'started {len(selected_repl_streams)} repl streams'},
+      'error': None
+    }
 
 
 async def consume(payload: Any):
   command = payload['command']
-  response: Dict[str, Any] = {'command': None, 'error': None, 'data': None}
   # ====================================================================================================================
   # PROXY MODE
   # ====================================================================================================================
   if command == 'get_live_streams':
-    proxy_mode_get_live_streams(response)
+    ProxyMode.get_live_streams()
   elif command == 'sub_live_streams':
-    proxy_mode_sub_live_streams(payload['data'], response)
+    ProxyMode.sub_live_streams(payload['data'])
   # ====================================================================================================================
   # REPLAY MODE
   # ====================================================================================================================
   elif command == 'get_datasets':
-    replay_mode_get_datasets(response)
+    ReplayMode.get_datasets()
   elif command == 'get_repl_streams':
-    replay_mode_get_repl_streams(payload['data']['dataset_name'], response)
+    ReplayMode.get_repl_streams(payload['data']['dataset_name'])
   elif command == 'sub_repl_streams':
-    replay_mode_sub_repl_streams(payload['data'], response)
+    ReplayMode.sub_repl_streams(payload['data'])
   # ====================================================================================================================
   # SIMULATE MODE
   # ====================================================================================================================
   # TODO implement this
-  # unknown command
+  # ====================================================================================================================
+  # FALLBACK
+  # ====================================================================================================================
   else:
     response = {'command': None, 'error': ERROR_BAD_REQUEST, 'data': None}
   return response

@@ -83,7 +83,7 @@ def d_stream(file: str, fields: Iterator[str]) -> DICT_GENERATOR:
   logger.debug('Closed file: %s', file)
 
 
-def stream(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[DICT, DICT_GENERATOR]]:
+def stream(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[DICT_GENERATOR, DICT]]:
   files = resolve(spec, **kwargs)
   fields = [*spec.fields.keys()]
-  return [(attrs, d_stream(file, fields)) for attrs, file in files]
+  return [(d_stream(file, fields), attrs) for attrs, file in files]

@@ -21,9 +21,9 @@ from typing import Dict, Generator
 import numpy as np
 from pylsl import StreamOutlet
 
-from datamux.util import dataset_attrs_and_data
+from datamux.util import find_repl_streams
 from dfs import get_data_dir, get_datasource_dir, get_dataset_dir, get_analytic_dir
-from dfs import get_dataset_spec, create_outlet, DataSetSpec, DataSourceSpec, StreamInfo
+from dfs import get_dataset_spec, create_outlet_for_stream, DataSetSpec, DataSourceSpec, StreamInfo
 
 DIGIT_CHARS = '0123456789'
 SHUTDOWN_FLAG = threading.Event()
@@ -46,10 +46,10 @@ async def begin_streaming(dataset_spec: DataSetSpec, dataset_name: str, **kwargs
       stream_info = source.streams[stream_id]
       logger.info(f'Source [{source_id}]: initialized stream [{stream_info.name}]')
       # TODO for now sending everything in same outlet, later find a way to split outlets by attrs (or create a new outlet for each distinct attr)
-      for attrs, data_stream in dataset_attrs_and_data(dataset_spec, dataset_name, **kwargs):
+      for repl_stream, s_attrs in find_repl_streams(dataset_spec, **kwargs):
         # create outlet for every nested attr, and create hierarchy
-        outlet = create_outlet(source_id, source.device, stream_info, attrs)
-        task = loop.create_task(emit(outlet, data_stream, stream_info))
+        outlet = create_outlet_for_stream(source_id, source.device, stream_id, stream_info, s_attrs)
+        task = loop.create_task(emit(outlet, repl_stream, stream_info))
         tasks.append(task)
     logger.info(f'Source [{source_id}]: Initialization Completed')
   await asyncio.gather(*tasks)

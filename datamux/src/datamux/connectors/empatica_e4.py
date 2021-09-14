@@ -5,7 +5,7 @@ from typing import List
 
 from pylsl import StreamOutlet
 
-from dfs import get_datasource_spec, create_outlet
+from dfs import get_datasource_spec, create_outlet_for_stream
 
 
 # server states (enum)
@@ -148,7 +148,7 @@ class Connector:
     if res_code not in self.outlets:
       _spec = self.datasource_spec
       _stream_id = self.stream_ids[self.res_ids.index(res_code)]
-      self.outlets[res_code] = create_outlet(self.device_id, _spec.device, _spec.streams[_stream_id])
+      self.outlets[res_code] = create_outlet_for_stream(self.device_id, _spec.device, _stream_id, _spec.streams[_stream_id])
     return self.outlets[res_code]
 
   def process_data_stream(self, cmd: str):

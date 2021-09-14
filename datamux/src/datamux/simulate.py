@@ -16,7 +16,7 @@ import random
 import sys
 import time
 
-from dfs import create_outlet, get_datasource_spec, DataSourceSpec
+from dfs import create_outlet_for_stream, get_datasource_spec, DataSourceSpec
 
 SYNTAX = "datasource_simulate [path/to/datasource/spec]"
 DIGIT_CHARS = '0123456789'
@@ -28,7 +28,7 @@ logger = logging.getLogger()
 async def emit(source_id: str, spec: DataSourceSpec, stream_id: str):
   stream = spec.streams[stream_id]
   f = stream.frequency
-  outlet = create_outlet(source_id, spec.device, stream)
+  outlet = create_outlet_for_stream(source_id, spec.device, stream_id, stream)
   logger.info(f'created stream: {stream.name}')
   while True:
     # calculate dt from f. if f=0, assign a random dt

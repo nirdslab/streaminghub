@@ -10,7 +10,7 @@ import zmq.asyncio
 from PIL import Image
 from pylsl import StreamOutlet
 
-from dfs import get_datasource_spec, create_outlet, DataSourceSpec
+from dfs import get_datasource_spec, create_outlet_for_stream, DataSourceSpec
 
 ZMQ_REQ = zmq.REQ
 ZMQ_SUB = zmq.SUB
@@ -59,7 +59,7 @@ class Connector:
     if stream_id not in self.outlets:
       idx = self.stream_idx[stream_id]
       stream = self.meta.streams[idx]
-      self.outlets[stream_id] = create_outlet(self.device_id, self.meta.device, stream)
+      self.outlets[stream_id] = create_outlet_for_stream(self.device_id, self.meta.device, idx, stream)
     return self.outlets[stream_id]
 
   def subscribe(self):

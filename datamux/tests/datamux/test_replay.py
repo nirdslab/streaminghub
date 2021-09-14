@@ -3,8 +3,8 @@ import logging
 import sys
 import unittest
 
-from datamux.replay import dataset_attrs_and_data
-from dfs import get_dataset_spec, create_outlet
+from datamux.replay import find_repl_streams
+from dfs import get_dataset_spec, create_outlet_for_stream
 
 logger = logging.getLogger()
 logger.level = logging.DEBUG
@@ -36,9 +36,9 @@ class TestReplay(unittest.TestCase):
     # load the dataset spec
     dataset_spec = get_dataset_spec(self.dataset_name)
     # load data via the dataset spec
-    for attrs, data_stream in dataset_attrs_and_data(dataset_spec, self.dataset_name):
+    for repl_stream, s_attrs in find_repl_streams(dataset_spec):
       # create outlet for every nested attr, and create hierarchy
-      outlet = create_outlet  # (source_id, source.device, stream_info, attrs)
+      outlet = create_outlet_for_stream  # (source_id, source.device, stream_info, attrs)
     # assertion
     self.assertEqual(False, False)
 
@@ -49,7 +49,7 @@ class TestReplay(unittest.TestCase):
     test_meta_file_format = 'json'
     # load the meta-file
     dataset_spec = get_dataset_spec(self.dataset_name)
-    for attrs, data_stream in dataset_attrs_and_data(dataset_spec, self.dataset_name):
+    for repl_stream, s_attrs in find_repl_streams(dataset_spec):
       pass
       # self.assertEqual(len(meta_streams), len(dataset_spec.sources.sources))
       # for i in range(len(meta_streams)):

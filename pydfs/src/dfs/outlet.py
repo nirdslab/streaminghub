@@ -8,21 +8,27 @@ from .types import DeviceInfo, StreamInfo
 logger = logging.getLogger()
 
 
-def create_outlet(source_id: str, device: DeviceInfo, stream: StreamInfo,
-                  attrs: Dict[str, str] = None) -> LSLStreamOutlet:
+def create_outlet_for_stream(
+  source_id: str,
+  source: DeviceInfo,
+  stream_id: str,
+  stream: StreamInfo,
+  attrs: Dict[str, str] = None
+) -> LSLStreamOutlet:
   """
   Generate LSL outlet from Metadata
   :rtype: StreamOutlet
-  :param source_id: id for the device, usually the manufacturer and device type combined
-  :param device: device information (from data-source)
+  :param source_id: unique id to identify the stream
+  :param source: device information (from data-source)
+  :param stream_id: id of the stream
   :param stream: stream information (from data-source)
   :param attrs: any additional information (from data-set)
   :return: StreamOutlet object to send data streams through
   """
   info = LSLStreamInfo(
     source_id=source_id,
-    name=f'{device.model}',
-    type=stream.name,
+    type=stream_id,
+    name=f'{source.manufacturer} {source.model}',
     channel_count=len(stream.channels),
     nominal_srate=stream.frequency
   )
@@ -32,9 +38,9 @@ def create_outlet(source_id: str, device: DeviceInfo, stream: StreamInfo,
   desc.append_child_value("freq", str(stream.frequency))
   # add device information
   device_info = desc.append_child("device")
-  device_info.append_child_value("model", device.model)
-  device_info.append_child_value("manufacturer", device.manufacturer)
-  device_info.append_child_value("category", device.category)
+  device_info.append_child_value("model", source.model)
+  device_info.append_child_value("manufacturer", source.manufacturer)
+  device_info.append_child_value("category", source.category)
   channels_info = desc.append_child("channels")
   for channel in stream.channels.keys():
     channels_info.append_child_value("channel", channel)

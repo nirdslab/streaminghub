@@ -10,14 +10,16 @@ import numpy as np
 from pylsl import StreamInfo as LSLStreamInfo, XMLElement, StreamInlet, LostError
 
 from dfs import DataSetSpec, get_meta_dir
-from dfs.types import DeviceInfo, StreamInfo
+
+DICT = Dict[str, Any]
+DICT_GENERATOR = Generator[DICT, None, None]
 
 KNOWN_ARRAY_ELEMENTS = ['channels']
 logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
 logger = logging.getLogger()
 
 
-def map_stream_desc_to_dict(e: XMLElement, depth=0) -> Union[Dict[str, Any], List[Any], str]:
+def map_live_stream_desc_to_dict(e: XMLElement, depth=0) -> Union[DICT, List[Any], str]:
   # terminal case(s)
   if e.empty():
     return {}
@@ -30,7 +32,7 @@ def map_stream_desc_to_dict(e: XMLElement, depth=0) -> Union[Dict[str, Any], Lis
   # parse all children
   child = e.first_child()
   while not child.empty():
-    p = map_stream_desc_to_dict(child, depth + 1)
+    p = map_live_stream_desc_to_dict(child, depth + 1)
     if isinstance(d, dict):
       d[child.name()] = p
     elif isinstance(d, list):
@@ -39,7 +41,7 @@ def map_stream_desc_to_dict(e: XMLElement, depth=0) -> Union[Dict[str, Any], Lis
   return d
 
 
-def map_lsl_stream_info_to_dict(x: LSLStreamInfo):
+def map_live_stream_info_to_dict(x: LSLStreamInfo):
   temp_inlet = StreamInlet(x)
   desc = temp_inlet.info().desc()
   result = {
@@ -47,22 +49,30 @@ def map_lsl_stream_info_to_dict(x: LSLStreamInfo):
     'channel_count': x.channel_count(),
     'name': x.name(),
     'type': x.type(),
-    **map_stream_desc_to_dict(desc)
+    **map_live_stream_desc_to_dict(desc)
   }
   temp_inlet.close_stream()
   return result
 
 
-def dataset_attrs_and_data(spec: DataSetSpec, dataset_name: str, **kwargs) -> Iterator[
-  Tuple[Dict[str, Any], Generator[Dict[str, float], None, None]]]:
+def find_repl_streams(
+  spec: DataSetSpec,
+  **kwargs
+) -> Iterator[Tuple[DICT_GENERATOR, DICT]]:
   if get_meta_dir() not in sys.path:
     sys.path.append(get_meta_dir())
-  resolver = importlib.import_module(f'resolvers.{dataset_name}')
+  resolver = importlib.import_module(f'resolvers.{spec.name}')
   stream: Callable[[DataSetSpec, ...], Any] = getattr(resolver, 'stream')
   yield from stream(spec, **kwargs)
 
 
-async def proxy_lsl_stream(stream: StreamInlet, responses: asyncio.Queue):
+async def start_live_stream(
+  stream: StreamInlet,
+  responses: asyncio.Queue
+):
+  stream_info = stream.info()
+  s_source = stream_info.source_id()
+  s_type = stream_info.type()
   # TODO find what works best between a per-stream single-threaded executor and a per-client multi-threaded executor
   with ThreadPoolExecutor(max_workers=1) as executor:
     while True:
@@ -70,25 +80,35 @@ async def proxy_lsl_stream(stream: StreamInlet, responses: asyncio.Queue):
         samples, timestamps, error = await asyncify(pull_lsl_stream_chunk, executor)(stream, 0.0)
         if error:
           raise error
-        typ = stream.info().type()
         if len(samples) == 0:
           continue
-        await responses.put(
-          {'command': 'data', 'data': {'stream': typ, 'chunk': np.nan_to_num(samples, nan=-1).tolist()}})
+        await responses.put({
+          'command': 'data',
+          'data': {
+            'stream': {
+              'source': s_source,
+              'type': s_type
+            },
+            'chunk': np.nan_to_num(samples, nan=-1).tolist()
+          }
+        })
       except LostError:
         break
     logger.debug('streams unsubscribed')
 
-async def replay_data(
-  stream: StreamInfo,
-  device: DeviceInfo,
-  attrs: Dict[str, Any], data:  Generator[Dict[str, float], None, None], responses: asyncio.Queue):
+
+async def start_repl_stream(
+  repl_stream: DICT_GENERATOR,
+  s_source: str,
+  s_type: str,
+  s_attrs: DICT,
+  responses: asyncio.Queue
+):
   # TODO find what works best between a per-stream single-threaded executor and a per-client multi-threaded executor
   with ThreadPoolExecutor(max_workers=1) as executor:
     logger.info(f'Started replay')
-    for sample in data:
-      await responses.put(
-        {'command': 'data', 'data': {'stream': typ, 'chunk': sample}})
+    for sample in repl_stream:
+      await responses.put({'command': 'data', 'data': {'stream': s_type, 'chunk': [sample]}})
     task = loop.create_task(emit(outlet, data_stream, stream_info))
     logger.info(f'Ended replay')
 

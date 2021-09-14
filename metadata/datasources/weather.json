@@ -7,7 +7,7 @@
   },
   "device": {
     "model": "Weather Data",
-    "manufacturer": "N/A",
+    "manufacturer": "",
     "category": "Temporal"
   },
   "fields": {
