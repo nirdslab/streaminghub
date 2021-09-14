@@ -73,7 +73,7 @@ def find_repl_streams(
 
 async def start_live_stream(
   stream: StreamInlet,
-  responses: asyncio.Queue
+  queue: asyncio.Queue
 ):
   stream_info = stream.info()
   s_source = stream_info.source_id()
@@ -88,7 +88,7 @@ async def start_live_stream(
           raise error
         if len(samples) == 0:
           continue
-        await responses.put({
+        await queue.put({
           'command': 'data',
           'data': {
             'stream': {
@@ -110,14 +110,14 @@ async def start_repl_stream(
   s_source: str,
   s_type: str,
   s_attrs: DICT,
-  responses: asyncio.Queue
+  queue: asyncio.Queue
 ):
   # TODO find what works best between a per-stream single-threaded executor and a per-client multi-threaded executor
   with ThreadPoolExecutor(max_workers=1) as executor:
     logger.info(f'Started replay')
     # get each sample of data from repl_stream
     for sample in repl_stream:
-      await responses.put({
+      await queue.put({
         'command': 'data',
         'data': {
           'stream': {

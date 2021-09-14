@@ -4,7 +4,7 @@ import logging
 import sys
 import unittest
 
-from datamux.server import ERROR_BAD_REQUEST, consume
+from datamux.server import ERROR_BAD_REQUEST, process_cmd
 
 logger = logging.getLogger()
 logger.level = logging.DEBUG
@@ -18,7 +18,7 @@ class TestServer(unittest.TestCase):
     """
     Test if a search command is processed as expected
     """
-    response = asyncio.get_event_loop().run_until_complete(consume({"command": "search"}))
+    response = asyncio.get_event_loop().run_until_complete(process_cmd({"command": "search"}))
     self.assertEqual(response["command"], "search")
     self.assertNotEqual(response["data"], None)
     self.assertEqual(response["error"], None)
@@ -27,7 +27,7 @@ class TestServer(unittest.TestCase):
     """
     Test if an unknown command is processed as expected
     """
-    response = asyncio.get_event_loop().run_until_complete(consume({"command": "foo"}))
+    response = asyncio.get_event_loop().run_until_complete(process_cmd({"command": "foo"}))
     self.assertEqual(response["command"], None)
     self.assertEqual(response["data"], None)
     self.assertEqual(response["error"], ERROR_BAD_REQUEST)
