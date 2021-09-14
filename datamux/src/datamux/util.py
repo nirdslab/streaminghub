@@ -1,6 +1,7 @@
 import asyncio
 import importlib
 import logging
+import random
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from functools import wraps, partial
@@ -51,7 +52,7 @@ def map_live_stream_info_to_dict(x: Union[LSLStreamInfo, StreamInlet]):
   else:
     raise RuntimeError("the argument 'x' is neither a StreamInfo nor a StreamInlet")
   result = {
-    'id': x.source_id(),
+    'source': x.source_id(),
     'channel_count': x.channel_count(),
     'name': x.name(),
     'type': x.type(),
@@ -88,7 +89,7 @@ async def start_live_stream(
           raise error
         if len(samples) == 0:
           continue
-        await queue.put({
+        res = {
           'command': 'data',
           'data': {
             'stream': {
@@ -96,9 +97,12 @@ async def start_live_stream(
               'type': s_type,
               'attributes': s_attrs
             },
+            'index': timestamps,
             'chunk': np.nan_to_num(samples, nan=-1).tolist()
           }
-        })
+        }
+        logger.info(res)
+        await queue.put(res)
       except LostError:
         break
     logger.debug('streams unsubscribed')
@@ -112,40 +116,34 @@ async def start_repl_stream(
   s_attrs: DICT,
   queue: asyncio.Queue
 ):
-  # TODO find what works best between a per-stream single-threaded executor and a per-client multi-threaded executor
-  with ThreadPoolExecutor(max_workers=1) as executor:
-    logger.info(f'Started replay')
-    # get each sample of data from repl_stream
-    for sample in repl_stream:
-      await queue.put({
-        'command': 'data',
-        'data': {
-          'stream': {
-            'source': s_source,
-            'type': s_type,
-            'attributes': s_attrs
-          },
-          'chunk': [sample]
-        }
-      })
-      # sleep until next cycle
-      # --------- TODO copy pasted code, fix it ---------
-      index = float(data[next(iter(stream.index))])  # assuming single-level indexes
-      sample = [float(data[ch]) if data[ch] else np.nan for ch in stream.channels]
-      if not all([i == np.nan for i in sample]):
-        ts = time_ns() * 1e-9
-        # push sample if consumers are available, and data exists
-        outlet.push_sample(sample, index)
-        # update prev_dt
-        if prev_ts is not None:
-          prev_dt = ts - prev_ts
-        # update prev_ts
-        prev_ts = ts
-      # sleep for dt + correction to maintain stream frequency
-      # --------- TODO end of copy pasted code ---------
-      await asyncio.sleep(dt + (dt - prev_dt))
-    # end of data stream
-    logger.info(f'Replay ended')
+  logger.info(f'Started replay')
+  # prepare static vars
+  stream_info = spec.sources[s_source].streams[s_type]
+  f = stream_info.frequency
+  index_cols = [*stream_info.index.keys()]
+  # get each sample of data from repl_stream
+  for data in repl_stream:
+    # prepare dynamic vars
+    dt = (1. / f) if f > 0 else (random.randrange(0, 10) / 10.0)
+    timestamp = [data[col] for col in index_cols][0]  # assume 1D temporal index
+    sample = [float(data[ch]) if data[ch] else np.nan for ch in stream_info.channels]
+    res = {
+      'command': 'data',
+      'data': {
+        'stream': {
+          'source': s_source,
+          'type': s_type,
+          'attributes': s_attrs
+        },
+        'index': [timestamp],
+        'chunk': [sample]
+      }
+    }
+    logger.info(res)
+    await queue.put(res)
+    await asyncio.sleep(dt)
+  # end of data stream
+  logger.info(f'Replay ended')
 
 
 def pull_lsl_stream_chunk(stream: StreamInlet, timeout: float):
