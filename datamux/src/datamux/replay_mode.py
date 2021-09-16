@@ -40,7 +40,7 @@ class ReplayMode:
     }
 
   @staticmethod
-  def sub_repl_streams(data: List[Dict[str, Union[str, dict]]], loop: asyncio.AbstractEventLoop, queue: asyncio.Queue):
+  def sub_repl_streams(data: List[Dict[str, Union[str, dict]]], queue: asyncio.Queue):
     # dataset = <dataset_id> | source = <source_id> | type = <stream_id>
     stream_query = [(
       str(d.get('dataset', '')),
@@ -56,9 +56,9 @@ class ReplayMode:
       dataset_spec = dfs.get_dataset_spec(sq_dataset)
       for repl_stream, s_attrs in find_repl_streams(dataset_spec, **sq_attrs):
         # create task to replay data
-        loop.create_task(start_repl_stream(dataset_spec, repl_stream, sq_source, sq_type, s_attrs, queue))
-        num_tasks += 1
+        asyncio.create_task(start_repl_stream(dataset_spec, repl_stream, sq_source, sq_type, s_attrs, queue))
     logger.info("started %d repl stream tasks for the %d queries", num_tasks, num_queries)
+    # return notification and coroutines
     return {
       'command': 'notification',
       'data': {'message': f'started {num_tasks} repl stream tasks for the {num_queries} queries'},

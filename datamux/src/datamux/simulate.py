@@ -21,7 +21,6 @@ from dfs import create_outlet_for_stream, get_datasource_spec, DataSourceSpec
 SYNTAX = "datasource_simulate [path/to/datasource/spec]"
 DIGIT_CHARS = '0123456789'
 
-logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
 logger = logging.getLogger()
 
 
@@ -75,6 +74,7 @@ def main():
 
 
 if __name__ == '__main__':
+  logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
   try:
     main()
   except AssertionError as e:

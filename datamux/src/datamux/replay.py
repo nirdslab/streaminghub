@@ -27,11 +27,10 @@ from dfs import get_dataset_spec, create_outlet_for_stream, DataSetSpec, DataSou
 
 DIGIT_CHARS = '0123456789'
 SHUTDOWN_FLAG = threading.Event()
-logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
 logger = logging.getLogger()
 
 
-async def begin_streaming(dataset_spec: DataSetSpec, dataset_name: str, **kwargs):
+async def begin_streaming(dataset_spec: DataSetSpec, **kwargs):
   loop = asyncio.get_event_loop()
   data_sources = dataset_spec.sources
   # map each data source by a random id
@@ -134,7 +133,7 @@ def main():
   logger.info('=== Begin streaming ===')
   worker = threading.Thread(
     target=asyncio.run,
-    args=(begin_streaming(dataset_spec, dataset_name, **parse_attrs(args.attributes)),)
+    args=(begin_streaming(dataset_spec, **parse_attrs(args.attributes)),)
   )
   try:
     worker.start()
@@ -149,6 +148,7 @@ def main():
 
 
 if __name__ == '__main__':
+  logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
   try:
     main()
   except AssertionError as e:

@@ -19,10 +19,9 @@ from typing import Tuple, Iterable, Optional, Any
 
 import websockets
 
-from datamux.proxy_mode import ProxyMode
+from datamux.proxy_mode import RelayMode
 from datamux.replay_mode import ReplayMode
 
-logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
 logger = logging.getLogger()
 
 ERROR_BAD_REQUEST = "Unknown Request"
@@ -45,8 +44,7 @@ async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path:
       break
     payload = json.loads(message)
     logger.info(f'<: {json.dumps(payload)}')
-    cmd_response = await process_cmd(payload)
-    await res_queue.put(cmd_response)
+    await res_queue.put(process_cmd(payload))
 
 
 async def ws_handler(websocket: websockets.WebSocketServerProtocol, path: str):
@@ -68,20 +66,20 @@ async def process_request(path: str, _: list) -> Optional[Tuple[HTTPStatus, Iter
     return HTTPStatus(404), [], b''
 
 
-async def process_cmd(payload: Any):
+def process_cmd(payload: Any):
   command = payload['command']
-  # PROXY MODE =========================================================================================================
+  # RELAY MODE =========================================================================================================
   if command == 'get_live_streams':
-    return ProxyMode.get_live_streams()
+    return RelayMode.get_live_streams()
   elif command == 'sub_live_streams':
-    return ProxyMode.sub_live_streams(payload['data'], main_loop, res_queue)
+    return RelayMode.sub_live_streams(payload['data'], res_queue)
   # REPLAY MODE ========================================================================================================
   elif command == 'get_datasets':
     return ReplayMode.get_datasets()
   elif command == 'get_repl_streams':
     return ReplayMode.get_repl_streams(payload['data']['dataset_name'])
   elif command == 'sub_repl_streams':
-    return ReplayMode.sub_repl_streams(payload['data'], main_loop, res_queue)
+    return ReplayMode.sub_repl_streams(payload['data'], res_queue)
   # SIMULATE MODE ======================================================================================================
   # TODO implement simulate mode functions
   # FALLBACK ===========================================================================================================
@@ -90,6 +88,7 @@ async def process_cmd(payload: Any):
 
 
 if __name__ == '__main__':
+  logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.DEBUG)
   default_port = os.getenv("STREAMINGHUB_PORT")
   port = int(default_port)
   start_server = websockets.serve(ws_handler, "0.0.0.0", port, process_request=process_request)
