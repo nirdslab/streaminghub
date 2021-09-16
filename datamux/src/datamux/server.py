@@ -19,7 +19,7 @@ from typing import Tuple, Iterable, Optional, Any
 
 import websockets
 
-from datamux.proxy_mode import RelayMode
+from datamux.relay_mode import RelayMode
 from datamux.replay_mode import ReplayMode
 
 logger = logging.getLogger()

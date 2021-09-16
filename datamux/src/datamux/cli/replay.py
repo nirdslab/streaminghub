@@ -21,7 +21,7 @@ from typing import Dict, Generator
 import numpy as np
 from pylsl import StreamOutlet
 
-from datamux.util import find_repl_streams
+from datamux.replay_mode import ReplayMode
 from dfs import get_data_dir, get_datasource_dir, get_dataset_dir, get_analytic_dir
 from dfs import get_dataset_spec, create_outlet_for_stream, DataSetSpec, DataSourceSpec, StreamInfo
 
@@ -45,7 +45,7 @@ async def begin_streaming(dataset_spec: DataSetSpec, **kwargs):
       stream_info = source.streams[stream_id]
       logger.info(f'Source [{source_id}]: initialized stream [{stream_info.name}]')
       # TODO for now sending everything in same outlet, later find a way to split outlets by attrs (or create a new outlet for each distinct attr)
-      for repl_stream, s_attrs in find_repl_streams(dataset_spec, **kwargs):
+      for repl_stream, s_attrs in ReplayMode.find_repl_streams(dataset_spec, **kwargs):
         # create outlet for every nested attr, and create hierarchy
         outlet = create_outlet_for_stream(source_id, source.device, stream_id, stream_info, s_attrs)
         task = loop.create_task(emit(outlet, repl_stream, stream_info))
