@@ -32,7 +32,7 @@ async def producer_handler(websocket: websockets.WebSocketServerProtocol, _path:
     response = await res_queue.get()
     message = json.dumps(response)
     await websocket.send(message)
-    logger.info(f'>: {message}')
+    # logger.debug(f'>: {message}')
 
 
 async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path: str):
@@ -43,7 +43,7 @@ async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path:
       logger.info(f'client connection closed: {websocket.remote_address}')
       break
     payload = json.loads(message)
-    logger.info(f'<: {json.dumps(payload)}')
+    # logger.debug(f'<: {json.dumps(payload)}')
     await res_queue.put(process_cmd(payload))
 
 
