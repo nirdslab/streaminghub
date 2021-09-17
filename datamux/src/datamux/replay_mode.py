@@ -19,11 +19,11 @@ class ReplayMode:
 
   @staticmethod
   def get_datasets():
-    dataset_names = [*map(lambda x: x[:-5], Path(dfs.get_dataset_dir()).glob("*.json"))]
+    dataset_names = [*map(lambda x: x.name[:-5], Path(dfs.get_dataset_dir()).glob("*.json"))]
     dataset_specs: List[dfs.DataSetSpec] = [*map(dfs.get_dataset_spec, dataset_names)]
     return {
       'command': 'datasets',
-      'data': {'datasets': dataset_specs},
+      'data': {'datasets': dict(zip(dataset_names, dataset_specs))},
       'error': None
     }
 
