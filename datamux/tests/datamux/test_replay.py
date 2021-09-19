@@ -3,8 +3,8 @@ import logging
 import sys
 import unittest
 
-from datamux.replay import find_repl_streams
-from dfs import get_dataset_spec, create_outlet_for_stream
+from datamux.replay_mode import ReplayMode
+import dfs
 
 logger = logging.getLogger()
 logger.level = logging.DEBUG
@@ -23,7 +23,7 @@ class TestReplay(unittest.TestCase):
     Test if the correct dataset spec is loaded for the given arguments
     """
     # load the dataset spec
-    dataset_spec = get_dataset_spec(self.dataset_name)
+    dataset_spec = dfs.get_dataset_spec(self.dataset_name)
     # assertion
     self.assertEqual(dataset_spec.info.checksum, '010203040506070809000A0B0C0D0E0F')
 
@@ -34,11 +34,11 @@ class TestReplay(unittest.TestCase):
     # ground truth
     source_id = '003ADHD_AV_01.csv'
     # load the dataset spec
-    dataset_spec = get_dataset_spec(self.dataset_name)
+    dataset_spec = dfs.get_dataset_spec(self.dataset_name)
     # load data via the dataset spec
-    for repl_stream, s_attrs in find_repl_streams(dataset_spec):
+    for repl_stream, s_attrs in ReplayMode.find_repl_streams(dataset_spec):
       # create outlet for every nested attr, and create hierarchy
-      outlet = create_outlet_for_stream  # (source_id, source.device, stream_info, attrs)
+      outlet = dfs.create_outlet_for_stream  # (source_id, source.device, stream_info, attrs)
     # assertion
     self.assertEqual(False, False)
 
@@ -48,8 +48,8 @@ class TestReplay(unittest.TestCase):
     """
     test_meta_file_format = 'json'
     # load the meta-file
-    dataset_spec = get_dataset_spec(self.dataset_name)
-    for repl_stream, s_attrs in find_repl_streams(dataset_spec):
+    dataset_spec = dfs.get_dataset_spec(self.dataset_name)
+    for repl_stream, s_attrs in ReplayMode.find_repl_streams(dataset_spec):
       pass
       # self.assertEqual(len(meta_streams), len(dataset_spec.sources.sources))
       # for i in range(len(meta_streams)):

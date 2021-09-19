@@ -5,13 +5,13 @@ import os
 
 import pandas as pd
 
-from dfs import get_data_dir
+import dfs
 
 NOISE_PROFILES = ["p", "b", "n"]
 ET_PROFILE = ["ideal", "noisy"]
 
-SRC_DIR = f"{get_data_dir()}/adhd_sin_synt_orig"
-OUT_DIR = f"{get_data_dir()}/adhd_sin_synt"
+SRC_DIR = f"{dfs.get_data_dir()}/adhd_sin_synt_orig"
+OUT_DIR = f"{dfs.get_data_dir()}/adhd_sin_synt"
 
 if __name__ == '__main__':
   for np in NOISE_PROFILES:

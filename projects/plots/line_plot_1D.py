@@ -15,12 +15,12 @@ import sys
 from typing import List
 
 import numpy as np
-from pylsl import resolve_stream, StreamInlet
+import pylsl
 
 SYNTAX = "stream_plot_1D [stream_name]"
 
 
-def plot_data(_streams: List[StreamInlet]):
+def plot_data(_streams: List[pylsl.StreamInlet]):
   from matplotlib import pyplot as plt, animation
   S = len(_streams)  # number of streams
   W = 100  # buffer size (only W data points are visualized per plot)
@@ -92,8 +92,8 @@ def main():
   args = sys.argv
   assert len(args) == 2, f"Invalid Syntax.\nExpected: {SYNTAX}"
   stream_name = sys.argv[1]
-  streams = resolve_stream('name', stream_name)
-  in_object = [*map(StreamInlet, streams)]
+  streams = pylsl.resolve_stream('name', stream_name)
+  in_object = [*map(pylsl.StreamInlet, streams)]
   plot_data(in_object)
 
 

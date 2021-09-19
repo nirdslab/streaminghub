@@ -1,4 +1,5 @@
 import os
+import random
 
 
 def get_datasource_dir():
@@ -29,3 +30,7 @@ def get_data_dir():
     return base_dir
   else:
     return None
+
+
+def gen_random_source_id():
+  return str.join('', [random.choice('0123456789') for _ in range(20)])

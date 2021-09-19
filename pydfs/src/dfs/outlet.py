@@ -1,7 +1,7 @@
 import logging
 from typing import Dict
 
-from pylsl import StreamInfo as LSLStreamInfo, StreamOutlet as LSLStreamOutlet
+import pylsl
 
 from .types import DeviceInfo, StreamInfo
 
@@ -14,7 +14,7 @@ def create_outlet_for_stream(
   stream_id: str,
   stream: StreamInfo,
   attrs: Dict[str, str] = None
-) -> LSLStreamOutlet:
+) -> pylsl.StreamOutlet:
   """
   Generate LSL outlet from Metadata
   :rtype: StreamOutlet
@@ -25,12 +25,10 @@ def create_outlet_for_stream(
   :param attrs: any additional information (from data-set)
   :return: StreamOutlet object to send data streams through
   """
-  name = f'{source.manufacturer} {source.model}'
-  source_id = f'{name} [{source_id}]'
-  info = LSLStreamInfo(
+  info = pylsl.StreamInfo(
     source_id=source_id,
     type=stream_id,  # TODO do not use for queries
-    name=name,  # TODO do not use for queries
+    name=f"{source_id}-{stream_id}",  # TODO do not use for queries
     channel_count=len(stream.channels),
     nominal_srate=stream.frequency
   )
@@ -76,4 +74,4 @@ def create_outlet_for_stream(
   stream_info.append_child_value("unit", stream.unit)
 
   # return stream outlet
-  return LSLStreamOutlet(info)
+  return pylsl.StreamOutlet(info)

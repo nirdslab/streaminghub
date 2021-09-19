@@ -10,7 +10,6 @@ import numpy as np
 
 import dfs
 from datamux.util import DICT, DICT_GENERATOR
-from dfs import DataSetSpec
 
 logger = logging.getLogger()
 
@@ -73,16 +72,16 @@ class ReplayMode:
     }
 
   @staticmethod
-  def find_repl_streams(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[DICT_GENERATOR, DICT]]:
+  def find_repl_streams(spec: dfs.DataSetSpec, **kwargs) -> Iterator[Tuple[DICT_GENERATOR, DICT]]:
     if dfs.get_meta_dir() not in sys.path:
       sys.path.append(dfs.get_meta_dir())
     resolver = importlib.import_module(f'resolvers.{spec.name}')
-    stream: Callable[[DataSetSpec, ...], Any] = getattr(resolver, 'stream')
+    stream: Callable[[dfs.DataSetSpec, ...], Any] = getattr(resolver, 'stream')
     yield from stream(spec, **kwargs)
 
   @staticmethod
   async def start_repl_stream(
-    spec: DataSetSpec, repl_stream: DICT_GENERATOR, s_source: str, s_type: str, s_attrs: DICT, queue: asyncio.Queue
+    spec: dfs.DataSetSpec, repl_stream: DICT_GENERATOR, s_source: str, s_type: str, s_attrs: DICT, queue: asyncio.Queue
   ):
     logger.info(f'started replay')
     # prepare static vars

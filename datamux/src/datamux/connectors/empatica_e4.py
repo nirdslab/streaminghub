@@ -3,9 +3,9 @@ import codecs
 import socket
 from typing import List
 
-from pylsl import StreamOutlet
+import pylsl
 
-from dfs import get_datasource_spec, create_outlet_for_stream
+import dfs
 
 
 # server states (enum)
@@ -44,7 +44,7 @@ class Connector:
     self.device_id = ...
     self.outlets: dict = {}
     self.server_state = E4ServerState.NEW__
-    self.datasource_spec = get_datasource_spec('empatica_e4')
+    self.datasource_spec = dfs.get_datasource_spec('empatica_e4')
 
   def set_device_list(self, devices: List[str]):
     self.device_list = devices
@@ -144,11 +144,12 @@ class Connector:
       elif self.server_state == E4ServerState.STREAMING__:
         self.process_data_stream(cmd)
 
-  def get_outlet(self, res_code: str) -> StreamOutlet:
+  def get_outlet(self, res_code: str) -> pylsl.StreamOutlet:
     if res_code not in self.outlets:
       _spec = self.datasource_spec
       _stream_id = self.stream_ids[self.res_ids.index(res_code)]
-      self.outlets[res_code] = create_outlet_for_stream(self.device_id, _spec.device, _stream_id, _spec.streams[_stream_id])
+      self.outlets[res_code] = dfs.create_outlet_for_stream(self.device_id, _spec.device, _stream_id,
+                                                            _spec.streams[_stream_id])
     return self.outlets[res_code]
 
   def process_data_stream(self, cmd: str):

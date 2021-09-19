@@ -12,8 +12,7 @@ are compliant with DFS schemas.
 
 import sys
 
-from dfs import get_datasource_spec
-from dfs.errors import DoesNotMatchSchemaError
+import dfs
 
 SYNTAX = "validate [path/to/spec]"
 
@@ -21,10 +20,10 @@ SYNTAX = "validate [path/to/spec]"
 def validate_datasource_spec(path: str):
   print('Validating...')
   try:
-    meta = get_datasource_spec(path, 'json')
+    meta = dfs.get_datasource_spec(path, 'json')
     print(meta)
     print('Great work! Your DataSourceSpec is valid!')
-  except DoesNotMatchSchemaError as e:
+  except dfs.errors.DoesNotMatchSchemaError as e:
     print('ERROR - does not match schema', e, file=sys.stderr)
 
 

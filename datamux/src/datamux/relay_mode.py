@@ -3,10 +3,7 @@ import logging
 from typing import List, Dict, Union, Tuple, Any
 
 import numpy as np
-from pylsl import StreamInfo as LiveStreamInfo, StreamInlet, LostError, XMLElement, StreamInfo
-from pylsl import StreamInlet as LiveStreamInlet
-from pylsl import resolve_bypred as resolve_live_streams_by_pred_str
-from pylsl import resolve_streams as resolve_all_live_streams
+import pylsl
 
 from datamux.util import DICT
 
@@ -17,7 +14,7 @@ class RelayMode:
 
   @staticmethod
   def get_live_streams():
-    live_streams = resolve_all_live_streams()
+    live_streams = pylsl.resolve_streams()
     return {
       'command': 'live_streams',
       'data': {'streams': [*map(RelayMode.gen_stream_info_dict, live_streams)]},
@@ -38,12 +35,12 @@ class RelayMode:
     num_queries = len(stream_query)
     num_tasks = 0
     # run one query to get a superset of the requested streams
-    available_live_stream_info: List[LiveStreamInfo] = resolve_live_streams_by_pred_str(pred_str)
+    available_live_stream_info: List[pylsl.StreamInfo] = pylsl.resolve_bypred(pred_str)
     logger.debug('found %d live stream match(es) for predicate', len(available_live_stream_info))
     # iterate each query and start live streams
     for live_stream_info in available_live_stream_info:
       # create task to live-stream data
-      inlet = LiveStreamInlet(live_stream_info, max_chunklen=1, recover=False)
+      inlet = pylsl.StreamInlet(live_stream_info, max_chunklen=1, recover=False)
       asyncio.create_task(RelayMode.start_live_stream(inlet, queue))
       num_tasks += 1
     logger.info("started %d live stream tasks for the %d queries", num_tasks, num_queries)
@@ -54,7 +51,7 @@ class RelayMode:
     }
 
   @staticmethod
-  async def start_live_stream(stream: StreamInlet, queue: asyncio.Queue):
+  async def start_live_stream(stream: pylsl.StreamInlet, queue: asyncio.Queue):
     logger.info('initializing live stream')
     s_info = RelayMode.gen_stream_info_dict(stream)
     logger.info('started live stream')
@@ -80,12 +77,12 @@ class RelayMode:
             }
           }
           await queue.put(res)
-      except LostError:
+      except pylsl.LostError:
         break
     logger.info('ended live stream')
 
   @staticmethod
-  def pull_lsl_stream_chunk(stream: StreamInlet, timeout: float = 0.0):
+  def pull_lsl_stream_chunk(stream: pylsl.StreamInlet, timeout: float = 0.0):
     try:
       sample, timestamps = stream.pull_chunk(timeout)
       return sample, timestamps, None
@@ -94,7 +91,7 @@ class RelayMode:
       return None, None, e
 
   @staticmethod
-  def gen_dict(e: XMLElement, depth=0) -> Union[DICT, List[Any], str]:
+  def gen_dict(e: pylsl.XMLElement, depth=0) -> Union[DICT, List[Any], str]:
     # terminal case(s)
     if e.empty():
       return {}
@@ -115,18 +112,18 @@ class RelayMode:
     return d
 
   @staticmethod
-  def gen_stream_info_dict(x: Union[StreamInfo, StreamInlet]):
-    def fn(i: StreamInfo):
+  def gen_stream_info_dict(x: Union[pylsl.StreamInfo, pylsl.StreamInlet]):
+    def fn(i: pylsl.StreamInfo):
       return {
         'source': i.source_id(),
         **RelayMode.gen_dict(i.desc())
       }
 
-    if isinstance(x, StreamInfo):
-      temp_inlet = StreamInlet(x)
+    if isinstance(x, pylsl.StreamInfo):
+      temp_inlet = pylsl.StreamInlet(x)
       result = fn(temp_inlet.info())
       temp_inlet.close_stream()
-    elif isinstance(x, StreamInlet):
+    elif isinstance(x, pylsl.StreamInlet):
       result = fn(x.info())
     else:
       raise RuntimeError('Invalid object type')

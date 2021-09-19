@@ -4,12 +4,12 @@ import random
 import time
 import unittest
 
-from pylsl import StreamInlet, resolve_stream
+import pylsl
 
 from datamux.connectors.empatica_e4 import Connector
 
 
-async def listen(inlet: StreamInlet):
+async def listen(inlet: pylsl.StreamInlet):
   while True:
     samples, timestamps = inlet.pull_chunk()
     for sample, timestamp in zip(samples, timestamps):
@@ -34,12 +34,12 @@ class TestEmpaticaE4(unittest.TestCase):
 
   def test_inlet(self):
     print("looking for an Empatica E4 stream...")
-    streams = resolve_stream('name', 'E4, Empatica (Wristband)')
+    streams = pylsl.resolve_stream('name', 'E4, Empatica (Wristband)')
     assert len(streams) > 0
     print(f'{len(streams)} Stream(s) found!')
 
     # create a new inlets to read from the streams
-    jobs = [listen(StreamInlet(stream)) for stream in streams]
+    jobs = [listen(pylsl.StreamInlet(stream)) for stream in streams]
 
     try:
       print('started listeners')
