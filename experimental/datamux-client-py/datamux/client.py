@@ -67,55 +67,89 @@ class DataMuxClient:
     self.uri = uri
 
   async def connect(self):
-    logger.debug(f"connecting to websocket server: {self.uri}...")
+    """
+
+    """
+    logger.info("connecting to websocket server: %s...", self.uri)
     self.ws = await websockets.connect(self.uri)
-    logger.debug(f"connected to websocket server: {self.uri}")
+    logger.info("connected to websocket server: %s", self.uri)
 
   async def disconnect(self):
-    logger.debug(f"disconnecting from websocket server: {self.uri}...")
+    """
+
+    """
+    logger.info("disconnecting from websocket server: %s...", self.uri)
     await self.ws.close()
-    logger.debug(f"disconnected from websocket server: {self.uri}")
+    logger.info("disconnected from websocket server: %s", self.uri)
 
   async def get_datasets(self):
-    logger.debug(f"requesting available datasets...")
+    """
+
+    :return:
+    """
+    logger.info("requesting available datasets...")
     await self.ws.send(json.dumps({'command': 'get_datasets'}))
     msg = await self.ws.recv()
     json_msg = json.loads(msg)
     if json_msg['command'] == 'datasets':
       datasets = json_msg['data']['datasets']
+      logger.info("Received %d datasets", len(datasets))
       return datasets
-    return None
+    else:
+      logger.warning("Response command was not 'datasets'")
+      return None
 
   async def get_live_streams(self):
-    logger.debug(f"requesting live streams...")
+    """
+
+    :return:
+    """
+    logger.info("requesting live streams...")
     # get live streams
     await self.ws.send(json.dumps({'command': 'get_live_streams'}))
     msg = await self.ws.recv()
     json_msg = json.loads(msg)
     if json_msg['command'] == 'live_streams':
       live_streams = json_msg['data']['streams']
+      logger.info("Received %d live streams", len(live_streams))
       return live_streams
-    return None
+    else:
+      logger.warning("Response command was not 'live_streams'")
+      return None
 
   async def get_repl_streams(self, dataset: str):
-    logger.debug(f"requesting repl streams for dataset: {dataset}")
+    """
+
+    :param dataset:
+    :return:
+    """
+    logger.info("requesting repl streams for dataset: %s", dataset)
     # get repl streams
-    await self.ws.send({'command': 'get_repl_streams', 'data': {'dataset_name': dataset}})
+    await self.ws.send(json.dumps({'command': 'get_repl_streams', 'data': {'dataset_name': dataset}}))
+    msg = await self.ws.recv()
+    json_msg = json.loads(msg)
+    if json_msg['command'] == 'repl_streams':
+      repl_streams = json_msg['data']['streams']
+      logger.info("Received %d repl streams for dataset: %s", len(repl_streams), dataset)
+      return repl_streams
+    else:
+      logger.warning("Response command was not 'repl_streams'")
+      return None
 
   async def get_siml_streams(self):
-    logger.debug(f"requesting available siml streams...")
+    logger.info("requesting available siml streams...")
     await self.ws.send()
 
   async def sub_live_stream(self, stream: Union[LiveStreamQuery, List[LiveStreamQuery]]):
-    logger.debug(f"subscribing to live stream: {stream}")
+    logger.info("subscribing to live stream: %s...", stream)
     await self.ws.send()
 
   async def sub_repl_stream(self, stream: Union[ReplStreamQuery, List[ReplStreamQuery]]):
-    logger.debug(f"subscribing to repl stream: {stream}")
+    logger.info("subscribing to repl stream: %s...", stream)
     await self.ws.send()
 
   async def sub_siml_stream(self, stream: SimlStreamQuery):
-    logger.debug(f"subscribing to siml stream: {stream}")
+    logger.info("subscribing to siml stream: %s...", stream)
     await self.ws.send()
 
   @staticmethod

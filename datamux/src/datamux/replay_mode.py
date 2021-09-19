@@ -32,6 +32,7 @@ class ReplayMode:
     dataset_spec = dfs.get_dataset_spec(dataset_name)
     repl_stream_info: List[Dict[str, Union[str, dict]]] = []
     for repl_stream, s_attrs in ReplayMode.find_repl_streams(dataset_spec):
+      logger.debug("repl stream: %s", s_attrs)
       sources = dataset_spec.sources
       for source_id in sources:
         source = sources[source_id]
