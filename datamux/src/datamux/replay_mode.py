@@ -49,7 +49,7 @@ class ReplayMode:
   def sub_repl_streams(data: List[Dict[str, Union[str, dict]]], queue: asyncio.Queue):
     # dataset = <dataset_id> | source = <source_id> | type = <stream_id>
     stream_query = [(
-      str(d.get('dataset', '')),
+      str(d.get('attributes').get('dataset')),
       str(d.get('source', '')),
       str(d.get('type', '')),
       dict(d.get('attributes', {}))
