@@ -39,7 +39,7 @@ class ReplayMode:
         streams = source.streams
         for stream_id in streams:
           stream = streams[stream_id]
-          repl_stream_info.append({**s_attrs, 'stream': stream, 'device': source.device})
+          repl_stream_info.append({'stream': stream, 'device': source.device, 'attributes': s_attrs})
     return {
       'command': 'repl_streams',
       'data': {'streams': repl_stream_info},

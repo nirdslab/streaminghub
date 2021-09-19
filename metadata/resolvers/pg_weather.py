@@ -27,7 +27,11 @@ def resolve(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[DICT, str]]:
     filename = f'{f_state}-{f_city}.csv'
     abs_path = os.path.join(base_dir, 'pg_weather', filename)
     if os.path.isfile(abs_path):
-      attrs = {"city": f_city, "state": f_state}
+      attrs = {
+        "dataset": "pg_weather",
+        "city": f_city,
+        "state": f_state
+      }
       yield attrs, abs_path
 
 

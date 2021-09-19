@@ -31,7 +31,13 @@ def resolve(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[DICT, str]]:
     filename = f'{f_subject}-{f_mode}-{f_task}-{f_position}.csv'
     abs_path = os.path.join(base_dir, 'n_back', filename)
     if os.path.isfile(abs_path):
-      attrs = {"subject": f_subject, "mode": f_mode, "task": f_task, "position": f_position}
+      attrs = {
+        "dataset": "n_back",
+        "subject": f_subject,
+        "mode": f_mode,
+        "task": f_task,
+        "position": f_position
+      }
       yield attrs, abs_path
 
 

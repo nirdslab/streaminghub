@@ -66,8 +66,13 @@ def resolve(spec: DataSetSpec, **kwargs) -> Iterator[Tuple[DICT, str]]:
         filename = f'{f_subject}ADHD_AV_{n}{f_question}.csv'
         abs_path = os.path.join(base_dir, 'adhd_sin', filename)
         if os.path.isfile(abs_path):
-          attrs = {"subject": f_subject, "diagnosis": f_diagnosis, "question": f_question, "noise": n,
-                   "resolution": RESOLUTION}
+          attrs = {
+            "dataset": "adhd_sin",
+            "subject": f_subject,
+            "diagnosis": f_diagnosis,
+            "question": f_question,
+            "noise": n,
+            "resolution": RESOLUTION}
           yield attrs, abs_path
 
 

@@ -11,7 +11,6 @@ from pylsl import resolve_streams as resolve_all_live_streams
 from datamux.util import DICT
 
 logger = logging.getLogger()
-KNOWN_ARRAY_ELEMENTS = ['channels']
 
 
 class RelayMode:
@@ -27,18 +26,13 @@ class RelayMode:
 
   @staticmethod
   def sub_live_streams(data: List[Dict[str, Union[str, dict]]], queue: asyncio.Queue):
-    # source = <source_id> | type = <stream_id>
+    # source = <source_id> | type = <desc/stream/name>
     stream_query: List[Tuple[str, str, dict]] = [(
       str(d.get('source', '')),
-      str(d.get('type', '')),
+      str(d.get('stream', {}).get('name', {})),
       dict(d.get('attributes', {}))
     ) for d in data]
-    pred_str = ' or '.join(
-      f"(source_id='{sq_source}' and type='{sq_type}' and " +
-      " and ".join(f'desc/attributes/{x}="{sq_attrs[x]}"' for x in sq_attrs) +
-      ')'
-      for sq_source, sq_type, sq_attrs in stream_query
-    )
+    pred_str = RelayMode.gen_pred_str(stream_query)
     logger.debug('predicate: %s', pred_str)
     # count of queries and tasks
     num_queries = len(stream_query)
@@ -77,8 +71,9 @@ class RelayMode:
             'data': {
               'stream': {
                 'source': s_info['source'],
-                'type': s_info['type'],
-                'attributes': s_info['attributes']
+                'attributes': s_info['attributes'],
+                'device': s_info['device'],
+                'stream': s_info['stream']
               },
               'index': timestamps,
               'chunk': np.nan_to_num(samples, nan=-1).tolist()
@@ -107,8 +102,7 @@ class RelayMode:
       return e.value()
     if e.first_child().is_text():
       return e.first_child().value()
-    # check whether parsing a known array element
-    d = [] if e.name() in KNOWN_ARRAY_ELEMENTS else {}
+    d = {}
     # parse all children
     child = e.first_child()
     while not child.empty():
@@ -123,8 +117,10 @@ class RelayMode:
   @staticmethod
   def gen_stream_info_dict(x: Union[StreamInfo, StreamInlet]):
     def fn(i: StreamInfo):
-      return {'source': i.source_id(), 'channel_count': i.channel_count(), 'name': i.name(), 'type': i.type(),
-              **RelayMode.gen_dict(i.desc())}
+      return {
+        'source': i.source_id(),
+        **RelayMode.gen_dict(i.desc())
+      }
 
     if isinstance(x, StreamInfo):
       temp_inlet = StreamInlet(x)
@@ -135,3 +131,13 @@ class RelayMode:
     else:
       raise RuntimeError('Invalid object type')
     return result
+
+  @staticmethod
+  def gen_pred_str(stream_query: List[Tuple[str, str, dict]]):
+    partials = []
+    for sq_source, sq_name, sq_attrs in stream_query:
+      partial = f"source_id='{sq_source}' and desc/stream/name='{sq_name}'"
+      if len(sq_attrs) > 0:
+        partial += 'and ' + ' and '.join(f"desc/attributes/{x}='{sq_attrs[x]}'" for x in sq_attrs)
+      partials.append(f"({partial})")
+    return ' or '.join(partials)

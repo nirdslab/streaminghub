@@ -29,29 +29,51 @@ def create_outlet_for_stream(
   source_id = f'{name} [{source_id}]'
   info = LSLStreamInfo(
     source_id=source_id,
-    type=stream_id,
-    name=name,
+    type=stream_id,  # TODO do not use for queries
+    name=name,  # TODO do not use for queries
     channel_count=len(stream.channels),
     nominal_srate=stream.frequency
   )
   # create stream description
   desc = info.desc()
-  desc.append_child_value("unit", stream.unit)
-  desc.append_child_value("freq", str(stream.frequency))
+
   # add device information
   device_info = desc.append_child("device")
   device_info.append_child_value("model", source.model)
   device_info.append_child_value("manufacturer", source.manufacturer)
   device_info.append_child_value("category", source.category)
-  channels_info = desc.append_child("channels")
-  for channel in stream.channels.keys():
-    channels_info.append_child_value("channel", channel)
-  # append attrs if present
+
+  # add attributes if present
+  attributes = desc.append_child("attributes")
   if attrs and len(attrs.keys()) > 0:
-    attributes_info = desc.append_child("attributes")
     for attr in attrs.keys():
-      attributes_info.append_child_value(attr, attrs[attr])
+      attributes.append_child_value(attr, attrs[attr])
   else:
     logger.warning("Creating outlet without attributes")
+
+  # add stream information
+  stream_info = desc.append_child("stream")
+  # add channel information to stream information
+  channels_info = stream_info.append_child("channels")
+  for channel_id in stream.channels.keys():
+    channel_info = channels_info.append_child(channel_id)
+    # add channel properties
+    channel_props = stream.channels[channel_id]
+    for channel_prop_id in channel_props.keys():
+      channel_info.append_child_value(channel_prop_id, channel_props[channel_prop_id])
+  # add description and frequency
+  stream_info.append_child_value("description", stream.description)
+  stream_info.append_child_value("frequency", str(stream.frequency))
+  # add indexes information
+  stream_idxs_info = stream_info.append_child("index")
+  for index_id in stream.index.keys():
+    stream_idx_info = stream_idxs_info.append_child(index_id)
+    stream_idx_props = stream.index[index_id]
+    for stream_idx_prop_id in stream_idx_props.keys():
+      stream_idx_info.append_child_value(stream_idx_prop_id, stream_idx_props[stream_idx_prop_id])
+  # add name and unit
+  stream_info.append_child_value("name", stream.name)
+  stream_info.append_child_value("unit", stream.unit)
+
   # return stream outlet
   return LSLStreamOutlet(info)
