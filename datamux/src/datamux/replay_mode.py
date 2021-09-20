@@ -38,7 +38,14 @@ class ReplayMode:
         streams = source.streams
         for stream_id in streams:
           stream = streams[stream_id]
-          repl_stream_info.append({'stream': stream, 'device': source.device, 'attributes': s_attrs})
+          repl_stream_info.append({
+            'source': source_id,
+            'device': source.device,
+            'mode': 'repl',
+            'stream_id': stream_id,
+            'stream': stream,
+            'attributes': s_attrs
+          })
     return {
       'command': 'repl_streams',
       'data': {'streams': repl_stream_info},
@@ -51,18 +58,28 @@ class ReplayMode:
     stream_query = [(
       str(d.get('attributes').get('dataset')),
       str(d.get('source', '')),
-      str(d.get('type', '')),
+      str(d.get('stream_id', '')),
       dict(d.get('attributes', {}))
     ) for d in data]
     # count of queries and tasks
     num_queries = len(stream_query)
     num_tasks = 0
     # iterate each query and start repl streams
-    for sq_dataset, sq_source, sq_type, sq_attrs in stream_query:
+    for sq_dataset, sq_source, sq_stream_id, sq_attrs in stream_query:
+      # expand sq_attrs into array form. TODO find a better alternative
+      sq_attrs_arr = {}
+      for k in sq_attrs.keys():
+        if k == 'dataset':
+          sq_attrs_arr[k] = sq_attrs[k]
+        else:
+          sq_attrs_arr[k] = [sq_attrs[k]]
+
       dataset_spec = dfs.get_dataset_spec(sq_dataset)
-      for repl_stream, s_attrs in ReplayMode.find_repl_streams(dataset_spec, **sq_attrs):
+      for repl_stream, s_attrs in ReplayMode.find_repl_streams(dataset_spec, **sq_attrs_arr):
         # create task to replay data
-        asyncio.create_task(ReplayMode.start_repl_stream(dataset_spec, repl_stream, sq_source, sq_type, s_attrs, queue))
+        logger.info([sq_source, sq_stream_id, s_attrs])
+        asyncio.create_task(ReplayMode.start_repl_stream(dataset_spec, repl_stream, sq_source, sq_stream_id, s_attrs, queue))
+        num_tasks += 1
     logger.info("started %d repl stream tasks for the %d queries", num_tasks, num_queries)
     # return notification and coroutines
     return {
@@ -81,11 +98,11 @@ class ReplayMode:
 
   @staticmethod
   async def start_repl_stream(
-    spec: dfs.DataSetSpec, repl_stream: DICT_GENERATOR, s_source: str, s_type: str, s_attrs: DICT, queue: asyncio.Queue
+    spec: dfs.DataSetSpec, repl_stream: DICT_GENERATOR, s_source: str, s_stream_id: str, s_attrs: DICT, queue: asyncio.Queue
   ):
     logger.info(f'started replay')
     # prepare static vars
-    stream_info = spec.sources[s_source].streams[s_type]
+    stream_info = spec.sources[s_source].streams[s_stream_id]
     f = stream_info.frequency
     index_cols = [*stream_info.index.keys()]
     # get each sample of data from repl_stream
@@ -99,7 +116,7 @@ class ReplayMode:
         'data': {
           'stream': {
             'source': s_source,
-            'type': s_type,
+            'name': s_stream_id,
             'attributes': s_attrs
           },
           'index': [timestamp],

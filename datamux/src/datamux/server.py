@@ -88,7 +88,7 @@ def process_cmd(payload: Any):
 
 
 if __name__ == '__main__':
-  logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.DEBUG)
+  logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
   default_port = os.getenv("STREAMINGHUB_PORT")
   port = int(default_port)
   start_server = websockets.serve(ws_handler, "0.0.0.0", port, process_request=process_request)

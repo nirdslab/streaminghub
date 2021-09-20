@@ -68,6 +68,7 @@ class RelayMode:
             'data': {
               'stream': {
                 'source': s_info['source'],
+                'mode': s_info['mode'],
                 'attributes': s_info['attributes'],
                 'device': s_info['device'],
                 'stream': s_info['stream']
@@ -116,6 +117,7 @@ class RelayMode:
     def fn(i: pylsl.StreamInfo):
       return {
         'source': i.source_id(),
+        'mode': 'live',
         **RelayMode.gen_dict(i.desc())
       }
 
