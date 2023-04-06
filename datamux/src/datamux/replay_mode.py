@@ -9,7 +9,7 @@ from typing import List, Dict, Union, Iterator, Tuple, Callable, Any
 import numpy as np
 
 import dfs
-from datamux.util import DICT, DICT_GENERATOR
+from .util import DICT, DICT_GENERATOR
 
 logger = logging.getLogger()
 

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://www.cs.odu.edu/~yasith/dfs/v2/dataset.schema.json",
+  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfs/v2/collection.schema.json",
   "info": {
     "version": "1.0.0",
     "timestamp": "2020-01-01T00:00:00Z",

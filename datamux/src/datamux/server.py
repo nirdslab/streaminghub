@@ -14,20 +14,23 @@ import asyncio
 import json
 import logging
 import os
-from http import HTTPStatus
-from typing import Tuple, Iterable, Optional, Any
+import http
+from typing import Tuple, Optional
 
-import websockets
+from websockets.exceptions import ConnectionClosed
+from  websockets.server import WebSocketServerProtocol, serve
+from websockets.datastructures import Headers, HeadersLike
 
-from datamux.relay_mode import RelayMode
-from datamux.replay_mode import ReplayMode
+from .relay_mode import RelayMode
+from .replay_mode import ReplayMode
 
 logger = logging.getLogger()
 
 ERROR_BAD_REQUEST = "Unknown Request"
+HTTPResponse = Tuple[http.HTTPStatus, HeadersLike, bytes]
 
 
-async def producer_handler(websocket: websockets.WebSocketServerProtocol, _path: str):
+async def producer_handler(websocket: WebSocketServerProtocol, _path: str):
   while websocket.open:
     response = await res_queue.get()
     message = json.dumps(response)
@@ -35,11 +38,11 @@ async def producer_handler(websocket: websockets.WebSocketServerProtocol, _path:
     # logger.debug(f'>: {message}')
 
 
-async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path: str):
+async def consumer_handler(websocket: WebSocketServerProtocol, _path: str):
   while websocket.open:
     try:
       message = await websocket.recv()
-    except websockets.ConnectionClosed:
+    except ConnectionClosed:
       logger.info(f'client connection closed: {websocket.remote_address}')
       break
     payload = json.loads(message)
@@ -47,7 +50,7 @@ async def consumer_handler(websocket: websockets.WebSocketServerProtocol, _path:
     await res_queue.put(process_cmd(payload))
 
 
-async def ws_handler(websocket: websockets.WebSocketServerProtocol, path: str):
+async def ws_handler(websocket: WebSocketServerProtocol, path: str):
   logger.info(f'client connected: {websocket.remote_address}')
   producer_task = asyncio.create_task(producer_handler(websocket, path))
   consumer_task = asyncio.create_task(consumer_handler(websocket, path))
@@ -57,16 +60,16 @@ async def ws_handler(websocket: websockets.WebSocketServerProtocol, path: str):
   logger.info(f'client disconnected: {websocket.remote_address}')
 
 
-async def process_request(path: str, _: list) -> Optional[Tuple[HTTPStatus, Iterable[Tuple[str, str]], bytes]]:
+async def process_request(path: str, headers: Headers) -> Optional[HTTPResponse]:
   if path == '/ws':
     return None
   elif path == '/':
-    return HTTPStatus(200), [], b''
+    return http.HTTPStatus(200), [], b''
   else:
-    return HTTPStatus(404), [], b''
+    return http.HTTPStatus(404), [], b''
 
 
-def process_cmd(payload: Any):
+def process_cmd(payload):
   command = payload['command']
   # RELAY MODE =========================================================================================================
   if command == 'get_live_streams':
@@ -89,9 +92,9 @@ def process_cmd(payload: Any):
 
 if __name__ == '__main__':
   logging.basicConfig(format='%(asctime)-15s %(message)s', level=logging.INFO)
-  default_port = os.getenv("STREAMINGHUB_PORT")
+  default_port = os.getenv("STREAMINGHUB_PORT", "3300")
   port = int(default_port)
-  start_server = websockets.serve(ws_handler, "0.0.0.0", port, process_request=process_request)
+  start_server = serve(ws_handler, "0.0.0.0", port, process_request=process_request)
   main_loop = asyncio.get_event_loop()
   res_queue = asyncio.Queue()
   try:
