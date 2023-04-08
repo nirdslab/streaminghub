@@ -1,5 +1,5 @@
 {
-    "$schema": "https://www.cs.odu.edu/~yasith/dfds/v1/analytic-stream.jsd",
+    "$schema": "analytic-stream.jsonschema",
     "info": {
         "analytics": [{
             "name": "de-noised heart rate"

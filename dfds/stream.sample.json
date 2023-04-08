@@ -1,5 +1,5 @@
 {
-  "$schema": "../../releases/v2/stream.schema.json",
+  "$schema": "./stream.jsonschema",
   "identifier": {
     "version": "1.0.0",
     "timestamp": "2020-01-01T00:00:00Z",
