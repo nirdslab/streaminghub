@@ -16,17 +16,17 @@ import random
 import sys
 import time
 
-import dfs
+import dfds
 
 SYNTAX = "datasource_simulate [path/to/datasource/spec]"
 
 logger = logging.getLogger()
 
 
-async def emit(source_id: str, spec: dfs.DataSourceSpec, stream_id: str):
+async def emit(source_id: str, spec: dfds.DataSourceSpec, stream_id: str):
   stream = spec.streams[stream_id]
   f = stream.frequency
-  outlet = dfs.create_outlet_for_stream(source_id, spec.device, stream_id, stream)
+  outlet = dfds.create_outlet_for_stream(source_id, spec.device, stream_id, stream)
   logger.info(f'created stream: {stream.name}')
   while True:
     # calculate dt from f. if f=0, assign a random dt
@@ -42,8 +42,8 @@ async def emit(source_id: str, spec: dfs.DataSourceSpec, stream_id: str):
     await asyncio.sleep(dt)
 
 
-async def begin_streaming_random_data(spec: dfs.DataSourceSpec):
-  source_id = dfs.util.gen_random_source_id()
+async def begin_streaming_random_data(spec: dfds.DataSourceSpec):
+  source_id = dfds.util.gen_random_source_id()
   try:
     logger.info(
       f'DataSource [{source_id}]: Device: {spec.device.model}, {spec.device.manufacturer} ({spec.device.category})')
@@ -66,7 +66,7 @@ def main():
   logger.info(f'DataSourceSpec: {spec_name}')
   # load DataSourceSpec
   logger.info('Loading DataSourceSpec...')
-  spec = dfs.get_datasource_spec(spec_name)
+  spec = dfds.get_datasource_spec(spec_name)
   logger.info('Loaded')
   # start data stream
   asyncio.get_event_loop().run_until_complete(begin_streaming_random_data(spec))

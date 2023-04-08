@@ -5,13 +5,13 @@ import os
 
 import pandas as pd
 
-import dfs
+import dfds
 
 NOISE_PROFILES = ["p", "b", "n"]
 ET_PROFILE = ["ideal", "noisy"]
 
-SRC_DIR = f"{dfs.get_data_dir()}/n_back_synt_orig"
-OUT_DIR = f"{dfs.get_data_dir()}/n_back_synt"
+SRC_DIR = f"{dfds.get_data_dir()}/n_back_synt_orig"
+OUT_DIR = f"{dfds.get_data_dir()}/n_back_synt"
 
 if __name__ == '__main__':
   for np in NOISE_PROFILES:

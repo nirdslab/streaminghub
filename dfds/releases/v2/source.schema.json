@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "source.schema.json",
+  "description": "schema of a data source",
+  "type": "object",
+  "required": [
+    "$schema",
+    "identifier",
+    "streams"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "identifier": {
+      "$ref": "./dfds.schema.json#/definitions/identifier"
+    },
+    "streams": {
+      "$ref": "./dfds.schema.json#/definitions/streams"
+    },
+    "device": {
+      "$ref": "./dfds.schema.json#/definitions/device"
+    }
+  }
+}

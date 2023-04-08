@@ -2,7 +2,7 @@ import logging
 import os
 from typing import Tuple, Dict, Any, Generator, Iterator
 
-import dfs
+import dfds
 
 logger = logging.getLogger()
 
@@ -34,7 +34,7 @@ SUMMARY = [
 ]
 
 
-def resolve(spec: dfs.DataSetSpec, **kwargs) -> Iterator[Tuple[DICT, str]]:
+def resolve(spec: dfds.DataSetSpec, **kwargs) -> Iterator[Tuple[DICT, str]]:
   # initialize empty parameters with default values from spec
   subject = kwargs.get("subject", spec.groups.get("subject").attributes)
   diagnosis = kwargs.get("diagnosis", spec.groups.get("diagnosis").attributes)
@@ -88,7 +88,7 @@ def d_stream(file: str, fields: Iterator[str]) -> DICT_GENERATOR:
   logger.debug('Closed file: %s', file)
 
 
-def stream(spec: dfs.DataSetSpec, **kwargs) -> Iterator[Tuple[DICT_GENERATOR, DICT]]:
+def stream(spec: dfds.DataSetSpec, **kwargs) -> Iterator[Tuple[DICT_GENERATOR, DICT]]:
   files = resolve(spec, **kwargs)
   fields = [*spec.fields.keys()]
   return [(d_stream(file, fields), attrs) for attrs, file in files]

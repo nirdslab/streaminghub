@@ -1,6 +1,6 @@
 {
-  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfs/v2/source.schema.json",
-  "info": {
+  "$schema": "../../releases/v2/source.schema.json",
+  "identifier": {
     "version": "1.0.0",
     "timestamp": "2020-01-01T00:00:00Z",
     "checksum": "010203040506070809000A0B0C0D0E0F"

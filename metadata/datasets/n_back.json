@@ -1,6 +1,6 @@
 
 {
-  "$schema": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfs/dataset.schema.json",
+  "$schema": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfds/dataset.schema.json",
   "info": {
     "version": "1.0.0",
     "timestamp": "2020-09-20T00:00:00",

@@ -66,7 +66,7 @@ export interface Analytic {
 
 export const templates = {
   "datasource": {
-    "$schema": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfs/datasource.schema.json",
+    "$schema": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfds/datasource.schema.json",
     "info": {
       "timestamp": "",
       "version": "",
@@ -81,7 +81,7 @@ export const templates = {
     "streams": {}
   },
   "dataset": {
-    "$schema": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfs/dataset.schema.json",
+    "$schema": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfds/dataset.schema.json",
     "name": "",
     "description": "",
     "keywords": [],
@@ -97,7 +97,7 @@ export const templates = {
     "resolver": ""
   },
   "analytic": {
-    "$schema": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfs/analytic.schema.json",
+    "$schema": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfds/analytic.schema.json",
     "info": {
       "timestamp": "",
       "version": "",

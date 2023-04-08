@@ -11,16 +11,16 @@ This repository hosts the following modules,
 Scripts to stream sensory data in real-time, replay stored data from datasets, and stream mock data for testing.<br>
 **Technologies:** Python, PyLSL, WebSockets
 
-## DFS | `dfs/`
+## DFDS | `dfds/`
 
 JSON schemas to describe data streams, data sets, and analytics, along with a few samples.<br>
 **Technologies:** JSON, JSON Schema
 
 ## Metadata | `metadata/`
 
-A collection of DFS metadata files (JSON) and resolvers (Python) for several datasets and datasources used within the
+A collection of DFDS metadata files (JSON) and resolvers (Python) for several datasets and datasources used within the
 project.<br>
-**Technologies:** DFS, JSON, Python
+**Technologies:** DFDS, JSON, Python
 
 ## Node-RED Addons | `node-red-addons/`
 
@@ -28,9 +28,9 @@ Node-RED support package to use StreamingHub.<br>
 It adds widgets to discover data streams, display metadata, auto-populate
 **Technologies:** Javascript, JSON, Vega
 
-## PyDFS | `pydfs/`
+## PyDFDS | `pydfds/`
 
-A Python package for using DFS in StreamingHub projects.
+A Python package for using DFDS in StreamingHub projects.
 **Technologies:** Python, PyLSL
 
 ## Experimental | `experimental/`
@@ -41,7 +41,7 @@ streaminghub modules in the future.<br/>
 
 ## Projects
 A collection of projects conducted using StreamingHub for different use cases.<br/>
-**Technologies:** DFS, JSON, Python, OpenGL
+**Technologies:** DFDS, JSON, Python, OpenGL
 
 ## Archived Projects
 
@@ -53,12 +53,12 @@ It adds widgets to discover data streams, display their metadata, and subscribe 
 
 ### WebUI | `old/webui`
 
-Web interface to generate and validate DFS metadata.<br>
+Web interface to generate and validate DFDS metadata.<br>
 **Technologies:** Angular, Typescript, Monaco Editor
 
 ### Old WebUI | `old/webui-old`
 
-Web interface to generate and validate DFS metadata.<br>
+Web interface to generate and validate DFDS metadata.<br>
 **Technologies:** Angular, Typescript, Monaco Editor
 
 <hr/>
@@ -84,7 +84,7 @@ series       = {DocEng '21}
 }
 @inproceedings {jayawardana2020streaminghub
 author       = {Jayawardana, Yasith and Jayarathna, Sampath},
-title        = {Streaming Analytics and Workflow Automation for DFS},
+title        = {Streaming Analytics and Workflow Automation for DFDS},
 doi          = {10.1145/3383583.3398589},
 pages        = {513–514},
 location     = {Virtual Event, China},

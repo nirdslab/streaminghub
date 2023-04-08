@@ -5,7 +5,7 @@ from typing import List
 
 import pylsl
 
-import dfs
+import dfds
 
 
 # server states (enum)
@@ -44,7 +44,7 @@ class Connector:
     self.device_id = ...
     self.outlets: dict = {}
     self.server_state = E4ServerState.NEW__
-    self.datasource_spec = dfs.get_datasource_spec('empatica_e4')
+    self.datasource_spec = dfds.get_datasource_spec('empatica_e4')
 
   def set_device_list(self, devices: List[str]):
     self.device_list = devices
@@ -148,7 +148,7 @@ class Connector:
     if res_code not in self.outlets:
       _spec = self.datasource_spec
       _stream_id = self.stream_ids[self.res_ids.index(res_code)]
-      self.outlets[res_code] = dfs.create_outlet_for_stream(self.device_id, _spec.device, _stream_id,
+      self.outlets[res_code] = dfds.create_outlet_for_stream(self.device_id, _spec.device, _stream_id,
                                                             _spec.streams[_stream_id])
     return self.outlets[res_code]
 

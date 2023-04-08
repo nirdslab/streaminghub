@@ -5,10 +5,10 @@ import os
 
 import pandas as pd
 
-import dfs
+import dfds
 
-SRC_DIR = f"{dfs.get_data_dir()}/adhd_sin_orig"
-OUT_DIR = f"{dfs.get_data_dir()}/adhd_sin"
+SRC_DIR = f"{dfds.get_data_dir()}/adhd_sin_orig"
+OUT_DIR = f"{dfds.get_data_dir()}/adhd_sin"
 
 if __name__ == '__main__':
   files = glob.glob(f"{SRC_DIR}/*.csv")

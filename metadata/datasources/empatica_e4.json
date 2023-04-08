@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfs/datasource.schema.json",
+  "$schema": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfds/datasource.schema.json",
   "info": {
     "version": "1.0.0",
     "timestamp": "2021-02-23T12:00:00-05:00",

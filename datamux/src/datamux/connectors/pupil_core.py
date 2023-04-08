@@ -10,7 +10,7 @@ import zmq.asyncio
 from PIL import Image
 import pylsl
 
-import dfs
+import dfds
 
 ZMQ_REQ = zmq.REQ
 ZMQ_SUB = zmq.SUB
@@ -20,7 +20,7 @@ CONF_THRESHOLD = 0.8
 
 class Connector:
 
-  def __init__(self, device_id: str, host: str, port: int, meta: dfs.DataSourceSpec) -> None:
+  def __init__(self, device_id: str, host: str, port: int, meta: dfds.DataSourceSpec) -> None:
     super().__init__()
     self.device_id = device_id
     self.host = host
@@ -59,7 +59,7 @@ class Connector:
     if stream_id not in self.outlets:
       idx = self.stream_idx[stream_id]
       stream = self.meta.streams[idx]
-      self.outlets[stream_id] = dfs.create_outlet_for_stream(self.device_id, self.meta.device, idx, stream)
+      self.outlets[stream_id] = dfds.create_outlet_for_stream(self.device_id, self.meta.device, idx, stream)
     return self.outlets[stream_id]
 
   def subscribe(self):
@@ -118,9 +118,9 @@ class Connector:
 
 async def main():
   # get meta-stream for pupil model
-  datasource_spec = dfs.get_datasource_spec('pupil_core')
+  datasource_spec = dfds.get_datasource_spec('pupil_core')
   # set random device id
-  device_id = dfs.util.gen_random_source_id()
+  device_id = dfds.util.gen_random_source_id()
   connector = Connector(device_id, '127.0.0.1', 50020, datasource_spec)
   await connector.run()
 

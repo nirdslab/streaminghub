@@ -1,0 +1,27 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "$id": "transform.schema.json",
+    "description": "schema of a data transform",
+    "type": "object",
+    "required": [
+      "$schema",
+      "identifier",
+      "inputs",
+      "outputs"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "$schema": {
+        "type": "string"
+      },
+      "identifier": {
+        "$ref": "./dfds.schema.json#/definitions/identifier"
+      },
+      "inputs": {
+        "$ref": "./dfds.schema.json#/definitions/fields"
+      },
+      "outputs": {
+        "$ref": "./dfds.schema.json#/definitions/fields"
+      }
+    }
+  }

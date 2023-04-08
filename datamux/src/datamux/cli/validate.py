@@ -7,12 +7,12 @@ validity.
 
 It can be used for testing datasource, dataset,
 and analytic metadata and finding whether they
-are compliant with DFS schemas.
+are compliant with DFDS schemas.
 """
 
 import sys
 
-import dfs
+import dfds
 
 SYNTAX = "validate [path/to/spec]"
 
@@ -20,10 +20,10 @@ SYNTAX = "validate [path/to/spec]"
 def validate_datasource_spec(path: str):
   print('Validating...')
   try:
-    meta = dfs.get_datasource_spec(path, 'json')
+    meta = dfds.get_datasource_spec(path, 'json')
     print(meta)
     print('Great work! Your DataSourceSpec is valid!')
-  except dfs.errors.DoesNotMatchSchemaError as e:
+  except dfds.errors.DoesNotMatchSchemaError as e:
     print('ERROR - does not match schema', e, file=sys.stderr)
 
 

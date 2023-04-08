@@ -21,7 +21,7 @@ from typing import Dict, Generator
 import numpy as np
 import pylsl
 
-import dfs
+import dfds
 from datamux.replay_mode import ReplayMode
 
 DIGIT_CHARS = '0123456789'
@@ -29,11 +29,11 @@ SHUTDOWN_FLAG = threading.Event()
 logger = logging.getLogger()
 
 
-async def begin_streaming(dataset_spec: dfs.DataSetSpec, **kwargs):
+async def begin_streaming(dataset_spec: dfds.DataSetSpec, **kwargs):
   loop = asyncio.get_event_loop()
   data_sources = dataset_spec.sources
   # map each data source by a random id
-  r_sources: Dict[str, dfs.DataSourceSpec] = {dfs.util.gen_random_source_id(): data_source for data_source in
+  r_sources: Dict[str, dfds.DataSourceSpec] = {dfds.util.gen_random_source_id(): data_source for data_source in
                                               data_sources.values()}
   # initiate data streaming via emit() function
   tasks = []
@@ -46,7 +46,7 @@ async def begin_streaming(dataset_spec: dfs.DataSetSpec, **kwargs):
       # TODO for now sending everything in same outlet, later find a way to split outlets by attrs (or create a new outlet for each distinct attr)
       for repl_stream, s_attrs in ReplayMode.find_repl_streams(dataset_spec, **kwargs):
         # create outlet for every nested attr, and create hierarchy
-        outlet = dfs.create_outlet_for_stream(source_id, source.device, stream_id, stream_info, s_attrs)
+        outlet = dfds.create_outlet_for_stream(source_id, source.device, stream_id, stream_info, s_attrs)
         task = loop.create_task(emit(outlet, repl_stream, stream_info))
         tasks.append(task)
     logger.info(f'Source [{source_id}]: Initialization Completed')
@@ -55,7 +55,7 @@ async def begin_streaming(dataset_spec: dfs.DataSetSpec, **kwargs):
 
 
 async def emit(outlet: pylsl.StreamOutlet, data_stream: Generator[Dict[str, float], None, None],
-               stream: dfs.StreamInfo):
+               stream: dfds.StreamInfo):
   # get sampling frequency
   f = stream.frequency
   # calculate wait time (assign random wait time if frequency not set)
@@ -121,12 +121,12 @@ def main():
     os.environ['STREAMINGHUB_META_DIR'] = args.meta_dir
   # print args
   logger.info(f'Dataset Name: {dataset_name}')
-  logger.info(f'Data Directory: {dfs.get_data_dir()}')
-  logger.info(f'Datasource Meta Directory: {dfs.get_datasource_dir()}')
-  logger.info(f'Dataset Meta Directory: {dfs.get_dataset_dir()}')
-  logger.info(f'Analytic Meta Directory: {dfs.get_analytic_dir()}')
+  logger.info(f'Data Directory: {dfds.get_data_dir()}')
+  logger.info(f'Datasource Meta Directory: {dfds.get_datasource_dir()}')
+  logger.info(f'Dataset Meta Directory: {dfds.get_dataset_dir()}')
+  logger.info(f'Analytic Meta Directory: {dfds.get_analytic_dir()}')
   # get dataset spec
-  dataset_spec = dfs.get_dataset_spec(dataset_name)
+  dataset_spec = dfds.get_dataset_spec(dataset_name)
   # get data sources
   assert len(dataset_spec.sources) > 0, f"Dataset does not have data sources"
   # spawn a worker thread for streaming

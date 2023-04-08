@@ -8,7 +8,7 @@ from typing import List, Dict, Union, Iterator, Tuple, Callable, Any
 
 import numpy as np
 
-import dfs
+import dfds
 from .util import DICT, DICT_GENERATOR
 
 logger = logging.getLogger()
@@ -18,8 +18,8 @@ class ReplayMode:
 
   @staticmethod
   def get_datasets():
-    dataset_names = [*map(lambda x: x.name[:-5], Path(dfs.get_dataset_dir()).glob("*.json"))]
-    dataset_specs: List[dfs.DataSetSpec] = [*map(dfs.get_dataset_spec, dataset_names)]
+    dataset_names = [*map(lambda x: x.name[:-5], Path(dfds.get_dataset_dir()).glob("*.json"))]
+    dataset_specs: List[dfds.DataSetSpec] = [*map(dfds.get_dataset_spec, dataset_names)]
     return {
       'command': 'datasets',
       'data': {'datasets': dict(zip(dataset_names, dataset_specs))},
@@ -28,7 +28,7 @@ class ReplayMode:
 
   @staticmethod
   def get_repl_streams(dataset_name: str):
-    dataset_spec = dfs.get_dataset_spec(dataset_name)
+    dataset_spec = dfds.get_dataset_spec(dataset_name)
     repl_stream_info: List[Dict[str, Union[str, dict]]] = []
     for repl_stream, s_attrs in ReplayMode.find_repl_streams(dataset_spec):
       logger.debug("repl stream: %s", s_attrs)
@@ -74,7 +74,7 @@ class ReplayMode:
         else:
           sq_attrs_arr[k] = [sq_attrs[k]]
 
-      dataset_spec = dfs.get_dataset_spec(sq_dataset)
+      dataset_spec = dfds.get_dataset_spec(sq_dataset)
       for repl_stream, s_attrs in ReplayMode.find_repl_streams(dataset_spec, **sq_attrs_arr):
         # create task to replay data
         logger.info([sq_source, sq_stream_id, s_attrs])
@@ -89,16 +89,16 @@ class ReplayMode:
     }
 
   @staticmethod
-  def find_repl_streams(spec: dfs.DataSetSpec, **kwargs) -> Iterator[Tuple[DICT_GENERATOR, DICT]]:
-    if dfs.get_meta_dir() not in sys.path:
-      sys.path.append(dfs.get_meta_dir())
+  def find_repl_streams(spec: dfds.DataSetSpec, **kwargs) -> Iterator[Tuple[DICT_GENERATOR, DICT]]:
+    if dfds.get_meta_dir() not in sys.path:
+      sys.path.append(dfds.get_meta_dir())
     resolver = importlib.import_module(f'resolvers.{spec.name}')
-    stream: Callable[[dfs.DataSetSpec, ...], Any] = getattr(resolver, 'stream')
+    stream: Callable[[dfds.DataSetSpec, ...], Any] = getattr(resolver, 'stream')
     yield from stream(spec, **kwargs)
 
   @staticmethod
   async def start_repl_stream(
-    spec: dfs.DataSetSpec, repl_stream: DICT_GENERATOR, s_source: str, s_stream_id: str, s_attrs: DICT, queue: asyncio.Queue
+    spec: dfds.DataSetSpec, repl_stream: DICT_GENERATOR, s_source: str, s_stream_id: str, s_attrs: DICT, queue: asyncio.Queue
   ):
     logger.info(f'started replay')
     # prepare static vars

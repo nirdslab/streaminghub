@@ -1,5 +1,5 @@
 {
-    "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfs/v1/meta-file.jsd",
+    "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/v1/meta-file.jsd",
     "info": {
         "version": "1.0.0",
         "created": "2020-01-01T00:00:00",
