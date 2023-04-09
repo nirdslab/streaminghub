@@ -40,8 +40,7 @@
             "description": "Acceleration in the Z axis",
             "dtype": "float"
           }
-        },
-        "parent": "#"
+        }
       },
       "bvp": {
         "name": "blood volume pulse",
@@ -61,8 +60,7 @@
             "description": "Blood Volume Pulse",
             "dtype": "float"
           }
-        },
-        "parent": "#"
+        }
       },
       "gsr": {
         "name": "galvanic skin response",
@@ -82,13 +80,12 @@
             "description": "Galvanic Skin Response",
             "dtype": "float"
           }
-        },
-        "parent": "#"
+        }
       },
       "ibi": {
         "name": "inter-beat interval",
         "description": "Inter-Beat Interval (unit - seconds)",
-        "unit": "#/fields/s",
+        "unit": "s",
         "frequency": 0,
         "index": {
           "t": {
@@ -103,8 +100,7 @@
             "description": "The interval between two consecutive heartbeats",
             "dtype": "float"
           }
-        },
-        "parent": "#"
+        }
       },
       "tmp": {
         "name": "skin temperature",
@@ -124,8 +120,7 @@
             "description": "Skin Temperature on the Wrist",
             "dtype": "float"
           }
-        },
-        "parent": "#"
+        }
       },
       "bat": {
         "name": "battery level",
@@ -145,8 +140,7 @@
             "description": "Battery Level of the Device",
             "dtype": "float"
           }
-        },
-        "parent": "#"
+        }
       },
       "tag": {
         "name": "tag",
@@ -166,8 +160,7 @@
             "description": "Press of the Tag Button",
             "dtype": "float"
           }
-        },
-        "parent": "#"
+        }
       }
     }
   }

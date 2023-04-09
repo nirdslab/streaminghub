@@ -24,7 +24,8 @@
     }
   ],
   "streams": {
-    "sample": "./sample.stream.json"
+    "sample": "./sample.stream.json",
+    "hr": "./sample.transform.json"
   },
   "groups": {
     "subject": "ID of the subject",

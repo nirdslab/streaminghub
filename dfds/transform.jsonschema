@@ -17,10 +17,10 @@
       "additionalProperties": false,
       "properties": {
         "inputs": {
-          "$ref": "./dfds.jsonschema#/$defs/fields"
+          "$ref": "./stream.jsonschema#/$defs/streams"
         },
         "outputs": {
-          "$ref": "./dfds.jsonschema#/$defs/fields"
+          "$ref": "./stream.jsonschema#/$defs/streams"
         }
       }
     }

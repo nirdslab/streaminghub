@@ -16,7 +16,6 @@
     },
     "index": {
       "t": "./sample.source.json#/spec/streams/ibi/index/t"
-    },
-    "parent": "./sample.source.json#"
+    }
   }
 }

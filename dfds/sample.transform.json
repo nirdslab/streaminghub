@@ -7,14 +7,29 @@
   },
   "spec": {
     "inputs": {
-      "ibi": "sample.stream.json#/spec/sources/e4/streams/ibi",
-      "bvp": "sample.stream.json#/spec/sources/e4/streams/bvp"
+      "ibi": "sample.stream.json#/spec/streams/ibi",
+      "bvp": "sample.stream.json#/spec/streams/bvp"
     },
     "outputs": {
       "hr": {
         "name": "heart rate",
         "description": "heart rate calculated using IBI and BVP sensory data",
-        "dtype": "float"
+        "unit": "bpm",
+        "frequency": 0,
+        "index": {
+          "t": {
+            "name": "timestamp",
+            "description": "Recording timestamp",
+            "dtype": "float"
+          }
+        },
+        "fields": {
+          "hr": {
+            "name": "heart rate",
+            "description": "heart rate calculated using IBI and BVP sensory data",
+            "dtype": "float"
+          }
+        }
       }
     }
   }

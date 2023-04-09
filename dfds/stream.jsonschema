@@ -17,8 +17,7 @@
         "unit",
         "frequency",
         "fields",
-        "index",
-        "parent"
+        "index"
       ],
       "additionalProperties": false,
       "properties": {
@@ -46,23 +45,6 @@
         "index": {
           "description": "set of index field(s)",
           "$ref": "./dfds.jsonschema#/$defs/fields"
-        },
-        "parent": {
-          "description": "parent source/stream/transform",
-          "anyOf": [
-            {
-              "$ref": "#/$defs/stream"
-            },
-            {
-              "$ref": "./source.jsonschema#/$defs/source"
-            },
-            {
-              "$ref": "./transform.jsonschema#/$defs/transform"
-            },
-            {
-              "$ref": "./dfds.jsonschema#/$defs/ref"
-            }
-          ]
         }
       }
     },
