@@ -23,31 +23,12 @@
       "email": "jane@example.edu"
     }
   ],
-  "sources": {
-    "e4": "datasource.sample.json",
-    "analytic": "analytic.sample.json"
-  },
-  "fields": {
-    "gsr": "#/sources/e4/fields/gsr",
-    "t": "#/sources/e4/fields/t",
-    "hr": "#/sources/analytic/fields/hr"
+  "streams": {
+    "sample": "./sample.stream.json"
   },
   "groups": {
-    "subject": {
-      "description": "ID of the subject",
-      "attributes": [
-        "001",
-        "002"
-      ]
-    },
-    "task": {
-      "description": "ID of the running task",
-      "attributes": [
-        "T1",
-        "T2",
-        "T3"
-      ]
-    }
+    "subject": "ID of the subject",
+    "task": "ID of the running task"
   },
-  "resolver": "resolver.sample.py"
+  "resolver": "sample.resolver.py"
 }

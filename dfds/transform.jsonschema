@@ -1,27 +1,40 @@
 {
-    "$schema": "https://json-schema.org/draft-07/schema",
-    "$id": "transform.schema.json",
-    "description": "schema of a data transform",
-    "type": "object",
-    "required": [
-      "$schema",
-      "identifier",
-      "inputs",
-      "outputs"
-    ],
-    "additionalProperties": false,
-    "properties": {
-      "$schema": {
-        "type": "string"
-      },
-      "identifier": {
-        "$ref": "./dfds.schema.json#/definitions/identifier"
-      },
-      "inputs": {
-        "$ref": "./dfds.schema.json#/definitions/fields"
-      },
-      "outputs": {
-        "$ref": "./dfds.schema.json#/definitions/fields"
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "schema of a data transform",
+  "type": "object",
+  "required": [
+    "$schema",
+    "identifier",
+    "spec"
+  ],
+  "$defs": {
+    "transform": {
+      "type": "object",
+      "required": [
+        "inputs",
+        "outputs"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "inputs": {
+          "$ref": "./dfds.jsonschema#/$defs/fields"
+        },
+        "outputs": {
+          "$ref": "./dfds.jsonschema#/$defs/fields"
+        }
       }
     }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "identifier": {
+      "$ref": "./dfds.jsonschema#/$defs/identifier"
+    },
+    "spec": {
+      "$ref": "#/$defs/transform"
+    }
   }
+}

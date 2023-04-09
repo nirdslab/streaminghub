@@ -1,26 +1,40 @@
 {
-  "$schema": "https://json-schema.org/draft-07/schema",
-  "$id": "source.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "schema of a data source",
   "type": "object",
   "required": [
     "$schema",
     "identifier",
-    "streams"
+    "spec"
   ],
+  "$defs": {
+    "source": {
+      "description": "specification of the source",
+      "type": "object",
+      "required": [
+        "streams"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "streams": {
+          "$ref": "./stream.jsonschema#/$defs/streams"
+        },
+        "device": {
+          "$ref": "./dfds.jsonschema#/$defs/device"
+        }
+      }
+    }
+  },
   "additionalProperties": false,
   "properties": {
     "$schema": {
       "type": "string"
     },
     "identifier": {
-      "$ref": "./dfds.schema.json#/definitions/identifier"
+      "$ref": "./dfds.jsonschema#/$defs/identifier"
     },
-    "streams": {
-      "$ref": "./dfds.schema.json#/definitions/streams"
-    },
-    "device": {
-      "$ref": "./dfds.schema.json#/definitions/device"
+    "spec": {
+      "$ref": "#/$defs/source"
     }
   }
 }

@@ -1,6 +1,5 @@
 {
-  "$schema": "https://json-schema.org/draft-07/schema",
-  "$id": "collection.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "schema of a data collection",
   "type": "object",
   "required": [
@@ -10,8 +9,7 @@
     "description",
     "keywords",
     "authors",
-    "sources",
-    "fields",
+    "streams",
     "groups",
     "resolver"
   ],
@@ -21,7 +19,7 @@
       "type": "string"
     },
     "identifier": {
-      "$ref": "./dfds.schema.json#/definitions/identifier"
+      "$ref": "./dfds.jsonschema#/$defs/identifier"
     },
     "name": {
       "description": "name of the collection",
@@ -45,15 +43,16 @@
       "type": "array",
       "minItems": 1,
       "items": {
-        "$ref": "./dfds.schema.json#/definitions/author"
+        "$ref": "./dfds.jsonschema#/$defs/author"
       }
     },
-    "sources": {
-      "description": "data sources for the dataset",
-      "$ref": "./dfds.schema.json#/definitions/refs"
-    },
-    "fields": {
-      "$ref": "./dfds.schema.json#/definitions/fields"
+    "streams": {
+      "description": "data streams in the dataset",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "./stream.jsonschema#/$refs/streams"
+      }
     },
     "groups": {
       "description": "information about how data can be grouped",
@@ -61,30 +60,14 @@
       "minProperties": 1,
       "patternProperties": {
         ".*": {
-          "description": "information about a grouping",
-          "type": "object",
-          "required": [
-            "description",
-            "attributes"
-          ],
-          "properties": {
-            "description": {
-              "type": "string"
-            },
-            "attributes": {
-              "type": "array",
-              "minItems": 1,
-              "items": {
-                "$ref": "./dfds.schema.json#/definitions/fields"
-              }
-            }
-          }
+          "description": "description of the group",
+          "type": "string"
         }
       }
     },
     "resolver": {
       "description": "script to resolve data",
-      "$ref": "./dfds.schema.json#/definitions/ref"
+      "$ref": "./dfds.jsonschema#/$defs/ref"
     }
   }
 }

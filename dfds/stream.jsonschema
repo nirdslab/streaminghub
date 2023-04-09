@@ -1,24 +1,15 @@
 {
-  "$schema": "https://json-schema.org/draft-07/schema",
-  "$id": "stream.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "schema of a data stream",
   "type": "object",
   "required": [
     "$schema",
     "identifier",
-    "format",
-    "traceback"
+    "spec"
   ],
-  "additionalProperties": false,
-  "properties": {
-    "$schema": {
-      "type": "string"
-    },
-    "identifier": {
-      "$ref": "./dfds.schema.json#/definitions/identifier"
-    },
-    "format": {
-      "description": "format of the stream",
+  "$defs": {
+    "stream": {
+      "description": "specification of the stream",
       "type": "object",
       "required": [
         "name",
@@ -26,7 +17,8 @@
         "unit",
         "frequency",
         "fields",
-        "index"
+        "index",
+        "parent"
       ],
       "additionalProperties": false,
       "properties": {
@@ -48,34 +40,60 @@
           "minimum": 0
         },
         "fields": {
-          "$ref": "./dfds.schema.json#/definitions/fields"
+          "description": "set of value field(s)",
+          "$ref": "./dfds.jsonschema#/$defs/fields"
         },
         "index": {
-          "$ref": "./dfds.schema.json#/definitions/ref"
+          "description": "set of index field(s)",
+          "$ref": "./dfds.jsonschema#/$defs/fields"
+        },
+        "parent": {
+          "description": "parent source/stream/transform",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/stream"
+            },
+            {
+              "$ref": "./source.jsonschema#/$defs/source"
+            },
+            {
+              "$ref": "./transform.jsonschema#/$defs/transform"
+            },
+            {
+              "$ref": "./dfds.jsonschema#/$defs/ref"
+            }
+          ]
         }
       }
     },
-    "traceback": {
-      "description": "traceback to the origin of the stream",
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "anyOf": [
-          {
-            "description": "a source",
-            "$ref": "./source.schema.json",
-            "minItems": 1
-          },
-          {
-            "description": "a transformation",
-            "$ref": "./transform.schema.json"
-          },
-          {
-            "description": "a stream",
-            "$ref": "#"
-          }
-        ]
+    "streams": {
+      "description": "a set of streams / stream references",
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        ".*": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/stream"
+            },
+            {
+              "$ref": "./dfds.jsonschema#/$defs/ref"
+            }
+          ]
+        }
       }
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "identifier": {
+      "$ref": "./dfds.jsonschema#/$defs/identifier"
+    },
+    "spec": {
+      "$ref": "#/$defs/stream"
     }
   }
 }
