@@ -1,6 +1,7 @@
 {
-  "$schema": "https://json-schema.org/draft-07/schema",
-  "definitions": {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "JSON Metadata schemas for DFDS",
+  "$defs": {
     "checksum": {
       "description": "MD5 checksum",
       "type": "string",
@@ -67,7 +68,7 @@
           "minimum": 0
         },
         "channels": {
-          "$ref": "#/definitions/channels"
+          "$ref": "#/$defs/channels"
         }
       }
     },
@@ -90,7 +91,7 @@
         },
         "email": {
           "description": "email address of the author",
-          "$ref": "#/definitions/email"
+          "$ref": "#/$defs/email"
         }
       }
     },
@@ -113,10 +114,10 @@
           "type": "string"
         },
         "keywords": {
-          "$ref": "#/definitions/keywords"
+          "$ref": "#/$defs/keywords"
         },
         "authors": {
-          "$ref": "#/definitions/authors"
+          "$ref": "#/$defs/authors"
         }
       }
     },
@@ -145,10 +146,10 @@
         },
         "keys": {
           "description": "references to each key in the file",
-          "$ref": "#/definitions/keys"
+          "$ref": "#/$defs/keys"
         },
         "checksum": {
-          "$ref": "#/definitions/checksum"
+          "$ref": "#/$defs/checksum"
         }
       }
     },
@@ -196,7 +197,7 @@
           "description": "references to pre-declared fields",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/ref"
+            "$ref": "#/$defs/ref"
           }
         }
       }
@@ -215,7 +216,7 @@
       "type": "array",
       "minItems": 1,
       "items": {
-        "$ref": "#/definitions/author"
+        "$ref": "#/$defs/author"
       }
     },
     "keywords": {
@@ -232,7 +233,7 @@
       "type": "array",
       "minItems": 1,
       "items": {
-        "$ref": "#/definitions/stream"
+        "$ref": "#/$defs/stream"
       }
     },
     "keys": {
@@ -240,7 +241,7 @@
       "type": "array",
       "minItems": 1,
       "items": {
-        "$ref": "#/definitions/ref"
+        "$ref": "#/$defs/ref"
       }
     },
     "fields": {
@@ -248,14 +249,14 @@
       "type": "array",
       "minItems": 1,
       "items": {
-        "$ref": "#/definitions/field"
+        "$ref": "#/$defs/field"
       }
     },
     "links": {
       "description": "information about all links in the current scope",
       "type": "array",
       "items": {
-        "$ref": "#/definitions/link"
+        "$ref": "#/$defs/link"
       }
     },
     "analytic-stream": {
@@ -288,19 +289,19 @@
           }
         },
         "fields": {
-          "$ref": "#/definitions/fields"
+          "$ref": "#/$defs/fields"
         },
         "inputs": {
           "description": "source meta-streams used to obtain the analytics",
           "type": "array",
           "minItems": 1,
           "items": {
-            "$ref": "#/definitions/meta-stream-ref"
+            "$ref": "#/$defs/meta-stream-ref"
           }
         },
         "outputs": {
           "description": "information about all keys referenced in a file",
-          "$ref": "#/definitions/keys"
+          "$ref": "#/$defs/keys"
         }
       }
     },
@@ -339,18 +340,18 @@
             },
             "checksum": {
               "description": "checksum of content",
-              "$ref": "#/definitions/checksum"
+              "$ref": "#/$defs/checksum"
             }
           }
         },
         "dataset": {
-          "$ref": "#/definitions/dataset"
+          "$ref": "#/$defs/dataset"
         },
         "fields": {
-          "$ref": "#/definitions/fields"
+          "$ref": "#/$defs/fields"
         },
         "links": {
-          "$ref": "#/definitions/links"
+          "$ref": "#/$defs/links"
         },
         "sources": {
           "description": "information on all referenced data sources",
@@ -362,7 +363,7 @@
               "type": "array",
               "minItems": 1,
               "items": {
-                "$ref": "#/definitions/meta-stream-ref"
+                "$ref": "#/$defs/meta-stream-ref"
               }
             },
             "files": {
@@ -370,7 +371,7 @@
               "type": "array",
               "minItems": 1,
               "items": {
-                "$ref": "#/definitions/file"
+                "$ref": "#/$defs/file"
               }
             }
           }
@@ -401,18 +402,18 @@
             },
             "checksum": {
               "description": "checksum of content",
-              "$ref": "#/definitions/checksum"
+              "$ref": "#/$defs/checksum"
             }
           }
         },
         "device": {
-          "$ref": "#/definitions/device"
+          "$ref": "#/$defs/device"
         },
         "streams": {
-          "$ref": "#/definitions/streams"
+          "$ref": "#/$defs/streams"
         },
         "fields": {
-          "$ref": "#/definitions/fields"
+          "$ref": "#/$defs/fields"
         }
       }
     },
@@ -425,13 +426,12 @@
       ],
       "properties": {
         "device": {
-          "$ref": "#/definitions/device"
+          "$ref": "#/$defs/device"
         },
         "streams": {
-          "$ref": "#/definitions/streams"
+          "$ref": "#/$defs/streams"
         }
       }
     }
-  },
-  "title": "JSON Metadata schemas for DFDS"
+  }
 }

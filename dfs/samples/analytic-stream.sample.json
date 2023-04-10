@@ -1,5 +1,5 @@
 {
-    "$schema": "analytic-stream.jsonschema",
+    "$schema": "../analytic-stream.jsonschema",
     "info": {
         "analytics": [{
             "name": "de-noised heart rate"

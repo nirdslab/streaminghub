@@ -1,4 +1,4 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$ref": "./dfds.jsonschema#/$defs/collection"
+  "$ref": "./dfs.jsonschema#/$defs/meta-file"
 }

@@ -1,40 +1,4 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "schema of a data transform",
-  "type": "object",
-  "required": [
-    "$schema",
-    "identifier",
-    "spec"
-  ],
-  "$defs": {
-    "transform": {
-      "type": "object",
-      "required": [
-        "inputs",
-        "outputs"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "inputs": {
-          "$ref": "./stream.jsonschema#/$defs/streams"
-        },
-        "outputs": {
-          "$ref": "./stream.jsonschema#/$defs/streams"
-        }
-      }
-    }
-  },
-  "additionalProperties": false,
-  "properties": {
-    "$schema": {
-      "type": "string"
-    },
-    "identifier": {
-      "$ref": "./dfds.jsonschema#/$defs/identifier"
-    },
-    "spec": {
-      "$ref": "#/$defs/transform"
-    }
-  }
+  "$ref": "./dfds.jsonschema#/$defs/transform"
 }

@@ -1,6 +1,10 @@
-# DFDS
+# DFDS - Data Flow Description Schema
 
 <img src="https://i.imgur.com/xSieE3V.png" height="100px">
 
-**DFS** provides schemas for abstracting data descriptions, and examples on how they could be used.
-Other streaminghub components are built upon these abstractions.
+**DFDS** provides schemas to describe the key elements in a data flow.
+It lets you describe data collections, data sources, data streams, and data transformations.
+
+StreamingHub uses DFDS metadata to mimic real-time data by *replaying* data collections.
+Creating data streams in this manner gives easy-to-access test data for experiment development and testing.
+Several components of streaminghub are also built upon DFDS abstractions.

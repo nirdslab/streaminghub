@@ -1,5 +1,5 @@
 {
-    "$schema": "meta-file.jsonschema",
+    "$schema": "../meta-file.jsonschema",
     "info": {
         "version": "1.0.0",
         "created": "2020-01-01T00:00:00",

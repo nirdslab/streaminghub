@@ -1,5 +1,5 @@
 {
-  "$schema": "./source.jsonschema",
+  "$schema": "../source.jsonschema",
   "identifier": {
     "version": "1.0.0",
     "timestamp": "2020-01-01T00:00:00Z",
@@ -25,17 +25,17 @@
           }
         },
         "fields": {
-          "acc_x": {
+          "x": {
             "name": "x - acceleration",
             "description": "Acceleration in the X axis",
             "dtype": "float"
           },
-          "acc_y": {
+          "y": {
             "name": "y - acceleration",
             "description": "Acceleration in the Y axis",
             "dtype": "float"
           },
-          "acc_z": {
+          "z": {
             "name": "z - acceleration",
             "description": "Acceleration in the Z axis",
             "dtype": "float"
@@ -65,7 +65,7 @@
       "gsr": {
         "name": "galvanic skin response",
         "description": "Galvanic Skin Response (unit - micro siemens)",
-        "unit": "S",
+        "unit": "µS",
         "frequency": 0,
         "index": {
           "t": {
