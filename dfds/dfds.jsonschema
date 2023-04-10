@@ -226,7 +226,6 @@
         "groups",
         "resolver"
       ],
-      "additionalProperties": false,
       "properties": {
         "name": {
           "description": "name of the collection",
@@ -255,11 +254,7 @@
         },
         "streams": {
           "description": "data streams in the dataset",
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/$defs/streams"
-          }
+          "$ref": "#/$defs/streams"
         },
         "groups": {
           "description": "information about how data can be grouped",
@@ -268,7 +263,22 @@
           "patternProperties": {
             ".*": {
               "description": "description of the group",
-              "type": "string"
+              "type": "object",
+              "required": [
+                "description",
+                "values"
+              ],
+              "properties": {
+                "description": {
+                  "type": "string"
+                },
+                "values": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
             }
           }
         },

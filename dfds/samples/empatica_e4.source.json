@@ -1,165 +1,158 @@
 {
   "$schema": "../source.jsonschema",
-  "identifier": {
-    "version": "1.0.0",
-    "timestamp": "2020-01-01T00:00:00Z",
-    "checksum": "010203040506070809000A0B0C0D0E0F"
+  "device": {
+    "model": "E4",
+    "manufacturer": "Empatica",
+    "category": "Wristband"
   },
-  "spec": {
-    "device": {
-      "model": "E4",
-      "manufacturer": "Empatica",
-      "category": "Wristband"
+  "streams": {
+    "acc": {
+      "name": "acceleration",
+      "description": "3-axis acceleration (unit - gravity)",
+      "unit": "g",
+      "frequency": 32,
+      "index": {
+        "t": {
+          "name": "timestamp",
+          "description": "Recording timestamp",
+          "dtype": "float"
+        }
+      },
+      "fields": {
+        "x": {
+          "name": "x - acceleration",
+          "description": "Acceleration in the X axis",
+          "dtype": "float"
+        },
+        "y": {
+          "name": "y - acceleration",
+          "description": "Acceleration in the Y axis",
+          "dtype": "float"
+        },
+        "z": {
+          "name": "z - acceleration",
+          "description": "Acceleration in the Z axis",
+          "dtype": "float"
+        }
+      }
     },
-    "streams": {
-      "acc": {
-        "name": "acceleration",
-        "description": "3-axis acceleration (unit - gravity)",
-        "unit": "g",
-        "frequency": 32,
-        "index": {
-          "t": {
-            "name": "timestamp",
-            "description": "Recording timestamp",
-            "dtype": "float"
-          }
-        },
-        "fields": {
-          "x": {
-            "name": "x - acceleration",
-            "description": "Acceleration in the X axis",
-            "dtype": "float"
-          },
-          "y": {
-            "name": "y - acceleration",
-            "description": "Acceleration in the Y axis",
-            "dtype": "float"
-          },
-          "z": {
-            "name": "z - acceleration",
-            "description": "Acceleration in the Z axis",
-            "dtype": "float"
-          }
+    "bvp": {
+      "name": "blood volume pulse",
+      "description": "Blood Volume Pulse (unit - lumen)",
+      "unit": "lm",
+      "frequency": 64,
+      "index": {
+        "t": {
+          "name": "timestamp",
+          "description": "Recording timestamp",
+          "dtype": "float"
         }
       },
-      "bvp": {
-        "name": "blood volume pulse",
-        "description": "Blood Volume Pulse (unit - lumen)",
-        "unit": "lm",
-        "frequency": 64,
-        "index": {
-          "t": {
-            "name": "timestamp",
-            "description": "Recording timestamp",
-            "dtype": "float"
-          }
-        },
-        "fields": {
-          "bvp": {
-            "name": "blood volume pulse",
-            "description": "Blood Volume Pulse",
-            "dtype": "float"
-          }
+      "fields": {
+        "bvp": {
+          "name": "blood volume pulse",
+          "description": "Blood Volume Pulse",
+          "dtype": "float"
+        }
+      }
+    },
+    "gsr": {
+      "name": "galvanic skin response",
+      "description": "Galvanic Skin Response (unit - micro siemens)",
+      "unit": "µS",
+      "frequency": 0,
+      "index": {
+        "t": {
+          "name": "timestamp",
+          "description": "Recording timestamp",
+          "dtype": "float"
         }
       },
-      "gsr": {
-        "name": "galvanic skin response",
-        "description": "Galvanic Skin Response (unit - micro siemens)",
-        "unit": "µS",
-        "frequency": 0,
-        "index": {
-          "t": {
-            "name": "timestamp",
-            "description": "Recording timestamp",
-            "dtype": "float"
-          }
-        },
-        "fields": {
-          "gsr": {
-            "name": "galvanic skin response",
-            "description": "Galvanic Skin Response",
-            "dtype": "float"
-          }
+      "fields": {
+        "gsr": {
+          "name": "galvanic skin response",
+          "description": "Galvanic Skin Response",
+          "dtype": "float"
+        }
+      }
+    },
+    "ibi": {
+      "name": "inter-beat interval",
+      "description": "Inter-Beat Interval (unit - seconds)",
+      "unit": "s",
+      "frequency": 0,
+      "index": {
+        "t": {
+          "name": "timestamp",
+          "description": "Recording timestamp",
+          "dtype": "float"
         }
       },
-      "ibi": {
-        "name": "inter-beat interval",
-        "description": "Inter-Beat Interval (unit - seconds)",
-        "unit": "s",
-        "frequency": 0,
-        "index": {
-          "t": {
-            "name": "timestamp",
-            "description": "Recording timestamp",
-            "dtype": "float"
-          }
-        },
-        "fields": {
-          "ibi": {
-            "name": "inter beat interval",
-            "description": "The interval between two consecutive heartbeats",
-            "dtype": "float"
-          }
+      "fields": {
+        "ibi": {
+          "name": "inter beat interval",
+          "description": "The interval between two consecutive heartbeats",
+          "dtype": "float"
+        }
+      }
+    },
+    "tmp": {
+      "name": "skin temperature",
+      "description": "Skin Temperature (unit - celsius)",
+      "unit": "c",
+      "frequency": 0,
+      "index": {
+        "t": {
+          "name": "timestamp",
+          "description": "Recording timestamp",
+          "dtype": "float"
         }
       },
-      "tmp": {
-        "name": "skin temperature",
-        "description": "Skin Temperature (unit - celsius)",
-        "unit": "c",
-        "frequency": 0,
-        "index": {
-          "t": {
-            "name": "timestamp",
-            "description": "Recording timestamp",
-            "dtype": "float"
-          }
-        },
-        "fields": {
-          "tmp": {
-            "name": "skin temperature",
-            "description": "Skin Temperature on the Wrist",
-            "dtype": "float"
-          }
+      "fields": {
+        "tmp": {
+          "name": "skin temperature",
+          "description": "Skin Temperature on the Wrist",
+          "dtype": "float"
+        }
+      }
+    },
+    "bat": {
+      "name": "battery level",
+      "description": "Device Battery (unit - percent)",
+      "unit": "%",
+      "frequency": 0,
+      "index": {
+        "t": {
+          "name": "timestamp",
+          "description": "Recording timestamp",
+          "dtype": "float"
         }
       },
-      "bat": {
-        "name": "battery level",
-        "description": "Device Battery (unit - percent)",
-        "unit": "%",
-        "frequency": 0,
-        "index": {
-          "t": {
-            "name": "timestamp",
-            "description": "Recording timestamp",
-            "dtype": "float"
-          }
-        },
-        "fields": {
-          "bat": {
-            "name": "battery level",
-            "description": "Battery Level of the Device",
-            "dtype": "float"
-          }
+      "fields": {
+        "bat": {
+          "name": "battery level",
+          "description": "Battery Level of the Device",
+          "dtype": "float"
+        }
+      }
+    },
+    "tag": {
+      "name": "tag",
+      "description": "Tag recorded upon button press",
+      "unit": "",
+      "frequency": 0,
+      "index": {
+        "t": {
+          "name": "timestamp",
+          "description": "Recording timestamp",
+          "dtype": "float"
         }
       },
-      "tag": {
-        "name": "tag",
-        "description": "Tag recorded upon button press",
-        "unit": "",
-        "frequency": 0,
-        "index": {
-          "t": {
-            "name": "timestamp",
-            "description": "Recording timestamp",
-            "dtype": "float"
-          }
-        },
-        "fields": {
-          "tag": {
-            "name": "tag",
-            "description": "Press of the Tag Button",
-            "dtype": "float"
-          }
+      "fields": {
+        "tag": {
+          "name": "tag",
+          "description": "Press of the Tag Button",
+          "dtype": "float"
         }
       }
     }

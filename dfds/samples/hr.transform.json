@@ -1,0 +1,30 @@
+{
+  "$schema": "../transform.jsonschema",
+  "inputs": {
+    "bvp": "bvp.stream.json#",
+    "ibi": "ibi.stream.json#"
+  },
+  "outputs": {
+    "hr": {
+      "name": "heart rate",
+      "description": "heart rate calculated using IBI and BVP sensory data",
+      "unit": "bpm",
+      "frequency": 0,
+      "index": {
+        "t": {
+          "name": "timestamp",
+          "description": "Recording timestamp",
+          "dtype": "float"
+        }
+      },
+      "fields": {
+        "hr": {
+          "name": "heart rate",
+          "description": "heart rate calculated from IBI and BVP data",
+          "dtype": "float"
+        }
+      }
+    }
+  },
+  "uri": "./ibi_bvp_to_hr.py"
+}

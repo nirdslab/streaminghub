@@ -1,0 +1,43 @@
+{
+  "$schema": "../collection.jsonschema",
+  "name": "Running_BVP_IBI_GSR",
+  "description": "Blood volume pulse (bvp), inter-beat interval (ibi), and heart-rate (hr) measurements of 2 participants taken from Empatica E4 during a running task",
+  "keywords": [
+    "heart-rate",
+    "running"
+  ],
+  "authors": [
+    {
+      "name": "John Doe",
+      "affiliation": "Example University",
+      "email": "john@example.edu"
+    },
+    {
+      "name": "Jane Doe",
+      "affiliation": "Example University",
+      "email": "jane@example.edu"
+    }
+  ],
+  "streams": {
+    "bvp": "./bvp.stream.json#",
+    "ibi": "./ibi.stream.json#",
+    "hr": "./hr.transform.json#"
+  },
+  "groups": {
+    "subject": {
+      "description": "ID of the subject",
+      "values": [
+        "01",
+        "02"
+      ]
+    },
+    "task": {
+      "description": "ID of the running task",
+      "values": [
+        "A",
+        "B"
+      ]
+    }
+  },
+  "resolver": "Running_BVP_IBI_GSR.resolver.py"
+}

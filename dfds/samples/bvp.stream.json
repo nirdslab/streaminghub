@@ -1,0 +1,13 @@
+{
+  "$schema": "../stream.jsonschema",
+  "name": "blood volume pulse",
+  "description": "Blood Volume Pulse (unit - lumen)",
+  "unit": "lm",
+  "frequency": 64,
+  "index": {
+    "t": "./empatica_e4.source.json#/streams/bvp/index/t"
+  },
+  "fields": {
+    "bvp": "./empatica_e4.source.json#/streams/bvp/fields/bvp"
+  }
+}

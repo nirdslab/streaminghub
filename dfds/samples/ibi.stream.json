@@ -1,0 +1,13 @@
+{
+  "$schema": "../stream.jsonschema",
+  "name": "inter-beat interval",
+  "description": "Inter-Beat Interval (unit - seconds)",
+  "unit": "s",
+  "frequency": 0,
+  "index": {
+    "t": "./empatica_e4.source.json#/streams/ibi/index/t"
+  },
+  "fields": {
+    "ibi": "./empatica_e4.source.json#/streams/ibi/fields/ibi"
+  }
+}
