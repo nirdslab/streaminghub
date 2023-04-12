@@ -1,8 +1,10 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 from .author import Author
 from .group import Group
 from .stream import Stream
+from .pipe import Pipe
+from .util import stream_or_pipe
 
 
 class Collection:
@@ -10,9 +12,9 @@ class Collection:
     description: str
     keywords: List[str]
     authors: List[Author]
-    streams: Dict[str, Stream]
+    streams: Dict[str, Union[Pipe, Stream]]
     groups: Dict[str, Group]
-    resolver: str
+    dataloader: str
 
     def __init__(
         self,
@@ -20,9 +22,9 @@ class Collection:
         description: str,
         keywords: List[str],
         authors: List[Author],
-        streams: Dict[str, Stream],
+        streams: Dict[str, Union[Pipe, Stream]],
         groups: Dict[str, Group],
-        resolver: str,
+        dataloader: str,
     ) -> None:
         self.name = name
         self.description = description
@@ -30,16 +32,17 @@ class Collection:
         self.authors = authors
         self.streams = streams
         self.groups = groups
-        self.resolver = resolver
+        self.dataloader = dataloader
 
     @staticmethod
     def create(data: Dict[str, Any]):
+        streams = {}
         return Collection(
             name=str(data["name"]),
             description=str(data["description"]),
             keywords=[*map(str, data["keywords"])],
             authors=[*map(Author.create, data["authors"])],
-            streams={k: Stream.create(v) for k, v in dict.items(data["streams"])},
+            streams={k: stream_or_pipe(v) for k, v in dict.items(data["streams"])},
             groups={k: Group.create(v) for k, v in dict.items(data["groups"])},
-            resolver=str(data["resolver"]),
+            dataloader=str(data["dataloader"]),
         )

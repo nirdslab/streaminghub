@@ -26,7 +26,7 @@
       "@ref": "./ibi.stream.json#"
     },
     "hr": {
-      "@ref": "./hr.transform.json#"
+      "@ref": "./hr.pipe.json#"
     }
   },
   "groups": {
