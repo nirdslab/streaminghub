@@ -3,7 +3,7 @@ from typing import Any, Dict
 from .stream import Stream
 
 
-class Transform:
+class Pipe:
     inputs: Dict[str, Stream]
     outputs: Dict[str, Stream]
     uri: str
@@ -22,7 +22,7 @@ class Transform:
     def create(
         data: Dict[str, Any],
     ):
-        return Transform(
+        return Pipe(
             inputs={k: Stream.create(v) for k, v in dict.items(data["inputs"])},
             outputs={k: Stream.create(v) for k, v in dict.items(data["outputs"])},
             uri=str(data["uri"]),

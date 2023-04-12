@@ -1,5 +1,5 @@
 {
-  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/transform.jsonschema",
+  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/pipe.jsonschema",
   "inputs": {
     "bvp": {
       "@ref": "bvp.stream.json#"
@@ -30,5 +30,5 @@
       }
     }
   },
-  "uri": "./hr_transform.py"
+  "uri": "./hr_pipe.py"
 }
