@@ -19,9 +19,15 @@
     }
   ],
   "streams": {
-    "bvp": "./bvp.stream.json#",
-    "ibi": "./ibi.stream.json#",
-    "hr": "./hr.transform.json#"
+    "bvp": {
+      "@ref": "./bvp.stream.json#"
+    },
+    "ibi": {
+      "@ref": "./ibi.stream.json#"
+    },
+    "hr": {
+      "@ref": "./hr.transform.json#"
+    }
   },
   "groups": {
     "subject": {
@@ -39,5 +45,5 @@
       ]
     }
   },
-  "resolver": "Running_BVP_IBI_GSR.resolver.py"
+  "dataloader": "./running_metrics_dataloader.py"
 }

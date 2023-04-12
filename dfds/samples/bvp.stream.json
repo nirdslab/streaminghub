@@ -5,9 +5,13 @@
   "unit": "lm",
   "frequency": 64,
   "index": {
-    "t": "./empatica_e4.source.json#/streams/bvp/index/t"
+    "t": {
+      "@ref": "./empatica_e4.source.json#/streams/bvp/index/t"
+    }
   },
   "fields": {
-    "bvp": "./empatica_e4.source.json#/streams/bvp/fields/bvp"
+    "bvp": {
+      "@ref": "./empatica_e4.source.json#/streams/bvp/fields/bvp"
+    }
   }
 }

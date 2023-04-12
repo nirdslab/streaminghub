@@ -15,24 +15,24 @@
         "t": {
           "name": "timestamp",
           "description": "Recording timestamp",
-          "dtype": "float"
+          "dtype": "f32"
         }
       },
       "fields": {
         "x": {
           "name": "x - acceleration",
           "description": "Acceleration in the X axis",
-          "dtype": "float"
+          "dtype": "f32"
         },
         "y": {
           "name": "y - acceleration",
           "description": "Acceleration in the Y axis",
-          "dtype": "float"
+          "dtype": "f32"
         },
         "z": {
           "name": "z - acceleration",
           "description": "Acceleration in the Z axis",
-          "dtype": "float"
+          "dtype": "f32"
         }
       }
     },
@@ -45,14 +45,14 @@
         "t": {
           "name": "timestamp",
           "description": "Recording timestamp",
-          "dtype": "float"
+          "dtype": "f32"
         }
       },
       "fields": {
         "bvp": {
           "name": "blood volume pulse",
           "description": "Blood Volume Pulse",
-          "dtype": "float"
+          "dtype": "f32"
         }
       }
     },
@@ -65,14 +65,14 @@
         "t": {
           "name": "timestamp",
           "description": "Recording timestamp",
-          "dtype": "float"
+          "dtype": "f32"
         }
       },
       "fields": {
         "gsr": {
           "name": "galvanic skin response",
           "description": "Galvanic Skin Response",
-          "dtype": "float"
+          "dtype": "f32"
         }
       }
     },
@@ -85,14 +85,14 @@
         "t": {
           "name": "timestamp",
           "description": "Recording timestamp",
-          "dtype": "float"
+          "dtype": "f32"
         }
       },
       "fields": {
         "ibi": {
           "name": "inter beat interval",
           "description": "The interval between two consecutive heartbeats",
-          "dtype": "float"
+          "dtype": "f32"
         }
       }
     },
@@ -105,14 +105,14 @@
         "t": {
           "name": "timestamp",
           "description": "Recording timestamp",
-          "dtype": "float"
+          "dtype": "f32"
         }
       },
       "fields": {
         "tmp": {
           "name": "skin temperature",
           "description": "Skin Temperature on the Wrist",
-          "dtype": "float"
+          "dtype": "f32"
         }
       }
     },
@@ -125,14 +125,14 @@
         "t": {
           "name": "timestamp",
           "description": "Recording timestamp",
-          "dtype": "float"
+          "dtype": "f32"
         }
       },
       "fields": {
         "bat": {
           "name": "battery level",
           "description": "Battery Level of the Device",
-          "dtype": "float"
+          "dtype": "f32"
         }
       }
     },
@@ -145,14 +145,14 @@
         "t": {
           "name": "timestamp",
           "description": "Recording timestamp",
-          "dtype": "float"
+          "dtype": "f32"
         }
       },
       "fields": {
         "tag": {
           "name": "tag",
           "description": "Press of the Tag Button",
-          "dtype": "float"
+          "dtype": "f32"
         }
       }
     }

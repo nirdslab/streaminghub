@@ -8,7 +8,7 @@ setuptools.setup(
   version="1.0.0",
   author="Yasith Jayawardana",
   author_email="yasith@cs.odu.edu",
-  description="Python Library for using Dataset File System (DFDS) in StreamingHub projects",
+  description="Parser for Data Flow Description Schema (DFDS) metadata",
   long_description=long_description,
   long_description_content_type="text/markdown",
   url="https://github.com/nirdslab/streaminghub/tree/master/pydfds",

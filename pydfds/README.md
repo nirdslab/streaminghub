@@ -2,7 +2,7 @@
 
 <img src="https://i.imgur.com/xSieE3V.png" height="100px">
 
-This package allows using Dataset File System (DFDS) within StreamingHub projects.
+PyDFDS is a parser for Data Flow Description Schema (DFDS) metadata, written using Python.
 
 ## Installation
 

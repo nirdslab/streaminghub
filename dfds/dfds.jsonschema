@@ -53,8 +53,18 @@
       }
     },
     "ref": {
-      "type": "string",
-      "format": "uri-reference"
+      "description": "reference to the resource",
+      "type": "object",
+      "required": [
+        "@ref"
+      ],
+      "properties": {
+        "@ref": {
+          "description": "uri-reference to the resource",
+          "type": "string",
+          "format": "uri-reference"
+        }
+      }
     },
     "device": {
       "description": "information about the recording device",
@@ -83,15 +93,11 @@
       "description": "information about the field",
       "type": "object",
       "required": [
-        "dtype",
         "name",
-        "description"
+        "description",
+        "dtype"
       ],
       "properties": {
-        "dtype": {
-          "description": "data type of field",
-          "type": "string"
-        },
         "name": {
           "description": "name of the field",
           "type": "string"
@@ -99,6 +105,21 @@
         "description": {
           "description": "description of the field",
           "type": "string"
+        },
+        "dtype": {
+          "description": "data type of field",
+          "type": "string",
+          "enum": [
+            "f16",
+            "f32",
+            "f64",
+            "i8",
+            "i16",
+            "i32",
+            "u8",
+            "u16",
+            "u32"
+          ]
         }
       }
     },
@@ -203,7 +224,8 @@
       "type": "object",
       "required": [
         "inputs",
-        "outputs"
+        "outputs",
+        "uri"
       ],
       "properties": {
         "inputs": {
@@ -211,6 +233,10 @@
         },
         "outputs": {
           "$ref": "#/$defs/streams"
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri-reference"
         }
       }
     },
@@ -224,7 +250,7 @@
         "authors",
         "streams",
         "groups",
-        "resolver"
+        "dataloader"
       ],
       "properties": {
         "name": {
@@ -282,9 +308,10 @@
             }
           }
         },
-        "resolver": {
-          "description": "script to resolve data",
-          "$ref": "#/$defs/ref"
+        "dataloader": {
+          "description": "uri of the data loader",
+          "type": "string",
+          "format": "uri-reference"
         }
       }
     }

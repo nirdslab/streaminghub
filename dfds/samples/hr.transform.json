@@ -1,8 +1,12 @@
 {
   "$schema": "../transform.jsonschema",
   "inputs": {
-    "bvp": "bvp.stream.json#",
-    "ibi": "ibi.stream.json#"
+    "bvp": {
+      "@ref": "bvp.stream.json#"
+    },
+    "ibi": {
+      "@ref": "ibi.stream.json#"
+    }
   },
   "outputs": {
     "hr": {
@@ -14,17 +18,17 @@
         "t": {
           "name": "timestamp",
           "description": "Recording timestamp",
-          "dtype": "float"
+          "dtype": "f32"
         }
       },
       "fields": {
         "hr": {
           "name": "heart rate",
           "description": "heart rate calculated from IBI and BVP data",
-          "dtype": "float"
+          "dtype": "f32"
         }
       }
     }
   },
-  "uri": "./ibi_bvp_to_hr.py"
+  "uri": "./hr_transform.py"
 }
