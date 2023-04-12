@@ -1,5 +1,5 @@
 {
-  "$schema": "../stream.jsonschema",
+  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/stream.jsonschema",
   "name": "blood volume pulse",
   "description": "Blood Volume Pulse (unit - lumen)",
   "unit": "lm",

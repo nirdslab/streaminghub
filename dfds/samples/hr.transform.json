@@ -1,5 +1,5 @@
 {
-  "$schema": "../transform.jsonschema",
+  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/transform.jsonschema",
   "inputs": {
     "bvp": {
       "@ref": "bvp.stream.json#"

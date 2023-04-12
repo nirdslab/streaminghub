@@ -1,5 +1,5 @@
 {
-  "$schema": "../source.jsonschema",
+  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/source.jsonschema",
   "device": {
     "model": "E4",
     "manufacturer": "Empatica",

@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from typing import Any, Dict, Tuple, TypeVar
-from urllib.parse import ParseResult, urlparse, urljoin
+from urllib.parse import ParseResult, urljoin, urlparse
 from urllib.request import urlopen
 
 import jsonschema
@@ -36,7 +36,7 @@ def parse_ref(
     if ref_obj.scheme == "" and ref_obj.netloc == "":
         ref_fspath = ref_obj.path
     else:
-        ref_uri = f"{ref_obj.scheme}//{ref_obj.netloc}{ref_obj.path}"
+        ref_uri = f"{ref_obj.scheme}://{ref_obj.netloc}{ref_obj.path}#{ref_obj.fragment}"
     return ref_fspath, ref_uri
 
 
@@ -47,17 +47,22 @@ def resolve_path(
     # parse ref
     (ref_fspath, ref_uri) = parse_ref(ref)
 
+    if ref_uri:
+        return ref_uri
+
+    assert len(ref_fspath) > 0
+
     if len(base) == 0:
-        return ref_uri or os.path.abspath(ref_fspath)
+        return os.path.abspath(ref_fspath)
 
     # parse base
     (base_fspath, base_uri) = parse_ref(base)
 
-    if bool(base_uri):
-        return urljoin(base_uri, ref_uri or ref_fspath)
+    if base_uri:
+        return urljoin(base_uri, ref_fspath)
 
-    if bool(base_fspath) and bool(ref_fspath):
-        return os.path.join(os.path.dirname(base_fspath), ref_fspath)
+    if base_fspath:
+        return os.path.abspath(os.path.join(os.path.dirname(base_fspath), ref_fspath))
 
     else:
         raise ValueError()
@@ -72,13 +77,13 @@ def fetch(
     @param ref: a path (filesystem/uri)
     @return: content of the resource
     """
+
     path_obj: ParseResult = urlparse(path)
     is_path_fs = path_obj.scheme == "" and path_obj.netloc == ""
     fn = open if is_path_fs else urlopen
     content: dict
 
     # fetch resource
-    logger.debug(f"Fetching: {path}...")
     with fn(path) as payload:
         try:
             content = json.load(payload)
@@ -98,12 +103,14 @@ def fetch(
 def validate_metadata_against_schema(
     metadata: dict,
     schema: dict,
+    schema_uri: str,
 ) -> None:
     try:
+        resolver = jsonschema.RefResolver(schema_uri, schema)
         jsonschema.validate(
             instance=metadata,
             schema=schema,
-            cls=jsonschema.validators.Draft202012Validator,
+            resolver=resolver,
         )
     except jsonschema.ValidationError as e:
         raise SchemaMismatchError(e)
@@ -116,7 +123,6 @@ def resolve_metadata_refs(
     if len(metadata.keys()) == 1 and "@ref" in metadata.keys():
         ref_uri = resolve_path(metadata["@ref"], base)
         logging.debug(f"resolved ref path: {ref_uri}")
-        input()
         metadata = fetch_and_validate_metadata(ref_uri)
     else:
         for k, v in metadata.items():
@@ -142,11 +148,11 @@ def fetch_and_validate_metadata(
     if "$schema" in metadata:
         schema_uri = resolve_path(metadata["$schema"], ref)
         logging.debug(f"resolved schema path: {schema_uri}")
-        input()
         schema = fetch(schema_uri)
         validate_metadata_against_schema(
             metadata=metadata,
             schema=schema,
+            schema_uri=schema_uri,
         )
 
     # recursively update uri-references with actual values
@@ -154,21 +160,39 @@ def fetch_and_validate_metadata(
         metadata=metadata,
         base=ref,
     )
-
     return metadata
 
 
-def get_metadata(ref: str, type: T) -> T:
+def get_collection_metadata(ref: str) -> Collection:
     path = resolve_path(ref)
     logging.debug(f"resolved metadata path: {path}")
-    input()
     metadata = fetch_and_validate_metadata(path)
-    return type.create(metadata)
+    return Collection.create(metadata)
+
+
+def get_stream_metadata(ref: str) -> Stream:
+    path = resolve_path(ref)
+    logging.debug(f"resolved metadata path: {path}")
+    metadata = fetch_and_validate_metadata(path)
+    return Stream.create(metadata)
+
+
+def get_source_metadata(ref: str) -> Source:
+    path = resolve_path(ref)
+    logging.debug(f"resolved metadata path: {path}")
+    metadata = fetch_and_validate_metadata(path)
+    return Source.create(metadata)
+
+
+def get_transform_metadata(ref: str) -> Transform:
+    path = resolve_path(ref)
+    logging.debug(f"resolved metadata path: {path}")
+    metadata = fetch_and_validate_metadata(path)
+    return Transform.create(metadata)
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.NOTSET)
-    metadata = get_metadata(
-        ref="../../../dfds/samples/running_metrics.collection.json",
-        type=type(Collection),
+    metadata = get_collection_metadata(
+        "../../../dfds/samples/running_metrics.collection.json"
     )

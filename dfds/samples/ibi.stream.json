@@ -1,5 +1,5 @@
 {
-  "$schema": "../stream.jsonschema",
+  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/stream.jsonschema",
   "name": "inter-beat interval",
   "description": "Inter-Beat Interval (unit - seconds)",
   "unit": "s",
