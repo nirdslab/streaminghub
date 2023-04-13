@@ -2,15 +2,16 @@ import logging
 from typing import Dict
 
 import pylsl
-from dtypes import Source, Stream
+
+from .dtypes import Source, Stream
 
 logger = logging.getLogger()
 
 
 def replay_stream(
     source_id: str,
-    source: Source,
     stream_id: str,
+    source: Source,
     stream: Stream,
     attrs: Dict[str, str],
 ) -> pylsl.StreamOutlet:

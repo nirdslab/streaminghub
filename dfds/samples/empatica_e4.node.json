@@ -1,11 +1,11 @@
 {
-  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/source.jsonschema",
+  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/node.jsonschema",
   "device": {
     "model": "E4",
     "manufacturer": "Empatica",
     "category": "Wristband"
   },
-  "streams": {
+  "generates": {
     "acc": {
       "name": "acceleration",
       "description": "3-axis acceleration (unit - gravity)",

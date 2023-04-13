@@ -2,12 +2,13 @@ from typing import Any, Dict, List, Union
 
 from .author import Author
 from .group import Group
-from .stream import Stream
 from .pipe import Pipe
+from .stream import Stream
 from .util import stream_or_pipe
 
 
 class Collection:
+    
     name: str
     description: str
     keywords: List[str]

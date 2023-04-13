@@ -1,14 +1,15 @@
 {
-  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/pipe.jsonschema",
-  "inputs": {
+  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/node.jsonschema",
+  "uri": "./hr_node.py",
+  "consumes": {
     "bvp": {
-      "@ref": "bvp.stream.json#"
+      "@ref": "./empatica_e4.node.json#/generates/bvp"
     },
     "ibi": {
-      "@ref": "ibi.stream.json#"
+      "@ref": "./empatica_e4.node.json#/generates/ibi"
     }
   },
-  "outputs": {
+  "generates": {
     "hr": {
       "name": "heart rate",
       "description": "heart rate calculated using IBI and BVP sensory data",
@@ -29,6 +30,5 @@
         }
       }
     }
-  },
-  "uri": "./hr_pipe.py"
+  }
 }

@@ -189,7 +189,7 @@
       }
     },
     "streams": {
-      "description": "a set of streams/pipes/refs",
+      "description": "a set of streams / refs",
       "type": "object",
       "minProperties": 1,
       "patternProperties": {
@@ -200,42 +200,38 @@
             },
             {
               "$ref": "#/$defs/stream"
-            },
-            {
-              "$ref": "#/$defs/pipe"
             }
           ]
         }
       }
     },
-    "source": {
-      "description": "description of a data source",
+    "node": {
+      "description": "description of a data node",
       "type": "object",
-      "required": [
-        "streams"
+      "oneOf": [
+        {
+          "required": [
+            "consumes",
+            "generates",
+            "uri"
+          ]
+        },
+        {
+          "required": [
+            "generates",
+            "device"
+          ]
+        }
       ],
       "properties": {
-        "streams": {
+        "consumes": {
+          "$ref": "#/$defs/streams"
+        },
+        "generates": {
           "$ref": "#/$defs/streams"
         },
         "device": {
           "$ref": "#/$defs/device"
-        }
-      }
-    },
-    "pipe": {
-      "type": "object",
-      "required": [
-        "inputs",
-        "outputs",
-        "uri"
-      ],
-      "properties": {
-        "inputs": {
-          "$ref": "#/$defs/streams"
-        },
-        "outputs": {
-          "$ref": "#/$defs/streams"
         },
         "uri": {
           "type": "string",
