@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Any
 
 from .field import Field
 
@@ -10,6 +10,7 @@ class Stream:
     frequency: float
     fields: Dict[str, Field]
     index: Dict[str, Field]
+    node: Any
 
     def __init__(
         self,

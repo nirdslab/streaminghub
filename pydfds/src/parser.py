@@ -12,105 +12,117 @@ from .dtypes import Author, Collection, Device, Field, Group, Node, Stream
 
 logger = logging.getLogger()
 
-__dtypes_map: Dict[str, Type] = {
-    "f16": np.float16,
-    "f32": np.float32,
-    "f64": np.float64,
-    "i8": np.int8,
-    "i16": np.int16,
-    "i32": np.int32,
-    "u8": np.uint8,
-    "u16": np.uint16,
-    "u32": np.uint32,
-}
-
-
-def __create_field(
-    data: Dict[str, str],
-) -> Field:
-    return Field(
-        name=data["name"],
-        description=data["description"],
-        dtype=__dtypes_map[data["dtype"]],
-    )
-
-
-def __create_stream(
-    data: Dict[str, Any],
-) -> Stream:
-    stream = Stream(
-        name=str(data["name"]),
-        description=str(data["description"]),
-        unit=str(data["unit"]),
-        frequency=float(data["frequency"]),
-        fields={k: __create_field(v) for k, v in dict.items(data["fields"])},
-        index={k: __create_field(v) for k, v in dict.items(data["index"])},
-    )
-    if "@source" in data:
-        node = __create_node(data["@source"])
-        print(node)
-    return stream
-
-
-def __create_author(
-    data: Dict[str, Any],
-) -> Author:
-    return Author(
-        name=str(data["name"]),
-        affiliation=str(data["affiliation"]),
-        email=str(data["email"]),
-    )
-
-
-def __create_collection(
-    data: Dict[str, Any],
-) -> Collection:
-    return Collection(
-        name=str(data["name"]),
-        description=str(data["description"]),
-        keywords=[*map(str, data["keywords"])],
-        authors=[*map(__create_author, data["authors"])],
-        streams={str(k): __create_stream(v) for k, v in dict.items(data["streams"])},
-        groups={str(k): __create_group(v) for k, v in dict.items(data["groups"])},
-        dataloader=str(data["dataloader"]),
-    )
-
-
-def __create_device(
-    data: Optional[Dict[str, Any]],
-):
-    if data is None:
-        return None
-    return Device(
-        model=str(data["model"]),
-        manufacturer=str(data["manufacturer"]),
-        category=str(data["category"]),
-    )
-
-
-def __create_group(data: Dict[str, Any]):
-    return Group(
-        description=str(data["description"]),
-        values=[*map(str, data["values"])],
-    )
-
-
-def __create_node(
-    data: Dict[str, Any],
-):
-    return Node(
-        device=__create_device(data["device"]) if "device" in data else None,
-        uri=str(data["uri"]) if "uri" in data else None,
-        inputs={str(k): __create_stream(v) for k, v in dict.items(data["inputs"])}
-        if "inputs" in data
-        else {},
-        outputs={str(k): __create_stream(v) for k, v in dict.items(data["outputs"])}
-        if "outputs" in data
-        else {},
-    )
-
 
 class Parser:
+    __dtypes_map: Dict[str, Type] = {
+        "f16": np.float16,
+        "f32": np.float32,
+        "f64": np.float64,
+        "i8": np.int8,
+        "i16": np.int16,
+        "i32": np.int32,
+        "u8": np.uint8,
+        "u16": np.uint16,
+        "u32": np.uint32,
+    }
+
+    @staticmethod
+    def __create_field(
+        data: Dict[str, str],
+    ) -> Field:
+        return Field(
+            name=data["name"],
+            description=data["description"],
+            dtype=Parser.__dtypes_map[data["dtype"]],
+        )
+
+    @staticmethod
+    def __create_stream(
+        data: Dict[str, Any],
+    ) -> Stream:
+        # create stream object
+        stream = Stream(
+            name=str(data["name"]),
+            description=str(data["description"]),
+            unit=str(data["unit"]),
+            frequency=float(data["frequency"]),
+            fields={k: Parser.__create_field(v) for k, v in dict.items(data["fields"])},
+            index={k: Parser.__create_field(v) for k, v in dict.items(data["index"])},
+        )
+        # add node info into stream object
+        if "@node" in data:
+            stream.node = Parser.__create_node(data["@node"])
+        # return stream object
+        return stream
+
+    @staticmethod
+    def __create_author(
+        data: Dict[str, Any],
+    ) -> Author:
+        return Author(
+            name=str(data["name"]),
+            affiliation=str(data["affiliation"]),
+            email=str(data["email"]),
+        )
+
+    @staticmethod
+    def __create_collection(
+        data: Dict[str, Any],
+    ) -> Collection:
+        return Collection(
+            name=str(data["name"]),
+            description=str(data["description"]),
+            keywords=[*map(str, data["keywords"])],
+            authors=[*map(Parser.__create_author, data["authors"])],
+            streams={
+                str(k): Parser.__create_stream(v)
+                for k, v in dict.items(data["streams"])
+            },
+            groups={
+                str(k): Parser.__create_group(v) for k, v in dict.items(data["groups"])
+            },
+            dataloader=str(data["dataloader"]),
+        )
+
+    @staticmethod
+    def __create_device(
+        data: Optional[Dict[str, Any]],
+    ):
+        if data is None:
+            return None
+        return Device(
+            model=str(data["model"]),
+            manufacturer=str(data["manufacturer"]),
+            category=str(data["category"]),
+        )
+
+    @staticmethod
+    def __create_group(data: Dict[str, Any]):
+        return Group(
+            description=str(data["description"]),
+            values=[*map(str, data["values"])],
+        )
+
+    @staticmethod
+    def __create_node(
+        data: Dict[str, Any],
+    ):
+        return Node(
+            device=Parser.__create_device(data["device"]) if "device" in data else None,
+            uri=str(data["uri"]) if "uri" in data else None,
+            inputs={
+                str(k): Parser.__create_stream(v) for k, v in dict.items(data["inputs"])
+            }
+            if "inputs" in data
+            else {},
+            outputs={
+                str(k): Parser.__create_stream(v)
+                for k, v in dict.items(data["outputs"])
+            }
+            if "outputs" in data
+            else {},
+        )
+
     def parse_ref(
         self,
         ref: str,
@@ -180,7 +192,7 @@ class Parser:
         if len(path_obj.fragment) > 0:
             for part in filter(None, path_obj.fragment.split("/")):
                 fragment = fragment[part]
-            # fragment["@source"] = content
+            fragment["@node"] = {"@ref": fn_path}
 
         # return content
         return fragment
@@ -256,7 +268,7 @@ class Parser:
     ) -> Collection:
         logging.debug(f"getting collection metadata: {path}")
         metadata = self.fetch_and_validate_metadata(path)
-        return __create_collection(metadata)
+        return Parser.__create_collection(metadata)
 
     def get_stream_metadata(
         self,
@@ -264,7 +276,7 @@ class Parser:
     ) -> Stream:
         logging.debug(f"getting stream metadata: {path}")
         metadata = self.fetch_and_validate_metadata(path)
-        return __create_stream(metadata)
+        return Parser.__create_stream(metadata)
 
     def get_node_metadata(
         self,
@@ -272,4 +284,4 @@ class Parser:
     ) -> Node:
         logging.debug(f"getting node metadata: {path}")
         metadata = self.fetch_and_validate_metadata(path)
-        return __create_node(metadata)
+        return Parser.__create_node(metadata)

@@ -9,22 +9,22 @@ logger = logging.getLogger()
 
 
 def replay_stream(
-    source_id: str,
     stream_id: str,
-    source: Node,
     stream: Stream,
     attrs: Dict[str, str],
 ) -> pylsl.StreamOutlet:
     """
     Generate LSL outlet from Metadata
     :rtype: StreamOutlet
-    :param source_id: unique id to identify the source
-    :param source: device information (from data-source)
     :param stream_id: id of the stream
     :param stream: stream information (from data-source)
     :param attrs: any additional information (from data-set)
     :return: StreamOutlet object to send data streams through
     """
+    assert stream.node is not None, "The stream has no information about its source!"
+    source: Node = stream.node
+    source_id = str(hash(source.device))
+
     info = pylsl.StreamInfo(
         source_id=source_id,
         type=stream_id,  # TODO do not use for queries

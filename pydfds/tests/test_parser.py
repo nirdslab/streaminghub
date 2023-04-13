@@ -1,6 +1,7 @@
 import logging
 
 import src as dfds
+from src.dtypes import Node
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.NOTSET)
@@ -8,12 +9,13 @@ if __name__ == "__main__":
     collection = parser.get_collection_metadata(
         "../dfds/samples/running_metrics.collection.json"
     )
+    node: Node
     for stream_id, stream in collection.streams.items():
-        print(stream_id)
-        # outlet = replay_stream(
-        #     source_id="12345",
-        #     stream_id=stream_id,
-        #     source=,
-        #     stream=stream,
-        #     attrs=,
-        # )
+        node = stream.node
+        assert node is not None
+        print(stream_id, stream, node)
+        outlet = dfds.replay_stream(
+            stream_id=stream_id,
+            stream=stream,
+            attrs={},
+        )
