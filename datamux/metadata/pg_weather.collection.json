@@ -1,10 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfds/dataset.schema.json",
-  "info": {
-    "version": "1.0.0",
-    "timestamp": "2020-09-20T00:00:00",
-    "checksum": "010203040506070809000A0B0C0D0E0F"
-  },
+  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/collection.jsonschema",
   "name": "pg_weather",
   "description": "Weather Dataset",
   "keywords": [
@@ -23,37 +18,39 @@
       "email": "shipman@cse.tamu.edu"
     }
   ],
-  "sources": {
-    "weather": "../datasources/weather.json"
-  },
-  "fields": {
-    "maxtemperature": "#/sources/weather/fields/maxtemperature",
-    "meantemperature": "#/sources/weather/fields/meantemperature",
-    "mintemperature": "#/sources/weather/fields/mintemperature",
-    "maxdewpoint": "#/sources/weather/fields/maxdewpoint",
-    "meandewpoint": "#/sources/weather/fields/meandewpoint",
-    "mindewpoint": "#/sources/weather/fields/mindewpoint",
-    "maxhumidity": "#/sources/weather/fields/maxhumidity",
-    "meanhumidity": "#/sources/weather/fields/meanhumidity",
-    "minhumidity": "#/sources/weather/fields/minhumidity",
-    "maxsealevelpressure": "#/sources/weather/fields/maxsealevelpressure",
-    "meansealevelpressure": "#/sources/weather/fields/meansealevelpressure",
-    "minsealevelpressure": "#/sources/weather/fields/minsealevelpressure",
-    "maxvisibility": "#/sources/weather/fields/maxvisibility",
-    "meanvisibility": "#/sources/weather/fields/meanvisibility",
-    "minvisibility": "#/sources/weather/fields/minvisibility",
-    "maxwindspeed": "#/sources/weather/fields/maxwindspeed",
-    "meanwindspeed": "#/sources/weather/fields/meanwindspeed",
-    "maxgustspeed": "#/sources/weather/fields/maxgustspeed",
-    "precipitation": "#/sources/weather/fields/precipitation",
-    "cloudcover": "#/sources/weather/fields/cloudcover",
-    "winddirection": "#/sources/weather/fields/winddirection",
-    "date": "#/sources/weather/fields/date"
+  "streams": {
+    "temperature": {
+      "@ref": "./weather.node.json#/outputs/temperature"
+    },
+    "dewpoint": {
+      "@ref": "./weather.node.json#/outputs/dewpoint"
+    },
+    "humidity": {
+      "@ref": "./weather.node.json#/outputs/humidity"
+    },
+    "sealevelpressure": {
+      "@ref": "./weather.node.json#/outputs/sealevelpressure"
+    },
+    "visibility": {
+      "@ref": "./weather.node.json#/outputs/visibility"
+    },
+    "windspeed": {
+      "@ref": "./weather.node.json#/outputs/windspeed"
+    },
+    "precipitation": {
+      "@ref": "./weather.node.json#/outputs/precipitation"
+    },
+    "cloudcover": {
+      "@ref": "./weather.node.json#/outputs/cloudcover"
+    },
+    "winddirection": {
+      "@ref": "./weather.node.json#/outputs/winddirection"
+    }
   },
   "groups": {
     "city": {
       "description": "The city of the corresponding weather data",
-      "attributes": [
+      "values": [
         "albuquerque",
         "atlanta",
         "billings",
@@ -107,7 +104,7 @@
     },
     "state": {
       "description": "The city of the corresponding weather data",
-      "attributes": [
+      "values": [
         "alabama",
         "arizona",
         "arkansas",
@@ -147,5 +144,5 @@
       ]
     }
   },
-  "resolver": "../resolvers/pg_weather.py"
+  "dataloader": "../dataloaders/pg_weather.py"
 }

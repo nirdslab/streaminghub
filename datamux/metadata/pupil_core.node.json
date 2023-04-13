@@ -1,0 +1,125 @@
+{
+  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/node.jsonschema",
+  "device": {
+    "model": "Pupil Core",
+    "manufacturer": "Pupil Labs",
+    "category": "Eye Tracker"
+  },
+  "outputs": {
+    "camera": {
+      "name": "Camera Feed",
+      "description": "Camera (World)",
+      "frequency": 128,
+      "unit": "",
+      "fields": {
+        "camera_r": {
+          "name": "camera - red channel",
+          "description": "Red Channel in the World Camera Feed",
+          "dtype": "u8"
+        },
+        "camera_g": {
+          "name": "camera - green channel",
+          "description": "Green Channel in the World Camera Feed",
+          "dtype": "u8"
+        },
+        "camera_b": {
+          "name": "camera - blue channel",
+          "description": "Blue Channel in the World Camera Feed",
+          "dtype": "u8"
+        }
+      },
+      "index": {
+        "t": {
+          "name": "t",
+          "description": "Timestamp",
+          "dtype": "f32"
+        }
+      }
+    },
+    "gaze": {
+      "name": "Gaze Position",
+      "description": "Binocular Gaze Position of Eye.0(L) and Eye.1(R)",
+      "frequency": 128,
+      "unit": "",
+      "fields": {
+        "gaze.0_x": {
+          "name": "eye 0 gaze - x coord",
+          "description": "Normalized X Coordinate of Gaze, in Eye 0",
+          "dtype": "f32"
+        },
+        "gaze.0_y": {
+          "name": "eye 0 gaze - y coord",
+          "description": "Normalized Y Coordinate of Gaze, in Eye 0",
+          "dtype": "f32"
+        },
+        "gaze.0_c": {
+          "name": "eye 0 gaze - confidence",
+          "description": "Confidence of Predicted Gaze Coordinate in Eye 0",
+          "dtype": "f32"
+        },
+        "gaze.1_x": {
+          "name": "eye 1 gaze - x coord",
+          "description": "Normalized X Coordinate of Gaze, in Eye 1",
+          "dtype": "f32"
+        },
+        "gaze.1_y": {
+          "name": "eye 1 gaze - y coord",
+          "description": "Normalized Y Coordinate of Gaze, in Eye 1",
+          "dtype": "f32"
+        },
+        "gaze.1_c": {
+          "name": "eye 1 gaze - confidence",
+          "description": "Confidence of Predicted Gaze Coordinate in Eye 1",
+          "dtype": "f32"
+        }
+      },
+      "index": {
+        "t": {
+          "name": "t",
+          "description": "Timestamp",
+          "dtype": "f32"
+        }
+      }
+    },
+    "fxn": {
+      "name": "fixation",
+      "description": "Fixations",
+      "frequency": 0,
+      "unit": "",
+      "fields": {
+        "fxn_x": {
+          "name": "fixation - x coord",
+          "description": "Normalized X Coordinate of Detected Fixation",
+          "dtype": "f32"
+        },
+        "fxn_y": {
+          "name": "fixation - y coord",
+          "description": "Normalized Y Coordinate of Detected Fixation",
+          "dtype": "f32"
+        },
+        "fxn_w": {
+          "name": "fixation dispersion",
+          "description": "Dispersion of Detected Fixation",
+          "dtype": "f32"
+        },
+        "fxn_d": {
+          "name": "fixation duration",
+          "description": "Duration of Detected Fixation",
+          "dtype": "f32"
+        },
+        "fxn_c": {
+          "name": "fixation confidence",
+          "description": "Confidence of the Predicted Fixatino",
+          "dtype": "f32"
+        }
+      },
+      "index": {
+        "t": {
+          "name": "t",
+          "description": "Timestamp",
+          "dtype": "f32"
+        }
+      }
+    }
+  }
+}

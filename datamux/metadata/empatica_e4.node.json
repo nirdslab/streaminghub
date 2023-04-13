@@ -1,0 +1,160 @@
+{
+  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/node.jsonschema",
+  "device": {
+    "model": "E4",
+    "manufacturer": "Empatica",
+    "category": "Wristband"
+  },
+  "outputs": {
+    "acc": {
+      "name": "acceleration",
+      "description": "3-axis acceleration (unit - gravity)",
+      "frequency": 32,
+      "unit": "g",
+      "fields": {
+        "acc_x": {
+          "name": "x-acceleration",
+          "description": "Acceleration in the x-axis",
+          "dtype": "f32"
+        },
+        "acc_y": {
+          "name": "y-acceleration",
+          "description": "Acceleration in the y-axis",
+          "dtype": "f32"
+        },
+        "acc_z": {
+          "name": "z-acceleration",
+          "description": "Acceleration in the z-axis",
+          "dtype": "f32"
+        }
+      },
+      "index": {
+        "t": {
+          "name": "t",
+          "description": "Timestamp",
+          "dtype": "f32"
+        }
+      }
+    },
+    "bvp": {
+      "name": "blood volume pulse",
+      "description": "Blood Volume Pulse (unit - lumen)",
+      "frequency": 64,
+      "unit": "lm",
+      "fields": {
+        "bvp": {
+          "name": "blood volume pulse",
+          "description": "blood volume pulse",
+          "dtype": "f32"
+        }
+      },
+      "index": {
+        "t": {
+          "name": "t",
+          "description": "Timestamp",
+          "dtype": "f32"
+        }
+      }
+    },
+    "gsr": {
+      "name": "galvanic skin response",
+      "description": "Galvanic Skin Response (unit - micro siemens)",
+      "frequency": 0,
+      "unit": "μS",
+      "fields": {
+        "gsr": {
+          "name": "galvanic skin response",
+          "description": "Galvanic skin response",
+          "dtype": "f32"
+        }
+      },
+      "index": {
+        "t": {
+          "name": "t",
+          "description": "Timestamp",
+          "dtype": "f32"
+        }
+      }
+    },
+    "ibi": {
+      "name": "inter-beat interval",
+      "description": "Inter-Beat Interval (unit - seconds)",
+      "frequency": 0,
+      "unit": "s",
+      "fields": {
+        "ibi": {
+          "name": "inter beat interval",
+          "description": "Interval between two consecutive heartbeats",
+          "dtype": "f32"
+        }
+      },
+      "index": {
+        "t": {
+          "name": "t",
+          "description": "Timestamp",
+          "dtype": "f32"
+        }
+      }
+    },
+    "tmp": {
+      "name": "skin temperature",
+      "description": "Skin Temperature (unit - celsius)",
+      "frequency": 0,
+      "unit": "c",
+      "fields": {
+        "tmp": {
+          "name": "skin temperature",
+          "description": "Skin temperature at the wrist",
+          "dtype": "f32"
+        }
+      },
+      "index": {
+        "t": {
+          "name": "t",
+          "description": "Timestamp",
+          "dtype": "f32"
+        }
+      }
+    },
+    "bat": {
+      "name": "battery level",
+      "description": "Device Battery (unit - percent)",
+      "frequency": 0,
+      "unit": "%",
+      "fields": {
+        "bat": {
+          "name": "battery level",
+          "description": "Battery level",
+          "dtype": "u8"
+        }
+      },
+      "index": {
+        "t": {
+          "name": "t",
+          "description": "Timestamp",
+          "dtype": "f32"
+        }
+      }
+    },
+    "tag": {
+      "name": "tag",
+      "description": "Tag recorded upon button press",
+      "frequency": 0,
+      "unit": "",
+      "fields": {
+        "tag": {
+          "name": "tag",
+          "description": "Tag button click",
+          "dtype": "u8"
+        }
+      },
+      "index": {
+        "t": {
+          "name": "t",
+          "description": "Timestamp",
+          "dtype": "f32"
+        }
+      }
+    }
+  }
+}

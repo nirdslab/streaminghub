@@ -1,10 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfds/dataset.schema.json",
-  "info": {
-    "version": "1.0.0",
-    "timestamp": "2020-09-20T00:00:00",
-    "checksum": "010203040506070809000A0B0C0D0E0F"
-  },
+  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/collection.jsonschema",
   "name": "adhd_sin",
   "description": "Eye movements of participants during an audiovisual-SIN task",
   "keywords": [
@@ -18,19 +13,18 @@
       "email": "aperrott@odu.edu"
     }
   ],
-  "sources": {
-    "tobii": "../datasources/tobii_pro_x2_60.json"
-  },
-  "fields": {
-    "t": "#/sources/tobii/fields/t",
-    "x": "#/sources/tobii/fields/x",
-    "y": "#/sources/tobii/fields/y",
-    "d": "#/sources/tobii/fields/d"
+  "streams": {
+    "gaze": {
+      "@ref": "./tobii_pro_x2_60.node.json/outputs/gaze"
+    },
+    "pupil": {
+      "@ref": "./tobii_pro_x2_60.node.json/outputs/pupil"
+    }
   },
   "groups": {
     "subject": {
       "description": "The ID of each subject",
-      "attributes": [
+      "values": [
         "003",
         "012",
         "018",
@@ -46,21 +40,21 @@
     },
     "diagnosis": {
       "description": "The diagnosis of each subject",
-      "attributes": [
+      "values": [
         "ADHD",
         "NTYP"
       ]
     },
     "question": {
       "description": "The ID of in each question",
-      "attributes": [
+      "values": [
         "SET_A",
         "SET_B"
       ]
     },
     "noise": {
       "description": "The noise level of each question",
-      "attributes": [
+      "values": [
         "0",
         "5",
         "10",
@@ -70,5 +64,5 @@
       ]
     }
   },
-  "resolver": "../resolvers/adhd_sin.py"
+  "dataloader": "../dataloaders/adhd_sin.py"
 }

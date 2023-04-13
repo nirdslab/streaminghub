@@ -1,0 +1,74 @@
+{
+  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/collection.jsonschema",
+  "name": "n_back",
+  "description": "Eye movements of participants during a n-back task",
+  "keywords": [
+    "n-back"
+  ],
+  "authors": [
+    {
+      "name": "Andrew T. Duchowski",
+      "affiliation": "Clemson University",
+      "email": "duchowski@clemson.edu"
+    }
+  ],
+  "streams": {
+    "gaze": {
+      "@ref": "./sr_research_eyelink_1000.node.json#/outputs/gaze"
+    },
+    "pupil": {
+      "@ref": "./sr_research_eyelink_1000.node.json#/outputs/pupil"
+    }
+  },
+  "groups": {
+    "subject": {
+      "description": "The ID of each subject",
+      "values": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S7",
+        "S8",
+        "S9",
+        "S10",
+        "S11",
+        "S12",
+        "S13",
+        "S14",
+        "S15",
+        "S16",
+        "S17",
+        "S18",
+        "S19"
+      ]
+    },
+    "mode": {
+      "description": "The mode of experiment",
+      "values": [
+        "baseline",
+        "task"
+      ]
+    },
+    "task": {
+      "description": "The ID of the task",
+      "values": [
+        "1back",
+        "2back"
+      ]
+    },
+    "position": {
+      "description": "The position of each task",
+      "values": [
+        "top_left",
+        "top_right",
+        "center",
+        "bottom_left",
+        "bottom_right"
+      ]
+    }
+  },
+  "dataloader": "../dataloaders/n_back.py"
+}
