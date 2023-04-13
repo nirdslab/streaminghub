@@ -1,7 +1,7 @@
 import logging
 
-import src as dfds
-from src.dtypes import Node
+import dfds
+from dfds.dtypes import Node
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.NOTSET)

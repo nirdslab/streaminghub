@@ -5,7 +5,7 @@ from typing import List, Dict, Union, Tuple, Any
 import numpy as np
 import pylsl
 
-from datamux.util import DICT
+from .util import DICT
 
 logger = logging.getLogger()
 

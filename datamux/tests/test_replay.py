@@ -3,8 +3,8 @@ import logging
 import sys
 import unittest
 
-from datamux.replay_mode import ReplayMode
 import dfds
+from src.replay_mode import ReplayMode
 
 logger = logging.getLogger()
 logger.level = logging.DEBUG

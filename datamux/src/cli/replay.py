@@ -21,15 +21,15 @@ from typing import Dict, Generator
 import numpy as np
 import pylsl
 
-import dfds
-from datamux.replay_mode import ReplayMode
+from dfds import *
+from ..replay_mode import ReplayMode
 
 DIGIT_CHARS = '0123456789'
 SHUTDOWN_FLAG = threading.Event()
 logger = logging.getLogger()
 
 
-async def begin_streaming(dataset_spec: dfds.DataSetSpec, **kwargs):
+async def begin_streaming(dataset_spec: dfds., **kwargs):
   loop = asyncio.get_event_loop()
   data_sources = dataset_spec.sources
   # map each data source by a random id

@@ -8,7 +8,7 @@ from typing import List, Dict, Union, Iterator, Tuple, Callable, Any
 
 import numpy as np
 
-import dfds
+from dfds import Parser, replay_stream
 from .util import DICT, DICT_GENERATOR
 
 logger = logging.getLogger()

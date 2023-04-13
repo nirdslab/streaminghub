@@ -1,14 +1,12 @@
 import unittest
-from datamux.replay import
-
 
 class MyTestCase(unittest.TestCase):
 
   def test_latency(self):
-    self.assertEqual(True, False)  # add assertion here
+    raise NotImplementedError()
 
   def test_frequency(self):
-
+    raise NotImplementedError()
 
 if __name__ == '__main__':
   unittest.main()
