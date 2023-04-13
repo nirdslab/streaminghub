@@ -1,6 +1,3 @@
-from typing import Any, Dict
-
-
 class Author:
     name: str
     affiliation: str
@@ -15,11 +12,3 @@ class Author:
         self.name = name
         self.affiliation = affiliation
         self.email = email
-
-    @staticmethod
-    def create(data: Dict[str, Any]):
-        return Author(
-            name=str(data["name"]),
-            affiliation=str(data["affiliation"]),
-            email=str(data["email"]),
-        )

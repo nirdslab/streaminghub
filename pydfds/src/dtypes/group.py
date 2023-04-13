@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import List
 
 
 class Group:
@@ -12,10 +12,3 @@ class Group:
     ) -> None:
         self.description = description
         self.values = values
-
-    @staticmethod
-    def create(data: Dict[str, Any]):
-        return Group(
-            description=str(data["description"]),
-            values=[*map(str, data["values"])],
-        )

@@ -3,7 +3,7 @@ from typing import Dict
 
 import pylsl
 
-from .dtypes import Source, Stream
+from .dtypes import Node, Stream
 
 logger = logging.getLogger()
 
@@ -11,7 +11,7 @@ logger = logging.getLogger()
 def replay_stream(
     source_id: str,
     stream_id: str,
-    source: Source,
+    source: Node,
     stream: Stream,
     attrs: Dict[str, str],
 ) -> pylsl.StreamOutlet:

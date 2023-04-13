@@ -211,23 +211,23 @@
       "oneOf": [
         {
           "required": [
-            "consumes",
-            "generates",
-            "uri"
+            "uri",
+            "inputs",
+            "outputs"
           ]
         },
         {
           "required": [
-            "generates",
-            "device"
+            "device",
+            "outputs"
           ]
         }
       ],
       "properties": {
-        "consumes": {
+        "inputs": {
           "$ref": "#/$defs/streams"
         },
-        "generates": {
+        "outputs": {
           "$ref": "#/$defs/streams"
         },
         "device": {

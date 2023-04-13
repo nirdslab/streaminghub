@@ -1,15 +1,15 @@
 {
   "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/node.jsonschema",
   "uri": "./hr_node.py",
-  "consumes": {
+  "inputs": {
     "bvp": {
-      "@ref": "./empatica_e4.node.json#/generates/bvp"
+      "@ref": "./empatica_e4.node.json#/outputs/bvp"
     },
     "ibi": {
-      "@ref": "./empatica_e4.node.json#/generates/ibi"
+      "@ref": "./empatica_e4.node.json#/outputs/ibi"
     }
   },
-  "generates": {
+  "outputs": {
     "hr": {
       "name": "heart rate",
       "description": "heart rate calculated using IBI and BVP sensory data",

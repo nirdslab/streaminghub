@@ -5,7 +5,7 @@
     "manufacturer": "Empatica",
     "category": "Wristband"
   },
-  "generates": {
+  "outputs": {
     "acc": {
       "name": "acceleration",
       "description": "3-axis acceleration (unit - gravity)",

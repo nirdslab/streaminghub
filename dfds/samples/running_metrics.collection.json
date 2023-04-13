@@ -20,13 +20,13 @@
   ],
   "streams": {
     "bvp": {
-      "@ref": "./empatica_e4.node.json#/generates/bvp"
+      "@ref": "./empatica_e4.node.json#/outputs/bvp"
     },
     "ibi": {
-      "@ref": "./empatica_e4.node.json#/generates/ibi"
+      "@ref": "./empatica_e4.node.json#/outputs/ibi"
     },
     "hr": {
-      "@ref": "./hr.node.json#/generates/hr"
+      "@ref": "./hr.node.json#/outputs/hr"
     }
   },
   "groups": {

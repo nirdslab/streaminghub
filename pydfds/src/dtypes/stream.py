@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Dict
 
 from .field import Field
 
@@ -26,16 +26,3 @@ class Stream:
         self.frequency = frequency
         self.fields = fields
         self.index = index
-
-    @staticmethod
-    def create(
-        data: Dict[str, Any],
-    ):
-        return Stream(
-            name=str(data["name"]),
-            description=str(data["description"]),
-            unit=str(data["unit"]),
-            frequency=float(data["frequency"]),
-            fields={k: Field.create(v) for k, v in dict.items(data["fields"])},
-            index={k: Field.create(v) for k, v in dict.items(data["index"])},
-        )
