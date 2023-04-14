@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import codecs
 import socket
-from typing import List
 
 import pylsl
 import re
@@ -14,7 +13,6 @@ import logging
 class E4ServerState:
     """
     Server States
-
     """
 
     NEW = "new"
@@ -30,7 +28,6 @@ class E4ServerState:
 class E4SSCommand:
     """
     Server Commands
-
     """
 
     DEVICE_DISCOVER_LIST = "device_discover_list"
@@ -46,7 +43,6 @@ class E4SSCommand:
 class Connector:
     """
     Empatica E4 -> LSL Connector (via E4 Streaming Server)
-
     """
 
     buffer_size: int = 4096
@@ -56,141 +52,30 @@ class Connector:
     ) -> None:
         super().__init__()
         self.parser: dfds.Parser = dfds.Parser()
+        self.node = self.parser.get_node_metadata("../metadata/empatica_e4.node.json")
         self.num_subs: int = 0
-        self.device_list: List[str]
         self.device_id: str
         self.outlets: dict = {}
         self.server_state = E4ServerState.NEW
-        self.node = self.parser.get_node_metadata("../metadata/empatica_e4.node.json")
         self.patterns = [
-            # (type, command, arg, data)
+            # (typ, cmd, arg, data)
             re.compile(
                 r"^(?:(R)\s)?(device_discover_list|device_connect_btle|device_disconnect_btle|device_list|device_connect|device_disconnect|pause)(?:\s([\.\w]+))?(?:\s?(.+?))?$"
             ),
-            # (type, command, stream, arg, data)
+            # (typ, cmd, sid, arg, data)
             re.compile(
                 r"^(?:(R)\s)?(device_subscribe)(?:\s(\w+))?(?:\s([\.\w]+))?(?:\s?(.+?))?$"
             ),
-            # (stream, timestamp, data)
+            # (sid, time, data)
             re.compile(
                 r"^(\w+)\s([\d.]+)\s?(.*)$",
             ),
         ]
 
-    def get_stream_id(
-        self,
-        id: str,
-    ) -> str:
-        return id[3:].lower()
-
-    def encode(
-        self,
-        s_: str,
-    ) -> bytes:
+    def encode(self, s_: str) -> bytes:
         return codecs.encode(s_ + "\r\n")
 
-    def select_device(
-        self,
-        devices: List[str],
-    ):
-        """
-        Resolve available devices and choose one
-
-        Args:
-            devices (List[str]): _description_
-        """
-        self.device_list = devices
-        num = len(devices)
-        logging.debug(f"{num} device(s) found: {devices}")
-
-        if num == 0:
-            self.server_state = E4ServerState.NO_DEVICES
-        else:
-            self.server_state = E4ServerState.DEVICES_FOUND
-            if num == 1:
-                self.device_id = devices[0]
-            else:
-                while True:
-                    # prompt user to select device
-                    device_id = input(f"Select device: ")
-                    if device_id in self.device_list:
-                        self.device_id = device_id
-                        break
-                    else:
-                        logging.debug(f"Invalid selection. Options: {self.device_list}")
-
-    def process_incoming_msgs(
-        self,
-        s: socket.socket,
-    ):
-        # pull messages from socket
-        buffer: str = codecs.decode(s.recv(self.buffer_size))
-        for message in [*map(str.strip, buffer.split("\r\n"))]:
-            # parse message
-            typ: str = ""
-            cmd: str = ""
-            sid: str = ""
-            arg: str = ""
-            data: str = ""
-            if (match := self.patterns[0].match(message)) is not None:
-                (typ, cmd, arg, data) = match.groups()
-            elif (match := self.patterns[1].match(message)) is not None:
-                (typ, cmd, sid, arg, data) = match.groups()
-            elif (match := self.patterns[2].match(message)) is not None:
-                (sid, arg, data) = match.groups()
-                sid = self.get_stream_id(sid)
-            else:
-                raise ValueError(f"Unknown message: {message}")
-
-            # Data Stream
-            if typ == "" and self.server_state == E4ServerState.STREAMING:
-                self.process_data_stream(sid, arg, data)
-
-            # DEVICE_LIST response
-            elif cmd == E4SSCommand.DEVICE_LIST:
-                devices = [x.split()[0] for x in data.strip("| ").split("|")]
-                assert len(devices) == int(arg)
-                self.select_device(devices)
-
-            # DEVICE_CONNECT response
-            elif cmd == E4SSCommand.DEVICE_CONNECT:
-                if arg == "ERR":
-                    raise ValueError(f"Error connecting to device: {data}")
-                elif arg == "OK":
-                    logging.debug("Connected to device")
-                    self.server_state = E4ServerState.CONNECTED_TO_DEVICE
-
-            # PAUSE response
-            elif cmd == E4SSCommand.PAUSE:
-                if arg == "ERR":
-                    raise ValueError(f"Error pausing streaming: {data}")
-                elif arg == "ON":
-                    logging.debug("Streaming on hold")
-                    self.server_state = E4ServerState.READY_TO_SUBSCRIBE
-                elif arg == "OFF":
-                    logging.debug("Streaming started")
-                    self.server_state = E4ServerState.STREAMING
-
-            # DEVICE SUBSCRIBE response
-            elif cmd == E4SSCommand.DEVICE_SUBSCRIBE:
-                if arg == "ERR":
-                    raise ValueError(f"Error subscribing to: {sid} - {data}")
-                elif arg == "OK":
-                    logging.debug(f"Subscribed to: {sid}")
-                    self.num_subs += 1
-                    if self.num_subs == len(self.node.outputs):
-                        self.server_state = E4ServerState.SUBSCRIBE_COMPLETED
-                    else:
-                        self.server_state = E4ServerState.READY_TO_SUBSCRIBE
-
-            # default
-            else:
-                raise ValueError(f"Unknown message: {message}")
-
-    def get_outlet(
-        self,
-        stream_id: str,
-    ) -> pylsl.StreamOutlet:
+    def get_outlet(self, stream_id: str) -> pylsl.StreamOutlet:
         self.outlets[stream_id] = self.outlets.get(
             stream_id,
             dfds.create_outlet(
@@ -201,21 +86,13 @@ class Connector:
         )
         return self.outlets[stream_id]
 
-    def process_data_stream(
-        self,
-        stream_id: str,
-        timestamp: str,
-        data: str,
-    ):
-        try:
-            outlet = self.get_outlet(stream_id)
-            t = float(timestamp)
-            values = [*map(float, data.split())] or [0]
-            # only parse command if outlet has consumers
-            if outlet.have_consumers():
-                outlet.push_sample(values, t)
-        except Exception as e:
-            logging.debug("Error: ", e)
+    def start(self):
+        # Create socket connection
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((socket.gethostname(), 28000))
+        while True:
+            self.handle_outgoing_msgs(sock)
+            self.handle_incoming_msgs(sock)
 
     def handle_outgoing_msgs(
         self,
@@ -251,15 +128,94 @@ class Connector:
             s.send(self.encode("%s OFF" % E4SSCommand.PAUSE))
             self.server_state = E4ServerState.STREAMING
 
-    def start(
+    def handle_incoming_msgs(
         self,
+        s: socket.socket,
     ):
-        # Create socket connection
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((socket.gethostname(), 28000))
-        while True:
-            self.handle_outgoing_msgs(sock)
-            self.process_incoming_msgs(sock)
+        # pull messages from socket
+        buffer: str = codecs.decode(s.recv(self.buffer_size))
+        for message in [*map(str.strip, buffer.split("\r\n"))]:
+            # parse message
+            typ: str = ""
+            cmd: str = ""
+            sid: str = ""
+            arg: str = ""
+            data: str = ""
+            if (match := self.patterns[0].match(message)) is not None:
+                (typ, cmd, arg, data) = match.groups()
+            elif (match := self.patterns[1].match(message)) is not None:
+                (typ, cmd, sid, arg, data) = match.groups()
+            elif (match := self.patterns[2].match(message)) is not None:
+                (sid, arg, data) = match.groups()
+                sid = sid[3:].lower()  # drop E4_ prefix and lowercase
+            else:
+                raise ValueError(f"Unknown message: {message}")
+
+            # Data Stream
+            if typ == "" and self.server_state == E4ServerState.STREAMING:
+                outlet = self.get_outlet(sid)
+                # only parse command if outlet has consumers
+                if outlet.have_consumers():
+                    outlet.push_sample([*map(float, data.split())] or [0], float(arg))
+
+            # DEVICE_LIST response
+            elif cmd == E4SSCommand.DEVICE_LIST:
+                device_ids = [x.split()[0] for x in data.strip("| ").split("|")]
+                num = len(device_ids)
+                assert num == int(arg)
+                logging.debug(f"device(s) found: {num}")
+
+                if num == 0:
+                    self.server_state = E4ServerState.NO_DEVICES
+                    raise ValueError(f"No devices found: {num}")
+
+                self.server_state = E4ServerState.DEVICES_FOUND
+
+                # choose the only device
+                if num == 1:
+                    return device_ids[0]
+
+                # prompt user to select device
+                while True:
+                    device_id = input(f"Enter device id: ")
+                    if device_id in device_ids:
+                        return device_id
+                    logging.debug(f"Invalid device id: {device_id}")
+
+            # DEVICE_CONNECT response
+            elif cmd == E4SSCommand.DEVICE_CONNECT:
+                if arg == "ERR":
+                    raise ValueError(f"Error connecting to device: {data}")
+                elif arg == "OK":
+                    logging.debug("Connected to device")
+                    self.server_state = E4ServerState.CONNECTED_TO_DEVICE
+
+            # PAUSE response
+            elif cmd == E4SSCommand.PAUSE:
+                if arg == "ERR":
+                    raise ValueError(f"Error pausing streaming: {data}")
+                elif arg == "ON":
+                    logging.debug("Streaming on hold")
+                    self.server_state = E4ServerState.READY_TO_SUBSCRIBE
+                elif arg == "OFF":
+                    logging.debug("Streaming started")
+                    self.server_state = E4ServerState.STREAMING
+
+            # DEVICE SUBSCRIBE response
+            elif cmd == E4SSCommand.DEVICE_SUBSCRIBE:
+                if arg == "ERR":
+                    raise ValueError(f"Error subscribing to: {sid} - {data}")
+                elif arg == "OK":
+                    logging.debug(f"Subscribed to: {sid}")
+                    self.num_subs += 1
+                    if self.num_subs == len(self.node.outputs):
+                        self.server_state = E4ServerState.SUBSCRIBE_COMPLETED
+                    else:
+                        self.server_state = E4ServerState.READY_TO_SUBSCRIBE
+
+            # default
+            else:
+                raise ValueError(f"Unknown message: {message}")
 
 
 if __name__ == "__main__":
