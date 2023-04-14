@@ -8,7 +8,7 @@ from .dtypes import Node, Stream
 logger = logging.getLogger()
 
 
-def replay_stream(
+def create_outlet(
     stream_id: str,
     stream: Stream,
     attrs: Dict[str, str],

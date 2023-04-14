@@ -1,2 +1,2 @@
 from .parser import Parser
-from .replay import replay_stream
+from .lsl import create_outlet

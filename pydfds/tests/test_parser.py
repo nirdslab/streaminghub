@@ -14,7 +14,7 @@ if __name__ == "__main__":
         node = stream.node
         assert node is not None
         print(stream_id, stream, node)
-        outlet = dfds.replay_stream(
+        outlet = dfds.create_outlet(
             stream_id=stream_id,
             stream=stream,
             attrs={},

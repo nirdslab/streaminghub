@@ -96,13 +96,13 @@
         }
       }
     },
-    "tmp": {
+    "temp": {
       "name": "skin temperature",
       "description": "Skin Temperature (unit - celsius)",
       "frequency": 0,
       "unit": "c",
       "fields": {
-        "tmp": {
+        "temp": {
           "name": "skin temperature",
           "description": "Skin temperature at the wrist",
           "dtype": "f32"
