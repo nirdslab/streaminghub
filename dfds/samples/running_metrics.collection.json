@@ -1,7 +1,7 @@
 {
   "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/collection.jsonschema",
   "name": "Running_BVP_IBI_GSR",
-  "description": "Blood volume pulse (bvp), inter-beat interval (ibi), and heart-rate (hr) measurements of 2 participants taken from Empatica E4 during a running task",
+  "description": "BVP, IBI, and HR of 2 participants during a running task",
   "keywords": [
     "heart-rate",
     "running"

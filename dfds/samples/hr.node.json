@@ -12,7 +12,7 @@
   "outputs": {
     "hr": {
       "name": "heart rate",
-      "description": "heart rate calculated using IBI and BVP sensory data",
+      "description": "heart rate calculated from IBI and BVP",
       "unit": "bpm",
       "frequency": 0,
       "index": {
@@ -25,7 +25,7 @@
       "fields": {
         "hr": {
           "name": "heart rate",
-          "description": "heart rate calculated from IBI and BVP data",
+          "description": "heart rate calculated from IBI and BVP",
           "dtype": "f32"
         }
       }

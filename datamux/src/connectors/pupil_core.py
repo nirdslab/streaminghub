@@ -11,6 +11,8 @@ from PIL import Image
 import pylsl
 
 import dfds
+import dfds.dtypes
+import logging
 
 ZMQ_REQ = zmq.REQ
 ZMQ_SUB = zmq.SUB
@@ -26,16 +28,14 @@ class Connector:
 
     def __init__(
         self,
-        device_id: str,
         host: str,
         port: int,
-        meta: dfds.DataSourceSpec,
     ) -> None:
         super().__init__()
-        self.device_id = device_id
         self.host = host
         self.port = port
-        self.meta = meta
+        self.parser = dfds.Parser()
+        self.node = self.parser.get_node_metadata("../metadata/pupil_core.node.json")
         self.ctx = zmq.asyncio.Context()
         self.req = self.ctx.socket(ZMQ_REQ)
         self.sub = self.ctx.socket(ZMQ_SUB)
@@ -55,34 +55,48 @@ class Connector:
             "fixations": 3,
         }
         self.outlets: Dict[str, pylsl.StreamOutlet] = {}
-        self.sub_port: int = ...
+        self.sub_port: int
 
-    async def get_sub_port(self) -> int:
+    async def get_sub_port(
+        self,
+    ) -> int:
         self.req.connect(f"tcp://{self.host}:{self.port}")
-        print("Opened REQ socket.")
+        logging.debug("Opened REQ socket.")
         self.req.send_string("SUB_PORT")
         sub_port = int(await self.req.recv_string())
-        print(f"Received SUB_PORT. {self.sub_port}")
+        logging.debug(f"Received SUB_PORT. {self.sub_port}")
         return sub_port
 
-    def get_outlet(self, stream_id: str) -> pylsl.StreamOutlet:
-        if stream_id not in self.outlets:
-            idx = self.stream_idx[stream_id]
-            stream = self.meta.streams[idx]
-            self.outlets[stream_id] = dfds.create_outlet_for_stream(
-                self.device_id, self.meta.device, idx, stream
-            )
+    def get_outlet(
+        self,
+        stream_id: str,
+    ) -> pylsl.StreamOutlet:
+        self.outlets[stream_id] = self.outlets.get(
+            stream_id,
+            dfds.create_outlet(
+                stream_id=stream_id,
+                stream=self.node.outputs[stream_id],
+                attrs={},
+            ),
+        )
         return self.outlets[stream_id]
 
-    def subscribe(self):
+    def subscribe(
+        self,
+    ):
         self.sub.connect(f"tcp://{self.host}:{self.sub_port}")
-        print("Opened SUB socket")
+        logging.debug("Opened SUB socket")
         for sub_id in self.topics:
             self.sub.setsockopt_string(ZMQ_SUBSCRIBE, sub_id)
-            print(f"Subscribed to: {sub_id}")
-        print("Subscription Completed.")
+            logging.debug(f"Subscribed to: {sub_id}")
+        logging.debug("Subscription Completed.")
 
-    def emit(self, topic: str, message: dict, image: np.array) -> Any:
+    def emit(
+        self,
+        topic: str,
+        message: dict,
+        image: np.ndarray,
+    ) -> Any:
         ts = message["timestamp"]
         if topic.startswith("gaze.3d."):
             # decode message
@@ -110,10 +124,12 @@ class Connector:
             # TODO only sending (0,0) pixel for now, fix to send all pixels
             self.get_outlet(topic[:11]).push_sample([r[0][0], g[0][0], b[0][0]], ts)
 
-    async def run(self):
+    async def run(
+        self,
+    ):
         self.sub_port = await self.get_sub_port()
         self.subscribe()
-        print("Started Data Stream. Use SIGINT to terminate.")
+        logging.debug("Started Data Stream. Use SIGINT to terminate.")
         while True:
             try:
                 # receive raw data (bytes)
@@ -129,17 +145,21 @@ class Connector:
                 payload = msgpack.loads(payload)
                 self.emit(topic, payload, image)
             except KeyboardInterrupt:
-                print("Received Interrupt. Stopping...")
+                logging.debug("Received Interrupt. Stopping...")
                 break
-        print("Stopped.")
+        logging.debug("Stopped.")
 
 
 async def main():
+    logging.basicConfig(level=logging.DEBUG)
     # get meta-stream for pupil model
+    metadata = dfds.
     datasource_spec = dfds.get_datasource_spec("pupil_core")
     # set random device id
-    device_id = dfds.util.gen_random_source_id()
-    connector = Connector(device_id, "127.0.0.1", 50020, datasource_spec)
+    connector = Connector(
+        host="127.0.0.1",
+        port=50020
+    )
     await connector.run()
 
 
