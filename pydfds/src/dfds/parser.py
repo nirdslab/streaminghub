@@ -8,7 +8,7 @@ from urllib.request import urlopen
 import jsonschema
 import numpy as np
 
-from .dtypes import Author, Collection, Device, Field, Group, Node, Stream
+from .typing import Author, Collection, Device, Field, Group, Node, Stream
 
 logger = logging.getLogger()
 
@@ -41,19 +41,15 @@ class Parser:
         data: Dict[str, Any],
     ) -> Stream:
         # create stream object
-        stream = Stream(
+        return Stream(
             name=str(data["name"]),
             description=str(data["description"]),
             unit=str(data["unit"]),
             frequency=float(data["frequency"]),
             fields={k: Parser.__create_field(v) for k, v in dict.items(data["fields"])},
             index={k: Parser.__create_field(v) for k, v in dict.items(data["index"])},
+            node=Parser.__create_node(data["@node"]) if "@node" in data else None,
         )
-        # add node info into stream object
-        if "@node" in data:
-            stream.node = Parser.__create_node(data["@node"])
-        # return stream object
-        return stream
 
     @staticmethod
     def __create_author(

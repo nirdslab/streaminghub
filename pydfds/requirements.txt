@@ -1,0 +1,4 @@
+pydantic~=1.10.9
+pylsl~=1.16.1
+jsonschema~=4.17.3
+numpy~=1.25.0

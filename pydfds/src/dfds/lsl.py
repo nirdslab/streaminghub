@@ -3,7 +3,7 @@ from typing import Dict
 
 import pylsl
 
-from .dtypes import Node, Stream
+from .typing import Node, Stream
 
 logger = logging.getLogger()
 
