@@ -1,5 +1,4 @@
 import logging
-from typing import Dict
 
 import pylsl
 
@@ -11,19 +10,17 @@ logger = logging.getLogger()
 def create_outlet(
     stream_id: str,
     stream: Stream,
-    attrs: Dict[str, str],
 ) -> pylsl.StreamOutlet:
     """
     Generate LSL outlet from Metadata
     :rtype: StreamOutlet
     :param stream_id: id of the stream
     :param stream: stream information (from data-source)
-    :param attrs: any additional information (from data-set)
     :return: StreamOutlet object to send data streams through
     """
     assert stream.node is not None, "The stream has no information about its source!"
     source: Node = stream.node
-    source_id = str(hash(source.device))
+    source_id = str(hash(source.json()))
 
     info = pylsl.StreamInfo(
         source_id=source_id,
@@ -44,9 +41,9 @@ def create_outlet(
 
     # add attributes if present
     attributes = desc.append_child("attributes")
-    if attrs and len(attrs.keys()) > 0:
-        for attr in attrs.keys():
-            attributes.append_child_value(attr, attrs[attr])
+    if len(stream.attrs) > 0:
+        for k, v in stream.attrs.items():
+            attributes.append_child_value(k, v)
     else:
         logger.warning("Creating outlet without attributes")
 

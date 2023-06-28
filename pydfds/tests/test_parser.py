@@ -1,21 +1,20 @@
 import logging
 
 import dfds
-from dfds.dtypes import Node
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.NOTSET)
+    logging.basicConfig(level=logging.DEBUG)
     parser = dfds.Parser()
     collection = parser.get_collection_metadata(
         "../dfds/samples/running_metrics.collection.json"
     )
-    node: Node
-    for stream_id, stream in collection.streams.items():
-        node = stream.node
-        assert node is not None
-        print(stream_id, stream, node)
-        outlet = dfds.create_outlet(
-            stream_id=stream_id,
-            stream=stream,
-            attrs={},
-        )
+
+    for group in collection.iterate_groups():
+        for stream_id, stream in collection.streams.items():
+            assert stream.node
+            stream.attrs = group
+            print(stream_id, stream.attrs)
+            outlet = dfds.create_outlet(
+                stream_id=stream_id,
+                stream=stream,
+            )

@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "streaminghub-pydfds"
+version = "0.1.1"
+authors = [{ name = "Yasith Jayawardana", email = "yasith@cs.odu.edu" }]
+description = "Parser for Data Flow Description Schema (DFDS) metadata"
+readme = "README.md"
+requires-python = ">=3.9"
+keywords = ["dfds", "metadata", "parser"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy~=1.25.0",
+    "pylsl~=1.16.1",
+    "jsonschema~=4.17.3",
+    "pydantic~=1.10.9",
+]
+
+[project.urls]
+homepage = "https://github.com/nirdslab/streaminghub/tree/master/pydfds"
+
+[project.optional-dependencies]
+dev = ["black", "build", "twine", "isort", "pip-tools", "pytest"]

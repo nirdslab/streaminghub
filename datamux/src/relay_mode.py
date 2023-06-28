@@ -140,10 +140,12 @@ class RelayMode:
         x: Union[pylsl.StreamInfo, pylsl.StreamInlet],
     ):
         def fn(i: pylsl.StreamInfo):
+            p = RelayMode.gen_dict(i.desc())
+            assert isinstance(p, dict)
             return {
                 "source": i.source_id(),
                 "mode": "live",
-                **RelayMode.gen_dict(i.desc()),
+                **p,
             }
 
         if isinstance(x, pylsl.StreamInfo):
