@@ -5,21 +5,15 @@ import dfds
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     parser = dfds.Parser()
-    collection = parser.get_collection_metadata(
-        "../dfds/samples/running_metrics.collection.json"
-    )
+    collection = parser.get_collection_metadata("repository/adhd_sin.collection.json")
 
     for group in collection.iterate_groups():
         for stream_id, stream in collection.streams.items():
-            assert stream.node
-            stream.attrs = group
-            print(stream_id, stream.attrs)
-            outlet = dfds.create_outlet(
-                stream_id=stream_id,
-                stream=stream,
-            )
+            print(stream_id, dict(group))
 
-    # dataloader = collection.dataloader()
-    # for attrs in dataloader.ls():
-    #     attrs, data = dataloader.read(attrs)
-    #     print(attrs, data.shape)
+    dataloader = collection.dataloader()
+    for ls_attrs in dataloader.ls():
+        attrs, data = dataloader.read(ls_attrs)
+        assert ls_attrs == attrs
+        print(attrs)
+        print(data.shape, data.dtype.names, "\n")

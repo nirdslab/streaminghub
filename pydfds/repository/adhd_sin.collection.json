@@ -1,0 +1,82 @@
+{
+  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/collection.jsonschema",
+  "name": "adhd_sin",
+  "description": "Eye movements of participants during an audiovisual-SIN task",
+  "keywords": [
+    "SIN",
+    "ADHD"
+  ],
+  "authors": [
+    {
+      "name": "Anne M. P. Michalek",
+      "affiliation": "Old Dominion University",
+      "email": "aperrott@odu.edu"
+    }
+  ],
+  "streams": {
+    "gaze": {
+      "@ref": "./tobii_pro_x2_60.node.json#/outputs/gaze"
+    },
+    "pupil": {
+      "@ref": "./tobii_pro_x2_60.node.json#/outputs/pupil"
+    }
+  },
+  "groups": {
+    "participant": {
+      "description": "The ID of each participant",
+      "values": [
+        "3",
+        "5",
+        "12",
+        "14",
+        "18",
+        "21",
+        "24",
+        "26",
+        "30",
+        "32",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "47"
+      ]
+    },
+    "question": {
+      "description": "The ID of in each question",
+      "values": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18"
+      ]
+    },
+    "noise": {
+      "description": "The noise level of each question",
+      "values": [
+        "0",
+        "5",
+        "10",
+        "15",
+        "20",
+        "25"
+      ]
+    }
+  },
+  "pattern": "P{participant}_N{noise}_Q{question}"
+}

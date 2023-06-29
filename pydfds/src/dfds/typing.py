@@ -150,12 +150,12 @@ class DataLoader:
         # compute the path from attributes
         safe_keys: List[str] = self.__parser.named_fields
         safe_attributes = {k: attributes[k] for k in safe_keys}
-        rec_path = str.format(self.__parser._format, safe_attributes)
+        rec_path = str.format(self.__parser._format, **safe_attributes)
         # Read the record from file
         with h5py.File(self.__fpath, "r") as file:
             dataset = file.get(rec_path, default=None)  # type: ignore
             assert isinstance(dataset, h5py.Dataset)
             attrs = dict(dataset.attrs.items())
-            attrs.update({"dataset": self.__collection.name, **safe_attributes})
+            attrs.update({"collection": self.__collection.name, **safe_attributes})
             data = np.array(dataset)
         return attrs, data

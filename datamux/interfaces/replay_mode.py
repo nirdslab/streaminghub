@@ -1,15 +1,12 @@
 import asyncio
-import importlib
 import logging
 import random
-import sys
 from typing import List, Dict
 
 import numpy as np
 
 from dfds import Parser
 from dfds.typing import Collection, Stream, DataLoader
-from util import DICT, DICT_GENERATOR
 
 import glob
 
@@ -50,7 +47,7 @@ class ReplayMode:
         streams: List[Stream] = []
 
 
-        for group in metadata.iterate_groups():
+        # for group in metadata.iterate_groups():
 
         for stream_id, stream in metadata.streams.items():
             logger.debug(f"{collection_id}, stream: {stream_id:%d}")
@@ -115,16 +112,16 @@ class ReplayMode:
 
     @staticmethod
     async def start_repl_stream(
-        spec: dfds.DataSetSpec,
-        repl_stream: DICT_GENERATOR,
+        spec: Collection,
+        repl_stream: dict,
         s_source: str,
         s_stream_id: str,
-        s_attrs: DICT,
+        s_attrs: dict,
         queue: asyncio.Queue,
     ):
         logger.info(f"started replay")
         # prepare static vars
-        stream_info = spec.sources[s_source].streams[s_stream_id]
+        stream_info = spec.streams[s_stream_id]
         f = stream_info.frequency
         index_cols = [*stream_info.index.keys()]
         # get each sample of data from repl_stream
@@ -133,7 +130,7 @@ class ReplayMode:
             dt = (1.0 / f) if f > 0 else (random.randrange(0, 10) / 10.0)
             timestamp = [data[col] for col in index_cols][0]  # assume 1D temporal index
             sample = [
-                float(data[ch]) if data[ch] else np.nan for ch in stream_info.channels
+                float(data[ch]) if data[ch] else np.nan for ch in stream_info.fields
             ]
             res = {
                 "command": "data",
