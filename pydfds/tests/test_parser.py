@@ -18,3 +18,8 @@ if __name__ == "__main__":
                 stream_id=stream_id,
                 stream=stream,
             )
+
+    # dataloader = collection.dataloader()
+    # for attrs in dataloader.ls():
+    #     attrs, data = dataloader.read(attrs)
+    #     print(attrs, data.shape)

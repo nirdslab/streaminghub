@@ -21,8 +21,8 @@ from websockets.exceptions import ConnectionClosed
 from  websockets.server import WebSocketServerProtocol, serve
 from websockets.datastructures import Headers, HeadersLike
 
-from .relay_mode import RelayMode
-from .replay_mode import ReplayMode
+from relay_mode import RelayMode
+from replay_mode import ReplayMode
 
 logger = logging.getLogger()
 

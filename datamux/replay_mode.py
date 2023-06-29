@@ -3,13 +3,13 @@ import importlib
 import logging
 import random
 import sys
-from typing import List, Dict, Union, Iterator, Tuple, Callable, Any
+from typing import List, Dict
 
 import numpy as np
 
 from dfds import Parser
-from dfds.typing import Collection, Node, Stream
-from .util import DICT, DICT_GENERATOR
+from dfds.typing import Collection, Stream, DataLoader
+from util import DICT, DICT_GENERATOR
 
 import glob
 
@@ -17,62 +17,47 @@ logger = logging.getLogger()
 
 
 class ReplayMode:
-    """_summary_
+    """
+    Replay Mode
 
-    Returns:
-        _type_: _description_
-
-    Yields:
-        _type_: _description_
     """
 
     parser = Parser()
     collections: Dict[str, Collection] = {}
 
-    def find_available_collections(
+    def get_collections(
         self,
-    ) -> Dict:
-        for collection_path in glob.glob("dataloaders/*.collection.json"):
-            metadata = ReplayMode.parser.get_collection_metadata(collection_path)
-            collection_id = metadata.name
-            self.collections[collection_id] = metadata
-        return {
-            "command": "collections.ls",
-            "data": {"collections": self.collections},
-            "error": None,
-        }
+    ) -> Dict[str, Collection]:
+        return self.collections
 
-    def get_available_streams(
+    def refresh_collections(
+        self,
+    ) -> None:
+        self.collections.clear()
+        for fp in glob.glob("dataloaders/*.collection.json"):
+            collection = self.parser.get_collection_metadata(fp)
+            self.collections[collection.name] = collection
+
+    def list_streams_in_collection(
         self,
         collection_id: str,
-    ) -> Dict:
+    ) -> List[Stream]:
+
         metadata = self.collections[collection_id]
-        streams: List[Dict[str, Union[str, list, dict]]] = []
+        dataloader = DataLoader(metadata)
 
         ## convert group query into a URL query parameter??
+        streams: List[Stream] = []
+
+
+        for group in metadata.iterate_groups():
 
         for stream_id, stream in metadata.streams.items():
             logger.debug(f"{collection_id}, stream: {stream_id:%d}")
-            node: Node = stream.node
-            streams.append(
-                {
-                    "source": str(hash(node.device or node.uri)),
-                    "device": str(node.device),
-                    "mode": "repl",
-                    "id": stream_id,
-                    "name": stream.name,
-                    "description": stream.description,
-                    "fields": list(stream.fields.keys()),
-                    "attributes": {k: v.values for k, v in metadata.groups.items()},
-                }
-            )
-        return {
-            "command": "collection.streams.ls",
-            "data": {"streams": streams},
-            "error": None,
-        }
+            streams.append(stream)
+        return streams
 
-    def subscribe_to_stream(
+    def create_replay_stream(
         self,
         query: Dict[str, str],
         stream: Stream,
@@ -127,17 +112,6 @@ class ReplayMode:
             },
             "error": None,
         }
-
-    @staticmethod
-    def find_repl_streams(
-        spec: dfds.DataSetSpec,
-        **kwargs,
-    ) -> Iterator[Tuple[DICT_GENERATOR, DICT]]:
-        if dfds.get_meta_dir() not in sys.path:
-            sys.path.append(dfds.get_meta_dir())
-        resolver = importlib.import_module(f"resolvers.{spec.name}")
-        stream: Callable[[dfds.DataSetSpec, ...], Any] = getattr(resolver, "stream")
-        yield from stream(spec, **kwargs)
 
     @staticmethod
     async def start_repl_stream(

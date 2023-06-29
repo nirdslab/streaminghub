@@ -5,12 +5,17 @@ from typing import List, Dict, Union, Tuple, Any
 import numpy as np
 import pylsl
 
-from .util import DICT
+from util import DICT
 
 logger = logging.getLogger()
 
 
 class RelayMode:
+    """
+    Relay Mode
+    
+    """
+
     @staticmethod
     def get_live_streams():
         live_streams = pylsl.resolve_streams()

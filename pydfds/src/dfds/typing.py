@@ -88,61 +88,74 @@ class Collection(p.BaseModel):
         odict_iter = map(make_dict, group_iter)
         return list(odict_iter)
 
+    def dataloader(
+        self,
+    ) -> DataLoader:
+        return DataLoader(self)
+
 
 class DataLoader:
+    """
+    Provides functionality to list items and read data from DFDS collections.
+
+    """
+
     def __init__(
         self,
-        spec: Collection,
+        collection: Collection,
     ) -> None:
         super().__init__()
-        self.spec = spec
-        self.parser = parse.compile(self.spec.pattern)
+        self.__collection = collection
+        self.__parser = parse.compile(self.__collection.pattern)
         base_dir = os.getenv("DATA_DIR")
         assert base_dir
-        dataset_path = os.path.join(base_dir, self.spec.name, "data.h5")
-        assert os.path.isfile(dataset_path)
-        self.dataset_path = dataset_path
+        self.__fpath = os.path.join(base_dir, self.__collection.name, "data.h5")
+        assert os.path.isfile(self.__fpath)
 
-    def fetch(
-        self,
-        params: dict,
-    ) -> Tuple[dict, np.ndarray]:
-        query = self.generate_query(params)
-        attrs, data = self.execute_query(query)
-        return attrs, data
-
-    def list_available(
+    def ls(
         self,
     ) -> List[dict]:
+        """
+        Return the attributes of each record in the dataset
+
+        Returns:
+            List[dict]: attributes of each record
+
+        """
         available = []
-        with h5py.File(self.dataset_path, "r") as file:
+        with h5py.File(self.__fpath, "r") as file:
             for key, dataset in file.items():
                 if not isinstance(dataset, h5py.Dataset):
                     continue
-                result = self.parser.parse(key)
+                result = self.__parser.parse(key)
                 assert isinstance(result, parse.Result)
                 attrs = dict(dataset.attrs.items())
-                attrs.update({"dataset": self.spec.name, **result.named})
+                attrs.update({"collection": self.__collection.name, **result.named})
                 available.append(attrs)
         return available
 
-    def generate_query(
+    def read(
         self,
-        params: dict,
-    ) -> dict:
-        allowed_params: List[str] = self.parser.named_fields
-        query = {k: params[k] for k in allowed_params}
-        return query
-
-    def execute_query(
-        self,
-        query: dict,
+        attributes: dict,
     ) -> Tuple[dict, np.ndarray]:
-        with h5py.File(self.dataset_path, "r") as file:
-            data_path = str.format(self.parser._format, query)
-            dataset = file.get(data_path, default=None)  # type: ignore
+        """
+        Given the attributes of a record, return its data
+
+        Args:
+            attributes (dict): attributes of the requested record
+
+        Returns:
+            Tuple[dict, np.ndarray]: (attributes, data) of the requested record
+        """
+        # compute the path from attributes
+        safe_keys: List[str] = self.__parser.named_fields
+        safe_attributes = {k: attributes[k] for k in safe_keys}
+        rec_path = str.format(self.__parser._format, safe_attributes)
+        # Read the record from file
+        with h5py.File(self.__fpath, "r") as file:
+            dataset = file.get(rec_path, default=None)  # type: ignore
             assert isinstance(dataset, h5py.Dataset)
             attrs = dict(dataset.attrs.items())
-            attrs.update({"dataset": self.spec.name, **query})
+            attrs.update({"dataset": self.__collection.name, **safe_attributes})
             data = np.array(dataset)
         return attrs, data

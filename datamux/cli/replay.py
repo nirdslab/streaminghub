@@ -21,8 +21,8 @@ from typing import Dict, Generator
 import numpy as np
 import pylsl
 
-from dfds import *
-from ..replay_mode import ReplayMode
+import dfds
+from replay_mode import ReplayMode
 
 DIGIT_CHARS = '0123456789'
 SHUTDOWN_FLAG = threading.Event()
