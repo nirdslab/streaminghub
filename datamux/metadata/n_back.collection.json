@@ -24,25 +24,25 @@
     "subject": {
       "description": "The ID of each subject",
       "values": [
-        "S1",
-        "S2",
-        "S3",
-        "S4",
-        "S5",
-        "S6",
-        "S7",
-        "S8",
-        "S9",
-        "S10",
-        "S11",
-        "S12",
-        "S13",
-        "S14",
-        "S15",
-        "S16",
-        "S17",
-        "S18",
-        "S19"
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19"
       ]
     },
     "mode": {
@@ -55,8 +55,8 @@
     "task": {
       "description": "The ID of the task",
       "values": [
-        "1back",
-        "2back"
+        "1",
+        "2"
       ]
     },
     "position": {
@@ -70,5 +70,5 @@
       ]
     }
   },
-  "dataloader": "../dataloaders/n_back.py"
+  "pattern": "S{subject}_{mode}_{task}back_{position}"
 }

@@ -249,7 +249,7 @@
         "authors",
         "streams",
         "groups",
-        "dataloader"
+        "pattern"
       ],
       "properties": {
         "name": {
@@ -307,10 +307,9 @@
             }
           }
         },
-        "dataloader": {
+        "pattern": {
           "description": "uri of the data loader",
-          "type": "string",
-          "format": "uri-reference"
+          "type": "string"
         }
       }
     }

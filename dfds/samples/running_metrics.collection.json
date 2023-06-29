@@ -45,5 +45,5 @@
       ]
     }
   },
-  "dataloader": "./running_metrics_dataloader.py"
+  "pattern": "S{subject}_T{task}"
 }

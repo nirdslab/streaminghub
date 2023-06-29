@@ -8,7 +8,7 @@ from typing import List, Dict, Union, Iterator, Tuple, Callable, Any
 import numpy as np
 
 from dfds import Parser
-from dfds.dtypes import Collection, Node, Stream
+from dfds.typing import Collection, Node, Stream
 from .util import DICT, DICT_GENERATOR
 
 import glob

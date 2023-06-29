@@ -6,9 +6,15 @@
 #
 attrs==23.1.0
     # via jsonschema
+h5py==3.9.0
+    # via streaminghub-pydfds (pyproject.toml)
 jsonschema==4.17.3
     # via streaminghub-pydfds (pyproject.toml)
 numpy==1.25.0
+    # via
+    #   h5py
+    #   streaminghub-pydfds (pyproject.toml)
+parse==1.19.1
     # via streaminghub-pydfds (pyproject.toml)
 pydantic==1.10.9
     # via streaminghub-pydfds (pyproject.toml)
