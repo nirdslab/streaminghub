@@ -46,14 +46,14 @@ class Stream(p.BaseModel):
     fields: OrderedDict[str, Field]
     index: OrderedDict[str, Field]
     node: Optional[Node] = p.Field(alias="@node")
-    attrs: OrderedDict[str, str] = p.Field(default={})
+    attrs: OrderedDict[str, str] = p.Field(default=OrderedDict())
 
 
 class Node(p.BaseModel):
     device: Optional[Device]
     uri: Optional[str]
-    inputs: OrderedDict[str, Stream] = p.Field(default={})
-    outputs: OrderedDict[str, Stream] = p.Field(default={})
+    inputs: OrderedDict[str, Stream] = p.Field(default=OrderedDict())
+    outputs: OrderedDict[str, Stream] = p.Field(default=OrderedDict())
 
 
 Stream.update_forward_refs()
@@ -114,12 +114,12 @@ class DataLoader:
 
     def ls(
         self,
-    ) -> List[dict]:
+    ) -> List[OrderedDict[str, str]]:
         """
         Return the attributes of each record in the dataset
 
         Returns:
-            List[dict]: attributes of each record
+            List[OrderedDict[str, str]]: attributes of each record
 
         """
         available = []
@@ -129,7 +129,7 @@ class DataLoader:
                     continue
                 result = self.__parser.parse(key)
                 assert isinstance(result, parse.Result)
-                attrs = dict(dataset.attrs.items())
+                attrs: OrderedDict[str, str] = OrderedDict(dataset.attrs.items())
                 attrs.update({"collection": self.__collection.name, **result.named})
                 available.append(attrs)
         return available

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 import codecs
+import logging
+import re
 import socket
 
-import pylsl
-import re
-
 import dfds
+import pylsl
 
-import logging
+from . import Interface
 
 
 class E4ServerState:
@@ -40,7 +40,7 @@ class E4SSCommand:
     PAUSE = "pause"
 
 
-class Connector:
+class Connector(Interface):
     """
     Empatica E4 -> LSL Connector (via E4 Streaming Server)
     """
@@ -52,7 +52,7 @@ class Connector:
     ) -> None:
         super().__init__()
         self.parser: dfds.Parser = dfds.Parser()
-        self.node = self.parser.get_node_metadata("../metadata/empatica_e4.node.json")
+        self.node = self.parser.get_node_metadata("repository/empatica_e4.node.json")
         self.num_subs: int = 0
         self.device_id: str
         self.outlets: dict = {}
@@ -81,7 +81,6 @@ class Connector:
             dfds.create_outlet(
                 stream_id=stream_id,
                 stream=self.node.outputs[stream_id],
-                attrs={},
             ),
         )
         return self.outlets[stream_id]

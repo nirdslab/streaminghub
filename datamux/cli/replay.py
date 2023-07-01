@@ -22,7 +22,7 @@ import numpy as np
 import pylsl
 
 import dfds
-from interfaces.replay_mode import ReplayMode
+from interfaces.runner_replay import ReplayMode
 
 DIGIT_CHARS = '0123456789'
 SHUTDOWN_FLAG = threading.Event()

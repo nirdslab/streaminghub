@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 import asyncio
 import io
-from typing import Any, Dict
+import logging
+from typing import Any, Dict, Optional
 
+import dfds
 import msgpack
 import numpy as np
+import pylsl
 import zmq
 import zmq.asyncio
 from PIL import Image
-import pylsl
 
-import dfds
-import dfds.dtypes
-import logging
+from . import Interface
 
 ZMQ_REQ = zmq.REQ
 ZMQ_SUB = zmq.SUB
@@ -20,7 +20,7 @@ ZMQ_SUBSCRIBE = zmq.SUBSCRIBE
 CONF_THRESHOLD = 0.8
 
 
-class Connector:
+class Connector(Interface):
     """
     Pupil Core -> LSL Connector (via ZMQ)
 
@@ -35,7 +35,7 @@ class Connector:
         self.host = host
         self.port = port
         self.parser = dfds.Parser()
-        self.node = self.parser.get_node_metadata("../metadata/pupil_core.node.json")
+        self.node = self.parser.get_node_metadata("repository/pupil_core.node.json")
         self.ctx = zmq.asyncio.Context()
         self.req = self.ctx.socket(ZMQ_REQ)
         self.sub = self.ctx.socket(ZMQ_SUB)
@@ -76,7 +76,6 @@ class Connector:
             dfds.create_outlet(
                 stream_id=stream_id,
                 stream=self.node.outputs[stream_id],
-                attrs={},
             ),
         )
         return self.outlets[stream_id]
@@ -95,7 +94,7 @@ class Connector:
         self,
         topic: str,
         message: dict,
-        image: np.ndarray,
+        image: Optional[np.ndarray],
     ) -> Any:
         ts = message["timestamp"]
         if topic.startswith("gaze.3d."):
@@ -152,14 +151,7 @@ class Connector:
 
 async def main():
     logging.basicConfig(level=logging.DEBUG)
-    # get meta-stream for pupil model
-    metadata = dfds.
-    datasource_spec = dfds.get_datasource_spec("pupil_core")
-    # set random device id
-    connector = Connector(
-        host="127.0.0.1",
-        port=50020
-    )
+    connector = Connector(host="127.0.0.1", port=50020)
     await connector.run()
 
 
