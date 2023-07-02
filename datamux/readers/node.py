@@ -9,7 +9,7 @@ from dfds.typing import Stream
 from serializers import Serializer
 
 from . import Reader
-from .util import create_stream_from_info
+from .util import stream_info_to_stream
 
 logger = logging.getLogger()
 
@@ -18,47 +18,44 @@ class NodeReader(Reader):
     """
     Stream Reader for DFDS Nodes
 
+    Functions Provided:
+
+    * refresh_streams()
+
+    * list_streams()
+
+    * relay(stream_id, queue)
+
     """
 
-    streams: List[Stream] = []
+    __streams: List[Stream] = []
 
     def refresh_streams(
         self,
     ) -> None:
-        self.streams.clear()
+        self.__streams.clear()
         stream_infos = pylsl.resolve_streams()
         for stream_info in stream_infos:
-            stream = create_stream_from_info(stream_info)
-            self.streams.append(stream)
+            stream = stream_info_to_stream(stream_info)
+            self.__streams.append(stream)
 
     def list_streams(
         self,
     ) -> List[Stream]:
-        return self.streams
+        return self.__streams
 
-    def create_query(
+    def relay(
         self,
-        stream: Stream,
-    ) -> str:
-        query_args = OrderedDict({})
-        query_args["source_id"] = stream.name
-        query_args["desc/stream/name"] = stream.name
-        for k, v in stream.attrs.items():
-            query_args[f"desc/attributes/{k}"] = v
-        query_str = " and ".join([f"{k}='{v}'" for k, v in query_args.items()])
-        return query_str
-
-    def read(
-        self,
-        stream: Stream,
+        stream_name: str,
         queue: asyncio.Queue,
     ) -> asyncio.Task:
+        stream = [s for s in self.__streams if s.name == stream_name][0]
         serializer = Serializer(backend="json")
 
-        query = self.create_query(stream)
+        query = self.__create_query(stream)
         logger.debug("query: %s", query)
 
-        # run one query to get a superset of the requested streams
+        # get the LSL stream for the DFDS stream
         stream_infos = pylsl.resolve_bypred(query)
         logger.debug("found %d stream(s)", len(stream_infos))
         assert len(stream_infos) == 1
@@ -66,30 +63,39 @@ class NodeReader(Reader):
 
         # create task to live-stream data
         inlet = pylsl.StreamInlet(stream_info, recover=False)
-        return asyncio.create_task(self.relay_async(inlet, serializer, queue))
+        return asyncio.create_task(self.__relay_coro(inlet, serializer, queue))
 
-    async def relay_async(
+    def __create_query(
+        self,
+        stream: Stream,
+    ) -> str:
+        query_args = OrderedDict({})
+        query_args["name"] = stream.name
+        for k, v in stream.attrs.items():
+            query_args[f"desc/{k}"] = v
+        query_str = " and ".join([f"{k}='{v}'" for k, v in query_args.items()])
+        return query_str
+
+    async def __relay_coro(
         self,
         inlet: pylsl.StreamInlet,
         serializer: Serializer,
         queue: asyncio.Queue,
     ):
-        logger.info("initializing live stream")
-        s_info = create_stream_from_info(inlet.info())
-        logger.info("started live stream")
+        stream = stream_info_to_stream(inlet.info())
+        stream.attrs.update(dfds_mode="relay")
 
+        # relay each record
+        logger.info("started relay")
         while True:
-            # fetch data chunk
             try:
                 (chunk, t) = inlet.pull_chunk(timeout=0.0)
             except pylsl.LostError as e:
                 logger.info(f"LSL connection lost: {e}")
                 break
-            # process data chunk
             if chunk is None or len(chunk) == 0:
                 await asyncio.sleep(1e-3)
             else:
-                message = serializer.encode("data", stream=s_info, index=t, value=chunk)
+                message = serializer.encode("data", stream=stream, index=t, value=chunk)
                 await queue.put(message)
-
-        logger.info("ended live stream")
+        logger.info("ended relay")

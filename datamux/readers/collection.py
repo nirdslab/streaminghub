@@ -2,47 +2,61 @@ import asyncio
 import glob
 import logging
 import random
-from typing import List, OrderedDict
+from typing import List
 
+import pylsl
 from dfds import Parser
 from dfds.typing import Collection, Stream
 
 from serializers import Serializer
 
 from . import Reader
+from .util import stream_to_stream_info
 
 logger = logging.getLogger()
 
 
+# TODO change restreaming from pointwise to groupwise
 class CollectionReader(Reader):
     """
-    Stream Reader for DFDS Collections
+    Stream Reader for DFDS Collections.
+
+    Functions provided:
+
+    * get_collections() - return a list of currently available collections
+
+    * refresh_collections() - refresh the list of currently available collections
+
+    * list_streams(collection_name) - list the streams in a collection
+
+    * replay(collection_name, stream_name, queue) - replay data from a stream in a collection
+
+    * restream(collection_name, stream_name) - restream (via lsl) data from a stream in a collection
 
     """
 
-    parser = Parser()
-    collections: List[Collection] = []
+    __parser = Parser()
+    __collections: List[Collection] = []
 
     def get_collections(
         self,
     ) -> List[Collection]:
-        return self.collections
+        return self.__collections
 
     def refresh_collections(
         self,
     ) -> None:
-        self.collections.clear()
+        self.__collections.clear()
         for fp in sorted(glob.glob("repository/*.collection.json")):
-            collection = self.parser.get_collection_metadata(fp)
-            self.collections.append(collection)
+            collection = self.__parser.get_collection_metadata(fp)
+            self.__collections.append(collection)
 
     def list_streams(
         self,
-        collection: Collection,
-        query: OrderedDict[str, str] = OrderedDict(),
+        collection_name: str,
     ) -> List[Stream]:
+        collection = [c for c in self.__collections if c.name == collection_name][0]
         streams = []
-        assert collection in self.collections
         dataloader = collection.dataloader()
         for attrs in dataloader.ls():
             for stream_id, stream in collection.streams.items():
@@ -51,33 +65,46 @@ class CollectionReader(Reader):
                 streams.append(stream)
         return streams
 
-    def read(
+    def replay(
         self,
-        collection: Collection,
-        stream: Stream,
+        collection_name: str,
+        stream_name: str,
         queue: asyncio.Queue,
     ) -> asyncio.Task:
+        collection = [c for c in self.__collections if c.name == collection_name][0]
+        stream = [s for s in collection.streams.values() if s.name == stream_name][0]
         serializer = Serializer(backend="json")
         return asyncio.create_task(
-            self.restream_async(collection, stream, serializer, queue)
+            self.__replay_coro(collection, stream, serializer, queue),
         )
 
-    async def restream_async(
+    def restream(
+        self,
+        collection_name: str,
+        stream_name: str,
+    ) -> asyncio.Task:
+        collection = [c for c in self.__collections if c.name == collection_name][0]
+        stream = [s for s in collection.streams.values() if s.name == stream_name][0]
+        return asyncio.create_task(
+            self.__restream_coro(collection, stream),
+        )
+
+    async def __replay_coro(
         self,
         collection: Collection,
         stream: Stream,
         serializer: Serializer,
         queue: asyncio.Queue,
     ):
-        logger.info(f"started replay")
         freq = stream.frequency
         index_cols = list(stream.index)
         value_cols = list(stream.fields)
 
-        # get each record of data
         attrs, data = collection.dataloader().read(stream.attrs)
-        stream.attrs.update(attrs, dfds_runner="replay")
-        # TODO change restreaming from pointwise to groupwise
+        stream.attrs.update(attrs, dfds_mode="replay")
+
+        # replay each record
+        logger.info(f"started replay")
         for record in data:
             dt = (1.0 / freq) if freq > 0 else (random.randrange(0, 10) / 10.0)
             index = record[index_cols]
@@ -85,6 +112,34 @@ class CollectionReader(Reader):
             message = serializer.encode("data", stream=stream, index=index, value=value)
             await queue.put(message)
             await asyncio.sleep(dt)
-
-        # end of data stream
         logger.info(f"ended replay")
+
+    async def __restream_coro(
+        self,
+        collection: Collection,
+        stream: Stream,
+    ):
+        freq = stream.frequency
+        index_cols = list(stream.index)
+        value_cols = list(stream.fields)
+
+        attrs, data = collection.dataloader().read(stream.attrs)
+        stream.attrs.update(attrs, dfds_mode="restream")
+        outlet = pylsl.StreamOutlet(stream_to_stream_info(stream))
+        num_samples = data.shape[0]
+        current_index = 0
+
+        # restream each record
+        logger.info(f"started restream")
+        while current_index < num_samples:
+            index = data[current_index][index_cols]
+            value = data[current_index][value_cols]
+            if outlet.have_consumers():
+                outlet.push_sample(value, index)
+                current_index += 1
+            if freq > 0:
+                dt = 1 / freq
+            else:
+                dt = random.randrange(1, 10) / 10.0
+            await asyncio.sleep(dt)
+        logger.info(f"ended restream")
