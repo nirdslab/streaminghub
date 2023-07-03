@@ -22,24 +22,32 @@ from websockets.server import WebSocketServerProtocol, serve
 from websockets.datastructures import Headers, HeadersLike
 
 from readers import NodeReader, CollectionReader
+from serializers import Serializer
 
 logger = logging.getLogger()
 node_reader = NodeReader()
 collection_reader = CollectionReader()
+serializer = Serializer(backend="json")
 
 ERROR_BAD_REQUEST = "Unknown Request"
 HTTPResponse = Tuple[http.HTTPStatus, HeadersLike, bytes]
 
 
-async def producer_handler(websocket: WebSocketServerProtocol, _path: str):
+async def producer_handler(
+    websocket: WebSocketServerProtocol,
+    _path: str,
+):
     while websocket.open:
         response = await res_queue.get()
-        message = json.dumps(response)
+        message = serializer.encode(**response)
         await websocket.send(message)
         # logger.debug(f'>: {message}')
 
 
-async def consumer_handler(websocket: WebSocketServerProtocol, _path: str):
+async def consumer_handler(
+    websocket: WebSocketServerProtocol,
+    _path: str,
+):
     while websocket.open:
         try:
             message = await websocket.recv()
@@ -51,7 +59,10 @@ async def consumer_handler(websocket: WebSocketServerProtocol, _path: str):
         await res_queue.put(process_cmd(payload))
 
 
-async def ws_handler(websocket: WebSocketServerProtocol, path: str):
+async def ws_handler(
+    websocket: WebSocketServerProtocol,
+    path: str,
+):
     logger.info(f"client connected: {websocket.remote_address}")
     producer_task = asyncio.create_task(producer_handler(websocket, path))
     consumer_task = asyncio.create_task(consumer_handler(websocket, path))
@@ -63,7 +74,10 @@ async def ws_handler(websocket: WebSocketServerProtocol, path: str):
     logger.info(f"client disconnected: {websocket.remote_address}")
 
 
-async def process_request(path: str, headers: Headers) -> Optional[HTTPResponse]:
+async def process_request(
+    path: str,
+    headers: Headers,
+) -> Optional[HTTPResponse]:
     if path == "/ws":
         return None
     elif path == "/":
@@ -72,55 +86,98 @@ async def process_request(path: str, headers: Headers) -> Optional[HTTPResponse]
         return http.HTTPStatus(404), [], b""
 
 
-def process_cmd(payload):
+def process_cmd(
+    payload: dict,
+) -> dict:
     command = payload["command"]
 
-    # RELAY MODE =========================================================================================================
-    if command == "list_lsl_streams":
-        return node_reader.list_streams()
-    elif command == "join_lsl_stream":
-        stream_name = payload["data"]["stream_name"]
-        return node_reader.relay(stream_name, res_queue)
+    # RELAY MODE (LSL) =========================================================================================================
 
-    # REPLAY MODE ========================================================================================================
+    # list all lsl streams
+    if command == "list_lsl_streams":
+        streams = node_reader.list_streams()
+        return dict(
+            topic=command,
+            streams=streams,
+        )
+
+    # relay data from a lsl stream
+    elif command == "relay_lsl_stream":
+        stream_name = payload["data"]["stream_name"]
+        task = node_reader.relay(stream_name, res_queue)
+        status = 0 if task.cancelled() else 1
+        return dict(
+            topic=command,
+            stream_name=stream_name,
+            status=status,
+        )
+
+    # REPLAY MODE (FILE) =======================================================================================================
+
+    # list all collections
     elif command == "list_collections":
-        return collection_reader.get_collections()
+        collections = collection_reader.get_collections()
+        return dict(
+            topic=command,
+            collections=collections,
+        )
+
+    # list streams in a collection
     elif command == "list_collection_streams":
         collection_name = payload["data"]["collection_name"]
-        return collection_reader.list_streams(collection_name)
-    elif command == "join_collection_stream":
+        streams = collection_reader.list_streams(collection_name)
+        return dict(
+            topic=command,
+            collection_name=collection_name,
+            streams=streams,
+        )
+
+    # replay data from a stream in a collection
+    elif command == "replay_collection_stream":
         collection_name = payload["data"]["collection_name"]
         stream_name = payload["data"]["stream_name"]
-        return collection_reader.replay(collection_name, stream_name, res_queue)
+        task = collection_reader.replay(collection_name, stream_name, res_queue)
+        status = 0 if task.cancelled() else 1
+        return dict(
+            topic=command,
+            collection_name=collection_name,
+            stream_name=stream_name,
+            status=status,
+        )
 
     # RESTREAM MODE ======================================================================================================
+
+    # restream data from a collection
     elif command == "restream_collection_stream":
         collection_name = payload["data"]["collection_name"]
         stream_name = payload["data"]["stream_name"]
-        return collection_reader.restream(collection_name, stream_name)
-
-    # SIMULATE MODE ======================================================================================================
-    # TODO implement simulate mode functions
+        task = collection_reader.restream(collection_name, stream_name)
+        status = 0 if task.cancelled() else 1
+        return dict(
+            topic=command,
+            collection_name=collection_name,
+            stream_name=stream_name,
+            status=status,
+        )
 
     # FALLBACK ===========================================================================================================
     else:
-        return {
-            "command": "error_notification",
-            "error": ERROR_BAD_REQUEST,
-            "data": None,
-        }
+        return dict(
+            topic=command,
+            error=ERROR_BAD_REQUEST,
+        )
 
 
 if __name__ == "__main__":
     logging.basicConfig(format="%(asctime)-15s %(message)s", level=logging.INFO)
-    default_port = os.getenv("STREAMINGHUB_PORT", "3300")
+    default_port = os.getenv("DATAMUX_PORT", "3300")
     port = int(default_port)
     start_server = serve(ws_handler, "0.0.0.0", port, process_request=process_request)
     main_loop = asyncio.get_event_loop()
     res_queue = asyncio.Queue()
     try:
         main_loop.run_until_complete(start_server)
-        logger.info(f"started websocket server on port={port}")
+        logger.info(f"started datamux on port={port}")
         main_loop.run_forever()
     except (KeyboardInterrupt, InterruptedError):
-        logger.info("interrupt received. stopped websockets server.\n")
+        logger.info("interrupt received. stopped datamux.\n")

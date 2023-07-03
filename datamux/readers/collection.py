@@ -8,8 +8,6 @@ import pylsl
 from dfds import Parser
 from dfds.typing import Collection, Stream
 
-from serializers import Serializer
-
 from . import Reader
 from .util import stream_to_stream_info
 
@@ -73,9 +71,8 @@ class CollectionReader(Reader):
     ) -> asyncio.Task:
         collection = [c for c in self.__collections if c.name == collection_name][0]
         stream = [s for s in collection.streams.values() if s.name == stream_name][0]
-        serializer = Serializer(backend="json")
         return asyncio.create_task(
-            self.__replay_coro(collection, stream, serializer, queue),
+            self.__replay_coro(collection, stream, queue),
         )
 
     def restream(
@@ -93,7 +90,6 @@ class CollectionReader(Reader):
         self,
         collection: Collection,
         stream: Stream,
-        serializer: Serializer,
         queue: asyncio.Queue,
     ):
         freq = stream.frequency
@@ -109,8 +105,7 @@ class CollectionReader(Reader):
             dt = (1.0 / freq) if freq > 0 else (random.randrange(0, 10) / 10.0)
             index = record[index_cols]
             value = record[value_cols]
-            message = serializer.encode("data", stream=stream, index=index, value=value)
-            await queue.put(message)
+            await queue.put(dict(topic="data", stream=stream, index=index, value=value))
             await asyncio.sleep(dt)
         logger.info(f"ended replay")
 

@@ -6,8 +6,6 @@ from typing import List
 import pylsl
 from dfds.typing import Stream
 
-from serializers import Serializer
-
 from . import Reader
 from .util import stream_info_to_stream
 
@@ -50,8 +48,6 @@ class NodeReader(Reader):
         queue: asyncio.Queue,
     ) -> asyncio.Task:
         stream = [s for s in self.__streams if s.name == stream_name][0]
-        serializer = Serializer(backend="json")
-
         query = self.__create_query(stream)
         logger.debug("query: %s", query)
 
@@ -63,7 +59,7 @@ class NodeReader(Reader):
 
         # create task to live-stream data
         inlet = pylsl.StreamInlet(stream_info, recover=False)
-        return asyncio.create_task(self.__relay_coro(inlet, serializer, queue))
+        return asyncio.create_task(self.__relay_coro(inlet, queue))
 
     def __create_query(
         self,
@@ -72,14 +68,13 @@ class NodeReader(Reader):
         query_args = OrderedDict({})
         query_args["name"] = stream.name
         for k, v in stream.attrs.items():
-            query_args[f"desc/{k}"] = v
+            query_args[f"desc/attrs/{k}"] = v
         query_str = " and ".join([f"{k}='{v}'" for k, v in query_args.items()])
         return query_str
 
     async def __relay_coro(
         self,
         inlet: pylsl.StreamInlet,
-        serializer: Serializer,
         queue: asyncio.Queue,
     ):
         stream = stream_info_to_stream(inlet.info())
@@ -96,6 +91,5 @@ class NodeReader(Reader):
             if chunk is None or len(chunk) == 0:
                 await asyncio.sleep(1e-3)
             else:
-                message = serializer.encode("data", stream=stream, index=t, value=chunk)
-                await queue.put(message)
+                await queue.put(dict(topic="data", stream=stream, index=t, value=chunk))
         logger.info("ended relay")
