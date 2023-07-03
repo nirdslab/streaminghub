@@ -1,8 +1,6 @@
 import base64
 import json
-
-import numpy as np
-from dfds.typing import Stream
+from typing import Tuple
 
 
 class Serializer:
@@ -11,45 +9,61 @@ class Serializer:
         backend: str,
     ) -> None:
         self.backend = backend
-
-    def encode(
-        self,
-        topic: str,
-        **kwargs,
-    ) -> dict:
         if self.backend == "json":
-            return {"topic": topic, "content": self.encode_json(**kwargs)}
+            self.encode_fn = self.__encode_json
+            self.decode_fn = self.__decode_json
         elif self.backend == "avro":
-            return {"topic": topic, "content": self.encode_avro(**kwargs)}
+            self.encode_fn = self.__encode_avro
+            self.decode_fn = self.__decode_avro
         else:
             raise NotImplementedError()
 
-    def encode_avro(
+    def encode(
         self,
-        **kwargs,
+        topic: bytes,
+        content: dict,
+    ) -> bytes:
+        if len(content) == 0:
+            content_enc = b""
+        else:
+            content_enc = self.encode_fn(content)
+        payload = topic + b"|" + content_enc
+        return payload
+
+    def decode(
+        self,
+        payload: bytes,
+    ) -> Tuple[bytes, dict]:
+        topic, content_enc = payload.split(b"|", maxsplit=1)
+        content = {}
+        if len(content_enc) > 0:
+            content = self.decode_fn(content_enc)
+        return topic, content
+
+    def __encode_avro(
+        self,
+        content: dict,
     ) -> bytes:
         raise NotImplementedError()
 
-    def encode_json(
+    def __decode_avro(
         self,
-        **kwargs,
+        content_bytes: bytes,
+    ) -> dict:
+        raise NotImplementedError()
+
+    def __encode_json(
+        self,
+        content: dict,
     ) -> bytes:
-        assert "stream" in kwargs
-        assert "index" in kwargs
-        assert "value" in kwargs
+        content_str = json.dumps(content)
+        content_bytes = content_str.encode()
+        return content_bytes
 
-        stream = kwargs["stream"]
-        index = kwargs["index"]
-        value = kwargs["value"]
-
-        assert isinstance(stream, Stream)
-        assert isinstance(index, np.ndarray)
-        assert isinstance(value, np.ndarray)
-
-        payload = {
-            "stream": stream.dict(),
-            "index": index.tolist(),
-            "value": value.tolist(),
-        }
-        payload_bytes = json.dumps(payload).encode()
-        return base64.encodebytes(payload_bytes)
+    def __decode_json(
+        self,
+        content_bytes: bytes,
+    ) -> dict:
+        content_str = content_bytes.decode()
+        content = json.loads(content_str)
+        return content

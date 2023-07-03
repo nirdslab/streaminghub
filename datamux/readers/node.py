@@ -91,5 +91,5 @@ class NodeReader(Reader):
             if chunk is None or len(chunk) == 0:
                 await asyncio.sleep(1e-3)
             else:
-                await queue.put(dict(topic="data", stream=stream, index=t, value=chunk))
+                await queue.put(("data", dict(stream=stream, index=t, value=chunk)))
         logger.info("ended relay")

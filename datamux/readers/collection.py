@@ -105,7 +105,7 @@ class CollectionReader(Reader):
             dt = (1.0 / freq) if freq > 0 else (random.randrange(0, 10) / 10.0)
             index = record[index_cols]
             value = record[value_cols]
-            await queue.put(dict(topic="data", stream=stream, index=index, value=value))
+            await queue.put(("data", dict(stream=stream, index=index, value=value)))
             await asyncio.sleep(dt)
         logger.info(f"ended replay")
 

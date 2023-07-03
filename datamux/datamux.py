@@ -11,23 +11,22 @@ This program provides three modes of execution.
 """
 
 import asyncio
-import json
-import logging
-import os
 import http
-from typing import Tuple, Optional
+import logging
+from typing import Optional, Tuple
 
-from websockets.exceptions import ConnectionClosed
-from websockets.server import WebSocketServerProtocol, serve
 from websockets.datastructures import Headers, HeadersLike
+from websockets.exceptions import ConnectionClosed
+from websockets.server import WebSocketServerProtocol
 
-from readers import NodeReader, CollectionReader
+from readers import CollectionReader, NodeReader
 from serializers import Serializer
 
 logger = logging.getLogger()
 node_reader = NodeReader()
 collection_reader = CollectionReader()
 serializer = Serializer(backend="json")
+res_queue = asyncio.Queue()
 
 ERROR_BAD_REQUEST = "Unknown Request"
 HTTPResponse = Tuple[http.HTTPStatus, HeadersLike, bytes]
@@ -38,10 +37,10 @@ async def producer_handler(
     _path: str,
 ):
     while websocket.open:
-        response = await res_queue.get()
-        message = serializer.encode(**response)
+        topic, content = await res_queue.get()
+        logger.debug(f"<: {topic}, {content}")
+        message = serializer.encode(topic, content)
         await websocket.send(message)
-        # logger.debug(f'>: {message}')
 
 
 async def consumer_handler(
@@ -54,9 +53,10 @@ async def consumer_handler(
         except ConnectionClosed:
             logger.info(f"client connection closed: {websocket.remote_address}")
             break
-        payload = json.loads(message)
-        # logger.debug(f'<: {json.dumps(payload)}')
-        await res_queue.put(process_cmd(payload))
+        assert isinstance(message, bytes)
+        topic, content = serializer.decode(message)
+        logger.debug(f"<: {topic}, {content}")
+        await res_queue.put(process_cmd(topic, content))
 
 
 async def ws_handler(
@@ -87,97 +87,58 @@ async def process_request(
 
 
 def process_cmd(
-    payload: dict,
-) -> dict:
-    command = payload["command"]
-
+    topic: bytes,
+    content: dict,
+) -> Tuple[bytes, dict]:
     # RELAY MODE (LSL) =========================================================================================================
 
     # list all lsl streams
-    if command == "list_lsl_streams":
+    if topic == b"list_lsl_streams":
         streams = node_reader.list_streams()
-        return dict(
-            topic=command,
-            streams=streams,
-        )
+        return topic, dict(streams=streams)
 
     # relay data from a lsl stream
-    elif command == "relay_lsl_stream":
-        stream_name = payload["data"]["stream_name"]
+    elif topic == b"relay_lsl_stream":
+        stream_name = content["stream_name"]
         task = node_reader.relay(stream_name, res_queue)
         status = 0 if task.cancelled() else 1
-        return dict(
-            topic=command,
-            stream_name=stream_name,
-            status=status,
-        )
+        return topic, dict(stream_name=stream_name, status=status)
 
     # REPLAY MODE (FILE) =======================================================================================================
 
     # list all collections
-    elif command == "list_collections":
+    elif topic == b"list_collections":
         collections = collection_reader.get_collections()
-        return dict(
-            topic=command,
-            collections=collections,
-        )
+        return topic, dict(collections=collections)
 
     # list streams in a collection
-    elif command == "list_collection_streams":
-        collection_name = payload["data"]["collection_name"]
+    elif topic == b"list_collection_streams":
+        collection_name = content["collection_name"]
         streams = collection_reader.list_streams(collection_name)
-        return dict(
-            topic=command,
-            collection_name=collection_name,
-            streams=streams,
-        )
+        return topic, dict(collection_name=collection_name, streams=streams)
 
     # replay data from a stream in a collection
-    elif command == "replay_collection_stream":
-        collection_name = payload["data"]["collection_name"]
-        stream_name = payload["data"]["stream_name"]
+    elif topic == b"replay_collection_stream":
+        collection_name = content["collection_name"]
+        stream_name = content["stream_name"]
         task = collection_reader.replay(collection_name, stream_name, res_queue)
         status = 0 if task.cancelled() else 1
-        return dict(
-            topic=command,
-            collection_name=collection_name,
-            stream_name=stream_name,
-            status=status,
+        return topic, dict(
+            collection_name=collection_name, stream_name=stream_name, status=status
         )
 
     # RESTREAM MODE ======================================================================================================
 
     # restream data from a collection
-    elif command == "restream_collection_stream":
-        collection_name = payload["data"]["collection_name"]
-        stream_name = payload["data"]["stream_name"]
+    elif topic == b"restream_collection_stream":
+        collection_name = content["collection_name"]
+        stream_name = content["stream_name"]
         task = collection_reader.restream(collection_name, stream_name)
         status = 0 if task.cancelled() else 1
-        return dict(
-            topic=command,
-            collection_name=collection_name,
-            stream_name=stream_name,
-            status=status,
+        return topic, dict(
+            collection_name=collection_name, stream_name=stream_name, status=status
         )
 
     # FALLBACK ===========================================================================================================
     else:
-        return dict(
-            topic=command,
-            error=ERROR_BAD_REQUEST,
-        )
-
-
-if __name__ == "__main__":
-    logging.basicConfig(format="%(asctime)-15s %(message)s", level=logging.INFO)
-    default_port = os.getenv("DATAMUX_PORT", "3300")
-    port = int(default_port)
-    start_server = serve(ws_handler, "0.0.0.0", port, process_request=process_request)
-    main_loop = asyncio.get_event_loop()
-    res_queue = asyncio.Queue()
-    try:
-        main_loop.run_until_complete(start_server)
-        logger.info(f"started datamux on port={port}")
-        main_loop.run_forever()
-    except (KeyboardInterrupt, InterruptedError):
-        logger.info("interrupt received. stopped datamux.\n")
+        return topic, dict(error=ERROR_BAD_REQUEST)
