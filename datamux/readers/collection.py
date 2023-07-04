@@ -21,7 +21,7 @@ class CollectionReader(Reader):
 
     Functions provided:
 
-    * get_collections() - return a list of currently available collections
+    * list_collections() - return a list of currently available collections
 
     * refresh_collections() - refresh the list of currently available collections
 
@@ -36,7 +36,7 @@ class CollectionReader(Reader):
     __parser = Parser()
     __collections: List[Collection] = []
 
-    def get_collections(
+    def list_collections(
         self,
     ) -> List[Collection]:
         return self.__collections
@@ -58,6 +58,7 @@ class CollectionReader(Reader):
         dataloader = collection.dataloader()
         for attrs in dataloader.ls():
             for stream_id, stream in collection.streams.items():
+                stream = stream.copy()
                 stream.attrs.update(attrs)
                 stream.attrs.update({"id": stream_id})
                 streams.append(stream)
@@ -67,10 +68,12 @@ class CollectionReader(Reader):
         self,
         collection_name: str,
         stream_name: str,
+        attrs: dict,
         queue: asyncio.Queue,
     ) -> asyncio.Task:
         collection = [c for c in self.__collections if c.name == collection_name][0]
         stream = [s for s in collection.streams.values() if s.name == stream_name][0]
+        stream.attrs.update(attrs, dfds_mode="replay")
         return asyncio.create_task(
             self.__replay_coro(collection, stream, queue),
         )
@@ -79,9 +82,11 @@ class CollectionReader(Reader):
         self,
         collection_name: str,
         stream_name: str,
+        attrs: dict,
     ) -> asyncio.Task:
         collection = [c for c in self.__collections if c.name == collection_name][0]
         stream = [s for s in collection.streams.values() if s.name == stream_name][0]
+        stream.attrs.update(attrs, dfds_mode="restream")
         return asyncio.create_task(
             self.__restream_coro(collection, stream),
         )
@@ -97,7 +102,7 @@ class CollectionReader(Reader):
         value_cols = list(stream.fields)
 
         attrs, data = collection.dataloader().read(stream.attrs)
-        stream.attrs.update(attrs, dfds_mode="replay")
+        stream.attrs.update(attrs)
 
         # replay each record
         logger.info(f"started replay")
@@ -119,7 +124,8 @@ class CollectionReader(Reader):
         value_cols = list(stream.fields)
 
         attrs, data = collection.dataloader().read(stream.attrs)
-        stream.attrs.update(attrs, dfds_mode="restream")
+        stream.attrs.update(attrs)
+        
         outlet = pylsl.StreamOutlet(stream_to_stream_info(stream))
         num_samples = data.shape[0]
         current_index = 0

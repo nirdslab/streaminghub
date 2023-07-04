@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "streaminghub-pydfds"
-version = "0.1.7"
+version = "0.1.8"
 authors = [{ name = "Yasith Jayawardana", email = "yasith@cs.odu.edu" }]
 description = "Parser for Data Flow Description Schema (DFDS) metadata"
 readme = "README.md"
@@ -19,7 +19,7 @@ dependencies = [
     "numpy~=1.25.0",
     "pylsl~=1.16.1",
     "jsonschema~=4.17.3",
-    "pydantic~=1.10.9",
+    "pydantic~=2.0",
     "h5py~=3.9.0",
     "parse~=1.19.1"
 ]

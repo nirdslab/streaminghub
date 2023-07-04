@@ -4,6 +4,8 @@
 #
 #    pip-compile pyproject.toml
 #
+annotated-types==0.5.0
+    # via pydantic
 attrs==23.1.0
     # via jsonschema
 h5py==3.9.0
@@ -16,11 +18,15 @@ numpy==1.25.0
     #   streaminghub-pydfds (pyproject.toml)
 parse==1.19.1
     # via streaminghub-pydfds (pyproject.toml)
-pydantic==1.10.9
+pydantic==2.0
     # via streaminghub-pydfds (pyproject.toml)
+pydantic-core==2.0.1
+    # via pydantic
 pylsl==1.16.1
     # via streaminghub-pydfds (pyproject.toml)
 pyrsistent==0.19.3
     # via jsonschema
 typing-extensions==4.6.3
-    # via pydantic
+    # via
+    #   pydantic
+    #   pydantic-core

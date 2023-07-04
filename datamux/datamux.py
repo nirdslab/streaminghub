@@ -108,23 +108,25 @@ def process_cmd(
 
     # list all collections
     elif topic == b"list_collections":
-        collections = collection_reader.get_collections()
-        return topic, dict(collections=collections)
+        collection_reader.refresh_collections()
+        collections = collection_reader.list_collections()
+        return topic, dict(collections=[c.dict() for c in collections])
 
     # list streams in a collection
     elif topic == b"list_collection_streams":
         collection_name = content["collection_name"]
         streams = collection_reader.list_streams(collection_name)
-        return topic, dict(collection_name=collection_name, streams=streams)
+        return topic, dict(collection_name=collection_name, streams=[s.dict() for s in streams])
 
     # replay data from a stream in a collection
     elif topic == b"replay_collection_stream":
         collection_name = content["collection_name"]
         stream_name = content["stream_name"]
-        task = collection_reader.replay(collection_name, stream_name, res_queue)
+        attrs = content["attrs"]
+        task = collection_reader.replay(collection_name, stream_name, attrs, res_queue)
         status = 0 if task.cancelled() else 1
         return topic, dict(
-            collection_name=collection_name, stream_name=stream_name, status=status
+            collection_name=collection_name, stream_name=stream_name, attrs=attrs, status=status
         )
 
     # RESTREAM MODE ======================================================================================================
@@ -133,10 +135,11 @@ def process_cmd(
     elif topic == b"restream_collection_stream":
         collection_name = content["collection_name"]
         stream_name = content["stream_name"]
-        task = collection_reader.restream(collection_name, stream_name)
+        attrs = content["attrs"]
+        task = collection_reader.restream(collection_name, stream_name, attrs)
         status = 0 if task.cancelled() else 1
         return topic, dict(
-            collection_name=collection_name, stream_name=stream_name, status=status
+            collection_name=collection_name, stream_name=stream_name, attrs=attrs, status=status
         )
 
     # FALLBACK ===========================================================================================================

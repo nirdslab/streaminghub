@@ -15,10 +15,10 @@
   ],
   "streams": {
     "gaze": {
-      "@ref": "./tobii_pro_x2_60.node.json/outputs/gaze"
+      "@ref": "./tobii_pro_x2_60.node.json#/outputs/gaze"
     },
     "pupil": {
-      "@ref": "./tobii_pro_x2_60.node.json/outputs/pupil"
+      "@ref": "./tobii_pro_x2_60.node.json#/outputs/pupil"
     }
   },
   "groups": {
@@ -78,5 +78,5 @@
       ]
     }
   },
-  "pattern": "P{participant}_Q{question}_N{noise}"
+  "pattern": "P{participant}_N{noise}_Q{question}"
 }
