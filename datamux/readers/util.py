@@ -1,5 +1,6 @@
 import pylsl
-from dfds.typing import Stream
+import xmltodict
+from dfds.typing import Stream, dtype_map_inv
 
 
 def stream_to_stream_info(
@@ -21,14 +22,14 @@ def stream_to_stream_info(
         n_fields_k = n_fields.append_child(k)
         n_fields_k.append_child_value("name", v.name)
         n_fields_k.append_child_value("description", v.description)
-        n_fields_k.append_child_value("dtype", v.dtype.__name__)
+        n_fields_k.append_child_value("dtype", dtype_map_inv[v.dtype])
     # index
     n_index = n_root.append_child("index")
     for k, v in stream.index.items():
         n_index_k = n_index.append_child(k)
         n_index_k.append_child_value("name", v.name)
         n_index_k.append_child_value("description", v.description)
-        n_index_k.append_child_value("dtype", v.dtype.__name__)
+        n_index_k.append_child_value("dtype", dtype_map_inv[v.dtype])
     # attrs
     n_attrs = n_root.append_child("attrs")
     for k, v in stream.attrs.items():
@@ -48,57 +49,17 @@ def stream_to_stream_info(
 def stream_info_to_stream(
     stream_info: pylsl.StreamInfo,
 ) -> Stream:
-    # stream dict
     # read stream info in dict format
-    temp_inlet = pylsl.StreamInlet(stream_info)
-    full_stream_info = temp_inlet.info()
-    # parse stream desc()
-    desc = __xml_to_dict(full_stream_info.desc())
-    desc["name"] = full_stream_info.name()
-    desc["unit"] = full_stream_info.type()
-    desc["frequency"] = full_stream_info.nominal_srate()
+    inlet = pylsl.StreamInlet(stream_info)
+    info_xml = inlet.info().as_xml()
+    inlet.close_stream()
+
+    # parse stream info
+    info: dict = xmltodict.parse(info_xml)["info"]
+    desc: dict = info["desc"]
+    desc["name"] = info["name"] or ""
+    desc["unit"] = info["type"] or ""
+    desc["frequency"] = info["nominal_srate"] or ""
     desc["@node"] = desc.pop("node")
-    temp_inlet.close_stream()
     # generate stream object from dict
     return Stream(**desc)
-
-
-def __xml_to_dict(
-    e: pylsl.XMLElement,
-) -> dict:
-    """
-    Converts LSL XML metadata into a dictionary
-
-    Args:
-        e (pylsl.XMLElement): LSL XML metadata
-
-    Returns:
-        dict: the extracted dictionary from LSL XML metadata
-    """
-
-    # text node - return value
-    if e.is_text():
-        return e.value()
-    # xml node - gather all children
-    key = e.name()
-    children = []
-    child = e.first_child()
-    while not child.empty():
-        children.append(child)
-        child = child.next_sibling()
-
-    value = {}
-    for child in children:
-        k, v = child.name(), __xml_to_dict(child)
-        if k not in value:
-            value[k] = v
-        elif not isinstance(value[k], list):
-            value[k] = [value[k], v]
-        else:
-            value[k].append(v)
-
-    # remove redundant nodes
-    if len(value) == 1:
-        value = list(value.values())[0]
-
-    return {key: value}

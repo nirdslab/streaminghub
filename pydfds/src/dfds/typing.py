@@ -10,26 +10,43 @@ import numpy as np
 import parse
 import pydantic as p
 
+dtype_map_fwd = {
+    "f16": np.float16,
+    "f32": np.float32,
+    "f64": np.float64,
+    "i8": np.int8,
+    "i16": np.int16,
+    "i32": np.int32,
+    "u8": np.uint8,
+    "u16": np.uint16,
+    "u32": np.uint32,
+}
+
+dtype_map_inv = {
+    np.float16: "f16",
+    np.float32: "f32",
+    np.float64: "f64",
+    np.int8: "i8",
+    np.int16: "i16",
+    np.int32: "i32",
+    np.uint8: "u8",
+    np.uint16: "u16",
+    np.uint32: "u32",
+}
+
 
 class Field(p.BaseModel):
     name: str
     description: str
-    dtype: type = p.Field(exclude=True)
+    dtype: type
 
     @p.validator("dtype", pre=True)
-    def cast_to_type(cls, v):
-        __map = {
-            "f16": np.float16,
-            "f32": np.float32,
-            "f64": np.float64,
-            "i8": np.int8,
-            "i16": np.int16,
-            "i32": np.int32,
-            "u8": np.uint8,
-            "u16": np.uint16,
-            "u32": np.uint32,
-        }
-        return __map[v]
+    def parse_dtype(cls, v):
+        return dtype_map_fwd[v]
+
+    @p.field_serializer("dtype")
+    def serialize_dtype(self, v, i):
+        return dtype_map_inv[v]
 
 
 class Device(p.BaseModel):
@@ -45,13 +62,13 @@ class Stream(p.BaseModel):
     frequency: float
     fields: OrderedDict[str, Field]
     index: OrderedDict[str, Field]
-    node: Optional[Node] = p.Field(alias="@node")
+    node: Optional[Node] = p.Field(alias="@node", default=None)
     attrs: OrderedDict[str, str] = p.Field(default=OrderedDict())
 
 
 class Node(p.BaseModel):
-    device: Optional[Device]
-    uri: Optional[str]
+    device: Optional[Device] = p.Field(default=None)
+    uri: Optional[str] = p.Field(default=None)
     inputs: OrderedDict[str, Stream] = p.Field(default=OrderedDict())
     outputs: OrderedDict[str, Stream] = p.Field(default=OrderedDict())
 

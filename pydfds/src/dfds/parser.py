@@ -69,9 +69,10 @@ class Parser:
         """
 
         path_obj: ParseResult = urlparse(path)
-        is_path_fs = path_obj.scheme == "" and path_obj.netloc == ""
-        fn = open if is_path_fs else urlopen
-        fn_path = path_obj.path if is_path_fs else path
+        if path_obj.scheme == "" and path_obj.netloc == "":
+            fn, fn_path = open, path_obj.path
+        else:
+            fn, fn_path = urlopen, path
         content: dict
 
         # fetch resource
@@ -117,6 +118,9 @@ class Parser:
             path = self.__resolve_path(metadata["@ref"], base)
             logging.debug(f"resolved ref path: {path}")
             metadata = self.__fetch_and_validate_metadata(path)
+            # special case: if node, drop circular references (inputs, outputs)
+            if "device" in metadata:
+                metadata = {"device": metadata["device"]}
         else:
             for k, v in metadata.items():
                 if isinstance(v, dict):

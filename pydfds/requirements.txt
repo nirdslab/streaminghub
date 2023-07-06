@@ -7,25 +7,35 @@
 annotated-types==0.5.0
     # via pydantic
 attrs==23.1.0
-    # via jsonschema
+    # via
+    #   jsonschema
+    #   referencing
 h5py==3.9.0
     # via streaminghub-pydfds (pyproject.toml)
-jsonschema==4.17.3
+jsonschema==4.18.0
     # via streaminghub-pydfds (pyproject.toml)
+jsonschema-specifications==2023.6.1
+    # via jsonschema
 numpy==1.25.0
     # via
     #   h5py
     #   streaminghub-pydfds (pyproject.toml)
 parse==1.19.1
     # via streaminghub-pydfds (pyproject.toml)
-pydantic==2.0
+pydantic==2.0.2
     # via streaminghub-pydfds (pyproject.toml)
-pydantic-core==2.0.1
+pydantic-core==2.1.2
     # via pydantic
 pylsl==1.16.1
     # via streaminghub-pydfds (pyproject.toml)
-pyrsistent==0.19.3
-    # via jsonschema
+referencing==0.29.1
+    # via
+    #   jsonschema
+    #   jsonschema-specifications
+rpds-py==0.8.8
+    # via
+    #   jsonschema
+    #   referencing
 typing-extensions==4.6.3
     # via
     #   pydantic

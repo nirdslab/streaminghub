@@ -94,8 +94,9 @@ def process_cmd(
 
     # list all lsl streams
     if topic == b"list_lsl_streams":
+        node_reader.refresh_streams()
         streams = node_reader.list_streams()
-        return topic, dict(streams=streams)
+        return topic, dict(streams=[s.dict() for s in streams])
 
     # relay data from a lsl stream
     elif topic == b"relay_lsl_stream":
@@ -116,7 +117,9 @@ def process_cmd(
     elif topic == b"list_collection_streams":
         collection_name = content["collection_name"]
         streams = collection_reader.list_streams(collection_name)
-        return topic, dict(collection_name=collection_name, streams=[s.dict() for s in streams])
+        return topic, dict(
+            collection_name=collection_name, streams=[s.dict() for s in streams]
+        )
 
     # replay data from a stream in a collection
     elif topic == b"replay_collection_stream":
@@ -126,7 +129,10 @@ def process_cmd(
         task = collection_reader.replay(collection_name, stream_name, attrs, res_queue)
         status = 0 if task.cancelled() else 1
         return topic, dict(
-            collection_name=collection_name, stream_name=stream_name, attrs=attrs, status=status
+            collection_name=collection_name,
+            stream_name=stream_name,
+            attrs=attrs,
+            status=status,
         )
 
     # RESTREAM MODE ======================================================================================================
@@ -139,7 +145,10 @@ def process_cmd(
         task = collection_reader.restream(collection_name, stream_name, attrs)
         status = 0 if task.cancelled() else 1
         return topic, dict(
-            collection_name=collection_name, stream_name=stream_name, attrs=attrs, status=status
+            collection_name=collection_name,
+            stream_name=stream_name,
+            attrs=attrs,
+            status=status,
         )
 
     # FALLBACK ===========================================================================================================
