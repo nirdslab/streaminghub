@@ -58,7 +58,7 @@ class CollectionReader(Reader):
         dataloader = collection.dataloader()
         for attrs in dataloader.ls():
             for stream_id, stream in collection.streams.items():
-                stream = stream.copy()
+                stream = stream.model_copy(deep=True)
                 stream.attrs.update(attrs)
                 stream.attrs.update({"id": stream_id})
                 streams.append(stream)
@@ -98,6 +98,9 @@ class CollectionReader(Reader):
         queue: asyncio.Queue,
     ):
         freq = stream.frequency
+        if freq <= 0:
+            freq = random.randint(1, 50) # assign a random frequency between 0 and 50
+        dt = 1 / freq
         index_cols = list(stream.index)
         value_cols = list(stream.fields)
 
@@ -107,10 +110,9 @@ class CollectionReader(Reader):
         # replay each record
         logger.info(f"started replay")
         for record in data:
-            dt = (1.0 / freq) if freq > 0 else (random.randrange(0, 10) / 10.0)
             index = record[index_cols]
             value = record[value_cols]
-            await queue.put(("data", dict(stream=stream, index=index, value=value)))
+            await queue.put((b"data", dict(index=index.tolist(), value=value.tolist())))
             await asyncio.sleep(dt)
         logger.info(f"ended replay")
 
@@ -120,6 +122,9 @@ class CollectionReader(Reader):
         stream: Stream,
     ):
         freq = stream.frequency
+        if freq <= 0:
+            freq = random.randint(1, 50) # assign a random frequency between 0 and 50
+        dt = 1 / freq
         index_cols = list(stream.index)
         value_cols = list(stream.fields)
 
@@ -131,16 +136,12 @@ class CollectionReader(Reader):
         current_index = 0
 
         # restream each record
-        logger.info(f"started restream")
+        logger.info(f"started restream: dt={dt:.4f}, n={num_samples}")
         while current_index < num_samples:
             index = data[current_index][index_cols]
             value = data[current_index][value_cols]
             if outlet.have_consumers():
-                outlet.push_sample(value, index)
+                outlet.push_sample(value.tolist(), index[0]) # TODO handle non-1d indexes
                 current_index += 1
-            if freq > 0:
-                dt = 1 / freq
-            else:
-                dt = random.randrange(1, 10) / 10.0
             await asyncio.sleep(dt)
         logger.info(f"ended restream")

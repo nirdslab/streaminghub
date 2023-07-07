@@ -7,7 +7,7 @@ import pylsl
 from dfds.typing import Stream
 
 from . import Reader
-from .util import stream_info_to_stream
+from .util import stream_info_to_stream, stream_inlet_to_stream
 
 logger = logging.getLogger()
 
@@ -45,20 +45,29 @@ class NodeReader(Reader):
     def relay(
         self,
         stream_name: str,
+        attrs: dict,
         queue: asyncio.Queue,
     ) -> asyncio.Task:
-        stream = [s for s in self.__streams if s.name == stream_name][0]
+        stream = None
+        for s in self.__streams:
+            is_name_matched = s.name == stream_name
+            is_attrs_matched = dict(s.attrs) == attrs
+            if is_name_matched and is_attrs_matched:
+                stream = s
+        assert stream
         query = self.__create_query(stream)
-        logger.debug("query: %s", query)
+        logger.info("query: %s", query)
 
         # get the LSL stream for the DFDS stream
         stream_infos = pylsl.resolve_bypred(query)
-        logger.debug("found %d stream(s)", len(stream_infos))
+        logger.info("found %d stream(s)", len(stream_infos))
         assert len(stream_infos) == 1
         stream_info = stream_infos[0]
 
         # create task to live-stream data
-        inlet = pylsl.StreamInlet(stream_info, recover=False)
+        logger.info("creating inlet")
+        inlet = pylsl.StreamInlet(stream_info)
+        logger.info("creating relay task")
         return asyncio.create_task(self.__relay_coro(inlet, queue))
 
     def __create_query(
@@ -77,8 +86,9 @@ class NodeReader(Reader):
         inlet: pylsl.StreamInlet,
         queue: asyncio.Queue,
     ):
-        stream = stream_info_to_stream(inlet.info())
-        stream.attrs.update(dfds_mode="relay")
+        stream = stream_inlet_to_stream(inlet)
+        if not "dfds_mode" in stream.attrs:
+            stream.attrs.update(dfds_mode="relay")
 
         # relay each record
         logger.info("started relay")
@@ -91,5 +101,5 @@ class NodeReader(Reader):
             if chunk is None or len(chunk) == 0:
                 await asyncio.sleep(1e-3)
             else:
-                await queue.put(("data", dict(stream=stream, index=t, value=chunk)))
+                await queue.put((b"data", dict(index=t, value=chunk)))
         logger.info("ended relay")
