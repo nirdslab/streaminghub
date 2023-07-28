@@ -1,7 +1,43 @@
-import base64
+import io
 import json
 from typing import Tuple
 
+import avro.schema
+import avro.io
+from avro.datafile import DataFileReader, DataFileWriter
+from avro.io import DatumReader, DatumWriter
+
+avro_def = {
+   "type" : "record",
+   "namespace" : "Data",
+   "name" : "datapofloat_schema",
+   "fields" : [ {
+     "name" : "t",
+     "type" : "float",
+     "doc" : "Column t"
+   }, {
+     "name" : "x",
+     "type" : "float",
+     "doc" : "Column x"
+   }, {
+     "name" : "y",
+     "type" : "float",
+     "doc" : "column y"
+   }, {
+     "name" : "dL",
+     "type" : "float",
+     "doc" : "Column dL"
+   }, {
+     "name" : "dR",
+     "type" : "float",
+     "doc" : "Column dR"
+   }, {
+     "name" : "aoi",
+     "type" : "float",
+     "doc" : "Column aoi"
+   }
+   ]
+}
 
 class Serializer:
     def __init__(
@@ -44,7 +80,16 @@ class Serializer:
         self,
         content: dict,
     ) -> bytes:
-        raise NotImplementedError()
+        data = [content]
+        schema = avro.schema.parse(json.dumps(avro_def))
+        buffer = io.BytesIO()
+        writer = DataFileWriter(buffer, DatumWriter(), schema)
+        encoder = avro.io.BinaryEncoder(buffer)
+        for row in data:
+            writer.append (data)
+        writer.close()
+        content_bytes = buffer.getvalue()
+        return content_bytes
 
     def __decode_avro(
         self,

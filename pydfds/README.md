@@ -7,13 +7,15 @@ PyDFDS is a parser for Data Flow Description Schema (DFDS) metadata, written usi
 ## Installation
 
 ```bash
-cd pydfds/
-python -m pip install -e .
+
+pip install -U -i https://test.pypi.org/simple/ streaminghub-pydfds
+
 ```
 
 ## Usage
 
 ```python
+
 import dfds
 
 datasource_spec = dfds.get_datasource_spec("name_of_datasource")
@@ -25,4 +27,19 @@ dfds.create_outlet_for_stream(
   "device_info_from_datasource_metadata",
   "stream_info_from_datasource_metadata"
 )
+
+```
+
+## Distribution
+
+```bash
+
+python -m pip install --upgrade pip-tools bumpver build twine
+pip-compile pyproject.toml
+pip-sync
+bumpver update --patch
+python -m build
+python -m twine check dist/*
+python -m twine upload -r testpypi dist/*
+
 ```

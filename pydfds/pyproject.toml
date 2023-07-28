@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "streaminghub-pydfds"
-version = "0.1.15"
+version = "0.1.17"
 authors = [{ name = "Yasith Jayawardana", email = "yasith@cs.odu.edu" }]
 description = "Parser for Data Flow Description Schema (DFDS) metadata"
 readme = "README.md"
@@ -16,12 +16,12 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "numpy~=1.25.0",
-    "pylsl~=1.16.1",
-    "jsonschema~=4.18.0",
-    "pydantic~=2.0.2",
-    "h5py~=3.9.0",
-    "parse~=1.19.1"
+    "numpy>=1.25.1",
+    "pylsl>=1.16.1",
+    "jsonschema>=4.18.4",
+    "pydantic>=2.1.1",
+    "h5py>=3.9.0",
+    "parse>=1.19.1"
 ]
 
 [project.urls]
@@ -29,3 +29,18 @@ homepage = "https://github.com/nirdslab/streaminghub/tree/master/pydfds"
 
 [project.optional-dependencies]
 dev = ["black", "build", "twine", "isort", "pip-tools", "pytest"]
+
+[tool.bumpver]
+current_version = "0.1.17"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "bump pydfds version {old_version} -> {new_version}"
+tag_message = "{new_version}"
+tag_scope = "default"
+commit = true
+tag = true
+push = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+    'version = "{version}"',
+]
