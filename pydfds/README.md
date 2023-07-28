@@ -8,7 +8,7 @@ PyDFDS is a parser for Data Flow Description Schema (DFDS) metadata, written usi
 
 ```bash
 
-pip install -U -i https://test.pypi.org/simple/ streaminghub-pydfds
+python -m pip install -U -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ streaminghub-pydfds
 
 ```
 
@@ -30,16 +30,30 @@ dfds.create_outlet_for_stream(
 
 ```
 
-## Distribution
+## Developer Guide
 
 ```bash
 
-python -m pip install --upgrade pip-tools bumpver build twine
-pip-compile pyproject.toml
-pip-sync
+# create a virtual environment
+python -m venv ~/.virtualenvs/pydfds
+# activate virtual environment
+source ~/.virtualenvs/pydfds/bin/activate
+# install pip tools
+python -m pip install --upgrade pip-tools
+# generate requirements.txt
+pip-compile -o requirements.txt pyproject.toml
+pip-compile --extra dev -o requirements.dev.txt pyproject.toml
+# install dependencies
+pip-sync requirements.txt requirements.dev.txt
+# update version (--patch or --minor or --major)
 bumpver update --patch
+# build package
 python -m build
+# check package
 python -m twine check dist/*
+# publish package (testpypi)
 python -m twine upload -r testpypi dist/*
+# publish package (pypi)
+python -m twine upload dist/*
 
 ```
