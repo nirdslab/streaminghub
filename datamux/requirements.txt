@@ -13,3 +13,5 @@ grpcio-tools~=1.56.2
 h5py~=3.9.0
 python-dotenv~=1.0.0
 xmltodict~=0.13.0
+streaminghub-pydfds~=0.1.18
+avro~=1.11.2

@@ -2,42 +2,25 @@ import io
 import json
 from typing import Tuple
 
-import avro.schema
+import avro
+import avro.datafile
 import avro.io
-from avro.datafile import DataFileReader, DataFileWriter
-from avro.io import DatumReader, DatumWriter
+import avro.schema
 
 avro_def = {
-   "type" : "record",
-   "namespace" : "Data",
-   "name" : "datapofloat_schema",
-   "fields" : [ {
-     "name" : "t",
-     "type" : "float",
-     "doc" : "Column t"
-   }, {
-     "name" : "x",
-     "type" : "float",
-     "doc" : "Column x"
-   }, {
-     "name" : "y",
-     "type" : "float",
-     "doc" : "column y"
-   }, {
-     "name" : "dL",
-     "type" : "float",
-     "doc" : "Column dL"
-   }, {
-     "name" : "dR",
-     "type" : "float",
-     "doc" : "Column dR"
-   }, {
-     "name" : "aoi",
-     "type" : "float",
-     "doc" : "Column aoi"
-   }
-   ]
+    "type": "record",
+    "namespace": "Data",
+    "name": "datapofloat_schema",
+    "fields": [
+        {"name": "t", "type": "float", "doc": "Column t"},
+        {"name": "x", "type": "float", "doc": "Column x"},
+        {"name": "y", "type": "float", "doc": "column y"},
+        {"name": "dL", "type": "float", "doc": "Column dL"},
+        {"name": "dR", "type": "float", "doc": "Column dR"},
+        {"name": "aoi", "type": "float", "doc": "Column aoi"},
+    ],
 }
+
 
 class Serializer:
     def __init__(
@@ -51,6 +34,8 @@ class Serializer:
         elif self.backend == "avro":
             self.encode_fn = self.__encode_avro
             self.decode_fn = self.__decode_avro
+            self.writer = avro.io.DatumWriter()
+            self.reader = avro.io.DatumReader()
         else:
             raise NotImplementedError()
 
@@ -81,13 +66,11 @@ class Serializer:
         content: dict,
     ) -> bytes:
         data = [content]
-        schema = avro.schema.parse(json.dumps(avro_def))
+        schema = avro.schema.make_avsc_object(avro_def)
         buffer = io.BytesIO()
-        writer = DataFileWriter(buffer, DatumWriter(), schema)
+        avro.datafil
         encoder = avro.io.BinaryEncoder(buffer)
-        for row in data:
-            writer.append (data)
-        writer.close()
+        self.writer.write(schema, content, encoder)
         content_bytes = buffer.getvalue()
         return content_bytes
 
