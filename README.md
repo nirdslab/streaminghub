@@ -2,36 +2,30 @@
 
 <img src="https://i.imgur.com/xSieE3V.png" height="100px"><br>
 StreamingHub is a visual programming framework to simplify data analysis workflows.<br>
-<img src="docs/demo-animated.gif" width="100%">
+<img src="archived/assets/demo-animated.gif" width="100%">
 
 This repository hosts the following modules,
-
-## DataMux | `datamux/`
-
-Scripts to stream sensory data in real-time, replay stored data from datasets, and stream mock data for testing.<br>
-**Technologies:** Python, PyLSL, WebSockets
 
 ## DFDS | `dfds/`
 
 JSON schemas to describe data streams, data sets, and analytics, along with a few samples.<br>
 **Technologies:** JSON, JSON Schema
 
-## Metadata | `metadata/`
+## PyDFDS | `pydfds/`
 
-A collection of DFDS metadata files (JSON) and resolvers (Python) for several datasets and datasources used within the
-project.<br>
-**Technologies:** DFDS, JSON, Python
+A Python package for using DFDS in StreamingHub projects.
+**Technologies:** Python, PyLSL
+
+## DataMux | `datamux/`
+
+Scripts to stream sensory data in real-time, replay stored data from datasets, and stream mock data for testing.<br>
+**Technologies:** Python, PyLSL, WebSockets
 
 ## Node-RED Addons | `node-red-addons/`
 
 Node-RED support package to use StreamingHub.<br>
 It adds widgets to discover data streams, display metadata, auto-populate
 **Technologies:** Javascript, JSON, Vega
-
-## PyDFDS | `pydfds/`
-
-A Python package for using DFDS in StreamingHub projects.
-**Technologies:** Python, PyLSL
 
 ## Experimental | `experimental/`
 

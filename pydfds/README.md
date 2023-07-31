@@ -8,7 +8,7 @@ PyDFDS is a parser for Data Flow Description Schema (DFDS) metadata, written usi
 
 ```bash
 
-python -m pip install -U -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ streaminghub-pydfds
+pip install streaminghub-pydfds==0.1.19
 
 ```
 
@@ -16,17 +16,30 @@ python -m pip install -U -i https://test.pypi.org/simple/ --extra-index-url http
 
 ```python
 
-import dfds
+from dfds import Parser
+from dfds.typing import Collection, Stream
+from util import restream_data
 
-datasource_spec = dfds.get_datasource_spec("name_of_datasource")
-dataset_spec = dfds.get_dataset_spec("name_of_dataset")
-analytic_spec = dfds.get_analytic_spec("name_of_analytic")
+# define a DFDS parser
+parser = Parser()
 
-dfds.create_outlet_for_stream(
-  "some_unique_id",
-  "device_info_from_datasource_metadata",
-  "stream_info_from_datasource_metadata"
-)
+# open a DFDS collection
+fp = "/path/to/collection.json"
+collection = parser.get_collection_metadata(fp)
+dataloader = collection.dataloader()
+
+# list all items in the collection
+for attrs in dataloader.ls():
+  for stream_id, stream in collection.streams.items():
+      pass
+
+# read an entire recording at once
+attrs, data = dataloader.read(stream.attrs)
+
+# or replay the recording as a stream
+asyncio.create_task(replay_data(collection, stream))
+
+return streams
 
 ```
 
