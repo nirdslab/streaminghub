@@ -21,5 +21,16 @@
 			"path": "designer"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"workbench.colorCustomizations": {
+			"commandCenter.border": "#e7e7e799",
+			"sash.hoverBorder": "#1f6fd0aa",
+			"tab.activeBorder": "#1f6fd0aa",
+			"titleBar.activeBackground": "#1857a4aa",
+			"titleBar.activeForeground": "#e7e7e7",
+			"titleBar.inactiveBackground": "#1857a499",
+			"titleBar.inactiveForeground": "#e7e7e799"
+		},
+		"peacock.color": "#1857a4aa"
+	}
 }

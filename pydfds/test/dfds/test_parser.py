@@ -2,19 +2,24 @@ import logging
 
 import dfds
 
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO)
 
+
+def test_parser():
     parser = dfds.Parser()
     collection = parser.get_collection_metadata("repository/adhd_sin.collection.json")
+    assert collection is not None
 
+    # print all possible recordings, regardless of existence
     for group in collection.iterate_groups():
+        print("group=", group)
         for stream_id, stream in collection.streams.items():
-            print(stream_id, dict(group))
+            print("stream=", stream_id)
+            assert stream is not None
 
+    # print only existing recordings
     dataloader = collection.dataloader()
     for ls_attrs in dataloader.ls():
         attrs, data = dataloader.read(ls_attrs)
+        assert data is not None
         assert ls_attrs == attrs
-        print(attrs)
-        print(data.shape, data.dtype.names, "\n")

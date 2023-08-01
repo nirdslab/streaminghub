@@ -2,6 +2,8 @@ import logging
 
 from dfds.url import PathOrURL
 
+logging.basicConfig(level=logging.INFO)
+
 
 def test_url_join():
     ptr1_uri = "/home/yasith/test_dir/base.json"
@@ -51,19 +53,3 @@ def test_windows_url_join():
     print(out, "=>", out.to_url())
 
     assert target_uri == out.to_url()
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-
-    print("Test 1:")
-    test_url_join()
-    print("DONE\n")
-
-    print("Test 2:")
-    test_windows_url()
-    print("DONE\n")
-
-    print("Test 3:")
-    test_windows_url_join()
-    print("DONE\n")
