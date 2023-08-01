@@ -39,7 +39,7 @@ class Field(p.BaseModel):
     description: str
     dtype: type
 
-    @p.validator("dtype", pre=True)
+    @p.field_validator("dtype", mode='before')
     def parse_dtype(cls, v):
         return dtype_map_fwd[v]
 
