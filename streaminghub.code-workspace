@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"name": "streaminghub",
+			"path": "."
+		},
+		{
+			"name": "dfds",
+			"path": "dfds"
+		},
+		{
+			"name": "pydfds",
+			"path": "pydfds"
+		},
+		{
+			"name": "datamux",
+			"path": "datamux"
+		},
+		{
+			"name": "designer",
+			"path": "designer"
+		}
+	],
+	"settings": {}
+}

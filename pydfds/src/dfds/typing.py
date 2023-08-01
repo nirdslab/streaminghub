@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import itertools
-import os
 from collections import OrderedDict
 from typing import List, Optional, Tuple
 
@@ -73,7 +72,7 @@ class Node(p.BaseModel):
     outputs: OrderedDict[str, Stream] = p.Field(default=OrderedDict())
 
 
-Stream.update_forward_refs()
+Stream.model_rebuild()
 
 
 class Author(p.BaseModel):
@@ -124,7 +123,9 @@ class DataLoader:
         super().__init__()
         self.__collection = collection
         self.__parser = parse.compile(self.__collection.pattern)
-        base_dir = os.getenv("DATA_DIR")
+
+        import os
+        base_dir = os.getenv("SHUB_DATA_DIR")
         assert base_dir
         self.__fpath = os.path.join(base_dir, self.__collection.name, "data.h5")
         assert os.path.isfile(self.__fpath)

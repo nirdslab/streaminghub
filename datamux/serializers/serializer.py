@@ -19,12 +19,12 @@ def get_avro_schema(
     if name not in avro_schemas:
         assert content is not None
         fields = [dict(name=k, type=type(v).__name__) for k,v in content.items()]
-        avro_schemas["name"] = avro.schema.RecordSchema(
+        avro_schemas[name] = avro.schema.RecordSchema(
             name=name,
             namespace="streaminghub",
             fields=fields
         )
-    return avro_schemas["name"]
+    return avro_schemas[name]
 
 class Serializer:
     def __init__(

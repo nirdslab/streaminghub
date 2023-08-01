@@ -3,7 +3,8 @@ import logging
 import dfds
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
+
     parser = dfds.Parser()
     collection = parser.get_collection_metadata("repository/adhd_sin.collection.json")
 

@@ -8,7 +8,7 @@ PyDFDS is a parser for Data Flow Description Schema (DFDS) metadata, written usi
 
 ```bash
 
-pip install streaminghub-pydfds==0.1.19
+pip install streaminghub-pydfds==0.1.20
 
 ```
 
