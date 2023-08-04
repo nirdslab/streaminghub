@@ -6,7 +6,7 @@ import unittest
 
 import pylsl
 
-from datamux.connectors.empatica_e4 import Connector
+from mock.empatica_e4ss import Connector
 
 
 async def listen(inlet: pylsl.StreamInlet):
