@@ -90,16 +90,24 @@ class NodeReader(Reader):
         if not "dfds_mode" in stream.attrs:
             stream.attrs.update(dfds_mode="relay")
 
+        # column names
+        index_cols = list(stream.index)
+        value_cols = list(stream.fields)
+
         # relay each record
         logger.info("started relay")
         while True:
             try:
-                (chunk, t) = inlet.pull_chunk(timeout=0.0)
+                (values, indices) = inlet.pull_chunk(timeout=0.0)
             except pylsl.LostError as e:
                 logger.info(f"LSL connection lost: {e}")
                 break
-            if chunk is None or len(chunk) == 0:
+            if values is None or len(values) == 0:
                 await asyncio.sleep(1e-3)
             else:
-                await queue.put((b"data", dict(index=t, value=chunk)))
+                for index, value in zip(indices, values):
+                    # FIXME currently only supports 1D index
+                    index_dict = {index_cols[0]: index}
+                    value_dict = dict(zip(value_cols, value))
+                    await queue.put((b"data", dict(index=index_dict, value=value_dict)))
         logger.info("ended relay")

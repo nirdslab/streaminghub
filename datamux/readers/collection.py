@@ -99,7 +99,7 @@ class CollectionReader(Reader):
     ):
         freq = stream.frequency
         if freq <= 0:
-            freq = random.randint(1, 50) # assign a random frequency between 0 and 50
+            freq = random.randint(1, 50)  # assign a random frequency between 0 and 50
         dt = 1 / freq
         index_cols = list(stream.index)
         value_cols = list(stream.fields)
@@ -110,9 +110,9 @@ class CollectionReader(Reader):
         # replay each record
         logger.info(f"started replay")
         for record in data:
-            index = record[index_cols]
-            value = record[value_cols]
-            await queue.put((b"data", dict(index=index.tolist(), value=value.tolist())))
+            index = dict(zip(index_cols, record[index_cols].item()))
+            value = dict(zip(value_cols, record[value_cols].item()))
+            await queue.put((b"data", dict(index=index, value=value)))
             await asyncio.sleep(dt)
         logger.info(f"ended replay")
 
@@ -123,14 +123,14 @@ class CollectionReader(Reader):
     ):
         freq = stream.frequency
         if freq <= 0:
-            freq = random.randint(1, 50) # assign a random frequency between 0 and 50
+            freq = random.randint(1, 50)  # assign a random frequency between 0 and 50
         dt = 1 / freq
         index_cols = list(stream.index)
         value_cols = list(stream.fields)
 
         attrs, data = collection.dataloader().read(stream.attrs)
         stream.attrs.update(attrs)
-        
+
         outlet = pylsl.StreamOutlet(stream_to_stream_info(stream))
         num_samples = data.shape[0]
         current_index = 0
@@ -141,7 +141,8 @@ class CollectionReader(Reader):
             index = data[current_index][index_cols]
             value = data[current_index][value_cols]
             if outlet.have_consumers():
-                outlet.push_sample(value.tolist(), index[0]) # TODO handle non-1d indexes
+                # FIXME currently only supports 1D index
+                outlet.push_sample(value.tolist(), index[0])
                 current_index += 1
             await asyncio.sleep(dt)
         logger.info(f"ended restream")
