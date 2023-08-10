@@ -26,7 +26,7 @@ def test_url_join():
 
 
 def test_windows_url():
-    ptr_uri = "C:\\Users\\yasith\\Documents\\base.json"
+    ptr_uri = "C:/Users/yasith/Documents/base.json"
 
     print(ptr_uri)
     ptr = PathOrURL(ptr_uri)
@@ -36,9 +36,9 @@ def test_windows_url():
 
 
 def test_windows_url_join():
-    ptr1_uri = "C:\\Users\\yasith\\Documents\\base.json"
+    ptr1_uri = "C:/Users/yasith/Documents/base.json"
     ptr2_uri = "./file.json"
-    target_uri = "C:\\Users\\yasith\\Documents\\file.json"
+    target_uri = "C:/Users/yasith/Documents/file.json"
 
     print(ptr1_uri)
     ptr1 = PathOrURL(ptr1_uri)

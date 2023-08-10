@@ -14,23 +14,28 @@ class PathOrURL:
     """
 
     def __init__(self, ptr: str) -> None:
+        logging.debug(f"Parsing ptr='{ptr}'")
         url = urlparse(ptr)
+        logging.debug(f"parsed ptr='{ptr}': scheme='{url.scheme}', netloc='{url.netloc}', path='{url.path}', fragment='{url.fragment}'")
 
         fspath = ""
         urlpath = ""
         sep = ""
         frag = url.fragment.strip()
 
-        if url.path.strip().startswith("\\"):
+        if len(url.scheme) == 1:
             # got a windows file path
-            sep = "\\"
+            logging.debug(f"ptr={ptr} appears to be windows path")
+            sep = "/"
             fspath = ptr[: ptr.index(":") + 1] + url.path.strip()
         elif url.scheme == "" and url.netloc == "":
-            sep = "/"
             # got a unix file path
+            logging.debug(f"ptr={ptr} appears to be unix path")
+            sep = "/"
             fspath = url.path.strip()
         else:
             # got a url
+            logging.debug(f"ptr={ptr} appears to be url")
             urlpath = f"{url.scheme}://{url.netloc}{url.path}".strip()
 
         self.fspath = fspath.rstrip(sep)
@@ -39,7 +44,7 @@ class PathOrURL:
         self.sep = sep
 
     def __str__(self) -> str:
-        return f"Path (fs='{self.fspath}', url='{self.urlpath}', fragment='{self.fragment}')"
+        return f"Path (fs='{self.fspath}', url='{self.urlpath}', fragment='{self.fragment}', sep='{self.sep}')"
 
     def is_empty(self) -> bool:
         return not (self.has_fspath() or self.has_urlpath() or self.has_fragment())
@@ -54,6 +59,7 @@ class PathOrURL:
         return len(self.fragment) > 0
 
     def join(self, ptr: PathOrURL) -> PathOrURL:
+        logging.info(f"Trying to join {self} and {ptr}")
         assert not self.has_fragment()
 
         if ptr.has_urlpath():

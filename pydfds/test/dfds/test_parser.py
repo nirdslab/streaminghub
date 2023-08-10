@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 import dfds
 
@@ -7,7 +8,8 @@ logging.basicConfig(level=logging.INFO)
 
 def test_parser():
     parser = dfds.Parser()
-    collection = parser.get_collection_metadata("repository/adhd_sin.collection.json")
+    fp = Path.cwd().joinpath("repository", "adhd_sin.collection.json").resolve().as_posix()
+    collection = parser.get_collection_metadata(fp)
     assert collection is not None
 
     # print all possible recordings, regardless of existence

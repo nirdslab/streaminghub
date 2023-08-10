@@ -9,6 +9,7 @@ from dfds import Parser
 from dfds.typing import Collection, Stream
 
 from . import Reader
+from pathlib import Path
 from .util import stream_to_stream_info
 
 logger = logging.getLogger()
@@ -45,8 +46,8 @@ class CollectionReader(Reader):
         self,
     ) -> None:
         self.__collections.clear()
-        for fp in sorted(glob.glob("repository/*.collection.json")):
-            collection = self.__parser.get_collection_metadata(fp)
+        for fp in Path.cwd().joinpath("repository").resolve().glob("*.collection.json"):
+            collection = self.__parser.get_collection_metadata(fp.as_posix())
             self.__collections.append(collection)
 
     def list_streams(
