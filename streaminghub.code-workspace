@@ -25,13 +25,16 @@
 		"jupyter.notebookFileRoot": "${workspaceFolder}",
 		"peacock.color": "#1857a4aa",
 		"terminal.integrated.env.linux": {
-			"PYTHONPATH": "${workspaceFolder}"
+			"PYTHONPATH": "${workspaceFolder}",
+			"SHUB_DATA_DIR": "${env:HOME}/datasets"
 		},
 		"terminal.integrated.env.osx": {
-			"PYTHONPATH": "${workspaceFolder}"
+			"PYTHONPATH": "${workspaceFolder}",
+			"SHUB_DATA_DIR": "${env:HOME}/datasets"
 		},
 		"terminal.integrated.env.windows": {
-			"PYTHONPATH": "${workspaceFolder}"
+			"PYTHONPATH": "${workspaceFolder}",
+			"SHUB_DATA_DIR": "${env:USERPROFILE}\\datasets"
 		},
 		"workbench.colorCustomizations": {
 			"commandCenter.border": "#e7e7e799",
