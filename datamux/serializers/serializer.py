@@ -8,23 +8,26 @@ import avro.io
 import avro.schema
 
 
-avro_schemas: dict[str, avro.schema.RecordSchema] = {}
+avro_schemas: dict[bytes, avro.schema.RecordSchema] = {}
+
+type_map = {
+    bool: "boolean",
+    int: "int",
+    float: "float",
+    bytes: "bytes",
+    str: "string",
+}
 
 
 def get_avro_schema(
     topic: bytes,
-    content: dict | None = None,
+    content: dict | None,
 ) -> avro.schema.RecordSchema:
-    name = f"datamux.{topic.decode()}"
-    if name not in avro_schemas:
-        assert content is not None
-        fields = [dict(name=k, type=type(v).__name__) for k,v in content.items()]
-        avro_schemas[name] = avro.schema.RecordSchema(
-            name=name,
-            namespace="streaminghub",
-            fields=fields
-        )
-    return avro_schemas[name]
+    if topic in avro_schemas:
+        return avro_schemas[topic]
+    else:
+        raise NotImplementedError()
+
 
 class Serializer:
     def __init__(
@@ -51,18 +54,28 @@ class Serializer:
         if len(content) == 0:
             content_enc = b""
         else:
-            content_enc = self.encode_fn(topic, content)
-        payload = topic + b"|" + content_enc
+            if topic.startswith(b"data"):
+                # encode using chosen backend
+                content_enc = self.encode_fn(topic, content)
+            else:
+                # encode using json backend
+                content_enc = self.__encode_json(topic, content)
+        payload = topic + b"||" + content_enc
         return payload
 
     def decode(
         self,
         payload: bytes,
     ) -> Tuple[bytes, dict]:
-        topic, content_enc = payload.split(b"|", maxsplit=1)
+        topic, content_enc = payload.split(b"||", maxsplit=1)
         content = {}
         if len(content_enc) > 0:
-            content = self.decode_fn(topic, content_enc)
+            if topic.startswith(b"data"):
+                # decode using chosen backend
+                content = self.decode_fn(topic, content_enc)
+            else:
+                # decode using json backend
+                content = self.__decode_json(topic, content_enc)
         return topic, content
 
     def __encode_avro(
@@ -70,10 +83,14 @@ class Serializer:
         topic: bytes,
         content: dict,
     ) -> bytes:
+        return self.__encode_json(topic, content)
+        # fix and implement below
         schema = get_avro_schema(topic, content)
         buffer = io.BytesIO()
         encoder = avro.io.BinaryEncoder(buffer)
-        self.writer.write_record(schema, content, encoder) # type: ignore
+        index = content["index"]
+        value = content["value"]
+        self.writer.write_record(schema, dict(**index, **value), encoder)  # type: ignore
         content_bytes = buffer.getvalue()
         return content_bytes
 
@@ -82,10 +99,16 @@ class Serializer:
         topic: bytes,
         content_bytes: bytes,
     ) -> dict:
-        schema = get_avro_schema(topic)
+        return self.__decode_json(topic, content_bytes)
+        # fix and implement below
+        schema = get_avro_schema(topic, None)
+        assert schema is not None
         buffer = io.BytesIO(content_bytes)
+        print("created buffer")
         decoder = avro.io.BinaryDecoder(buffer)
+        print("created decoder")
         content = self.reader.read_record(schema, schema, decoder)
+        print("decoder content")
         return dict(content)
 
     def __encode_json(
