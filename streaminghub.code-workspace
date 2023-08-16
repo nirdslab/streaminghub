@@ -23,7 +23,6 @@
 	],
 	"settings": {
 		"jupyter.notebookFileRoot": "${workspaceFolder}",
-		"peacock.color": "#1857a4aa",
 		"terminal.integrated.env.linux": {
 			"PYTHONPATH": "${workspaceFolder}",
 			"SHUB_DATA_DIR": "${env:HOME}/datasets"
@@ -44,6 +43,7 @@
 			"titleBar.activeForeground": "#e7e7e7",
 			"titleBar.inactiveBackground": "#1857a499",
 			"titleBar.inactiveForeground": "#e7e7e799"
-		}
+		},
+		"peacock.remoteColor": "#1857a4aa",
 	}
 }
