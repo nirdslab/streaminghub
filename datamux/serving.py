@@ -26,7 +26,7 @@ class WebsocketServer:
     ) -> None:
         self.host = host
         self.port = port
-        self.serializer = Serializer(backend)
+        self.serializer = Serializer.for_backend(backend)
         self.logger = logging.getLogger()
         self.protocol = DataMuxProtocol()
         self.datamux = DataMuxServer(self.protocol)
@@ -46,7 +46,11 @@ class WebsocketServer:
             topic, content = await self.datamux.deque()
             self.logger.debug(f"<: {topic}, {content}")
             message = self.serializer.encode(topic, content)
-            await websocket.send(message)
+            if isinstance(message, bytes):
+                await websocket.send(message)
+            else:
+                for msg in message:
+                    await websocket.send(msg)
 
     async def consumer_handler(
         self,
@@ -57,14 +61,15 @@ class WebsocketServer:
             try:
                 message = await websocket.recv()
             except ConnectionClosed:
-                self.logger.info(
-                    f"client connection closed: {websocket.remote_address}"
-                )
+                self.logger.info(f"client connection closed: {websocket.remote_address}")
                 break
             assert isinstance(message, bytes)
             topic, content = self.serializer.decode(message)
             self.logger.debug(f"<: {topic}, {content}")
-            await self.datamux.process(topic, **content)
+            if topic.startswith(b"schema_"):
+                self.serializer.bind_schema(topic[7:], content)
+            else:
+                await self.datamux.process(topic, **content)
 
     async def ws_handler(
         self,
@@ -74,9 +79,7 @@ class WebsocketServer:
         self.logger.info(f"client connected: {websocket.remote_address}")
         producer_task = asyncio.create_task(self.producer_handler(websocket, **kwargs))
         consumer_task = asyncio.create_task(self.consumer_handler(websocket, **kwargs))
-        done, pending = await asyncio.wait(
-            [producer_task, consumer_task], return_when=asyncio.FIRST_COMPLETED
-        )
+        done, pending = await asyncio.wait([producer_task, consumer_task], return_when=asyncio.FIRST_COMPLETED)
         for task in pending:
             task.cancel()
         self.logger.info(f"client disconnected: {websocket.remote_address}")
@@ -120,7 +123,7 @@ class WebsocketClient:
     ) -> None:
         self.host = server_host
         self.port = server_port
-        self.serializer = Serializer(backend)
+        self.serializer = Serializer.for_backend(backend)
         self.logger = logging.getLogger()
         self.protocol = DataMuxProtocol()
         self.datamux = DataMuxClient(self.protocol)
@@ -147,4 +150,6 @@ class WebsocketClient:
         topic, content = self.serializer.decode(recvmsg)
         self.logger.info(f"topic: {topic}")
         self.logger.info(f"content: {content}")
+        if topic.startswith(b"schema_"):
+            self.serializer.bind_schema(topic[7:], content)
         return topic, content
