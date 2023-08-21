@@ -8,7 +8,18 @@ import avro.io
 import avro.schema
 
 
-avro_schemas: dict[bytes, avro.schema.RecordSchema] = {}
+avro_schemas: dict[bytes, avro.schema.RecordSchema] = {
+   
+}
+
+blank_schemas = {
+   "type" : "record",
+   "namespace" : "Data",
+   "name" : "datapofloat_schema",
+   "fields" : [ 
+     
+   ]
+}
 
 type_map = {
     bool: "boolean",
@@ -23,10 +34,22 @@ def get_avro_schema(
     topic: bytes,
     content: dict | None,
 ) -> avro.schema.RecordSchema:
+    topic = "abc"
     if topic in avro_schemas:
         return avro_schemas[topic]
     else:
-        raise NotImplementedError()
+        assert content is not None
+        schemadict = blank_schemas.copy()
+        for k, v in content ["index"].items():
+            schemadict["fields"].append(dict(name=f"index.{k}", type=type_map[type(v)], doc="..."))
+        for k, v in content ["value"].items():
+            schemadict["fields"].append(dict(name=f"value.{k}", type=type_map[type(v)], doc="..."))
+        # print (schemadict)
+        schemajson = json.dumps(schemadict)
+        schema = avro.schema.parse(schemajson)
+        # print (schema)
+        avro_schemas[topic] = schema
+        return schema
 
 
 class Serializer:
@@ -41,8 +64,6 @@ class Serializer:
         elif self.backend == "avro":
             self.encode_fn = self.__encode_avro
             self.decode_fn = self.__decode_avro
-            self.writer = avro.io.DatumWriter()
-            self.reader = avro.io.DatumReader()
         else:
             raise NotImplementedError()
 
@@ -83,15 +104,17 @@ class Serializer:
         topic: bytes,
         content: dict,
     ) -> bytes:
-        return self.__encode_json(topic, content)
-        # fix and implement below
+       #  return self.__encode_json(topic, content)
         schema = get_avro_schema(topic, content)
+        writer = avro.io.DatumWriter(schema)
         buffer = io.BytesIO()
         encoder = avro.io.BinaryEncoder(buffer)
-        index = content["index"]
-        value = content["value"]
-        self.writer.write_record(schema, dict(**index, **value), encoder)  # type: ignore
+        index = {f"index.{k}": v for k,v in content["index"].items()}
+        value = {f"value.{k}": v for k,v in content["value"].items()}
+        data = {**index, **value}
+        writer.write(data, encoder)
         content_bytes = buffer.getvalue()
+        print (content_bytes)
         return content_bytes
 
     def __decode_avro(
@@ -99,15 +122,17 @@ class Serializer:
         topic: bytes,
         content_bytes: bytes,
     ) -> dict:
-        return self.__decode_json(topic, content_bytes)
-        # fix and implement below
+       #  return self.__decode_json(topic, content_bytes)
+        print ("decoding")
         schema = get_avro_schema(topic, None)
-        assert schema is not None
+        print (schema)
+        # assert schema is not None
         buffer = io.BytesIO(content_bytes)
         print("created buffer")
         decoder = avro.io.BinaryDecoder(buffer)
         print("created decoder")
-        content = self.reader.read_record(schema, schema, decoder)
+        reader = avro.io.DatumReader(schema)
+        content = reader.read_record(schema, schema, decoder)
         print("decoder content")
         return dict(content)
 
