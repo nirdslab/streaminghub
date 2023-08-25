@@ -2,7 +2,10 @@ import logging
 import pprint
 from typing import Any, Dict
 
-import jsonschema
+from jsonschema.exceptions import ValidationError
+from jsonschema.protocols import Validator
+from referencing import Resource
+from referencing.jsonschema import DRAFT202012, Schema, SchemaRegistry
 
 from .loader import PathOrURILoader
 from .typing import Collection, Node, Stream
@@ -90,10 +93,17 @@ class Parser:
         schema_uri: str,
     ) -> None:
         try:
-            resolver = jsonschema.RefResolver(schema_uri, schema)
-            jsonschema.validate(metadata, schema=schema, resolver=resolver)
-        except jsonschema.ValidationError as e:
-            raise AssertionError("Metadata does not validate against its schema")
+            # new implementation
+            logging.debug(f"validating metadata against schema: {schema_uri}")
+            schema_obj = Resource[Schema](schema, DRAFT202012)
+            schema_reg = SchemaRegistry().with_resource(schema_uri, schema_obj)
+            validator = Validator(schema_obj, schema_reg)  # type: ignore
+            validator.validate(metadata)
+            # old implementation
+            # resolver = jsonschema.RefResolver(schema_uri, schema)
+            # jsonschema.validate(metadata, schema=schema, resolver=resolver)
+        except ValidationError as e:
+            raise AssertionError(f"metadata does not validate against schema: {schema_uri}")
 
     def dereference(
         self,

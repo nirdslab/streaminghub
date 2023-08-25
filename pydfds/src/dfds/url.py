@@ -59,7 +59,7 @@ class PathOrURL:
         return len(self.fragment) > 0
 
     def join(self, ptr: PathOrURL) -> PathOrURL:
-        logging.info(f"Trying to join {self} and {ptr}")
+        logging.debug(f"Trying to join {self} and {ptr}")
         assert not self.has_fragment()
 
         if ptr.has_urlpath():
