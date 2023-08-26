@@ -18,6 +18,7 @@ class AvroSerializer(Serializer):
     """
 
     logger = logging.getLogger(__name__)
+    schema_cache_max_n = 1000
 
     __schema_registry = {}
     __blank_schema = {
@@ -73,6 +74,17 @@ class AvroSerializer(Serializer):
                 nested_dict[root_k] = {}
             nested_dict[root_k][inner_k] = v
         return nested_dict
+    
+    def __cache_schema(
+        self,
+        subtopic: bytes,
+        schema: avro.schema.Schema,
+    ) -> None:
+        self.__schema_registry[subtopic] = schema
+        # silently prune cache
+        N = self.schema_cache_max_n
+        for key in list(self.__schema_registry)[:-N]:
+            self.__schema_registry.pop(key, None)
 
     def __encode_avro(
         self,
@@ -139,7 +151,7 @@ class AvroSerializer(Serializer):
                 # create schema
                 schema = self.__create_schema(subtopic, content)
                 # register schema in __schema_registry
-                self.__schema_registry[subtopic] = avro.schema.make_avsc_object(schema)
+                self.__cache_schema(subtopic, avro.schema.make_avsc_object(schema))
                 self.logger.debug(f"encode(): assigned schema - subtopic={subtopic}")
                 # json-encode schema
                 schema_enc = self.__encode_json(schema)
@@ -171,7 +183,7 @@ class AvroSerializer(Serializer):
             subtopic = topic[7:]
             schema = self.__decode_json(content_enc)
             self.logger.debug(f"decode(): read schema from payload - subtopic={subtopic}")
-            self.__schema_registry[subtopic] = avro.schema.make_avsc_object(schema)
+            self.__cache_schema(subtopic, avro.schema.make_avsc_object(schema))
             self.logger.debug(f"decode(): assigned schema - subtopic={subtopic}")
             return None
         elif topic.startswith(b"data_"):

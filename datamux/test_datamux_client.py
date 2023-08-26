@@ -66,8 +66,8 @@ async def main():
         }
     )
 
-    # await client.sendmsg(*client.datamux.replay_collection_stream(collection_name, stream_name, attrs))
-    # await asyncio.sleep(10)
+    await client.sendmsg(*client.datamux.replay_collection_stream(collection_name, stream_name, attrs))
+    await asyncio.sleep(10)
 
     await client.sendmsg(*client.datamux.restream_collection_stream(collection_name, stream_name, attrs))
     await asyncio.sleep(2)

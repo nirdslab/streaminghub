@@ -1,4 +1,5 @@
 import asyncio
+import random
 from typing import Dict
 
 from readers import CollectionReader, NodeReader
@@ -43,6 +44,10 @@ class DataMuxServer:
         self.queue = asyncio.Queue()
         self.protocol = protocol
 
+    def __gen_randseq(self, length: int = 5):
+        options = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
+        return ''.join(random.choice(options) for x in range(length))
+
     def list_live_streams(
         self,
     ):
@@ -65,11 +70,13 @@ class DataMuxServer:
         Relay data from a live stream
 
         """
-        task = self.reader_n.relay(stream_name, attrs, self.queue)
+        randseq = self.__gen_randseq()
+        task = self.reader_n.relay(stream_name, attrs, randseq, self.queue)
         status = 0 if task.cancelled() else 1
         return dict(
             stream_name=stream_name,
             status=status,
+            randseq=randseq,
         )
 
     def list_collections(
@@ -109,13 +116,15 @@ class DataMuxServer:
         Replay one stream in a collection directly.
 
         """
-        task = self.reader_c.replay(collection_name, stream_name, attrs, self.queue)
-        s = 0 if task.cancelled() else 1
+        randseq = self.__gen_randseq()
+        task = self.reader_c.replay(collection_name, stream_name, attrs, randseq, self.queue)
+        status = 0 if task.cancelled() else 1
         return dict(
             collection_name=collection_name,
             stream_name=stream_name,
             attrs=attrs,
-            status=s,
+            status=status,
+            randseq=randseq,
         )
 
     def restream_collection_stream(
@@ -128,13 +137,15 @@ class DataMuxServer:
         Replay one stream in a collection via LSL
 
         """
-        task = self.reader_c.restream(collection_name, stream_name, attrs)
+        randseq = self.__gen_randseq()
+        task = self.reader_c.restream(collection_name, stream_name, attrs, randseq)
         status = 0 if task.cancelled() else 1
         return dict(
             collection_name=collection_name,
             stream_name=stream_name,
             attrs=attrs,
             status=status,
+            randseq=randseq,
         )
 
     def process(

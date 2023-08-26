@@ -7,7 +7,7 @@ import pylsl
 from dfds.typing import Stream
 
 from . import Reader
-from .util import generate_randstring, stream_info_to_stream, stream_inlet_to_stream
+from .util import stream_info_to_stream, stream_inlet_to_stream
 
 logger = logging.getLogger()
 
@@ -46,6 +46,7 @@ class NodeReader(Reader):
         self,
         stream_name: str,
         attrs: dict,
+        randseq: str,
         queue: asyncio.Queue,
     ) -> asyncio.Task:
         stream = None
@@ -68,7 +69,7 @@ class NodeReader(Reader):
         logger.info("creating inlet")
         inlet = pylsl.StreamInlet(stream_info)
         logger.info("creating relay task")
-        return asyncio.create_task(self.__relay_coro(inlet, queue))
+        return asyncio.create_task(self.__relay_coro(inlet, randseq, queue))
 
     def __create_query(
         self,
@@ -84,6 +85,7 @@ class NodeReader(Reader):
     async def __relay_coro(
         self,
         inlet: pylsl.StreamInlet,
+        randseq: str,
         queue: asyncio.Queue,
     ):
         stream = stream_inlet_to_stream(inlet)
@@ -94,8 +96,7 @@ class NodeReader(Reader):
         index_cols = list(stream.index)
         value_cols = list(stream.fields)
 
-        randseq = generate_randstring()
-        subtopic = f"relay_{stream.name}_{randseq}".encode()
+        subtopic = f"relay_{stream.attrs.get('collection')}_{stream.name}_{randseq}".encode()
 
         # relay each record
         logger.info("started relay")

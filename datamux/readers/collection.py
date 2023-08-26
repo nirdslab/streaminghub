@@ -9,7 +9,7 @@ from dfds.typing import Collection, Stream
 
 from . import Reader
 from pathlib import Path
-from .util import generate_randstring, stream_to_stream_info
+from .util import stream_to_stream_info
 
 logger = logging.getLogger()
 
@@ -69,13 +69,14 @@ class CollectionReader(Reader):
         collection_name: str,
         stream_name: str,
         attrs: dict,
+        randseq: str,
         queue: asyncio.Queue,
     ) -> asyncio.Task:
         collection = [c for c in self.__collections if c.name == collection_name][0]
         stream = [s for s in collection.streams.values() if s.name == stream_name][0]
         stream.attrs.update(attrs, dfds_mode="replay")
         return asyncio.create_task(
-            self.__replay_coro(collection, stream, queue),
+            self.__replay_coro(collection, stream, randseq, queue),
         )
 
     def restream(
@@ -83,18 +84,20 @@ class CollectionReader(Reader):
         collection_name: str,
         stream_name: str,
         attrs: dict,
+        randseq: str,
     ) -> asyncio.Task:
         collection = [c for c in self.__collections if c.name == collection_name][0]
         stream = [s for s in collection.streams.values() if s.name == stream_name][0]
         stream.attrs.update(attrs, dfds_mode="restream")
         return asyncio.create_task(
-            self.__restream_coro(collection, stream),
+            self.__restream_coro(collection, stream, randseq),
         )
 
     async def __replay_coro(
         self,
         collection: Collection,
         stream: Stream,
+        randseq: str,
         queue: asyncio.Queue,
     ):
         freq = stream.frequency
@@ -107,7 +110,6 @@ class CollectionReader(Reader):
         attrs, data = collection.dataloader().read(stream.attrs)
         stream.attrs.update(attrs)
 
-        randseq = generate_randstring()
         subtopic = f"{collection.name}_{stream.name}_{randseq}".encode()
 
         # replay each record
@@ -123,6 +125,7 @@ class CollectionReader(Reader):
         self,
         collection: Collection,
         stream: Stream,
+        randseq: str,
     ):
         freq = stream.frequency
         if freq <= 0:

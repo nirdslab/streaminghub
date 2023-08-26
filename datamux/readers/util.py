@@ -71,9 +71,3 @@ def stream_inlet_to_stream(
     desc["@node"] = desc.pop("node")
     # generate stream object from dict
     return Stream(**desc)
-
-def generate_randstring(length: int = 5):
-    import random
-    options = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
-    return ''.join(random.choice(options) for x in range(length))
-
