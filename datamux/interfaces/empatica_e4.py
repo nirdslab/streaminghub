@@ -46,6 +46,7 @@ class Connector(Interface):
     """
 
     buffer_size: int = 4096
+    logger = logging.getLogger(__name__)
 
     def __init__(
         self,
@@ -99,31 +100,31 @@ class Connector(Interface):
     ):
         if self.server_state == E4ServerState.NEW:
             # request devices list
-            logging.debug("Getting list of devices...")
+            self.logger.debug("Getting list of devices...")
             s.send(self.encode(E4SSCommand.DEVICE_LIST))
             self.server_state = E4ServerState.WAITING
         elif self.server_state == E4ServerState.NO_DEVICES:
-            logging.debug("No devices found!")
+            self.logger.debug("No devices found!")
             exit(1)
         elif self.server_state == E4ServerState.DEVICES_FOUND:
             # connect to device
-            logging.debug("Connecting to device...")
+            self.logger.debug("Connecting to device...")
             s.send(self.encode("%s %s" % (E4SSCommand.DEVICE_CONNECT, self.device_id)))
             self.server_state = E4ServerState.WAITING
         elif self.server_state == E4ServerState.CONNECTED_TO_DEVICE:
             # pause streaming initially
-            logging.debug("Initializing...")
+            self.logger.debug("Initializing...")
             s.send(self.encode("%s ON" % E4SSCommand.PAUSE))
             self.server_state = E4ServerState.WAITING
         elif self.server_state == E4ServerState.READY_TO_SUBSCRIBE:
             # subscribe to streams
             stream = sorted(self.node.outputs)[self.num_subs]
-            logging.debug("Subscribing to stream: %s" % stream)
+            self.logger.debug("Subscribing to stream: %s" % stream)
             s.send(self.encode("%s %s ON" % (E4SSCommand.DEVICE_SUBSCRIBE, stream)))
             self.server_state = E4ServerState.WAITING
         elif self.server_state == E4ServerState.SUBSCRIBE_COMPLETED:
             # begin streaming data
-            logging.debug("Requesting data")
+            self.logger.debug("Requesting data")
             s.send(self.encode("%s OFF" % E4SSCommand.PAUSE))
             self.server_state = E4ServerState.STREAMING
 
@@ -162,7 +163,7 @@ class Connector(Interface):
                 device_ids = [x.split()[0] for x in data.strip("| ").split("|")]
                 num = len(device_ids)
                 assert num == int(arg)
-                logging.debug(f"device(s) found: {num}")
+                self.logger.debug(f"device(s) found: {num}")
 
                 if num == 0:
                     self.server_state = E4ServerState.NO_DEVICES
@@ -179,14 +180,14 @@ class Connector(Interface):
                     device_id = input(f"Enter device id: ")
                     if device_id in device_ids:
                         return device_id
-                    logging.debug(f"Invalid device id: {device_id}")
+                    self.logger.debug(f"Invalid device id: {device_id}")
 
             # DEVICE_CONNECT response
             elif cmd == E4SSCommand.DEVICE_CONNECT:
                 if arg == "ERR":
                     raise ValueError(f"Error connecting to device: {data}")
                 elif arg == "OK":
-                    logging.debug("Connected to device")
+                    self.logger.debug("Connected to device")
                     self.server_state = E4ServerState.CONNECTED_TO_DEVICE
 
             # PAUSE response
@@ -194,10 +195,10 @@ class Connector(Interface):
                 if arg == "ERR":
                     raise ValueError(f"Error pausing streaming: {data}")
                 elif arg == "ON":
-                    logging.debug("Streaming on hold")
+                    self.logger.debug("Streaming on hold")
                     self.server_state = E4ServerState.READY_TO_SUBSCRIBE
                 elif arg == "OFF":
-                    logging.debug("Streaming started")
+                    self.logger.debug("Streaming started")
                     self.server_state = E4ServerState.STREAMING
 
             # DEVICE SUBSCRIBE response
@@ -205,7 +206,7 @@ class Connector(Interface):
                 if arg == "ERR":
                     raise ValueError(f"Error subscribing to: {sid} - {data}")
                 elif arg == "OK":
-                    logging.debug(f"Subscribed to: {sid}")
+                    self.logger.debug(f"Subscribed to: {sid}")
                     self.num_subs += 1
                     if self.num_subs == len(self.node.outputs):
                         self.server_state = E4ServerState.SUBSCRIBE_COMPLETED

@@ -4,9 +4,6 @@ import logging
 from copy import copy
 from urllib.parse import urljoin, urlparse
 
-logger = logging.getLogger()
-
-
 class PathOrURL:
     """
     Common object for both file paths and URLs
@@ -14,9 +11,10 @@ class PathOrURL:
     """
 
     def __init__(self, ptr: str) -> None:
-        logging.debug(f"Parsing ptr='{ptr}'")
+        self.logger = logging.getLogger(__name__)
+        self.logger.debug(f"Parsing ptr='{ptr}'")
         url = urlparse(ptr)
-        logging.debug(f"parsed ptr='{ptr}': scheme='{url.scheme}', netloc='{url.netloc}', path='{url.path}', fragment='{url.fragment}'")
+        self.logger.debug(f"parsed ptr='{ptr}': scheme='{url.scheme}', netloc='{url.netloc}', path='{url.path}', fragment='{url.fragment}'")
 
         fspath = ""
         urlpath = ""
@@ -25,17 +23,17 @@ class PathOrURL:
 
         if len(url.scheme) == 1:
             # got a windows file path
-            logging.debug(f"ptr={ptr} appears to be windows path")
+            self.logger.debug(f"ptr={ptr} appears to be windows path")
             sep = "/"
             fspath = ptr[: ptr.index(":") + 1] + url.path.strip()
         elif url.scheme == "" and url.netloc == "":
             # got a unix file path
-            logging.debug(f"ptr={ptr} appears to be unix path")
+            self.logger.debug(f"ptr={ptr} appears to be unix path")
             sep = "/"
             fspath = url.path.strip()
         else:
             # got a url
-            logging.debug(f"ptr={ptr} appears to be url")
+            self.logger.debug(f"ptr={ptr} appears to be url")
             urlpath = f"{url.scheme}://{url.netloc}{url.path}".strip()
 
         self.fspath = fspath.rstrip(sep)
@@ -59,7 +57,7 @@ class PathOrURL:
         return len(self.fragment) > 0
 
     def join(self, ptr: PathOrURL) -> PathOrURL:
-        logging.debug(f"Trying to join {self} and {ptr}")
+        self.logger.debug(f"Trying to join {self} and {ptr}")
         assert not self.has_fragment()
 
         if ptr.has_urlpath():

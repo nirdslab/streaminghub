@@ -10,8 +10,6 @@ from .loader import PathOrURILoader
 from .typing import Collection, Node, Stream
 from .url import PathOrURL
 
-logger = logging.getLogger()
-
 
 class Parser:
     """
@@ -22,13 +20,14 @@ class Parser:
     def __init__(
         self,
     ) -> None:
+        self.logger = logging.getLogger(__name__)
         self.loader = PathOrURILoader()
 
     def get_stream_metadata(
         self,
         meta_ptr: str,
     ) -> Stream:
-        logging.debug(f"getting stream metadata: {meta_ptr}")
+        self.logger.debug(f"getting stream metadata: {meta_ptr}")
         metadata = self.fetch_metadata(meta_ptr)
         return Stream(**metadata)
 
@@ -36,7 +35,7 @@ class Parser:
         self,
         meta_ptr: str,
     ) -> Node:
-        logging.debug(f"getting node metadata: {meta_ptr}")
+        self.logger.debug(f"getting node metadata: {meta_ptr}")
         metadata = self.fetch_metadata(meta_ptr)
         return Node(**metadata)
 
@@ -44,7 +43,7 @@ class Parser:
         self,
         meta_ptr: str,
     ) -> Collection:
-        logging.debug(f"getting collection metadata: {meta_ptr}")
+        self.logger.debug(f"getting collection metadata: {meta_ptr}")
         metadata = self.fetch_metadata(meta_ptr)
         return Collection(**metadata)
 
@@ -65,7 +64,7 @@ class Parser:
         meta_url = meta_ptr_obj.to_url()
         meta_base = meta_ptr_obj.to_url(drop_fragment=True)
 
-        logging.debug(f"resolved url (metadata): {meta_url}")
+        self.logger.debug(f"resolved url (metadata): {meta_url}")
         metadata = self.loader.get(meta_url)
 
         # if schema is present, validate against it
@@ -73,9 +72,9 @@ class Parser:
             schema_ptr = metadata["$schema"]
             schema_ptr_obj = PathOrURL(schema_ptr)
 
-            logging.debug(f"schema url object: {schema_ptr_obj}")
+            self.logger.debug(f"schema url object: {schema_ptr_obj}")
             schema_url = meta_ptr_obj.join(schema_ptr_obj).to_url()
-            logging.debug(f"resolved url (schema): {schema_url}")
+            self.logger.debug(f"resolved url (schema): {schema_url}")
 
             schema = self.loader.get(schema_url)
             self.validate(metadata, schema, schema_url)
@@ -92,7 +91,7 @@ class Parser:
     ) -> None:
         try:
             # new implementation
-            logging.debug(f"validating metadata against schema: {schema_uri}")
+            self.logger.debug(f"validating metadata against schema: {schema_uri}")
             schema_obj = Resource[Schema](schema, DRAFT202012)
             schema_reg = SchemaRegistry().with_resource(schema_uri, schema_obj)
             validator = Validator(schema_obj, schema_reg)  # type: ignore
@@ -111,7 +110,7 @@ class Parser:
         # replace @ref with referenced value
         if len(metadata.keys()) == 1 and "@ref" in metadata.keys():
             ref = metadata["@ref"]
-            logger.debug(f"dereferencing {ref} with base={base}")
+            self.logger.debug(f"dereferencing {ref} with base={base}")
             ptr = PathOrURL(base).join(PathOrURL(ref))
             metadata = self.fetch_metadata(ptr.to_url())
             if "device" in metadata:

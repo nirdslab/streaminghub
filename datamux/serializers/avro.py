@@ -17,6 +17,8 @@ class AvroSerializer(Serializer):
 
     """
 
+    logger = logging.getLogger(__name__)
+
     __schema_registry = {}
     __blank_schema = {
         "type": "record",
@@ -123,7 +125,7 @@ class AvroSerializer(Serializer):
         topic: bytes,
         content: dict,
     ) -> list[bytes]:
-        logging.debug(f"encode(): topic={topic}, content={content}")
+        self.logger.debug(f"encode(): topic={topic}, content={content}")
         lines = []
         if len(content) == 0:
             content_enc = b""
@@ -138,12 +140,12 @@ class AvroSerializer(Serializer):
                 schema = self.__create_schema(subtopic, content)
                 # register schema in __schema_registry
                 self.__schema_registry[subtopic] = avro.schema.make_avsc_object(schema)
-                logging.debug(f"encode(): assigned schema - subtopic={subtopic}")
+                self.logger.debug(f"encode(): assigned schema - subtopic={subtopic}")
                 # json-encode schema
                 schema_enc = self.__encode_json(schema)
                 # write encoded schema to output
                 lines.append(b"schema_" + subtopic + b"||" + schema_enc)
-                logging.debug(f"encode(): wrote schema to payload - subtopic={subtopic}")
+                self.logger.debug(f"encode(): wrote schema to payload - subtopic={subtopic}")
             # avro-encode content
             content_enc = self.__encode_avro(subtopic, content)
             # write encoded content to output
@@ -159,23 +161,23 @@ class AvroSerializer(Serializer):
         self,
         payload: bytes,
     ) -> Tuple[bytes, dict] | None:
-        logging.debug(f"decode(): payload={payload}")
+        self.logger.debug(f"decode(): payload={payload}")
         topic, content_enc = payload.split(b"||", maxsplit=1)
 
         if len(content_enc) == 0:
-            logging.warn(f"decode(): got empty message - topic={topic}")
+            self.logger.warn(f"decode(): got empty message - topic={topic}")
             return topic, {}
         elif topic.startswith(b"schema_"):
             subtopic = topic[7:]
             schema = self.__decode_json(content_enc)
-            logging.debug(f"decode(): read schema from payload - subtopic={subtopic}")
+            self.logger.debug(f"decode(): read schema from payload - subtopic={subtopic}")
             self.__schema_registry[subtopic] = avro.schema.make_avsc_object(schema)
-            logging.debug(f"decode(): assigned schema - subtopic={subtopic}")
+            self.logger.debug(f"decode(): assigned schema - subtopic={subtopic}")
             return None
         elif topic.startswith(b"data_"):
             subtopic = topic[5:]
             if subtopic not in self.__schema_registry:
-                logging.error(f"decode(): no schema - subtopic={subtopic}")
+                self.logger.error(f"decode(): no schema - subtopic={subtopic}")
                 return None
             schema = self.__schema_registry[subtopic]
             content = self.__decode_avro(content_enc, schema)

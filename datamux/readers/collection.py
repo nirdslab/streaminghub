@@ -1,5 +1,4 @@
 import asyncio
-import glob
 import logging
 import random
 from typing import List
@@ -10,7 +9,7 @@ from dfds.typing import Collection, Stream
 
 from . import Reader
 from pathlib import Path
-from .util import stream_to_stream_info
+from .util import generate_randstring, stream_to_stream_info
 
 logger = logging.getLogger()
 
@@ -108,7 +107,8 @@ class CollectionReader(Reader):
         attrs, data = collection.dataloader().read(stream.attrs)
         stream.attrs.update(attrs)
 
-        subtopic = f"{collection.name}_{stream.name}".encode()
+        randseq = generate_randstring()
+        subtopic = f"{collection.name}_{stream.name}_{randseq}".encode()
 
         # replay each record
         logger.info(f"started replay")

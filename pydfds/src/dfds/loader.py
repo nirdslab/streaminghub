@@ -4,8 +4,6 @@ from urllib.request import urlopen
 
 from .url import PathOrURL
 
-logger = logging.getLogger()
-
 
 class PathOrURILoader:
     """
@@ -17,6 +15,7 @@ class PathOrURILoader:
         self,
         ptr: str,
     ) -> dict:
+        self.logger = logging.getLogger(__name__)
         obj = PathOrURL(ptr)
 
         if obj.has_fspath():
@@ -29,7 +28,7 @@ class PathOrURILoader:
         with fn(path) as payload:
             try:
                 content = json.load(payload)
-                logger.debug(f"Fetched: {path}")
+                self.logger.debug(f"Fetched: {path}")
             except json.JSONDecodeError:
                 raise Exception("")
 

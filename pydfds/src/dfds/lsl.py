@@ -4,8 +4,6 @@ import pylsl
 
 from .typing import Node, Stream
 
-logger = logging.getLogger()
-
 
 def create_outlet(
     stream_id: str,
@@ -18,6 +16,7 @@ def create_outlet(
     :param stream: stream information (from data-source)
     :return: StreamOutlet object to send data streams through
     """
+    logger = logging.getLogger(__name__)
     assert stream.node is not None, "The stream has no information about its source!"
     source: Node = stream.node
     source_id = str(hash(source.json()))

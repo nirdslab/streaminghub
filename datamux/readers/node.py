@@ -7,7 +7,7 @@ import pylsl
 from dfds.typing import Stream
 
 from . import Reader
-from .util import stream_info_to_stream, stream_inlet_to_stream
+from .util import generate_randstring, stream_info_to_stream, stream_inlet_to_stream
 
 logger = logging.getLogger()
 
@@ -94,7 +94,8 @@ class NodeReader(Reader):
         index_cols = list(stream.index)
         value_cols = list(stream.fields)
 
-        subtopic = b"relay_" + stream.name.encode()
+        randseq = generate_randstring()
+        subtopic = f"relay_{stream.name}_{randseq}".encode()
 
         # relay each record
         logger.info("started relay")

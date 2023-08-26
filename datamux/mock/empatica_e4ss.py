@@ -16,7 +16,7 @@ from datetime import datetime
 from threading import Thread
 from typing import Dict
 
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 logger.level = logging.DEBUG
 logger.addHandler(logging.StreamHandler(sys.stdout))
 

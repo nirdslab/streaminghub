@@ -32,6 +32,7 @@ class Connector(Interface):
         port: int,
     ) -> None:
         super().__init__()
+        self.logger = logging.getLogger(__name__)
         self.host = host
         self.port = port
         self.parser = dfds.Parser()
@@ -61,10 +62,10 @@ class Connector(Interface):
         self,
     ) -> int:
         self.req.connect(f"tcp://{self.host}:{self.port}")
-        logging.debug("Opened REQ socket.")
+        self.logger.debug("Opened REQ socket.")
         self.req.send_string("SUB_PORT")
         sub_port = int(await self.req.recv_string())
-        logging.debug(f"Received SUB_PORT. {self.sub_port}")
+        self.logger.debug(f"Received SUB_PORT. {self.sub_port}")
         return sub_port
 
     def get_outlet(
@@ -84,11 +85,11 @@ class Connector(Interface):
         self,
     ):
         self.sub.connect(f"tcp://{self.host}:{self.sub_port}")
-        logging.debug("Opened SUB socket")
+        self.logger.debug("Opened SUB socket")
         for sub_id in self.topics:
             self.sub.setsockopt_string(ZMQ_SUBSCRIBE, sub_id)
-            logging.debug(f"Subscribed to: {sub_id}")
-        logging.debug("Subscription Completed.")
+            self.logger.debug(f"Subscribed to: {sub_id}")
+        self.logger.debug("Subscription Completed.")
 
     def emit(
         self,
@@ -128,7 +129,7 @@ class Connector(Interface):
     ):
         self.sub_port = await self.get_sub_port()
         self.subscribe()
-        logging.debug("Started Data Stream. Use SIGINT to terminate.")
+        self.logger.debug("Started Data Stream. Use SIGINT to terminate.")
         while True:
             try:
                 # receive raw data (bytes)
@@ -144,9 +145,9 @@ class Connector(Interface):
                 payload = msgpack.loads(payload)
                 self.emit(topic, payload, image)
             except KeyboardInterrupt:
-                logging.debug("Received Interrupt. Stopping...")
+                self.logger.debug("Received Interrupt. Stopping...")
                 break
-        logging.debug("Stopped.")
+        self.logger.debug("Stopped.")
 
 
 async def main():

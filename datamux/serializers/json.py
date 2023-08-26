@@ -10,12 +10,14 @@ class JSONSerializer(Serializer):
 
     """
 
+    logger = logging.getLogger(__name__)
+
     def encode(
         self,
         topic: bytes,
         content: dict,
     ) -> bytes:
-        logging.debug(f"encode(): topic={topic}, content={content}")
+        self.logger.debug(f"encode(): topic={topic}, content={content}")
         if len(content) == 0:
             content_enc = b""
         else:
@@ -28,7 +30,7 @@ class JSONSerializer(Serializer):
         self,
         payload: bytes,
     ) -> Tuple[bytes, dict]:
-        logging.debug(f"decode(): payload={payload}")
+        self.logger.debug(f"decode(): payload={payload}")
         topic, content_enc = payload.split(b"||", maxsplit=1)
         content = {}
         if len(content_enc) > 0:
