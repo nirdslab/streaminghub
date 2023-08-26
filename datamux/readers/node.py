@@ -94,6 +94,8 @@ class NodeReader(Reader):
         index_cols = list(stream.index)
         value_cols = list(stream.fields)
 
+        subtopic = b"relay_" + stream.name.encode()
+
         # relay each record
         logger.info("started relay")
         while True:
@@ -109,5 +111,5 @@ class NodeReader(Reader):
                     # FIXME currently only supports 1D index
                     index_dict = {index_cols[0]: index}
                     value_dict = dict(zip(value_cols, value))
-                    await queue.put((b"data", dict(index=index_dict, value=value_dict)))
+                    await queue.put((b"data_" + subtopic, dict(index=index_dict, value=value_dict)))
         logger.info("ended relay")

@@ -1,5 +1,4 @@
 import logging
-import pprint
 from typing import Any, Dict
 
 from jsonschema.exceptions import ValidationError
@@ -47,7 +46,6 @@ class Parser:
     ) -> Collection:
         logging.debug(f"getting collection metadata: {meta_ptr}")
         metadata = self.fetch_metadata(meta_ptr)
-        pprint.pprint(metadata, sort_dicts=False)
         return Collection(**metadata)
 
     def fetch_metadata(

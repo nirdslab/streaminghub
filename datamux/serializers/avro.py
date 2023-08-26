@@ -17,14 +17,14 @@ class AvroSerializer(Serializer):
 
     """
 
-    schema_registry = {}
-    blank_schema = {
+    __schema_registry = {}
+    __blank_schema = {
         "type": "record",
-        "namespace": "streaminghub",
-        "name": "data",
-        "fields": [],
+        "namespace": "streaminghub.datamux.data",
+        "name": None,
+        "fields": None,
     }
-    type_map = {
+    __type_map = {
         bool: "boolean",
         int: "int",
         float: "float",
@@ -32,7 +32,25 @@ class AvroSerializer(Serializer):
         str: "string",
     }
 
-    def avro_preprocess(
+    def __create_schema(
+        self,
+        subtopic: bytes,
+        content: dict,
+    ) -> dict:
+        schemadict = self.__blank_schema.copy()
+        schemadict["name"] = subtopic.decode()
+        schemadict["fields"] = []
+        for k, v in content.items():
+            schemadict["fields"].append(
+                {
+                    "name": k,
+                    "type": self.__type_map[type(v)],
+                    "doc": "...",
+                }
+            )
+        return schemadict
+
+    def __preprocess(
         self,
         content: dict,
     ) -> dict:
@@ -42,7 +60,7 @@ class AvroSerializer(Serializer):
                 flat_dict[f"{root_k}.{inner_k}"] = v
         return flat_dict
 
-    def avro_postprocess(
+    def __postprocess(
         self,
         content: dict,
     ) -> dict:
@@ -54,84 +72,13 @@ class AvroSerializer(Serializer):
             nested_dict[root_k][inner_k] = v
         return nested_dict
 
-    def encode(
-        self,
-        topic: bytes,
-        content: dict,
-    ) -> list[bytes]:
-        logging.debug(f"encode(): topic={topic}, content={content}")
-        lines = []
-        if len(content) == 0:
-            content_enc = b""
-        elif topic.startswith(b"data"):
-            # preprocessing
-            content = self.avro_preprocess(content)
-            # register schema + add to payload
-            if topic not in self.schema_registry:
-                schema = self.__create_schema(content)
-                self.bind_schema(topic, schema)
-                schema_enc = self.__encode_json(schema)
-                lines.append(b"schema_" + topic + b"||" + schema_enc)
-            # avro-encode
-            content_enc = self.__encode_avro(topic, content)
-        else:
-            # json-encode
-            content_enc = self.__encode_json(content)
-        lines.append(topic + b"||" + content_enc)
-        return lines
-
-    def decode(
-        self,
-        payload: bytes,
-    ) -> Tuple[bytes, dict]:
-        logging.debug(f"decode(): payload={payload}")
-        topic, content_enc = payload.split(b"||", maxsplit=1)
-        content = {}
-        if len(content_enc) == 0:
-            pass
-        elif topic.startswith(b"data"):
-            # schema must be registered before running decode_avro()
-            assert topic in self.schema_registry, f"decode_avro(): no registered schema for topic={topic}"
-            schema = self.schema_registry[topic]
-            content = self.__decode_avro(content_enc, schema)
-            # postprocessing
-            content = self.avro_postprocess(content)
-        else:
-            # decode using json backend
-            content = self.__decode_json(content_enc)
-        return topic, content
-
-    def bind_schema(
-        self,
-        topic: bytes,
-        schema: dict,
-    ) -> None:
-        self.schema_registry[topic] = avro.schema.make_avsc_object(schema)
-
-    def __create_schema(
-        self,
-        content: dict,
-    ) -> dict:
-        schemadict = self.blank_schema.copy()
-        for k, v in content.items():
-            schemadict["fields"].append(
-                {
-                    "name": k,
-                    "type": self.type_map[type(v)],
-                    "doc": "...",
-                }
-            )
-        return schemadict
-
     def __encode_avro(
         self,
-        topic: bytes,
+        subtopic: bytes,
         content: dict,
     ) -> bytes:
-        # schema must be registered before running encode_avro()
-        assert topic in self.schema_registry, f"encode_avro(): no registered schema for topic={topic}"
         # get schema
-        schema = self.schema_registry[topic]
+        schema = self.__schema_registry[subtopic]
         writer = avro.io.DatumWriter(schema)
         # encoding
         buffer = io.BytesIO()
@@ -153,7 +100,7 @@ class AvroSerializer(Serializer):
         decoder = avro.io.BinaryDecoder(buffer)
         content = reader.read(decoder)
         # return decoded data
-        return dict(content) # type: ignore
+        return dict(content)  # type: ignore
 
     def __encode_json(
         self,
@@ -170,3 +117,72 @@ class AvroSerializer(Serializer):
         content_str = content_bytes.decode()
         content = json.loads(content_str)
         return content
+
+    def encode(
+        self,
+        topic: bytes,
+        content: dict,
+    ) -> list[bytes]:
+        logging.debug(f"encode(): topic={topic}, content={content}")
+        lines = []
+        if len(content) == 0:
+            content_enc = b""
+            lines.append(topic + b"||" + content_enc)
+        elif topic.startswith(b"data_") and len(content) > 0:
+            # preprocessing
+            subtopic = topic[5:]
+            content = self.__preprocess(content)
+            # ensure schema is registered
+            if subtopic not in self.__schema_registry:
+                # create schema
+                schema = self.__create_schema(subtopic, content)
+                # register schema in __schema_registry
+                self.__schema_registry[subtopic] = avro.schema.make_avsc_object(schema)
+                logging.debug(f"encode(): assigned schema - subtopic={subtopic}")
+                # json-encode schema
+                schema_enc = self.__encode_json(schema)
+                # write encoded schema to output
+                lines.append(b"schema_" + subtopic + b"||" + schema_enc)
+                logging.debug(f"encode(): wrote schema to payload - subtopic={subtopic}")
+            # avro-encode content
+            content_enc = self.__encode_avro(subtopic, content)
+            # write encoded content to output
+            lines.append(b"data_" + subtopic + b"||" + content_enc)
+        else:
+            # json-encode content
+            content_enc = self.__encode_json(content)
+            # write encoded content to output
+            lines.append(topic + b"||" + content_enc)
+        return lines
+
+    def decode(
+        self,
+        payload: bytes,
+    ) -> Tuple[bytes, dict] | None:
+        logging.debug(f"decode(): payload={payload}")
+        topic, content_enc = payload.split(b"||", maxsplit=1)
+
+        if len(content_enc) == 0:
+            logging.warn(f"decode(): got empty message - topic={topic}")
+            return topic, {}
+        elif topic.startswith(b"schema_"):
+            subtopic = topic[7:]
+            schema = self.__decode_json(content_enc)
+            logging.debug(f"decode(): read schema from payload - subtopic={subtopic}")
+            self.__schema_registry[subtopic] = avro.schema.make_avsc_object(schema)
+            logging.debug(f"decode(): assigned schema - subtopic={subtopic}")
+            return None
+        elif topic.startswith(b"data_"):
+            subtopic = topic[5:]
+            if subtopic not in self.__schema_registry:
+                logging.error(f"decode(): no schema - subtopic={subtopic}")
+                return None
+            schema = self.__schema_registry[subtopic]
+            content = self.__decode_avro(content_enc, schema)
+            # postprocessing
+            content = self.__postprocess(content)
+            return topic, content
+        else:
+            # decode using json backend
+            content = self.__decode_json(content_enc)
+            return topic, content

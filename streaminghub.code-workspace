@@ -35,6 +35,10 @@
 			"PYTHONPATH": "${workspaceFolder}",
 			"SHUB_DATA_DIR": "${env:USERPROFILE}\\datasets"
 		},
+		"peacock.remoteColor": "#1857a4aa",
+		"[python]": {
+			"editor.defaultFormatter": "ms-python.black-formatter"
+		},
 		"workbench.colorCustomizations": {
 			"commandCenter.border": "#e7e7e799",
 			"sash.hoverBorder": "#1f6fd0aa",
@@ -44,9 +48,6 @@
 			"titleBar.inactiveBackground": "#1857a499",
 			"titleBar.inactiveForeground": "#e7e7e799"
 		},
-		"peacock.remoteColor": "#1857a4aa",
-		"[python]": {
-			"editor.defaultFormatter": "ms-python.black-formatter"
-		}
+		"peacock.color": "#1857a4aa"
 	}
 }

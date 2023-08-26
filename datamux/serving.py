@@ -26,8 +26,8 @@ class WebsocketServer:
     ) -> None:
         self.host = host
         self.port = port
-        self.serializer = Serializer.for_backend(backend)
-        self.logger = logging.getLogger()
+        self.serializer = Serializer.with_backend(backend)
+        self.logger = logging.getLogger(__name__)
         self.protocol = DataMuxProtocol()
         self.datamux = DataMuxServer(self.protocol)
 
@@ -44,12 +44,14 @@ class WebsocketServer:
         """
         while websocket.open:
             topic, content = await self.datamux.deque()
-            self.logger.debug(f"<: {topic}, {content}")
+            self.logger.debug(f"sending: {topic}, {content}")
             message = self.serializer.encode(topic, content)
             if isinstance(message, bytes):
+                self.logger.debug(f"encoded: {message}")
                 await websocket.send(message)
             else:
                 for msg in message:
+                    self.logger.debug(f"encoded: {msg}")
                     await websocket.send(msg)
 
     async def consumer_handler(
@@ -60,16 +62,18 @@ class WebsocketServer:
         while websocket.open:
             try:
                 message = await websocket.recv()
+                self.logger.debug(f"received: {message}")
             except ConnectionClosed:
                 self.logger.info(f"client connection closed: {websocket.remote_address}")
                 break
             assert isinstance(message, bytes)
-            topic, content = self.serializer.decode(message)
-            self.logger.debug(f"<: {topic}, {content}")
-            if topic.startswith(b"schema_"):
-                self.serializer.bind_schema(topic[7:], content)
-            else:
+            readout = self.serializer.decode(message)
+            if readout is not None:
+                topic, content = readout
+                self.logger.debug(f"decoded: {topic}, {content}")
                 await self.datamux.process(topic, **content)
+            else:
+                self.logger.warn(f"got empty message: {message}")
 
     async def ws_handler(
         self,
@@ -123,8 +127,8 @@ class WebsocketClient:
     ) -> None:
         self.host = server_host
         self.port = server_port
-        self.serializer = Serializer.for_backend(backend)
-        self.logger = logging.getLogger()
+        self.serializer = Serializer.with_backend(backend)
+        self.logger = logging.getLogger(__name__)
         self.protocol = DataMuxProtocol()
         self.datamux = DataMuxClient(self.protocol)
 
@@ -140,16 +144,30 @@ class WebsocketClient:
         topic: bytes,
         content: dict,
     ):
+        self.logger.debug(f"sending: {topic}, {content}")
         sendmsg = self.serializer.encode(topic, content)
-        await self.websocket.send(sendmsg)
+        if isinstance(sendmsg, bytes):
+            self.logger.debug(f"encoded: {sendmsg}")
+            await self.websocket.send(sendmsg)
+        else:
+            for msg in sendmsg:
+                self.logger.debug(f"encoded: {msg}")
+                await self.websocket.send(msg)
 
     async def recvmsg(
         self,
     ):
-        recvmsg: bytes = await self.websocket.recv()  # type: ignore
-        topic, content = self.serializer.decode(recvmsg)
-        self.logger.info(f"topic: {topic}")
-        self.logger.info(f"content: {content}")
-        if topic.startswith(b"schema_"):
-            self.serializer.bind_schema(topic[7:], content)
-        return topic, content
+        try:
+            recvmsg: bytes = await self.websocket.recv()  # type: ignore
+            self.logger.debug(f"received: {recvmsg}")
+            readout = self.serializer.decode(recvmsg)
+            if readout is not None:
+                topic, content = readout
+                self.logger.debug(f"decoded: {topic}, {content}")
+                return topic, content
+            else:
+                self.logger.warn(f"got empty message: {recvmsg}")
+                return None
+        except Exception as e:
+            self.logger.error(f"error in recvmsg(): {e}")
+            return None

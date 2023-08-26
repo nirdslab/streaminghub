@@ -10,24 +10,17 @@ class Serializer:
         self,
         topic: bytes,
         content: dict,
-    ) -> bytes:
+    ) -> bytes | list[bytes]:
         raise NotImplementedError()
 
     def decode(
         self,
         payload: bytes,
-    ) -> Tuple[bytes, dict]:
+    ) -> Tuple[bytes, dict] | None:
         raise NotImplementedError()
 
-    def bind_schema(
-        self,
-        topic: bytes,
-        schema: dict,
-    ) -> None:
-        pass
-
     @staticmethod
-    def for_backend(
+    def with_backend(
         backend: str,
     ):
         if backend == "json":

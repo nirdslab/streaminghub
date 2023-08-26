@@ -108,12 +108,14 @@ class CollectionReader(Reader):
         attrs, data = collection.dataloader().read(stream.attrs)
         stream.attrs.update(attrs)
 
+        subtopic = f"{collection.name}_{stream.name}".encode()
+
         # replay each record
         logger.info(f"started replay")
         for record in data:
             index = dict(zip(index_cols, record[index_cols].item()))
             value = dict(zip(value_cols, record[value_cols].item()))
-            await queue.put((b"data", dict(index=index, value=value)))
+            await queue.put((b"data_" + subtopic, dict(index=index, value=value)))
             await asyncio.sleep(dt)
         logger.info(f"ended replay")
 
