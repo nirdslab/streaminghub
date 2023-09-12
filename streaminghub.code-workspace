@@ -13,12 +13,15 @@
 			"path": "pydfds"
 		},
 		{
+			"name": "curator",
+			"path": "curator"
+		},
+		{
 			"name": "datamux",
 			"path": "datamux"
 		},
 		{
-			"name": "designer",
-			"path": "designer"
+			"path": "flowmaker"
 		}
 	],
 	"settings": {
