@@ -1,0 +1,72 @@
+{
+    "image": {
+        "exts": [
+            ".png",
+            ".jpg",
+            ".svg"
+        ],
+        "icon": "/static/icons/image.png"
+    },
+    "audio": {
+        "exts": [
+            ".mp3",
+            ".wav",
+            ".ogg",
+            ".mpeg",
+            ".aac",
+            ".3gpp",
+            ".3gpp2",
+            ".aiff",
+            ".x-aiff",
+            ".amr",
+            ".mpga"
+        ],
+        "icon": "/static/icons/audio.png"
+    },
+    "video": {
+        "exts": [
+            ".mp4",
+            ".webm",
+            ".opgg",
+            ".flv"
+        ],
+        "icon": "/static/icons/video.png"
+    },
+    "pdf": {
+        "exts": [
+            ".pdf"
+        ],
+        "icon": "/static/icons/pdf.png"
+    },
+    "word": {
+        "exts": [
+            ".docx",
+            ".doc"
+        ],
+        "icon": "/static/icons/doc.png"
+    },
+    "txt": {
+        "exts": [
+            ".txt"
+        ],
+        "icon": "/static/icons/txt.png"
+    },
+    "compressed": {
+        "exts": [
+            ".zip",
+            ".rar"
+        ],
+        "icon": "/static/icons/compressed.png"
+    },
+    "code": {
+        "exts": [
+            ".css",
+            ".scss",
+            ".html",
+            ".py",
+            ".js",
+            ".cpp"
+        ],
+        "icon": "/static/icons/code.png"
+    }
+}

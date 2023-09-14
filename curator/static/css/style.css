@@ -1,0 +1,62 @@
+.content-data-table thead tr th:not(:first-child) {
+    text-align: center;
+}
+
+.content-data-table tbody tr td:not(:first-child) {
+    text-align: center;
+}
+
+.content-data-table .table-header {
+    cursor: pointer;
+}
+
+.table-header:not(:last-child)::after {
+    content: " \2195";
+}
+
+.table-header-row {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 99;
+}
+
+.hvr-grow {
+    display: inline-block;
+    vertical-align: middle;
+    transform: translateZ(0);
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+    backface-visibility: hidden;
+    -moz-osx-font-smoothing: grayscale;
+    transition-duration: 0.3s;
+    transition-property: transform;
+}
+
+.hvr-grow:hover,
+.hvr-grow:focus,
+.hvr-grow:active {
+    transform: scale(1.1);
+}
+
+.thumbnail {
+    width: 150px;
+    text-align: center;
+}
+
+.img-thumbnail {
+    height: 150px;
+    width: 150px;
+    border: 0px !important;
+}
+
+.overflow-text {
+    overflow: hidden;
+    white-space: nowrap;
+    color: black;
+    text-overflow: ellipsis;
+}
+
+.file-container {
+    max-height: 500px;
+    overflow: scroll;
+}

@@ -1,0 +1,191 @@
+{% extends 'layout.html' %}
+{% block content %}
+<!-- File Browser Panel -->
+<form method="post" class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h5 class="d-inline">Add Files into Dataset</h5>
+    </div>
+    <div class="card-body">
+      <p>
+        Browser your files using the panel below.
+        In each folder, mark the files that belong to the dataset, and click on "Update Selection".
+        This will add them to a dataset.
+      </p>
+      <div class="row my-2">
+        <div class="col-12">
+          {% autoescape false %}
+          {{breadcrumbs}}
+          {% endautoescape %}
+        </div>
+      </div>
+      <div id="view0_container" {% if view_id==1 %} style="display: none;" {% endif %}>
+        <hr class="my-2">
+        <div class="file-container">
+          <div class="row">
+            {% for k, dir_i in dir_dict.items() %}
+            <div class="col-2 mt-2">
+              <a href="/files/{{dir_i.f_url}}" class="thumbnail hvr-grow" title="{{dir_i.f_name}}">
+                <img src="{{dir_i.image}}" class='img-thumbnail' />
+                <span class="overflow-ellipsis">{{ dir_i.f_name }}</span>
+              </a>
+            </div>
+            {% endfor %}
+          </div>
+          {% if dir_dict|length > 0 and file_dict|length > 0 %}
+          <hr class="my-2">
+          {% endif %}
+          <div class="row">
+            {% for k,dir_i in file_dict.items() %}
+            <div class="col-2 mt-2">
+              <a href="/download/{{dir_i.f_url}}" class="thumbnail hvr-grow" title="{{dir_i.f_name}}">
+                <img src="{{dir_i.image}}" class='img-thumbnail' />
+                <span class="overflow-ellipsis">{{ dir_i.f_name }}</span>
+              </a>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <hr class="my-2">
+      </div>
+      <div id="view1_container" {% if view_id==0 %} style="display: none;" {% endif %}>
+        <hr class="my-2">
+        <div class="row">
+          <span class="col-5">
+            <input class="form-check-input" type="checkbox" id="chk-select-all">
+            <b>Name</b>
+          </span>
+          <span class="col-3"><b>Created</b></span>
+          <span class="col-3"><b>Last Modified</b></span>
+          <span class="col-1"><b>Size</b></span>
+        </div>
+        <hr class="my-2">
+        <div class="file-container">
+          {% for k,dir_i in dir_dict.items() %}
+          <div class="row my-1 hover" title="{{dir_i.f_name}}">
+            <span class="col-5">
+              <a href="/files/{{dir_i.f_url}}">
+                <img class="border-0 pe-1" src='{{dir_i.image}}' style="height:1.2em; vertical-align: text-bottom;" />
+                {{dir_i.f_name}}
+              </a>
+            </span>
+            <span class="col-3">{{dir_i.dtc}}</span>
+            <span class="col-3">{{dir_i.dtm}}</span>
+            <span class="col-1">{{dir_i.size}}</span>
+          </div>
+          {% endfor %}
+          {% if dir_dict|length > 0 and file_dict|length > 0 %}
+          <hr class="my-2">
+          {% endif %}
+          {% for k,dir_i in file_dict.items() %}
+          <div class="row my-1 hover" title="{{dir_i.f_name}}">
+            <span class="col-5">
+              <input class="form-check-input" data-curator-check type="checkbox" name="selection[]" value="{{k}}" {% if
+                k in selection_dict %} checked disabled {% endif %}>
+              <a href="/download/{{dir_i.f_url}}">
+                <img class="border-0 pe-1" src='{{dir_i.image}}' style="height:1.2em; vertical-align: text-bottom;" />
+                {{dir_i.f_name}}
+              </a>
+            </span>
+            <span class="col-3">{{dir_i.dtc}}</span>
+            <span class="col-3">{{dir_i.dtm}}</span>
+            <span class="col-1">{{dir_i.size}}</span>
+          </div>
+          {% endfor %}
+        </div>
+        <hr class="my-2">
+      </div>
+      <button type="submit" class="btn btn-success" name="action" value="update">Add to Dataset</button>
+    </div>
+  </div>
+</form>
+<!-- Selection Panel -->
+<form method="post" class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h5 class="d-inline">Annotate your Dataset</h5>
+    </div>
+    <div class="card-body">Next, add metadata to the files you selected.
+      Start with providing a name for your dataset.
+      Next, add metadata to each file individually, as groups, or all at once.
+      </p>
+      <div class="row mb-1">
+        <div class="col-auto">
+          <label for="dataset_name" class="form-label"><b>Dataset Name</b></label>
+        </div>
+        <div class="col-auto">
+          <input class="form-input" type="text" id="dataset_name" name="dataset_name">
+        </div>
+      </div>
+      <div id="selection_container">
+        <div class="row mb-1">
+          <div class="col-auto">
+            <label for="selection[]" class="form-label"><b>Dataset Files</b></label>
+          </div>
+        </div>
+        <hr class="my-2">
+        <div class="row">
+          <span class="col-5">
+            <input class="form-check-input me-2" type="checkbox" id="chk-selection-select-all">
+            <b>Name</b>
+          </span>
+          <span class="col-6"><b>Location</b></span>
+          <span class="col-1"><b>Size</b></span>
+        </div>
+        <hr class="my-2">
+        <div class="file-container">
+          {% for k,dir_i in selection_dict.items() %}
+          <div class="row my-1" title="{{dir_i.f_name}}">
+            <span class="col-5">
+              <input class="form-check-input me-2" data-curator-selection-check type="checkbox" name="selection[]"
+                value="{{k}}">
+              <a href="/download/{{dir_i.f_url}}">
+                <img class="border-0 pe-1" src='{{dir_i.image}}' style="height:1.2em; vertical-align: text-bottom;" />
+                {{dir_i.f_name}}
+              </a>
+            </span>
+            <span class="col-6 overflow-ellipsis">/{{'/'.join(dir_i.f_url.split('/')[:-1])}}</span>
+            <span class="col-1 overflow-ellipsis">{{dir_i.size}}</span>
+          </div>
+          {% endfor %}
+        </div>
+        <hr class="my-2">
+        <button type="button" class="btn btn-success mb-3" name="action" value="reset">Run Pattern (File Name)</button>
+        <button type="button" class="btn btn-success mb-3" name="action" value="reset">Run Pattern (Folder Name)</button>
+        <button type="submit" class="btn btn-danger mb-3" name="action" value="reset">Reset Selection</button>
+      </div>
+</form>
+{% endblock content %}
+{% block scripts %}
+<script>
+  const allSelector = document.getElementById("chk-select-all");
+  const selectionAllSelector = document.getElementById("chk-selection-select-all");
+  const allQuery = "[data-curator-check]:not([disabled])";
+  const selectionAllQuery = "[data-curator-selection-check]:not([disabled])";
+
+  allSelector.addEventListener('click', function () {
+    document.querySelectorAll(allQuery).forEach(e => {
+      e.checked = allSelector.checked;
+    })
+  })
+  document.querySelectorAll(allQuery).forEach(e => {
+    e.addEventListener('change', function () {
+      let checked = true;
+      document.querySelectorAll(allQuery).forEach(e => checked = checked && e.checked);
+      allSelector.checked = checked;
+    })
+  })
+  selectionAllSelector.addEventListener('click', function () {
+    document.querySelectorAll(selectionAllQuery).forEach(e => {
+      e.checked = selectionAllSelector.checked;
+    })
+  })
+  document.querySelectorAll(selectionAllQuery).forEach(e => {
+    e.addEventListener('change', function () {
+      let checked = true;
+      document.querySelectorAll(selectionAllQuery).forEach(e => checked = checked && e.checked);
+      selectionAllSelector.checked = checked;
+    })
+  })
+</script>
+{% endblock %}
