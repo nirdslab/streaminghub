@@ -150,42 +150,40 @@
           {% endfor %}
         </div>
         <hr class="my-2">
-        <button type="button" class="btn btn-success mb-3" name="action" value="reset">Run Pattern (File Name)</button>
-        <button type="button" class="btn btn-success mb-3" name="action" value="reset">Run Pattern (Folder Name)</button>
+        <button type="button" class="btn btn-success mb-3" name="action" value="reset">Run Pattern (on Name)</button>
+        <button type="button" class="btn btn-success mb-3" name="action" value="reset">Run Pattern (on Location)</button>
         <button type="submit" class="btn btn-danger mb-3" name="action" value="reset">Reset Selection</button>
       </div>
 </form>
 {% endblock content %}
 {% block scripts %}
 <script>
-  const allSelector = document.getElementById("chk-select-all");
-  const selectionAllSelector = document.getElementById("chk-selection-select-all");
   const allQuery = "[data-curator-check]:not([disabled])";
   const selectionAllQuery = "[data-curator-selection-check]:not([disabled])";
 
-  allSelector.addEventListener('click', function () {
+  document.getElementById("chk-select-all").addEventListener('change', function () {
     document.querySelectorAll(allQuery).forEach(e => {
-      e.checked = allSelector.checked;
+      e.checked = document.getElementById("chk-select-all").checked;
     })
   })
   document.querySelectorAll(allQuery).forEach(e => {
     e.addEventListener('change', function () {
       let checked = true;
       document.querySelectorAll(allQuery).forEach(e => checked = checked && e.checked);
-      allSelector.checked = checked;
+      document.getElementById("chk-select-all").checked = checked;
     })
   })
-  selectionAllSelector.addEventListener('click', function () {
+  document.getElementById("chk-selection-select-all").addEventListener('change', function () {
     document.querySelectorAll(selectionAllQuery).forEach(e => {
-      e.checked = selectionAllSelector.checked;
+      e.checked = document.getElementById("chk-selection-select-all").checked;
     })
   })
   document.querySelectorAll(selectionAllQuery).forEach(e => {
     e.addEventListener('change', function () {
       let checked = true;
       document.querySelectorAll(selectionAllQuery).forEach(e => checked = checked && e.checked);
-      selectionAllSelector.checked = checked;
+      document.getElementById("chk-selection-select-all").checked = checked;
     })
   })
 </script>
-{% endblock %}
+{% endblock scripts %}

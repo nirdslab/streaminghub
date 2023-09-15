@@ -121,7 +121,7 @@ def filePage(var: str = ""):
                 session["selection"] = state
             else:
                 session["selection"] = patch
-            config.app.logger.info(f"updated selection")
+            config.app.logger.info(f"updated selection: {len(patch)} selected")
         if action == "reset":
             session["selection"] = {}
         return redirect("/files/" + var)

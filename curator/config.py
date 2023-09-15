@@ -4,8 +4,8 @@ import socket
 from pathlib import Path
 import os
 from flask import Flask
+from flask_session import Session
 from flask_fontawesome import FontAwesome
-
 
 class Config:
     def __init__(self):
@@ -15,6 +15,8 @@ class Config:
         # define app
         self.app = Flask(__name__)
         self.app.secret_key = os.urandom(32)
+        self.app.config['SESSION_TYPE'] = "filesystem"
+        Session(self.app)
         self.app.logger.setLevel(logging.INFO)
         self.app.logger.info("Your Computer Name is: " + self.hostname)
         self.app.logger.info("Your Computer IP Address is: " + self.IPAddr)
