@@ -112,6 +112,7 @@ def filePage(var: str = ""):
     if request.method == "POST":
         action = request.form.get("action")
         assert action is not None
+        # update selection
         if action == "update":
             paths = request.form.getlist("selection[]")
             patch = {k: uri_to_dict(k, config) for k in paths}
@@ -121,9 +122,32 @@ def filePage(var: str = ""):
                 session["selection"] = state
             else:
                 session["selection"] = patch
-            config.app.logger.info(f"updated selection: {len(patch)} selected")
+            config.app.logger.info(f"updated selection: {len(paths)} added")
+        # remove items from selection
+        if action == "remove":
+            paths = request.form.getlist("selection[]")
+            if "selection" in session:
+                state = dict(session["selection"])
+                for path in paths:
+                    state.pop(path, None)
+                session["selection"] = state
+            else:
+                abort(500)
+            config.app.logger.info(f"updated selection: {len(paths)} removed")
+        # reset selection
         if action == "reset":
             session["selection"] = {}
+        # run pattern on file name
+        if action == "name_pattern":
+            pattern = request.form.get("name_pattern")
+            paths = request.form.getlist("selection[]")
+            config.app.logger.info(f"name pattern: {pattern}, {len(paths)} selected")
+            pass
+        # run pattern on file path
+        if action == "path_pattern":
+            pattern = request.form.get("path_pattern")
+            paths = request.form.getlist("selection[]")
+            config.app.logger.info(f"path pattern: {pattern}, {len(paths)} selected")
         return redirect("/files/" + var)
     return render_template(
         "home.html",

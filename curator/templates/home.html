@@ -93,7 +93,7 @@
           </div>
           {% endfor %}
         </div>
-        <hr class="my-2">
+        <hr class="mt-2">
       </div>
       <button type="submit" class="btn btn-success" name="action" value="update">Add to Dataset</button>
     </div>
@@ -109,27 +109,25 @@
       Start with providing a name for your dataset.
       Next, add metadata to each file individually, as groups, or all at once.
       </p>
-      <div class="row mb-1">
-        <div class="col-auto">
+      <div class="row">
+        <div class="form-group mb-3">
           <label for="dataset_name" class="form-label"><b>Dataset Name</b></label>
-        </div>
-        <div class="col-auto">
-          <input class="form-input" type="text" id="dataset_name" name="dataset_name">
+          <input class="form-control" type="text" id="dataset_name" name="dataset_name" placeholder="Enter a Name">
         </div>
       </div>
       <div id="selection_container">
-        <div class="row mb-1">
+        <div class="row">
           <div class="col-auto">
-            <label for="selection[]" class="form-label"><b>Dataset Files</b></label>
+            <label for="selection[]" class="form-label"><b>Files and Metadata</b></label>
           </div>
         </div>
-        <hr class="my-2">
+        <hr class="mt-0 mb-1">
         <div class="row">
           <span class="col-5">
             <input class="form-check-input me-2" type="checkbox" id="chk-selection-select-all">
             <b>Name</b>
           </span>
-          <span class="col-6"><b>Location</b></span>
+          <span class="col-6"><b>Path</b></span>
           <span class="col-1"><b>Size</b></span>
         </div>
         <hr class="my-2">
@@ -150,9 +148,18 @@
           {% endfor %}
         </div>
         <hr class="my-2">
-        <button type="button" class="btn btn-success mb-3" name="action" value="reset">Run Pattern (on Name)</button>
-        <button type="button" class="btn btn-success mb-3" name="action" value="reset">Run Pattern (on Location)</button>
-        <button type="submit" class="btn btn-danger mb-3" name="action" value="reset">Reset Selection</button>
+        <div class="input-group mt-2">
+          <input class="form-control" type="text" name="name_pattern" placeholder="Name Pattern - e.g., 'S{id}_T{task}.csv'">
+          <button type="submit" class="btn btn-success" name="action" value="name_pattern">Execute</button>
+        </div>
+        <div class="input-group mt-2">
+          <input class="form-control" type="text" name="path_pattern" placeholder="Path Pattern - e.g.,'/sub-{id}/ses-{noise}'">
+          <button type="submit" class="btn btn-success" name="action" value="path_pattern">Execute</button>
+        </div>
+        <div class="mt-2">
+          <button type="submit" class="btn btn-warning" name="action" value="remove">Remove Selected Files</button>
+          <button type="submit" class="btn btn-warning" name="action" value="reset">Remove All Files</button>
+        </div>
       </div>
 </form>
 {% endblock content %}
