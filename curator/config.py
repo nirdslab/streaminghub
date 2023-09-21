@@ -3,9 +3,11 @@ import logging
 import socket
 from pathlib import Path
 import os
+import platform
 from flask import Flask
 from flask_session import Session
 from flask_fontawesome import FontAwesome
+
 
 class Config:
     def __init__(self):
@@ -15,7 +17,7 @@ class Config:
         # define app
         self.app = Flask(__name__)
         self.app.secret_key = os.urandom(32)
-        self.app.config['SESSION_TYPE'] = "filesystem"
+        self.app.config["SESSION_TYPE"] = "filesystem"
         Session(self.app)
         self.app.logger.setLevel(logging.INFO)
         self.app.logger.info("Your Computer Name is: " + self.hostname)
@@ -23,13 +25,16 @@ class Config:
         # FoNT AWESOME
         self.fa = FontAwesome(self.app)
         # Config file
-        config_fp = Path(__file__).with_name("config.json")
+        fname = "config.json"
+        if platform.system()  == "Windows":
+            fname = "config_win.json" 
+        config_fp = Path(__file__).with_name(fname)
         with open(config_fp) as json_data_file:
             data = json.load(json_data_file)
-        self.hidden_list: list[str] = data["Hidden"]
-        self.pwdHash: str = data["pwdHash"]
-        self.base_dir = Path(data["rootDir"]).resolve()
-        self.temp_dir = Path(data["tempDir"]).resolve()
+        self.hidden_list: list[str] = data["hidden"]
+        self.pwd_hash: str = data["pwd_hash"]
+        self.base_dir = Path(data["base_dir"]).resolve()
+        self.temp_dir = Path(data["temp_dir"]).resolve()
         self.temp_dir.mkdir(exist_ok=True)
         # supported file types dict
         tp_dict_fp = Path(__file__).with_name("tp_dict.json")

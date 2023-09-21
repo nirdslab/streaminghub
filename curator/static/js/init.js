@@ -1,5 +1,5 @@
 document.getElementById("uploadButton").addEventListener("click", function () {
-    document.getElementById('uploadForm').style.display = "block";
+    document.getElementById('uploadForm').style.display = "flex";
     document.getElementById('uploadButton').style.display = "none";
 });
 document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(t => new bootstrap.Tooltip(t));

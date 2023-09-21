@@ -38,7 +38,7 @@ def after_request(response: Response) -> Response:
 @config.app.route("/login/")
 @config.app.route("/login/<path:var>")
 def loginMethod(var: str = ""):
-    if config.pwdHash == "":
+    if config.pwd_hash == "":
         session["login"] = True
     if "login" in session:
         return redirect("/" + var)
@@ -50,7 +50,7 @@ def loginMethod(var: str = ""):
 @config.app.route("/login/<path:var>", methods=["POST"])
 def loginPost(var: str = ""):
     text = request.form["text"]
-    if text == config.pwdHash:
+    if text == config.pwd_hash:
         session["login"] = True
         return redirect("/" + var)
     else:
