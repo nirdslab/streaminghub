@@ -49,51 +49,51 @@
         <hr class="my-2">
       </div>
       <div id="view1_container" {% if view_id==0 %} style="display: none;" {% endif %}>
-        <hr class="my-2">
-        <div class="row">
-          <span class="col-5">
-            <input class="form-check-input" type="checkbox" id="chk-select-all">
-            <b>Name</b>
-          </span>
-          <span class="col-3"><b>Created</b></span>
-          <span class="col-3"><b>Last Modified</b></span>
-          <span class="col-1"><b>Size</b></span>
+        <hr class="mt-2 mb-0">
+        <div class="file-container table-responsive">
+          <table class="table table-sm table-hover">
+            <thead>
+              <tr>
+                <th><input class="form-check-input me-2" type="checkbox" id="chk-select-all">Name</th>
+                <th>Created</th>
+                <th>Modified</th>
+                <th>Size</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for k,dir_i in dir_dict.items() %}
+              <tr title="{{dir_i.f_name}}">
+                <td>
+                  <a href="/files/{{dir_i.f_url}}">
+                    <img class="border-0 pe-1" src='{{dir_i.image}}'
+                      style="height:1.2em; vertical-align: text-bottom;" />
+                    {{dir_i.f_name}}
+                  </a>
+                </td>
+                <td>{{dir_i.dtc}}</td>
+                <td>{{dir_i.dtm}}</td>
+                <td>{{dir_i.size}}</td>
+              </tr>
+              {% endfor %}
+              {% for k,dir_i in file_dict.items() %}
+              <tr title="{{dir_i.f_name}}">
+                <td>
+                  <input class="form-check-input" data-curator-check type="checkbox" name="selection[]" value="{{k}}" {%
+                    if k in selection_dict %} checked disabled {% endif %}>
+                  <a href="/download/{{dir_i.f_url}}">
+                    <img class="border-0 pe-1" src='{{dir_i.image}}'
+                      style="height:1.2em; vertical-align: text-bottom;" />
+                    {{dir_i.f_name}}
+                  </a>
+                </td>
+                <td>{{dir_i.dtc}}</td>
+                <td>{{dir_i.dtm}}</td>
+                <td>{{dir_i.size}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
-        <hr class="my-2">
-        <div class="file-container">
-          {% for k,dir_i in dir_dict.items() %}
-          <div class="row my-1 hover" title="{{dir_i.f_name}}">
-            <span class="col-5">
-              <a href="/files/{{dir_i.f_url}}">
-                <img class="border-0 pe-1" src='{{dir_i.image}}' style="height:1.2em; vertical-align: text-bottom;" />
-                {{dir_i.f_name}}
-              </a>
-            </span>
-            <span class="col-3">{{dir_i.dtc}}</span>
-            <span class="col-3">{{dir_i.dtm}}</span>
-            <span class="col-1">{{dir_i.size}}</span>
-          </div>
-          {% endfor %}
-          {% if dir_dict|length > 0 and file_dict|length > 0 %}
-          <hr class="my-2">
-          {% endif %}
-          {% for k,dir_i in file_dict.items() %}
-          <div class="row my-1 hover" title="{{dir_i.f_name}}">
-            <span class="col-5">
-              <input class="form-check-input" data-curator-check type="checkbox" name="selection[]" value="{{k}}" {% if
-                k in selection_dict %} checked disabled {% endif %}>
-              <a href="/download/{{dir_i.f_url}}">
-                <img class="border-0 pe-1" src='{{dir_i.image}}' style="height:1.2em; vertical-align: text-bottom;" />
-                {{dir_i.f_name}}
-              </a>
-            </span>
-            <span class="col-3">{{dir_i.dtc}}</span>
-            <span class="col-3">{{dir_i.dtm}}</span>
-            <span class="col-1">{{dir_i.size}}</span>
-          </div>
-          {% endfor %}
-        </div>
-        <hr class="mt-2">
       </div>
       <button type="submit" class="btn btn-success" name="action" value="update">Add to Dataset</button>
     </div>
@@ -121,39 +121,46 @@
             <label for="selection[]" class="form-label"><b>Files and Metadata</b></label>
           </div>
         </div>
-        <hr class="mt-0 mb-1">
-        <div class="row">
-          <span class="col-5">
-            <input class="form-check-input me-2" type="checkbox" id="chk-selection-select-all">
-            <b>Name</b>
-          </span>
-          <span class="col-6"><b>Path</b></span>
-          <span class="col-1"><b>Size</b></span>
-        </div>
-        <hr class="my-2">
-        <div class="file-container">
-          {% for k,dir_i in selection_dict.items() %}
-          <div class="row my-1" title="{{dir_i.f_name}}">
-            <span class="col-5">
-              <input class="form-check-input me-2" data-curator-selection-check type="checkbox" name="selection[]"
-                value="{{k}}">
-              <a href="/download/{{dir_i.f_url}}">
-                <img class="border-0 pe-1" src='{{dir_i.image}}' style="height:1.2em; vertical-align: text-bottom;" />
-                {{dir_i.f_name}}
-              </a>
-            </span>
-            <span class="col-6 overflow-ellipsis">/{{'/'.join(dir_i.f_url.split('/')[:-1])}}</span>
-            <span class="col-1 overflow-ellipsis">{{dir_i.size}}</span>
-          </div>
-          {% endfor %}
+        <hr class="my-0">
+        <div class="file-container table-responsive">
+          <table class="table table-sm table-hover">
+            <thead>
+              <tr>
+                <th><input class="form-check-input me-2" type="checkbox" id="chk-selection-select-all">Name</th>
+                <th>Path</th>
+                <th>Size</th>
+                <th class="text-end">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for k,dir_i in selection_dict.items() %}
+              <tr title="{{dir_i.f_name}}">
+                <td>
+                  <input class="form-check-input" data-curator-selection-check type="checkbox" name="selection[]"
+                    value="{{k}}">
+                  <a href="/download/{{dir_i.f_url}}">
+                    <img class="border-0 pe-1" src='{{dir_i.image}}'
+                      style="height:1.2em; vertical-align: text-bottom;" />
+                    {{dir_i.f_name}}
+                  </a>
+                </td>
+                <td>/{{'/'.join(dir_i.f_url.split('/')[:-1])}}</td>
+                <td>{{dir_i.size}}</td>
+                <td class="text-end"><span class="btn btn-sm btn-danger ms-1">&times;</span></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
         <hr class="my-2">
         <div class="input-group mt-2">
-          <input class="form-control" type="text" name="name_pattern" placeholder="Name Pattern - e.g., 'S{id}_T{task}.csv'">
+          <input class="form-control" type="text" name="name_pattern"
+            placeholder="Name Pattern - e.g., 'S{id}_T{task}.csv'">
           <button type="submit" class="btn btn-success" name="action" value="name_pattern">Execute</button>
         </div>
         <div class="input-group mt-2">
-          <input class="form-control" type="text" name="path_pattern" placeholder="Path Pattern - e.g.,'/sub-{id}/ses-{noise}'">
+          <input class="form-control" type="text" name="path_pattern"
+            placeholder="Path Pattern - e.g.,'/sub-{id}/ses-{noise}'">
           <button type="submit" class="btn btn-success" name="action" value="path_pattern">Execute</button>
         </div>
         <div class="mt-2">

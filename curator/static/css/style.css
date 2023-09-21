@@ -58,5 +58,10 @@
 
 .file-container {
     max-height: 500px;
-    overflow: scroll;
+    overflow: auto;
+}
+
+.file-container th {
+    position: sticky;
+    top: 0;
 }
