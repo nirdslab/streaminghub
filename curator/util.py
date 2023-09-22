@@ -5,6 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from urllib.parse import unquote
 
+import parse
 from flask import Response, request
 from hurry.filesize import size
 
@@ -103,6 +104,7 @@ def dir_exists(path: str, config: Config) -> bool:
     fp = get_filepath(path, config)
     return fp.exists()
 
+
 def path_to_dict(i: Path, config: Config):
     f_name = i.name
     f_url = i.relative_to(config.base_dir).as_posix()
@@ -119,11 +121,13 @@ def path_to_dict(i: Path, config: Config):
     target = dict(f_name=f_name, f_url=f_url, image=image, dtc=dtc, dtm=dtm, size=sz)
     return target
 
+
 def uri_to_dict(var: str, config: Config):
     i = get_filepath(var, config)
     f_name = i.name
     f_url = i.relative_to(config.base_dir).as_posix()
     image = get_icon(i, config)
+    metadata = {}
     try:
         stat = i.stat()
         dtc = datetime.utcfromtimestamp(stat.st_ctime).strftime("%Y-%m-%d %H:%M:%S")
@@ -133,8 +137,9 @@ def uri_to_dict(var: str, config: Config):
         dtc = "---"
         dtm = "---"
         sz = "---"
-    target = dict(f_name=f_name, f_url=f_url, image=image, dtc=dtc, dtm=dtm, size=sz)
+    target = dict(f_name=f_name, f_url=f_url, image=image, dtc=dtc, dtm=dtm, size=sz, metadata=metadata)
     return target
+
 
 def get_dir_listing(path: Path, config: Config):
     assert path.is_dir()
@@ -149,3 +154,22 @@ def get_dir_listing(path: Path, config: Config):
             target[f_url] = path_to_dict(i, config)
 
     return dir_list_dict, file_list_dict
+
+
+def run_pattern(path: str, pattern: str, mode: str, config: Config) -> dict[str, str]:
+    assert mode in ["name_pattern", "path_pattern"]
+    parser = parse.compile(pattern)
+    path_obj = get_filepath(path, config)
+    if mode == "path_pattern":
+        arg = path_obj.parent.as_posix()
+    elif mode == "name_pattern":
+        arg = path_obj.name
+    else:
+        raise ValueError()
+    try:
+        result = parser.parse(arg)
+        assert isinstance(result, parse.Result)
+        metadata: dict[str, str] = dict(result.named)
+    except:
+        metadata = {}
+    return metadata

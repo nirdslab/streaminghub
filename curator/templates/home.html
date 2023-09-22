@@ -145,8 +145,8 @@
                   </div>
                   <div class="row ms-3 mt-1">
                     <div class="col-12 ms-3">
-                      {% for mk, mv in item.get('metadata',{}).items() %}
-                      <button type="button" class="btn btn-sm px-1 py-0 btn-secondary">{{mk}}: {{mv}}</button>
+                      {% for mk, mv in item['metadata'].items() %}
+                      <button type="button" class="btn btn-sm px-1 py-0 btn-success">{{mk}}: <b>{{mv}}</b></button>
                       {% endfor %}
                     </div>
                   </div>

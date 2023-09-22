@@ -3,7 +3,7 @@ from werkzeug.utils import secure_filename
 from urllib.parse import unquote
 
 from config import Config
-from util import get_dir_listing, get_filepath, is_hidden, is_media, make_zipfile, send_media, uri_to_dict
+import util
 
 config = Config()
 
@@ -87,14 +87,14 @@ def ensure_logged_in(redirect_path: str):
 @config.app.route("/files/", methods=["GET", "POST"])
 @config.app.route("/files/<path:var>", methods=["GET", "POST"])
 def filePage(var: str = ""):
-    path = get_filepath(var, config)
+    path = util.get_filepath(var, config)
     ensure_logged_in("/login/files/" + var)
     if not path.exists():
         abort(404)
     if not path.is_dir():
         abort(400)
     try:
-        dir_dict, file_dict = get_dir_listing(path, config)
+        dir_dict, file_dict = util.get_dir_listing(path, config)
         view_id = get_view_id()
     except:
         abort(500)
@@ -112,10 +112,11 @@ def filePage(var: str = ""):
     if request.method == "POST":
         action = request.form.get("action")
         assert action is not None
+
         # update selection
         if action == "update":
             paths = request.form.getlist("selection[]")
-            patch = {k: uri_to_dict(k, config) for k in paths}
+            patch = {k: util.uri_to_dict(k, config) for k in paths}
             if "selection" in session:
                 state = dict(session["selection"])
                 state.update(patch)
@@ -123,6 +124,7 @@ def filePage(var: str = ""):
             else:
                 session["selection"] = patch
             config.app.logger.info(f"updated selection: {len(paths)} added")
+
         # remove items from selection
         if action == "remove":
             paths = request.form.getlist("selection[]")
@@ -134,21 +136,31 @@ def filePage(var: str = ""):
             else:
                 abort(500)
             config.app.logger.info(f"updated selection: {len(paths)} removed")
+
         # reset selection
         if action == "reset":
             session["selection"] = {}
-        # run pattern on file name
-        if action == "name_pattern":
-            pattern = request.form.get("name_pattern")
+
+        # run pattern on file name or path name
+        if action in ["name_pattern", "path_pattern"]:
             paths = request.form.getlist("selection[]")
-            config.app.logger.info(f"name pattern: {pattern}, {len(paths)} selected")
-            pass
-        # run pattern on file path
-        if action == "path_pattern":
-            pattern = request.form.get("path_pattern")
-            paths = request.form.getlist("selection[]")
-            config.app.logger.info(f"path pattern: {pattern}, {len(paths)} selected")
+            pattern = request.form.get(action)
+            assert pattern is not None
+            patch = {}
+            for k in paths:
+                uri_dict = util.uri_to_dict(k, config)
+                new_meta = util.run_pattern(k, pattern, action, config)
+                assert type(uri_dict["metadata"]) == dict
+                uri_dict["metadata"].update(new_meta)
+                patch[k] = uri_dict
+            if "selection" in session:
+                state = dict(session["selection"])
+                state.update(patch)
+                session["selection"] = state
+            else:
+                session["selection"] = patch
         return redirect("/files/" + var)
+
     return render_template(
         "home.html",
         selection_dict=dict(session.get("selection", {})),
@@ -170,13 +182,13 @@ def homePage():
 def browseFile(var: str, browse: bool):
     if "login" not in session:
         return redirect("/login/download/" + var)
-    path = get_filepath(var, config)
+    path = util.get_filepath(var, config)
     try:
         if not browse:
             return send_file(path, download_name=path.name)
-        flag, tp, ext = is_media(path, config)
+        flag, tp, ext = util.is_media(path, config)
         if flag:
-            return send_media(path, f"{tp}/{ext}")
+            return util.send_media(path, f"{tp}/{ext}")
         return send_file(path)
     except:
         abort(404)
@@ -186,14 +198,14 @@ def browseFile(var: str, browse: bool):
 def downloadFolder(var: str):
     if "login" not in session:
         return redirect("/login/downloadFolder/" + var)
-    path = get_filepath(var, config)
+    path = util.get_filepath(var, config)
     assert path.is_dir()
-    if is_hidden(path, config):
+    if util.is_hidden(path, config):
         abort(403)
     zip_name = path.with_suffix(".zip").name
     zip_path = config.temp_dir / zip_name
     try:
-        make_zipfile(zip_path, path)
+        util.make_zipfile(zip_path, path)
         return send_file(zip_path, download_name=zip_name)
     except:
         abort(500)
@@ -205,9 +217,9 @@ def uploadFile(var: str = ""):
     if "login" not in session:
         return render_template("login.html")
     text = ""
-    path = get_filepath(var, config)
+    path = util.get_filepath(var, config)
     assert path.is_dir()
-    if is_hidden(path, config):
+    if util.is_hidden(path, config):
         abort(403)
     files = request.files.getlist("files[]")
     num_total = len(files)
