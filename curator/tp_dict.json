@@ -47,7 +47,8 @@
     },
     "txt": {
         "exts": [
-            ".txt"
+            ".txt",
+            ".csv"
         ],
         "icon": "/static/icons/txt.png"
     },

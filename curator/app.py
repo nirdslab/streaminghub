@@ -100,11 +100,11 @@ def filePage(var: str = ""):
         abort(500)
 
     parts = var.strip("/").split("/")
-    path_html = '<a href="/files"><img src="/static/root.png" style="height:25px;width:25px;">&nbsp;</a>'
+    path_html = '<a class="text-link" href="/files"><img class="icon" src="/static/root.png"></a>'
     for c in range(len(parts)):
         p_url = "/".join(parts[0 : c + 1])
         p_name = unquote(parts[c])
-        path_html += f' / <a style="color:black;" href="/files/{p_url}">{p_name}</a>'
+        path_html += f'<span class="mx-1">/</span><a class="text-link" href="/files/{p_url}">{p_name}</a>'
     logged_in = "login" in session
 
     # if method is POST
