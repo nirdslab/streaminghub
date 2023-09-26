@@ -50,6 +50,7 @@ class DataMuxRemoteAPI:
     ):
         while self.active:
             topic, content = await self.codec_recv_sink.get()
+            self.logger.debug(f'incoming message: {topic}: {content}')
             self.logger.debug(topic, content)
             await self.handlers[topic].put(content)
 
@@ -58,6 +59,7 @@ class DataMuxRemoteAPI:
         topic: bytes,
         content: dict,
     ):
+        self.logger.debug(f'outgoing message: {topic}: {content}')
         await self.codec_send_source.put((topic, content))
         return self.handlers[topic]
 
@@ -67,8 +69,15 @@ class DataMuxRemoteAPI:
         server_port: int,
     ):
         self.active = True
+        self.codec.start()
         await self.rpc.connect(server_host, server_port)
         asyncio.create_task(self.__handle_incoming__())
+
+    async def disconnect(
+        self,
+    ):
+        self.active = False
+        self.codec.stop()
 
     async def list_live_streams(
         self,

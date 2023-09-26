@@ -91,7 +91,7 @@ class DataMuxServer:
             else:
                 retval = dict(error="Unknown Request")
 
-            return self.api_send_sink.put(retval)
+            await self.api_send_sink.put((topic, retval))
 
     async def start(
         self,
