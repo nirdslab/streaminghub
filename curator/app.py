@@ -10,22 +10,22 @@ config = Config()
 
 @config.app.errorhandler(400)
 def err_400(error):
-    return render_template("error.html", errorCode=400, errorText="Bad Request"), 400
+    return render_template("error.html", errorCode=400, errorText="Your made an invalid request."), 400
 
 
 @config.app.errorhandler(403)
 def err_403(error):
-    return render_template("error.html", errorCode=200, errorText="Permission Denied"), 403
+    return render_template("error.html", errorCode=403, errorText="The requested resource is forbidden."), 403
 
 
 @config.app.errorhandler(404)
 def err_404(error):
-    return render_template("error.html", errorCode=404, errorText="Resource Not Found"), 404
+    return render_template("error.html", errorCode=404, errorText="The requested resource does not exist."), 404
 
 
 @config.app.errorhandler(500)
 def err_500(error):
-    return render_template("error.html", errorCode=500, errorText="An Internal Error Occured"), 500
+    return render_template("error.html", errorCode=500, errorText="We ran into an internal problem"), 500
 
 
 @config.app.after_request
@@ -191,7 +191,7 @@ def browseFile(var: str, browse: bool):
             return util.send_media(path, f"{tp}/{ext}")
         return send_file(path)
     except:
-        abort(404)
+        abort(500)
 
 
 @config.app.route("/downloadFolder/<path:var>")

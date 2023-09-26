@@ -5,7 +5,7 @@ import logging
 
 from dotenv import load_dotenv
 
-from serving import WebsocketServer
+from datamux import DataMuxServer
 
 
 async def main():
@@ -15,8 +15,8 @@ async def main():
 
     host = "localhost"
     port = 3300
-    datamux = WebsocketServer(host, port, backend="avro")
-    await datamux.serve()
+    datamux = DataMuxServer(rpc_backend="websocket", serialization_backend="avro")
+    await datamux.start(host, port)
 
 
 if __name__ == "__main__":

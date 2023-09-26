@@ -93,7 +93,7 @@
           </table>
         </div>
       </div>
-      <button type="submit" class="btn btn-success" name="action" value="update">Add to Dataset</button>
+      <button type="submit" class="btn btn-sm btn-success mt-2" name="action" value="update">Add to Dataset</button>
     </div>
   </div>
 </form>
@@ -114,84 +114,101 @@
         </div>
       </div>
       <div id="selection_container">
-        <div class="row">
-          <div class="col-auto">
-            <label for="selection[]" class="form-label"><b>Files and Metadata</b></label>
+        <div class="row mb-1">
+          <div class="col d-flex align-items-stretch">
+            <label for="selection[]" class="form-label me-auto mb-0 mt-auto"><b>File-Level Metadata</b></label>
+            <button title="Reset" type="submit" class="btn btn-sm btn-warning mx-1" name="action" value="reset"><i
+                class="fa fa-undo"></i></button>
+            <button title="Remove Selection" type="submit" class="btn btn-sm btn-danger mx-1" name="action"
+              value="remove"><i class="fa fa-trash-alt"></i></button>
           </div>
         </div>
-        <hr class="my-0">
-        <div class="file-container table-responsive">
-          <table class="table table-sm table-hover">
-            <thead>
-              <tr>
-                <th><input class="form-check-input me-2" type="checkbox" id="chk-selection-select-all">File</th>
-                <th>Size</th>
-                <th class="text-end">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for k, item in selection_dict.items() %}
-              <tr title="{{item.f_name}}">
-                <td>
-                  <div class="row">
-                    <div class="col-12">
-                      <input class="form-check-input" data-curator-selection-check type="checkbox" name="selection[]"
-                        value="{{k}}">
-                      <a class="text-link" href="/download/{{item.f_url}}">
-                        <img class="icon" src='{{item.image}}' />
-                        <span class="text-secondary">/{{'/'.join(item.f_url.split('/')[:-1])}}/</span><b class="text-primary">{{item.f_name}}</b>
-                      </a>
-                    </div>
-                  </div>
-                  <div class="row ms-3 mt-1">
-                    <div class="col-12 ms-3">
-                      {% for mk, mv in item['metadata'].items() %}
-                      <button type="button" class="btn btn-sm px-1 py-0 btn-success">{{mk}}: <b>{{mv}}</b></button>
-                      {% endfor %}
-                    </div>
-                  </div>
-                </td>
-                <td>{{item.size}}</td>
-                <td class="text-end">
-                  <span title="Edit Metadata" data-bs-toggle="offcanvas" data-bs-target="#edit_metadata_panel" class="btn btn-sm btn-success ms-1"><i class="fa fa-feather-alt"></i></span>
-                  <span title="Remove File" class="btn btn-sm btn-danger ms-1"><i class="fa fa-trash-alt"></i></span>
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        <hr class="my-2">
         <div class="row">
-          <div class="col-auto">
-            <label for="selection[]" class="form-label"><b>Pattern Match</b></label>
+          <div class="col me-1">
+            <div class="input-group input-group-sm mb-2">
+              <span class="input-group-text" style="width: 7rem;"><b>Name Pattern</b></span>
+              <input class="form-control" type="text" name="name_pattern" placeholder="e.g., 'S{id}_T{task}.csv'">
+              <button title="Execute" type="submit" class="btn btn-success" name="action" value="name_pattern"><i
+                  class="fa fa-play"></i></button>
+            </div>
+            <div class="input-group input-group-sm mb-2">
+              <span class="input-group-text" style="width: 7rem;"><b>Path Pattern</b></span>
+              <input class="form-control" type="text" name="path_pattern" placeholder="e.g.,'/sub-{id}/ses-{noise}'">
+              <button title="Execute" type="submit" class="btn btn-success" name="action" value="path_pattern"><i
+                  class="fa fa-play"></i></button>
+            </div>
           </div>
-        </div>
-        <div class="input-group mt-2">
-          <span class="input-group-text" style="width: 8rem;"><b>Name Pattern</b></span>
-          <input class="form-control" type="text" name="name_pattern"
-            placeholder="e.g., 'S{id}_T{task}.csv'">
-          <button title="Execute" type="submit" class="btn btn-success" name="action" value="name_pattern"><i class="fa fa-play"></i></button>
-        </div>
-        <div class="input-group mt-2">
-          <span class="input-group-text" style="width: 8rem;"><b>Path Pattern</b></span>
-          <input class="form-control" type="text" name="path_pattern"
-            placeholder="e.g.,'/sub-{id}/ses-{noise}'">
-          <button title="Execute" type="submit" class="btn btn-success" name="action" value="path_pattern"><i class="fa fa-play"></i></button>
-        </div>
-        <div class="mt-2 text-end">
-          <button title="Remove Selection" type="submit" class="btn btn-warning" name="action" value="remove"><i class="fa fa-trash-alt"></i></button>
-          <button title="Reset" type="submit" class="btn btn-warning" name="action" value="reset"><i class="fa fa-undo"></i></button>
         </div>
       </div>
+      <hr class="my-0">
+      <div class="file-container table-responsive">
+        <table class="table table-sm table-hover">
+          <thead>
+            <tr>
+              <th><input class="form-check-input me-2" type="checkbox" id="chk-selection-select-all">File</th>
+              <th>Size</th>
+              <th class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for k, item in selection_dict.items() %}
+            <tr title="{{item.f_name}}">
+              <td>
+                <div class="row">
+                  <div class="col-12">
+                    <input class="form-check-input" data-curator-selection-check type="checkbox" name="selection[]"
+                      value="{{k}}">
+                    <a class="text-link" href="/download/{{item.f_url}}">
+                      <img class="icon" src='{{item.image}}' />
+                      <span class="text-secondary">/{{'/'.join(item.f_url.split('/')[:-1])}}/</span><b
+                        class="text-primary">{{item.f_name}}</b>
+                    </a>
+                  </div>
+                </div>
+                <div class="row ms-3 mt-1">
+                  <div class="col-12 ms-3">
+                    {% for mk, mv in item['metadata'].items() %}
+                    <button type="button" class="btn btn-sm px-1 py-0 btn-success">{{mk}}:&nbsp;<b>{{mv}}</b></button>
+                    {% endfor %}
+                  </div>
+                </div>
+              </td>
+              <td>{{item.size}}</td>
+              <td class="text-end">
+                <span onclick="updateEditPanel('{{k}}')" title="Edit Metadata" data-bs-toggle="offcanvas"
+                  data-bs-target="#edit_panel" class="btn btn-sm btn-success ms-1"><i
+                    class="fa fa-feather-alt"></i></span>
+                <span onclick="updateDeletePanel('{{k}}')" title="Delete Metadata" data-bs-toggle="offcanvas"
+                  data-bs-target="#delete_panel" class="btn btn-sm btn-danger ms-1"><i
+                    class="fa fa-trash-alt"></i></span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <hr class="my-2">
+    </div>
 </form>
-<div class="offcanvas offcanvas-bottom" tabindex="-1" id="edit_metadata_panel" aria-labelledby="panel_label">
+<div class="offcanvas offcanvas-bottom" tabindex="-1" id="edit_panel" aria-labelledby="panel_label">
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="panel_label">Offcanvas bottom</h5>
+    <h5 class="offcanvas-title" id="panel_label">Edit Metadata</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body small">
-    ...
+    <form id="edit_metadata_form">
+    </form>
+  </div>
+</div>
+<div class="offcanvas offcanvas-bottom" tabindex="-1" id="delete_panel" aria-labelledby="panel_label">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="panel_label">Delete File</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body small">
+    <form id="delete_metadata_form">
+
+    </form>
   </div>
 </div>
 {% endblock content %}
@@ -224,5 +241,24 @@
       document.getElementById("chk-selection-select-all").checked = checked;
     })
   })
+
+  async function getMetadata(arg) {
+    console.log(arg);
+    const res = await fetch('/metadata?' + new URLSearchParams({ name: arg }));
+    const msg = await res.json();
+    console.log(msg);
+    return msg;
+  }
+
+  async function updateEditPanel(filename) {
+    const msg = await getMetadata(filename);
+    document.getElementById("edit_metadata_form").innerHTML = `<span>${msg}</span>`
+  }
+
+  async function updateDeletePanel(filename) {
+    const msg = await getMetadata(filename);
+    document.getElementById("edit_metadata_form").innerHTML = `<span>${msg}</span>`
+  }
+
 </script>
 {% endblock scripts %}

@@ -5,7 +5,7 @@ import logging
 
 from dotenv import load_dotenv
 
-from serving import WebsocketClient
+from datamux import DataMuxClientAPI
 
 
 async def main():
@@ -15,42 +15,16 @@ async def main():
     server_host = "localhost"
     server_port = 3300
 
-    client = WebsocketClient(server_host, server_port, backend="avro")
-    await client.connect()
+    client = DataMuxClientAPI(rpc_backend="websocket", serialization_backend="avro")
+    await client.connect(server_host, server_port)
 
-    collections = None
-    collection_streams = None
-    live_streams = None
+    collections = await client.list_collections()
+    print(collections)
+    await asyncio.sleep(5)
 
-    async def log_messages():
-
-        nonlocal collections
-        nonlocal collection_streams
-        nonlocal live_streams
-
-        while True:
-            payload = await client.recvmsg()
-            if payload is not None:
-                topic, content = payload
-                print(topic, content)
-                if topic == client.protocol.LIST_COLLECTIONS:
-                    collections = content["collections"]
-                if topic == client.protocol.LIST_COLLECTION_STREAMS:
-                    collection_streams = content["streams"]
-                if topic == client.protocol.LIST_LIVE_STREAMS:
-                    live_streams = content["streams"]
-            else:
-                print('payload=None')
-
-    task = asyncio.create_task(log_messages())
-
-    await client.sendmsg(*client.datamux.list_collections())
-    await asyncio.sleep(2)
-    assert collections
-
-    await client.sendmsg(*client.datamux.list_collection_streams("adhd_sin"))
-    await asyncio.sleep(2)
-    assert collection_streams
+    collection_streams = await client.list_collection_streams("adhd_sin")
+    print(collection_streams)
+    await asyncio.sleep(5)
 
     collection_name = "adhd_sin"
     stream_name = "Gaze"
@@ -66,20 +40,22 @@ async def main():
         }
     )
 
-    await client.sendmsg(*client.datamux.replay_collection_stream(collection_name, stream_name, attrs))
+    replay_hook = await client.replay_collection_stream(collection_name, stream_name, attrs)
+    print(replay_hook)
     await asyncio.sleep(10)
 
-    await client.sendmsg(*client.datamux.restream_collection_stream(collection_name, stream_name, attrs))
+    await client.restream_collection_stream(collection_name, stream_name, attrs)
     await asyncio.sleep(2)
 
-    await client.sendmsg(*client.datamux.list_live_streams())
+    live_streams = await client.list_live_streams()
     await asyncio.sleep(2)
+
     assert live_streams
     live_stream = live_streams[0]
+    ls_name = live_stream.name
+    ls_attrs = live_stream.attrs
 
-    ls_name = live_stream["name"]
-    ls_attrs = live_stream["attrs"]
-    await client.sendmsg(*client.datamux.relay_live_streams(ls_name, ls_attrs))
+    relay_hook = await client.relay_live_streams(ls_name, ls_attrs)
     await asyncio.sleep(10)
 
 
