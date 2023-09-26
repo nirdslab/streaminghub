@@ -3,15 +3,14 @@ import http
 import logging
 from typing import Optional, Tuple
 
-from websockets.client import WebSocketClientProtocol, connect
 from websockets.datastructures import Headers, HeadersLike
 from websockets.exceptions import ConnectionClosed
 from websockets.server import WebSocketServerProtocol, serve
 
-from . import RpcClient, RpcServer
+from . import RpcServer
 
 
-class WebsocketRpcServer(RpcServer):
+class WebsocketRPC(RpcServer):
     """
     WebSocket RPC server
 
@@ -28,30 +27,32 @@ class WebsocketRpcServer(RpcServer):
             send_source (asyncio.Queue) outgoing message queue
             recv_sink (asyncio.Queue) incoming message queue
         """
+        self.active = False
         self.send_source = send_source
         self.recv_sink = recv_sink
         self.logger = logging.getLogger(__name__)
 
-    async def send_loop(
+    async def __handle_outgoing__(
         self,
         websocket: WebSocketServerProtocol,
     ):
         """
-        Write content from queue into the websocket
+        Write message from queue into the websocket
 
         Args:
             websocket (WebSocketServerProtocol): websocket connection
 
         """
         while self.active and websocket.open:
-            content = await self.send_source.get()
-            if isinstance(content, bytes):
-                await websocket.send(content)
-            if isinstance(content, list):
-                for msg in content:
-                    await websocket.send(msg)
+            message = await self.send_source.get()
+            self.logger.debug(f"outgoing message: {message}")
+            if isinstance(message, bytes):
+                await websocket.send(message)
+            if isinstance(message, list):
+                for frame in message:
+                    await websocket.send(frame)
 
-    async def recv_loop(
+    async def __handle_incoming__(
         self,
         websocket: WebSocketServerProtocol,
     ):
@@ -70,21 +71,22 @@ class WebsocketRpcServer(RpcServer):
                 self.logger.info(f"client connection closed: {websocket.remote_address}")
                 break
             assert isinstance(message, bytes)
+            self.logger.debug(f"incoming message: {message}")
             await self.recv_sink.put(message)
 
-    async def handler(
+    async def __handle__(
         self,
         websocket: WebSocketServerProtocol,
     ):
         self.logger.info(f"client connected: {websocket.remote_address}")
-        send_task = asyncio.create_task(self.send_loop(websocket))
-        recv_task = asyncio.create_task(self.recv_loop(websocket))
-        done, pending = await asyncio.wait([send_task, recv_task])
+        task1 = asyncio.create_task(self.__handle_outgoing__(websocket))
+        task2 = asyncio.create_task(self.__handle_incoming__(websocket))
+        done, pending = await asyncio.wait([task1, task2])
         for task in pending:
             task.cancel()
         self.logger.info(f"client disconnected: {websocket.remote_address}")
 
-    async def middleware(
+    async def __intercept__(
         self,
         path: str,
         headers: Headers,
@@ -103,10 +105,10 @@ class WebsocketRpcServer(RpcServer):
     ):
         self.active = True
         self.server = await serve(
-            ws_handler=self.handler,
+            ws_handler=self.__handle__,
             host=host,
             port=port,
-            process_request=self.middleware,
+            process_request=self.__intercept__,
         )
 
     async def stop(
@@ -114,56 +116,3 @@ class WebsocketRpcServer(RpcServer):
     ):
         self.active = False
         self.server.close()
-
-
-class WebsocketRpcClient(RpcClient):
-    """
-    WebSocket RPC Client
-
-    """
-
-    def __init__(
-        self,
-        send_source: asyncio.Queue,
-        recv_sink: asyncio.Queue,
-    ) -> None:
-        self.send_source = send_source
-        self.recv_sink = recv_sink
-        self.logger = logging.getLogger(__name__)
-
-    async def connect(
-        self,
-        server_host: str,
-        server_port: int,
-    ) -> None:
-        uri = f"ws://{server_host}:{server_port}/ws"
-        self.websocket = await connect(uri)
-        self.logger.info(f"Connected to WebSocket Server: {uri}")
-        assert self.websocket is not None
-        asyncio.create_task(self.send_loop(self.websocket))
-        asyncio.create_task(self.recv_loop(self.websocket))
-
-    async def disconnect(
-        self,
-    ):
-        await asyncio.create_task(self.websocket.close())
-
-    async def send_loop(
-        self,
-        websocket: WebSocketClientProtocol,
-    ):
-        while websocket.open:
-            message = await self.send_source.get()
-            if isinstance(message, bytes):
-                await self.websocket.send(message)
-            else:
-                for msg in message:
-                    await self.websocket.send(msg)
-
-    async def recv_loop(
-        self,
-        websocket: WebSocketClientProtocol,
-    ):
-        while websocket.open:
-            recvmsg = await self.websocket.recv()
-            await self.recv_sink.put(recvmsg)

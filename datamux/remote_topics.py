@@ -1,0 +1,6 @@
+TOPIC_LIST_LIVE_STREAMS: bytes = b"list_live_streams"
+TOPIC_RELAY_LIVE_STREAM: bytes = b"relay_live_stream"
+TOPIC_LIST_COLLECTIONS: bytes = b"list_collections"
+TOPIC_LIST_COLLECTION_STREAMS: bytes = b"list_collection_streams"
+TOPIC_REPLAY_COLLECTION_STREAM: bytes = b"replay_collection_stream"
+TOPIC_RESTREAM_COLLECTION_STREAM: bytes = b"restream_collection_stream"
