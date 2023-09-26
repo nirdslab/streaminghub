@@ -19,7 +19,7 @@ def create_outlet(
     logger = logging.getLogger(__name__)
     assert stream.node is not None, "The stream has no information about its source!"
     source: Node = stream.node
-    source_id = str(hash(source.json()))
+    source_id = str(hash(source.model_dump_json()))
 
     info = pylsl.StreamInfo(
         source_id=source_id,

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "streaminghub-pydfds"
-version = "0.1.28"
+version = "0.1.29"
 authors = [{ name = "Yasith Jayawardana", email = "yasith@cs.odu.edu" }]
 description = "Parser for Data Flow Description Schema (DFDS) metadata"
 readme = "README.md"
@@ -32,7 +32,7 @@ homepage = "https://github.com/nirdslab/streaminghub/tree/master/pydfds"
 dev = ["black", "build", "twine", "bumpver", "isort", "pip-tools", "pytest"]
 
 [tool.bumpver]
-current_version = "0.1.28"
+current_version = "0.1.29"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump pydfds version {old_version} -> {new_version}"
 tag_message = "{new_version}"
