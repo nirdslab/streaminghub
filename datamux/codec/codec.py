@@ -1,6 +1,6 @@
 import asyncio
 from abc import ABC, abstractmethod
-from logging import getLogger
+import logging
 from typing import Tuple
 
 
@@ -21,7 +21,7 @@ class Codec(ABC):
         self.send_sink = send_sink
         self.recv_source = recv_source
         self.recv_sink = recv_sink
-        self.logger = getLogger(__name__)
+        self.logger = logging.getLogger(__name__)
         self.active = False
 
     @abstractmethod
@@ -44,7 +44,7 @@ class Codec(ABC):
     ):
         while self.active:
             topic, content = await self.send_source.get()
-            self.logger.warn(topic)
+            self.logger.debug(topic)
             message = self.encode(topic, content)
             await self.send_sink.put(message)
 
@@ -56,7 +56,7 @@ class Codec(ABC):
             decoded_message = self.decode(message)
             if decoded_message:
                 topic, content = decoded_message
-                self.logger.warn(topic)
+                self.logger.debug(topic)
                 await self.recv_sink.put((topic, content))
 
     def start(

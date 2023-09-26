@@ -88,9 +88,8 @@ class DataMuxRemoteAPI:
         """
         topic = TOPIC_LIST_LIVE_STREAMS
         content: dict[str, str] = {}
-        qresult = await self.__send_await__(topic, content)
-        self.logger.debug(qresult)
-        streams = await qresult.get()
+        result = await self.__send_await__(topic, content)
+        streams = await result.get()
         return streams
 
     async def relay_live_streams(
@@ -104,8 +103,10 @@ class DataMuxRemoteAPI:
         """
         topic = TOPIC_RELAY_LIVE_STREAM
         content = dict(stream_name=stream_name, attrs=attrs)
-        qstream = await self.__send_await__(topic, content)
-        return qstream
+        result = await self.__send_await__(topic, content)
+        info = await result.get()
+        stream_topic = f"data_{info['collection_name']}_{info['stream_name']}_{info['randseq']}".encode()
+        return self.handlers[stream_topic]
 
     async def list_collections(
         self,
@@ -116,8 +117,8 @@ class DataMuxRemoteAPI:
         """
         topic = TOPIC_LIST_COLLECTIONS
         content: dict[str, str] = {}
-        qresult = await self.__send_await__(topic, content)
-        collections = await qresult.get()
+        result = await self.__send_await__(topic, content)
+        collections = await result.get()
         return collections
 
     async def list_collection_streams(
@@ -130,8 +131,8 @@ class DataMuxRemoteAPI:
         """
         topic = TOPIC_LIST_COLLECTION_STREAMS
         content = dict(collection_name=collection_name)
-        qresult = await self.__send_await__(topic, content)
-        streams = await qresult.get()
+        result = await self.__send_await__(topic, content)
+        streams = await result.get()
         return streams
 
     async def replay_collection_stream(
@@ -145,13 +146,15 @@ class DataMuxRemoteAPI:
 
         """
         topic = TOPIC_REPLAY_COLLECTION_STREAM
-        query = dict(
+        content = dict(
             collection_name=collection_name,
             stream_name=stream_name,
             attrs=attrs,
         )
-        qstream = await self.__send_await__(topic, query)
-        return qstream
+        result = await self.__send_await__(topic, content)
+        info = await result.get()
+        stream_topic = f"data_{info['collection_name']}_{info['stream_name']}_{info['randseq']}".encode()
+        return self.handlers[stream_topic]
 
     async def restream_collection_stream(
         self,
