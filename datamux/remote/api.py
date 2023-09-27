@@ -217,7 +217,7 @@ class DataMuxRemoteAPI:
         streams = [Stream(**item) for item in items]
         return streams
 
-    async def read_live_streams(
+    async def read_live_stream(
         self,
         stream_name: str,
         attrs: dict,

@@ -1,17 +1,14 @@
 import asyncio
 import logging
 import random
-from typing import List
+from pathlib import Path
 
 import pylsl
 from dfds import Parser
 from dfds.typing import Collection, Stream
 
 from . import Reader
-from pathlib import Path
 from .util import stream_to_stream_info
-
-logger = logging.getLogger()
 
 
 # TODO change restreaming from pointwise to groupwise
@@ -34,11 +31,12 @@ class CollectionReader(Reader):
     """
 
     __parser = Parser()
-    __collections: List[Collection] = []
+    __collections: list[Collection] = []
+    logger = logging.getLogger(__name__)
 
     def list_collections(
         self,
-    ) -> List[Collection]:
+    ) -> list[Collection]:
         return self.__collections
 
     def refresh_collections(
@@ -52,7 +50,7 @@ class CollectionReader(Reader):
     def list_streams(
         self,
         collection_name: str,
-    ) -> List[Stream]:
+    ) -> list[Stream]:
         collection = [c for c in self.__collections if c.name == collection_name][0]
         streams = []
         dataloader = collection.dataloader()
@@ -113,13 +111,13 @@ class CollectionReader(Reader):
         subtopic = randseq.encode()
 
         # replay each record
-        logger.info(f"started replay")
+        self.logger.info(f"started replay")
         for record in data:
             index = dict(zip(index_cols, record[index_cols].item()))
             value = dict(zip(value_cols, record[value_cols].item()))
             await queue.put((b"data_" + subtopic, dict(index=index, value=value)))
             await asyncio.sleep(dt)
-        logger.info(f"ended replay")
+        self.logger.info(f"ended replay")
 
     async def __restream_coro(
         self,
@@ -142,7 +140,7 @@ class CollectionReader(Reader):
         current_index = 0
 
         # restream each record
-        logger.info(f"started restream: dt={dt:.4f}, n={num_samples}")
+        self.logger.info(f"started restream: dt={dt:.4f}, n={num_samples}")
         while current_index < num_samples:
             index = data[current_index][index_cols]
             value = data[current_index][value_cols]
@@ -151,4 +149,4 @@ class CollectionReader(Reader):
                 outlet.push_sample(value.tolist(), index[0])
                 current_index += 1
             await asyncio.sleep(dt)
-        logger.info(f"ended restream")
+        self.logger.info(f"ended restream")

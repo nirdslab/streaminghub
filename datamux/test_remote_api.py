@@ -48,22 +48,27 @@ async def main():
         item = await sink.get()
         logger.info(item)
 
-    # # test 4 - make LSL stream from a collection stream
-    # logger.info("creating LSL stream")
-    # await api.restream_collection_stream(collection_name, stream_name, attrs)
-    # logger.info("created LSL stream")
+    # test 4 - make LSL stream from a collection stream
+    logger.info("creating LSL stream")
+    ack = await api.publish_collection_stream(collection_name, stream_name, attrs)
+    logger.info(f"created LSL stream: {ack}")
 
-    # # test 5 - list all LSL streams
-    # logger.info("listing LSL streams")
-    # live_streams = await api.list_live_streams()
-    # logger.info(f"got LSL streams: {live_streams}")
+    # test 5 - list all LSL streams
+    logger.info("listing LSL streams")
+    live_streams = await api.list_live_streams()
+    logger.info(f"got LSL streams: {live_streams}")
 
-    # # test 6 - relay LSL stream
-    # logger.info("relaying LSL stream")
-    # assert len(live_streams) > 0
-    # ls = live_streams[0]
-    # relay_hook = await api.relay_live_streams(ls.name, ls.attrs)
-    # logger.info("received relay hook for LSL stream")
+    # test 6 - relay LSL stream
+    logger.info("relaying LSL stream")
+    assert len(live_streams) > 0
+    ls = live_streams[0]
+    sink = asyncio.Queue()
+    ack = await api.read_live_stream(ls.name, ls.attrs, sink)
+    logger.info(f"received ack for live stream: {ack}")
+    # print 25 points
+    for _ in range(25):
+        item = await sink.get()
+        logger.info(item)
 
 
 if __name__ == "__main__":
