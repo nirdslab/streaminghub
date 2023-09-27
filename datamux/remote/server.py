@@ -3,7 +3,8 @@ import asyncio
 from api import DataMuxAPI
 from codec import create_codec
 from rpc import create_rpc_server
-from remote_topics import *
+
+from .topics import *
 
 
 class DataMuxServer:
@@ -56,37 +57,38 @@ class DataMuxServer:
             topic, content = await self.api_recv_source.get()
             # LIVE MODE (LSL -> Queue) =================================================================================================
             if topic == TOPIC_LIST_LIVE_STREAMS:
-                retval = self.api.list_live_streams()
-            elif topic == TOPIC_RELAY_LIVE_STREAM:
-                retval = self.api.relay_live_streams(
-                    content["stream_name"],
-                    content["attrs"],
-                    self.api_send_sink,
-                )
+                streams = self.api.list_live_streams()
+                retval = [s.model_dump() for s in streams]
+            elif topic == TOPIC_READ_LIVE_STREAM:
+                stream_name = content["stream_name"]
+                attrs = content["attrs"]
+                ack = self.api.read_live_stream(stream_name, attrs, self.api_send_sink)
+                retval = ack.model_dump()
             # REPLAY MODE (File -> Queue) ==============================================================================================
             elif topic == TOPIC_LIST_COLLECTIONS:
-                retval = self.api.list_collections()
+                collections = self.api.list_collections()
+                retval = [c.model_dump() for c in collections]
             elif topic == TOPIC_LIST_COLLECTION_STREAMS:
-                retval = self.api.list_collection_streams(
-                    content["collection_name"],
-                )
+                collection_name = content["collection_name"]
+                streams = self.api.list_collection_streams(collection_name)
+                retval = [s.model_dump() for s in streams]
             elif topic == TOPIC_REPLAY_COLLECTION_STREAM:
-                retval = self.api.replay_collection_stream(
-                    content["collection_name"],
-                    content["stream_name"],
-                    content["attrs"],
-                    self.api_send_sink,
-                )
-            # RESTREAM MODE (File -> LSL) ==============================================================================================
-            elif topic == TOPIC_RESTREAM_COLLECTION_STREAM:
                 collection_name = content["collection_name"]
                 stream_name = content["stream_name"]
                 attrs = content["attrs"]
-                retval = self.api.restream_collection_stream(
+                ack = self.api.replay_collection_stream(collection_name, stream_name, attrs, self.api_send_sink)
+                retval = ack.model_dump()
+            # RESTREAM MODE (File -> LSL) ==============================================================================================
+            elif topic == TOPIC_PUBLISH_COLLECTION_STREAM:
+                collection_name = content["collection_name"]
+                stream_name = content["stream_name"]
+                attrs = content["attrs"]
+                ack = self.api.publish_collection_stream(
                     collection_name,
                     stream_name,
                     attrs,
                 )
+                retval = ack.model_dump()
             # FALLBACK =================================================================================================================
             else:
                 retval = dict(error="Unknown Request")

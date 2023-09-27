@@ -96,7 +96,7 @@ class NodeReader(Reader):
         index_cols = list(stream.index)
         value_cols = list(stream.fields)
 
-        subtopic = f"relay_{stream.attrs.get('collection')}_{stream.name}_{randseq}".encode()
+        subtopic = randseq.encode()
 
         # relay each record
         logger.info("started relay")

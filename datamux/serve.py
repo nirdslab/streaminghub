@@ -5,7 +5,7 @@ import logging
 
 from dotenv import load_dotenv
 
-from remote_server import DataMuxServer
+from remote.server import DataMuxServer
 
 
 async def main():

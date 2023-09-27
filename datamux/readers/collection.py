@@ -110,7 +110,7 @@ class CollectionReader(Reader):
         attrs, data = collection.dataloader().read(stream.attrs)
         stream.attrs.update(attrs)
 
-        subtopic = f"{collection.name}_{stream.name}_{randseq}".encode()
+        subtopic = randseq.encode()
 
         # replay each record
         logger.info(f"started replay")

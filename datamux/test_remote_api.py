@@ -5,14 +5,14 @@ import logging
 
 from dotenv import load_dotenv
 
-from remote_api import DataMuxRemoteAPI
+from remote.api import DataMuxRemoteAPI
 
 
 async def main():
     server_host = "localhost"
     server_port = 3300
 
-    api = DataMuxRemoteAPI(rpc_backend="websocket", serialization_backend="avro")
+    api = DataMuxRemoteAPI(rpc_name="websocket", codec_name="avro")
     await api.connect(server_host, server_port)
 
     # test 1 - collections
@@ -40,11 +40,12 @@ async def main():
             "id": "gaze",
         }
     )
-    replay_hook = await api.replay_collection_stream(collection_name, stream_name, attrs)
-    logger.info("received replay hook for collection stream")
+    sink = asyncio.Queue()
+    ack = await api.replay_collection_stream(collection_name, stream_name, attrs, sink)
+    logger.info(f"received ack for collection stream: {ack}")
     # print 100 points
     for _ in range(100):
-        item = await replay_hook.get()
+        item = await sink.get()
         logger.info(item)
 
     # # test 4 - make LSL stream from a collection stream
