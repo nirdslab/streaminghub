@@ -1,15 +1,11 @@
 import asyncio
 import logging
-from collections import OrderedDict
-from typing import List
 
 import pylsl
 from dfds.typing import Stream
 
 from . import Reader
 from .util import stream_info_to_stream, stream_inlet_to_stream
-
-logger = logging.getLogger()
 
 
 class NodeReader(Reader):
@@ -26,7 +22,8 @@ class NodeReader(Reader):
 
     """
 
-    __streams: List[Stream] = []
+    __streams: list[Stream] = []
+    logger = logging.getLogger(__name__)
 
     def refresh_streams(
         self,
@@ -39,7 +36,7 @@ class NodeReader(Reader):
 
     def list_streams(
         self,
-    ) -> List[Stream]:
+    ) -> list[Stream]:
         return self.__streams
 
     def relay(
@@ -57,25 +54,25 @@ class NodeReader(Reader):
                 stream = s
         assert stream
         query = self.__create_query(stream)
-        logger.info("query: %s", query)
+        self.logger.info("query: %s", query)
 
         # get the LSL stream for the DFDS stream
         stream_infos = pylsl.resolve_bypred(query)
-        logger.info("found %d stream(s)", len(stream_infos))
+        self.logger.info("found %d stream(s)", len(stream_infos))
         assert len(stream_infos) == 1
         stream_info = stream_infos[0]
 
         # create task to live-stream data
-        logger.info("creating inlet")
+        self.logger.info("creating inlet")
         inlet = pylsl.StreamInlet(stream_info)
-        logger.info("creating relay task")
+        self.logger.info("creating relay task")
         return asyncio.create_task(self.__relay_coro(inlet, randseq, queue))
 
     def __create_query(
         self,
         stream: Stream,
     ) -> str:
-        query_args = OrderedDict({})
+        query_args = {}
         query_args["name"] = stream.name
         for k, v in stream.attrs.items():
             query_args[f"desc/attrs/{k}"] = v
@@ -96,15 +93,15 @@ class NodeReader(Reader):
         index_cols = list(stream.index)
         value_cols = list(stream.fields)
 
-        subtopic = f"relay_{stream.attrs.get('collection')}_{stream.name}_{randseq}".encode()
+        subtopic = randseq.encode()
 
         # relay each record
-        logger.info("started relay")
+        self.logger.info("started relay")
         while True:
             try:
                 (values, indices) = inlet.pull_chunk(timeout=0.0)
             except pylsl.LostError as e:
-                logger.info(f"LSL connection lost: {e}")
+                self.logger.info(f"LSL connection lost: {e}")
                 break
             if values is None or len(values) == 0:
                 await asyncio.sleep(1e-3)
@@ -114,4 +111,4 @@ class NodeReader(Reader):
                     index_dict = {index_cols[0]: index}
                     value_dict = dict(zip(value_cols, value))
                     await queue.put((b"data_" + subtopic, dict(index=index_dict, value=value_dict)))
-        logger.info("ended relay")
+        self.logger.info("ended relay")

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import itertools
-from collections import OrderedDict
 from typing import List, Optional, Tuple
 
 import h5py
@@ -59,17 +58,17 @@ class Stream(p.BaseModel):
     description: str
     unit: str
     frequency: float
-    fields: OrderedDict[str, Field]
-    index: OrderedDict[str, Field]
+    fields: dict[str, Field]
+    index: dict[str, Field]
     node: Optional[Node] = p.Field(alias="@node", default=None)
-    attrs: OrderedDict[str, str] = p.Field(default=OrderedDict())
+    attrs: dict[str, str] = p.Field(default=dict())
 
 
 class Node(p.BaseModel):
     device: Optional[Device] = p.Field(default=None)
     uri: Optional[str] = p.Field(default=None)
-    inputs: OrderedDict[str, Stream] = p.Field(default=OrderedDict())
-    outputs: OrderedDict[str, Stream] = p.Field(default=OrderedDict())
+    inputs: dict[str, Stream] = p.Field(default=dict())
+    outputs: dict[str, Stream] = p.Field(default=dict())
 
 
 Stream.model_rebuild()
@@ -91,8 +90,8 @@ class Collection(p.BaseModel):
     description: str
     keywords: List[str]
     authors: List[Author]
-    streams: OrderedDict[str, Stream]
-    groups: OrderedDict[str, Group]
+    streams: dict[str, Stream]
+    groups: dict[str, Group]
     pattern: str
 
     def iterate_groups(self):
@@ -100,7 +99,7 @@ class Collection(p.BaseModel):
         K = list(G.keys())
         V = list(G.values())
         group_iter = itertools.product(*V)
-        make_dict = lambda x: OrderedDict(zip(K, x))
+        make_dict = lambda x: dict(zip(K, x))
         odict_iter = map(make_dict, group_iter)
         return list(odict_iter)
 
@@ -132,12 +131,12 @@ class DataLoader:
 
     def ls(
         self,
-    ) -> List[OrderedDict[str, str]]:
+    ) -> List[dict[str, str]]:
         """
         Return the attributes of each record in the dataset
 
         Returns:
-            List[OrderedDict[str, str]]: attributes of each record
+            List[dict[str, str]]: attributes of each record
 
         """
         available = []
@@ -147,7 +146,7 @@ class DataLoader:
                     continue
                 result = self.__parser.parse(key)
                 assert isinstance(result, parse.Result)
-                attrs: OrderedDict[str, str] = OrderedDict(dataset.attrs.items())
+                attrs: dict[str, str] = dict(dataset.attrs.items())
                 attrs.update({"collection": self.__collection.name, **result.named})
                 available.append(attrs)
         return available

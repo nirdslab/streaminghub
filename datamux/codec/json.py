@@ -1,12 +1,13 @@
 import json
 import logging
 from typing import Tuple
-from .serializer import Serializer
+
+from .codec import Codec
 
 
-class JSONSerializer(Serializer):
+class JSONCodec(Codec):
     """
-    Serialization Utilty for DataMux
+    JSON Codec
 
     """
 

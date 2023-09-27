@@ -8,12 +8,12 @@ import avro.datafile
 import avro.io
 import avro.schema
 
-from .serializer import Serializer
+from .codec import Codec
 
 
-class AvroSerializer(Serializer):
+class AvroCodec(Codec):
     """
-    Serialization Utilty for DataMux
+    Avro Codec
 
     """
 
@@ -74,7 +74,7 @@ class AvroSerializer(Serializer):
                 nested_dict[root_k] = {}
             nested_dict[root_k][inner_k] = v
         return nested_dict
-    
+
     def __cache_schema(
         self,
         subtopic: bytes,
