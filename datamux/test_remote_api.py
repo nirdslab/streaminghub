@@ -43,8 +43,8 @@ async def main():
     sink = asyncio.Queue()
     ack = await api.replay_collection_stream(collection_name, stream_name, attrs, sink)
     logger.info(f"received ack for collection stream: {ack}")
-    # print 100 points
-    for _ in range(100):
+    # print 25 points
+    for _ in range(25):
         item = await sink.get()
         logger.info(item)
 
@@ -52,6 +52,7 @@ async def main():
     logger.info("creating LSL stream")
     ack = await api.publish_collection_stream(collection_name, stream_name, attrs)
     logger.info(f"created LSL stream: {ack}")
+    await asyncio.sleep(5)
 
     # test 5 - list all LSL streams
     logger.info("listing LSL streams")
