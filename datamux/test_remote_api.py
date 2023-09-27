@@ -52,6 +52,7 @@ async def main():
     logger.info("creating LSL stream")
     ack = await api.publish_collection_stream(collection_name, stream_name, attrs)
     logger.info(f"created LSL stream: {ack}")
+    await asyncio.sleep(5)
 
     # test 5 - list all LSL streams
     logger.info("listing LSL streams")
