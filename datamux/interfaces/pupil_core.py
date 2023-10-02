@@ -11,6 +11,7 @@ import pylsl
 import zmq
 import zmq.asyncio
 from PIL import Image
+from rich.logging import RichHandler
 
 from . import Interface
 
@@ -104,9 +105,7 @@ class Connector(Interface):
             gaze_conf = message["confidence"]
             # push to LSL stream if data point has acceptable confidence
             if gaze_conf > CONF_THRESHOLD:
-                self.get_outlet(topic[:10]).push_sample(
-                    [gaze_pos_x, gaze_pos_y, gaze_conf], ts
-                )
+                self.get_outlet(topic[:10]).push_sample([gaze_pos_x, gaze_pos_y, gaze_conf], ts)
         elif topic.startswith("fixations"):
             # decode message
             [fxn_pos_x, fxn_pos_y] = message["norm_pos"]
@@ -115,9 +114,7 @@ class Connector(Interface):
             fxn_conf = message["confidence"]
             # push to LSL stream if data point has acceptable confidence
             if fxn_conf > CONF_THRESHOLD:
-                self.get_outlet(topic[:9]).push_sample(
-                    [fxn_pos_x, fxn_pos_y, fxn_dispersion, fxn_d, fxn_conf], ts
-                )
+                self.get_outlet(topic[:9]).push_sample([fxn_pos_x, fxn_pos_y, fxn_dispersion, fxn_d, fxn_conf], ts)
         elif image is not None:
             # push image data to LSL stream
             [r, g, b] = image
@@ -138,11 +135,10 @@ class Connector(Interface):
                 image = None
                 # world camera
                 if topic.startswith("frame.world"):
-                    image = np.transpose(
-                        np.asarray(Image.open(io.BytesIO(extra[0])).convert("RGB"))
-                    )
+                    image = np.transpose(np.asarray(Image.open(io.BytesIO(extra[0])).convert("RGB")))
                 # payload
                 payload = msgpack.loads(payload)
+                assert type(payload) == dict
                 self.emit(topic, payload, image)
             except KeyboardInterrupt:
                 self.logger.debug("Received Interrupt. Stopping...")
@@ -151,7 +147,7 @@ class Connector(Interface):
 
 
 async def main():
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG, handlers=[RichHandler()])
     connector = Connector(host="127.0.0.1", port=50020)
     await connector.run()
 

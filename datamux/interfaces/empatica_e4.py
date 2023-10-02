@@ -6,6 +6,7 @@ import socket
 
 import dfds
 import pylsl
+from rich.logging import RichHandler
 
 from . import Interface
 
@@ -64,9 +65,7 @@ class Connector(Interface):
                 r"^(?:(R)\s)?(device_discover_list|device_connect_btle|device_disconnect_btle|device_list|device_connect|device_disconnect|pause)(?:\s([\.\w]+))?(?:\s?(.+?))?$"
             ),
             # (typ, cmd, sid, arg, data)
-            re.compile(
-                r"^(?:(R)\s)?(device_subscribe)(?:\s(\w+))?(?:\s([\.\w]+))?(?:\s?(.+?))?$"
-            ),
+            re.compile(r"^(?:(R)\s)?(device_subscribe)(?:\s(\w+))?(?:\s([\.\w]+))?(?:\s?(.+?))?$"),
             # (sid, time, data)
             re.compile(
                 r"^(\w+)\s([\d.]+)\s?(.*)$",
@@ -219,6 +218,6 @@ class Connector(Interface):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG, handlers=[RichHandler()])
     connector = Connector()
     connector.start()

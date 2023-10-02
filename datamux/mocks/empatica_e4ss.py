@@ -16,10 +16,6 @@ from datetime import datetime
 from threading import Thread
 from typing import Dict
 
-logger = logging.getLogger(__name__)
-logger.level = logging.DEBUG
-logger.addHandler(logging.StreamHandler(sys.stdout))
-
 
 class Stream:
     def __init__(self, label: str, typ: str, freq: float, default_v: list):
@@ -144,7 +140,7 @@ def cmd_handler(msg: str, ctx: SubscriptionContext) -> str:
     return ""
 
 
-async def ee4_srv(r: StreamReader, w: StreamWriter):
+async def handler(r: StreamReader, w: StreamWriter):
     logger.info(f"connection established")
     # create new context for client
     ctx = SubscriptionContext(r, w)
@@ -169,21 +165,24 @@ async def ee4_srv(r: StreamReader, w: StreamWriter):
     logger.info(f"resources purged. connection terminated.")
 
 
-async def main():
-    srv = await asyncio.start_server(ee4_srv, "localhost", 28000)
-    host, port = srv.sockets[0].getsockname()
-    logger.info(f"Streaming server started on {host}:{port}!")
-    try:
-        async with srv:
-            await srv.serve_forever()
-    except KeyboardInterrupt:
-        await srv.wait_closed()
-        exit(0)
+async def start_server() -> asyncio.Server:
+    srv = await asyncio.start_server(handler, "localhost", 28000)
+    return srv
 
 
 if __name__ == "__main__":
-    # In try-except to suppress irrelevant errors
-    try:
-        asyncio.run(main(), debug=True)
-    except KeyboardInterrupt:
-        exit(0)
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(level=logging.DEBUG, handlers=[logging.StreamHandler(sys.stdout)])
+
+    async def main():
+        srv = await start_server()
+        host, port = srv.sockets[0].getsockname()
+        logger.info(f"Streaming server started on {host}:{port}!")
+        try:
+            async with srv:
+                await srv.serve_forever()
+        except KeyboardInterrupt:
+            await srv.wait_closed()
+            exit(0)
+
+    asyncio.run(main(), debug=True)

@@ -1,15 +1,10 @@
 import asyncio
-import random
 
 from dfds.typing import Collection, Stream
 from pydantic import BaseModel
 
 from readers import CollectionReader, NodeReader
-
-
-def gen_randseq(length: int = 5):
-    options = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
-    return "".join(random.choice(options) for x in range(length))
+from util import gen_randseq
 
 
 class StreamAck(BaseModel):

@@ -4,12 +4,12 @@ import asyncio
 import logging
 
 from dotenv import load_dotenv
+from rich.logging import RichHandler
 
 from remote.server import DataMuxServer
 
 
 async def main():
-    logging.basicConfig(level=logging.DEBUG)
 
     load_dotenv()
 
@@ -20,4 +20,10 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    logging.basicConfig(level=logging.DEBUG, handlers=[RichHandler()])
+    logger = logging.getLogger(__name__)
+
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.warning("Interrupt received, shutting down.")

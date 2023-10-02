@@ -177,7 +177,7 @@ class AvroCodec(Codec):
         topic, content_enc = payload.split(b"||", maxsplit=1)
 
         if len(content_enc) == 0:
-            self.logger.warn(f"decode(): got empty message - topic={topic}")
+            self.logger.warning(f"decode(): got empty message - topic={topic}")
             return topic, {}
         elif topic.startswith(b"schema_"):
             subtopic = topic[7:]
