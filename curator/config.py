@@ -6,7 +6,6 @@ import os
 import platform
 from flask import Flask
 from flask_session import Session
-from flask_fontawesome import FontAwesome
 
 
 class Config:
@@ -22,8 +21,6 @@ class Config:
         self.app.logger.setLevel(logging.INFO)
         self.app.logger.info("Your Computer Name is: " + self.hostname)
         self.app.logger.info("Your Computer IP Address is: " + self.IPAddr)
-        # FoNT AWESOME
-        self.fa = FontAwesome(self.app)
         # Config file
         fname = "config.json"
         if platform.system()  == "Windows":
