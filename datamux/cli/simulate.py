@@ -75,7 +75,7 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, handlers=[RichHandler()])
+    logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
     try:
         main()
     except AssertionError as e:

@@ -172,7 +172,7 @@ async def start_server() -> asyncio.Server:
 
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
-    logging.basicConfig(level=logging.DEBUG, handlers=[logging.StreamHandler(sys.stdout)])
+    logging.basicConfig(level=logging.DEBUG, format="%(message)s", datefmt="[%X]", handlers=[logging.StreamHandler(sys.stdout)])
 
     async def main():
         srv = await start_server()

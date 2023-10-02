@@ -20,7 +20,7 @@ async def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG, handlers=[RichHandler()])
+    logging.basicConfig(level=logging.DEBUG, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
     logger = logging.getLogger(__name__)
 
     try:

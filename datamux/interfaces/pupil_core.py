@@ -147,7 +147,7 @@ class Connector(Interface):
 
 
 async def main():
-    logging.basicConfig(level=logging.DEBUG, handlers=[RichHandler()])
+    logging.basicConfig(level=logging.DEBUG, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
     connector = Connector(host="127.0.0.1", port=50020)
     await connector.run()
 
