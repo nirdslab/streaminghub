@@ -5,7 +5,6 @@ from collections import defaultdict
 from dfds.typing import Collection, Stream
 
 from api import StreamAck
-from codec import create_codec
 from rpc import create_rpc_client
 
 from .topics import *
@@ -37,24 +36,15 @@ class DataMuxRemoteAPI:
         """
         self.active = False
         # queues - sending
-        self.codec_send_source = asyncio.Queue()
-        self.rpc_send_source = self.codec_send_sink = asyncio.Queue()
+        self.outgoing = asyncio.Queue()
         # queues - receiving
-        self.codec_recv_source = self.rpc_recv_sink = asyncio.Queue()
-        self.codec_recv_sink = asyncio.Queue()
+        self.incoming = asyncio.Queue()
         # rpc module
         self.rpc = create_rpc_client(
             name=rpc_name,
-            send_source=self.rpc_send_source,
-            recv_sink=self.rpc_recv_sink,
-        )
-        # codec module
-        self.codec = create_codec(
-            backend=codec_name,
-            send_source=self.codec_send_source,
-            send_sink=self.codec_send_sink,
-            recv_source=self.codec_recv_source,
-            recv_sink=self.codec_recv_sink,
+            codec_name=codec_name,
+            incoming=self.incoming,
+            outgoing=self.outgoing,
         )
         # request handling module
         self.handlers: dict[bytes, asyncio.Queue] = defaultdict(lambda: asyncio.Queue())
@@ -64,9 +54,8 @@ class DataMuxRemoteAPI:
         self,
     ):
         while self.active:
-            topic, content = await self.codec_recv_sink.get()
-            self.logger.debug(f"incoming message: {topic}: {content}")
-            self.logger.debug(topic, content)
+            topic, content = await self.incoming.get()
+            self.logger.debug(f"<: {topic}: {content}")
             await self.handlers[topic].put(content)
 
     async def __send_await__(
@@ -74,8 +63,8 @@ class DataMuxRemoteAPI:
         topic: bytes,
         content: dict,
     ):
-        self.logger.debug(f"outgoing message: {topic}: {content}")
-        await self.codec_send_source.put((topic, content))
+        self.logger.debug(f">: {topic}: {content}")
+        await self.outgoing.put((topic, content))
         return self.handlers[topic]
 
     async def connect(
@@ -91,7 +80,6 @@ class DataMuxRemoteAPI:
             server_port (int): Port of running server
         """
         self.active = True
-        self.codec.start()
         await self.rpc.connect(server_host, server_port)
         asyncio.create_task(self.__handle_incoming__())
 
@@ -103,7 +91,6 @@ class DataMuxRemoteAPI:
 
         """
         self.active = False
-        self.codec.stop()
 
     async def list_collections(
         self,

@@ -14,10 +14,15 @@ class RpcServer(ABC):
 
 def create_rpc_server(
     name: str,
-    send_source: asyncio.Queue,
-    recv_sink: asyncio.Queue,
+    codec_name: str,
+    incoming: asyncio.Queue,
+    outgoing: asyncio.Queue,
 ) -> RpcServer:
     assert name == "websocket"
     from .websocket import WebsocketRPC
 
-    return WebsocketRPC(send_source, recv_sink)
+    return WebsocketRPC(
+        codec_name=codec_name,
+        incoming=incoming,
+        outgoing=outgoing,
+    )

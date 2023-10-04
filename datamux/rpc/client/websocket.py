@@ -3,6 +3,8 @@ import logging
 
 from websockets.client import WebSocketClientProtocol, connect
 
+from codec import create_codec
+
 from . import RpcClient
 
 
@@ -14,12 +16,14 @@ class WebsocketRPC(RpcClient):
 
     def __init__(
         self,
-        send_source: asyncio.Queue,
-        recv_sink: asyncio.Queue,
+        codec_name: str,
+        incoming: asyncio.Queue,
+        outgoing: asyncio.Queue,
     ) -> None:
         self.active = False
-        self.send_source = send_source
-        self.recv_sink = recv_sink
+        self.codec = create_codec(codec_name)
+        self.incoming = incoming
+        self.outgoing = outgoing
         self.logger = logging.getLogger(__name__)
 
     async def connect(
@@ -46,19 +50,23 @@ class WebsocketRPC(RpcClient):
         websocket: WebSocketClientProtocol,
     ):
         while self.active and websocket.open:
-            message: bytes | list[bytes] = await self.send_source.get()
-            self.logger.debug(f"outgoing message: {message}")
-            if isinstance(message, bytes):
-                await self.websocket.send(message)
-            else:
-                for msg in message:
-                    await self.websocket.send(msg)
+            topic, content = await self.outgoing.get()
+            self.logger.debug(f">: {topic}: {content}")
+            msg: bytes | list[bytes] = self.codec.encode(topic, content)
+            if isinstance(msg, bytes):
+                await self.websocket.send(msg)
+            if isinstance(msg, list):
+                for frame in msg:
+                    await self.websocket.send(frame)
 
     async def __handle_incoming__(
         self,
         websocket: WebSocketClientProtocol,
     ):
         while self.active and websocket.open:
-            message = await self.websocket.recv()
-            self.logger.debug(f"incoming message: {message}")
-            await self.recv_sink.put(message)
+            msg = await self.websocket.recv()
+            assert isinstance(msg, bytes)
+            if (val := self.codec.decode(msg)) is not None:
+                topic, content = val
+                self.logger.debug(f"<: {topic}: {content}")
+                await self.incoming.put((topic, content))

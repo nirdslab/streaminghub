@@ -67,6 +67,7 @@ class DataMuxAPI:
         stream_name: str,
         attrs: dict,
         sink: asyncio.Queue,
+        *ctx: bytes,
     ) -> StreamAck:
         """
         Replay a collection-stream into a given queue.
@@ -81,7 +82,7 @@ class DataMuxAPI:
             StreamAck: status and reference information.
         """
         randseq = gen_randseq()
-        task = self.reader_c.replay(collection_name, stream_name, attrs, randseq, sink)
+        task = self.reader_c.replay(collection_name, stream_name, attrs, randseq, sink, *ctx)
         status = not task.cancelled()
         return StreamAck(
             status=status,
@@ -131,6 +132,7 @@ class DataMuxAPI:
         stream_name: str,
         attrs: dict,
         sink: asyncio.Queue,
+        *ctx: bytes,
     ) -> StreamAck:
         """
         Read data from a live stream (LSL) into a given queue.
@@ -144,7 +146,7 @@ class DataMuxAPI:
             StreamAck: status and reference information.
         """
         randseq = gen_randseq()
-        task = self.reader_n.relay(stream_name, attrs, randseq, sink)
+        task = self.reader_n.relay(stream_name, attrs, randseq, sink, *ctx)
         status = not task.cancelled()
         return StreamAck(
             status=status,

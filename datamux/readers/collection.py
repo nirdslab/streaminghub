@@ -69,12 +69,13 @@ class CollectionReader(Reader):
         attrs: dict,
         randseq: str,
         queue: asyncio.Queue,
+        *ctx: bytes,
     ) -> asyncio.Task:
         collection = [c for c in self.__collections if c.name == collection_name][0]
         stream = [s for s in collection.streams.values() if s.name == stream_name][0]
         stream.attrs.update(attrs, dfds_mode="replay")
         return asyncio.create_task(
-            self.__replay_coro(collection, stream, randseq, queue),
+            self.__replay_coro(collection, stream, randseq, queue, *ctx),
         )
 
     def restream(
@@ -97,6 +98,7 @@ class CollectionReader(Reader):
         stream: Stream,
         randseq: str,
         queue: asyncio.Queue,
+        *ctx: bytes,
     ):
         freq = stream.frequency
         if freq <= 0:
@@ -115,7 +117,7 @@ class CollectionReader(Reader):
         for record in data:
             index = dict(zip(index_cols, record[index_cols].item()))
             value = dict(zip(value_cols, record[value_cols].item()))
-            await queue.put((b"data_" + subtopic, dict(index=index, value=value)))
+            await queue.put((b"data_" + subtopic, dict(index=index, value=value), *ctx))
             await asyncio.sleep(dt)
         self.logger.info(f"ended replay")
 
