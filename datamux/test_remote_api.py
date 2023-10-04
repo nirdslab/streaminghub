@@ -51,8 +51,9 @@ async def main():
 
     # test 4 - make LSL stream from a collection stream
     logger.info("creating LSL stream")
-    ack = await api.publish_collection_stream(collection_name, stream_name, attrs)
-    logger.info(f"created LSL stream: {ack}")
+    status = await api.publish_collection_stream(collection_name, stream_name, attrs)
+    logger.info(f"created LSL stream: {status}")
+    assert status
     await asyncio.sleep(5)
 
     # test 5 - list all LSL streams
@@ -74,7 +75,7 @@ async def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
+    logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
     load_dotenv()
     logger = logging.getLogger(__name__)
     try:

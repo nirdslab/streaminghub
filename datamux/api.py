@@ -6,10 +6,12 @@ from pydantic import BaseModel
 from readers import CollectionReader, NodeReader
 from util import gen_randseq
 
+prefix = "d_"
+
 
 class StreamAck(BaseModel):
     status: bool
-    randseq: str
+    randseq: str | None = None
 
 
 class DataMuxAPI:
@@ -67,7 +69,7 @@ class DataMuxAPI:
         stream_name: str,
         attrs: dict,
         sink: asyncio.Queue,
-        *ctx: bytes,
+        transform=None,
     ) -> StreamAck:
         """
         Replay a collection-stream into a given queue.
@@ -77,16 +79,18 @@ class DataMuxAPI:
             stream_name (str): name of stream in collection.
             attrs (dict): attributes specifying which recording to replay.
             sink (asyncio.Queue): destination to buffer replayed data.
+            transform (Callable): optional transform to apply to each data point.
 
         Returns:
             StreamAck: status and reference information.
         """
-        randseq = gen_randseq()
-        task = self.reader_c.replay(collection_name, stream_name, attrs, randseq, sink, *ctx)
+        topic = prefix + gen_randseq()
+        t = (lambda x: [topic.encode()] + transform(x)[1:]) if transform is not None else None
+        task = self.reader_c.replay(collection_name, stream_name, attrs, sink, t)
         status = not task.cancelled()
         return StreamAck(
             status=status,
-            randseq=randseq,
+            randseq=topic,
         )
 
     def publish_collection_stream(
@@ -106,13 +110,9 @@ class DataMuxAPI:
         Returns:
             StreamAck: status and reference information.
         """
-        randseq = gen_randseq()
-        task = self.reader_c.restream(collection_name, stream_name, attrs, randseq)
+        task = self.reader_c.restream(collection_name, stream_name, attrs)
         status = not task.cancelled()
-        return StreamAck(
-            status=status,
-            randseq=randseq,
-        )
+        return StreamAck(status=status)
 
     def list_live_streams(
         self,
@@ -132,7 +132,7 @@ class DataMuxAPI:
         stream_name: str,
         attrs: dict,
         sink: asyncio.Queue,
-        *ctx: bytes,
+        transform=None,
     ) -> StreamAck:
         """
         Read data from a live stream (LSL) into a given queue.
@@ -141,14 +141,16 @@ class DataMuxAPI:
             stream_name (str): name of live stream.
             attrs (dict): attributes specifying which live stream to read.
             sink (asyncio.Queue): destination to buffer replayed data.
+            transform (Callable): optional transform to apply to each data point.
 
         Returns:
             StreamAck: status and reference information.
         """
-        randseq = gen_randseq()
-        task = self.reader_n.relay(stream_name, attrs, randseq, sink, *ctx)
+        topic = prefix + gen_randseq()
+        t = (lambda x: [topic.encode()] + transform(x)[1:]) if transform is not None else None
+        task = self.reader_n.relay(stream_name, attrs, sink, t)
         status = not task.cancelled()
         return StreamAck(
             status=status,
-            randseq=randseq,
+            randseq=topic,
         )

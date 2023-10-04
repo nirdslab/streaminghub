@@ -43,9 +43,8 @@ class NodeReader(Reader):
         self,
         stream_name: str,
         attrs: dict,
-        randseq: str,
         queue: asyncio.Queue,
-        *ctx: bytes,
+        transform,
     ) -> asyncio.Task:
         stream = None
         for s in self.__streams:
@@ -67,7 +66,7 @@ class NodeReader(Reader):
         self.logger.info("creating inlet")
         inlet = pylsl.StreamInlet(stream_info)
         self.logger.info("creating relay task")
-        return asyncio.create_task(self.__relay_coro(inlet, randseq, queue, *ctx))
+        return asyncio.create_task(self.__relay_coro(inlet, queue, transform))
 
     def __create_query(
         self,
@@ -83,9 +82,8 @@ class NodeReader(Reader):
     async def __relay_coro(
         self,
         inlet: pylsl.StreamInlet,
-        randseq: str,
         queue: asyncio.Queue,
-        *ctx: bytes,
+        transform,
     ):
         stream = stream_inlet_to_stream(inlet)
         if not "dfds_mode" in stream.attrs:
@@ -94,8 +92,6 @@ class NodeReader(Reader):
         # column names
         index_cols = list(stream.index)
         value_cols = list(stream.fields)
-
-        subtopic = randseq.encode()
 
         # relay each record
         self.logger.info("started relay")
@@ -112,5 +108,8 @@ class NodeReader(Reader):
                     # FIXME currently only supports 1D index
                     index_dict = {index_cols[0]: index}
                     value_dict = dict(zip(value_cols, value))
-                    await queue.put((b"data_" + subtopic, dict(index=index_dict, value=value_dict), *ctx))
+                    msg = dict(index=index_dict, value=value_dict)
+                    if transform is not None:
+                        msg = transform(msg)
+                    await queue.put(msg)
         self.logger.info("ended relay")

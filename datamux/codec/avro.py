@@ -10,6 +10,8 @@ import avro.schema
 
 from .codec import Codec
 
+prefix = b"d_"
+
 
 class AvroCodec(Codec):
     """
@@ -142,9 +144,9 @@ class AvroCodec(Codec):
         if len(content) == 0:
             content_enc = b""
             lines.append(topic + b"||" + content_enc)
-        elif topic.startswith(b"data_") and len(content) > 0:
+        elif topic.startswith(prefix) and len(content) > 0:
             # preprocessing
-            subtopic = topic[5:]
+            subtopic = topic[len(prefix) :]
             content = self.__preprocess(content)
             # ensure schema is registered
             if subtopic not in self.__schema_registry:
@@ -161,7 +163,7 @@ class AvroCodec(Codec):
             # avro-encode content
             content_enc = self.__encode_avro(subtopic, content)
             # write encoded content to output
-            lines.append(b"data_" + subtopic + b"||" + content_enc)
+            lines.append(prefix + subtopic + b"||" + content_enc)
         else:
             # json-encode content
             content_enc = self.__encode_json(content)
@@ -186,8 +188,8 @@ class AvroCodec(Codec):
             self.__cache_schema(subtopic, avro.schema.make_avsc_object(schema))
             self.logger.debug(f"decode(): assigned schema - subtopic={subtopic}")
             return None
-        elif topic.startswith(b"data_"):
-            subtopic = topic[5:]
+        elif topic.startswith(prefix):
+            subtopic = topic[len(prefix) :]
             if subtopic not in self.__schema_registry:
                 self.logger.error(f"decode(): no schema - subtopic={subtopic}")
                 return None

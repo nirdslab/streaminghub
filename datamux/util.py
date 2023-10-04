@@ -15,6 +15,6 @@ def asyncify(func, executor):
     return run
 
 
-def gen_randseq(length: int = 5):
+def gen_randseq(length: int = 5) -> str:
     options = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
     return "".join(random.choice(options) for x in range(length))

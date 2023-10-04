@@ -156,7 +156,8 @@ class DataMuxRemoteAPI:
         result = await self.__send_await__(topic, content)
         info = await result.get()
         ack = StreamAck(**info)
-        stream_topic = f"data_{ack.randseq}".encode()
+        assert ack.randseq is not None
+        stream_topic = ack.randseq.encode()
         self.handlers[stream_topic] = sink
         return ack
 
@@ -226,6 +227,7 @@ class DataMuxRemoteAPI:
         result = await self.__send_await__(topic, content)
         info = await result.get()
         ack = StreamAck(**info)
-        stream_topic = f"data_{ack.randseq}".encode()
+        assert ack.randseq is not None
+        stream_topic = ack.randseq.encode()
         self.handlers[stream_topic] = sink
         return ack

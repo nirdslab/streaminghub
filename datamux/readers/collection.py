@@ -67,38 +67,31 @@ class CollectionReader(Reader):
         collection_name: str,
         stream_name: str,
         attrs: dict,
-        randseq: str,
         queue: asyncio.Queue,
-        *ctx: bytes,
+        transform,
     ) -> asyncio.Task:
         collection = [c for c in self.__collections if c.name == collection_name][0]
         stream = [s for s in collection.streams.values() if s.name == stream_name][0]
         stream.attrs.update(attrs, dfds_mode="replay")
-        return asyncio.create_task(
-            self.__replay_coro(collection, stream, randseq, queue, *ctx),
-        )
+        return asyncio.create_task(self.__replay_coro(collection, stream, queue, transform))
 
     def restream(
         self,
         collection_name: str,
         stream_name: str,
         attrs: dict,
-        randseq: str,
     ) -> asyncio.Task:
         collection = [c for c in self.__collections if c.name == collection_name][0]
         stream = [s for s in collection.streams.values() if s.name == stream_name][0]
         stream.attrs.update(attrs, dfds_mode="restream")
-        return asyncio.create_task(
-            self.__restream_coro(collection, stream, randseq),
-        )
+        return asyncio.create_task(self.__restream_coro(collection, stream))
 
     async def __replay_coro(
         self,
         collection: Collection,
         stream: Stream,
-        randseq: str,
         queue: asyncio.Queue,
-        *ctx: bytes,
+        transform,
     ):
         freq = stream.frequency
         if freq <= 0:
@@ -110,14 +103,15 @@ class CollectionReader(Reader):
         attrs, data = collection.dataloader().read(stream.attrs)
         stream.attrs.update(attrs)
 
-        subtopic = randseq.encode()
-
         # replay each record
         self.logger.info(f"started replay")
         for record in data:
             index = dict(zip(index_cols, record[index_cols].item()))
             value = dict(zip(value_cols, record[value_cols].item()))
-            await queue.put((b"data_" + subtopic, dict(index=index, value=value), *ctx))
+            msg = dict(index=index, value=value)
+            if transform is not None:
+                msg = transform(msg)
+            await queue.put(msg)
             await asyncio.sleep(dt)
         self.logger.info(f"ended replay")
 
@@ -125,7 +119,6 @@ class CollectionReader(Reader):
         self,
         collection: Collection,
         stream: Stream,
-        randseq: str,
     ):
         freq = stream.frequency
         if freq <= 0:
