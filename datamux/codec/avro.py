@@ -21,8 +21,6 @@ class AvroCodec(Codec):
 
     logger = logging.getLogger(__name__)
     schema_cache_max_n = 1000
-
-    __schema_registry = {}
     __blank_schema = {
         "type": "record",
         "namespace": "streaminghub.datamux.data",
@@ -36,6 +34,9 @@ class AvroCodec(Codec):
         bytes: "bytes",
         str: "string",
     }
+
+    def __init__(self) -> None:
+        self.__schema_registry = {}
 
     def __create_schema(
         self,
