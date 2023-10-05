@@ -194,8 +194,8 @@ def browseFile(var: str, browse: bool):
         abort(500)
 
 
-@config.app.route("/downloadFolder/<path:var>")
-def downloadFolder(var: str):
+@config.app.route("/download_dir/<path:var>")
+def download_folder(var: str):
     if "login" not in session:
         return redirect("/login/downloadFolder/" + var)
     path = util.get_filepath(var, config)
@@ -205,7 +205,7 @@ def downloadFolder(var: str):
     zip_name = path.with_suffix(".zip").name
     zip_path = config.temp_dir / zip_name
     try:
-        util.make_zipfile(zip_path, path)
+        util.zip_directory(zip_path, path)
         return send_file(zip_path, download_name=zip_name)
     except:
         abort(500)
@@ -213,7 +213,7 @@ def downloadFolder(var: str):
 
 @config.app.route("/upload/", methods=["POST"])
 @config.app.route("/upload/<path:var>", methods=["POST"])
-def uploadFile(var: str = ""):
+def upload_file(var: str = ""):
     if "login" not in session:
         return render_template("login.html")
     text = ""
@@ -242,6 +242,15 @@ def uploadFile(var: str = ""):
             config.app.logger.info(filename + " Failed because File Already Exists or File Type Issue")
             text = text + filename + " Failed because File Already Exists or File Type not secure <br>"
     return render_template("uploadsuccess.html", text=text, fileNo=num_total, fileNo2=num_failed)
+
+@config.app.route("/metadata/<path:var>", methods=['GET'])
+def get_metadata(var: str):
+    state = dict(session["selection"])
+    if var not in state:
+        abort(400)
+    item_state: dict = state[var]
+    return item_state["metadata"]
+
 
 
 if __name__ == "__main__":

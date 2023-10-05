@@ -70,7 +70,7 @@ def get_icon(fp: Path, config: Config) -> str:
     return "/static/icons/file.png"
 
 
-def make_zipfile(dest_path: Path, source_dir: Path) -> None:
+def zip_directory(dest_path: Path, source_dir: Path) -> None:
     assert source_dir.is_dir()
     relroot = source_dir.parent.resolve()
     with zipfile.ZipFile(dest_path, "w", zipfile.ZIP_DEFLATED) as zip:

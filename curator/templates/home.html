@@ -177,7 +177,7 @@
               <td class="text-end">
                 <span onclick="updateEditPanel('{{k}}')" title="Edit Metadata" data-bs-toggle="offcanvas"
                   data-bs-target="#edit_panel" class="btn btn-sm btn-success ms-1"><i
-                    class="fa fa-feather-alt"></i></span>
+                    class="fa-solid fa-pencil"></i></span>
                 <span onclick="updateDeletePanel('{{k}}')" title="Delete Metadata" data-bs-toggle="offcanvas"
                   data-bs-target="#delete_panel" class="btn btn-sm btn-danger ms-1"><i
                     class="fa fa-trash-alt"></i></span>
@@ -244,20 +244,25 @@
 
   async function getMetadata(arg) {
     console.log(arg);
-    const res = await fetch('/metadata?' + new URLSearchParams({ name: arg }));
-    const msg = await res.json();
-    console.log(msg);
+    let msg = null;
+    try {
+      const res = await fetch(`/metadata/${encodeURI(arg)}`);
+      msg = await res.json();
+      console.log(msg);
+    } catch(err) {
+      console.error("An error occured", err);
+    }
     return msg;
   }
 
   async function updateEditPanel(filename) {
     const msg = await getMetadata(filename);
-    document.getElementById("edit_metadata_form").innerHTML = `<span>${msg}</span>`
+    document.getElementById("edit_metadata_form").innerHTML = `<span>${msg}</span>`;
   }
 
   async function updateDeletePanel(filename) {
     const msg = await getMetadata(filename);
-    document.getElementById("edit_metadata_form").innerHTML = `<span>${msg}</span>`
+    document.getElementById("edit_metadata_form").innerHTML = `<span>${msg}</span>`;
   }
 
 </script>
