@@ -207,7 +207,6 @@
   </div>
   <div class="offcanvas-body small">
     <form id="delete_metadata_form">
-
     </form>
   </div>
 </div>
@@ -249,20 +248,34 @@
       const res = await fetch(`/metadata/${encodeURI(arg)}`);
       msg = await res.json();
       console.log(msg);
-    } catch(err) {
+    } catch (err) {
       console.error("An error occured", err);
     }
     return msg;
   }
 
   async function updateEditPanel(filename) {
-    const msg = await getMetadata(filename);
-    document.getElementById("edit_metadata_form").innerHTML = `<span>${msg}</span>`;
+    const meta = await getMetadata(filename);
+    const tags = Object.entries(meta).reduce((acc, [k, v]) => acc + `<button type="button" class="btn btn-sm px-1 py-0 btn-success">${k}:&nbsp;<b>${v}</b></button>\n`, "");
+    document.getElementById("edit_metadata_form").innerHTML = `
+    <div class="row ms-3 mt-1">
+      <div class="col-12 ms-3">
+        ${tags}
+      </div>
+    </div>
+    `;
   }
 
   async function updateDeletePanel(filename) {
-    const msg = await getMetadata(filename);
-    document.getElementById("edit_metadata_form").innerHTML = `<span>${msg}</span>`;
+    const meta = await getMetadata(filename);
+    const tags = Object.entries(meta).reduce((acc, [k, v]) => acc + `<button type="button" class="btn btn-sm px-1 py-0 btn-success">${k}:&nbsp;<b>${v}</b></button>\n`, "");
+    document.getElementById("delete_metadata_form").innerHTML = `
+    <div class="row ms-3 mt-1">
+      <div class="col-12 ms-3">
+        ${tags}
+      </div>
+    </div>
+    `;
   }
 
 </script>
