@@ -127,8 +127,8 @@ def filePage(var: str = ""):
                 session["selection"] = patch
             config.app.logger.info(f"updated selection: {len(paths)} added")
 
-        # remove items from selection
-        if action == "remove":
+        # drop items from selection
+        if action == "drop":
             paths = request.form.getlist("selection[]")
             if "selection" in session:
                 selection = dict(session["selection"])
@@ -137,7 +137,19 @@ def filePage(var: str = ""):
                 session["selection"] = selection
             else:
                 abort(500)
-            config.app.logger.info(f"updated selection: {len(paths)} removed")
+            config.app.logger.info(f"updated selection: {len(paths)} dropped")
+        
+        # clear metadata from selection
+        if action == "clear":
+            paths = request.form.getlist("selection[]")
+            if "selection" in session:
+                selection = dict(session["selection"])
+                for path in paths:
+                    selection[path]["metadata"].clear()
+                session["selection"] = selection
+            else:
+                abort(500)
+            config.app.logger.info(f"updated selection: {len(paths)} dropped")
 
         # reset selection
         if action == "reset":
@@ -162,6 +174,12 @@ def filePage(var: str = ""):
         if action == "dataset_name":
             name = request.form.get("dataset_name")
             session["dataset_name"] = name
+
+        if action.startswith("drop_single"):
+            name = action[11:]
+            selection = session["selection"]
+            assert type(selection) == dict
+            selection.pop(name, None)
 
         # redirection
         return redirect("/files/" + var)

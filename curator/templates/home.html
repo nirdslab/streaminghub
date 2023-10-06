@@ -73,8 +73,8 @@
   <div class="card">
     <div class="card-header d-flex flex-row">
       <h5 class="mt-auto mb-0">Step 1 - Annotate your Files</h5>
-      <button title="Reset" type="submit" class="btn btn-warning ms-auto py-0" name="action" value="reset"><i
-        class="fa fa-undo me-2"></i>Reset</button>
+      <button title="Reset" type="submit" class="btn btn-outline btn-outline-dark ms-auto py-0" name="action" value="reset"><i
+        class="fa fa-refresh me-2"></i>Start Over</button>
     </div>
     <div class="card-body">Next, add metadata to the files you selected.
       Start with providing a name for your dataset.
@@ -89,17 +89,19 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-2 mt-1">
+        <div class="col-3 mt-1">
           <label class="form-label me-auto mt-auto"><b>Metadata Actions</b></label>
           <div class="d-flex align-items-stretch">
-            <button onclick="updateEditPanel('{{k}}')" title="Edit Metadata" data-bs-toggle="offcanvas"
+            <button type="button" onclick="updateEditPanel('{{k}}')" title="Edit Metadata" data-bs-toggle="offcanvas"
               data-bs-target="#edit_panel" class="btn btn-sm btn-success mx-1"><i
-                class="fa-solid fa-pencil"></i></button>
-            <button title="Remove Selection" type="submit" class="btn btn-sm btn-danger mx-1" name="action"
-              value="remove"><i class="fa fa-trash-alt"></i></button>
+                class="fa-solid fa-pencil me-2"></i>Edit</button>
+            <button type="submit" title="Clear Metadata" class="btn btn-sm btn-warning mx-1" name="action"
+              value="clear"><i class="fa fa-undo-alt me-2"></i>Clear</button>
+            <button type="submit" title="Drop Items" class="btn btn-sm btn-danger mx-1" name="action"
+              value="drop"><i class="fa fa-times me-2"></i>Drop</button>
           </div>
         </div>
-        <div class="col-10 mt-1">
+        <div class="col-9 mt-1">
           <div class="input-group input-group-sm mb-2">
             <span class="input-group-text" style="width: 9rem;"><b>Run Name Pattern</b></span>
             <input class="form-control" type="text" name="name_pattern" placeholder="e.g., 'S{id}_T{task}.csv'">
@@ -143,15 +145,14 @@
                   <div class="col-12 ms-3">
                     {% for mk, mv in item['metadata'].items() %}
                     <span class="btn btn-sm px-1 py-0 btn-secondary">{{mk}}:&nbsp;<b class="me-2">{{mv}}</b><i
-                        class="fa fa-times"></i></span>
+                        class="fa fa-times me-2"></i></span>
                     {% endfor %}
                   </div>
                 </div>
               </td>
               <td>{{item.size}}</td>
               <td class="text-end">
-                <span onclick="updateDeletePanel('{{k}}')" title="Delete Metadata" data-bs-toggle="offcanvas"
-                  data-bs-target="#delete_panel" class="btn btn-sm btn-danger ms-1"><i class="fa fa-times me-2"></i>Drop</span>
+                <button type="submit" name="action" value="drop_single{{k}}" title="Drop Item" class="btn btn-sm btn-danger ms-1"><i class="fa fa-times me-2"></i>Drop</span>
               </td>
             </tr>
             {% endfor %}
@@ -172,16 +173,6 @@
   </div>
   <div class="offcanvas-body small">
     <form id="edit_metadata_form">
-    </form>
-  </div>
-</div>
-<div class="offcanvas offcanvas-bottom" tabindex="-1" id="delete_panel" aria-labelledby="panel_label">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="panel_label">Delete File</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-  <div class="offcanvas-body small">
-    <form id="delete_metadata_form">
     </form>
   </div>
 </div>
@@ -235,18 +226,6 @@
       React.createElement(MetadataEditor, { "tags": meta }, null),
       document.getElementById('edit_metadata_form')
     );
-  }
-
-  async function updateDeletePanel(filename) {
-    const meta = await getMetadata(filename);
-    const tags = Object.entries(meta).reduce((acc, [k, v]) => acc + `<button type="button" class="btn btn-sm px-1 py-0 btn-success">${k}:&nbsp;<b>${v}</b></button>\n`, "");
-    document.getElementById("delete_metadata_form").innerHTML = `
-    <div class="row ms-3 mt-1">
-      <div class="col-12 ms-3">
-        ${tags}
-      </div>
-    </div>
-    `;
   }
 
 </script>
