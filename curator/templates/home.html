@@ -19,36 +19,7 @@
           {% endautoescape %}
         </div>
       </div>
-      <div id="view0_container" {% if view_id==1 %} style="display: none;" {% endif %}>
-        <hr class="my-2">
-        <div class="file-container">
-          <div class="row">
-            {% for k, item in dir_dict.items() %}
-            <div class="col-2 mt-2">
-              <a href="/files/{{item.f_url}}" class="text-link" title="{{item.f_name}}">
-                <i class="fa-solid fa-folder fa-xl text-warning"></i>
-                <span>{{ item.f_name }}</span>
-              </a>
-            </div>
-            {% endfor %}
-          </div>
-          {% if dir_dict|length > 0 and file_dict|length > 0 %}
-          <hr class="my-2">
-          {% endif %}
-          <div class="row">
-            {% for k, item in file_dict.items() %}
-            <div class="col-2 mt-2">
-              <a href="/download/{{item.f_url}}" class="thumbnail hvr-grow" title="{{item.f_name}}">
-                <img src="{{item.image}}" class='img-thumbnail' />
-                <span>{{ item.f_name }}</span>
-              </a>
-            </div>
-            {% endfor %}
-          </div>
-        </div>
-        <hr class="my-2">
-      </div>
-      <div id="view1_container" {% if view_id==0 %} style="display: none;" {% endif %}>
+      <div>
         <hr class="mt-2 mb-0">
         <div class="file-container table-responsive">
           <table class="table table-sm table-hover">
@@ -100,43 +71,46 @@
 <!-- Selection Panel -->
 <form method="post" class="container mt-4">
   <div class="card">
-    <div class="card-header">
-      <h5 class="d-inline">Annotate your Dataset</h5>
+    <div class="card-header d-flex flex-row">
+      <h5 class="mt-auto mb-0">Step 1 - Annotate your Files</h5>
+      <button title="Reset" type="submit" class="btn btn-warning ms-auto py-0" name="action" value="reset"><i
+        class="fa fa-undo me-2"></i>Reset</button>
     </div>
     <div class="card-body">Next, add metadata to the files you selected.
       Start with providing a name for your dataset.
       Next, add metadata to each file individually, as groups, or all at once.
       </p>
       <div class="row">
-        <div class="form-group mb-3">
-          <label for="dataset_name" class="form-label"><b>Dataset Name</b></label>
-          <input class="form-control" type="text" id="dataset_name" name="dataset_name" placeholder="Enter a Name">
+        <div class="input-group input-group-sm mb-2">
+          <span class="input-group-text" style="width: 7rem;"><b>Dataset Name</b></span>
+          <input class="form-control" type="text" name="dataset_name" value="{{dataset_name}}" placeholder="Example Dataset">
+          <button title="Save" type="submit" class="btn btn-success" name="action" value="dataset_name"><i
+              class="fa fa-save"></i></button>
         </div>
       </div>
-      <div id="selection_container">
-        <div class="row mb-1">
-          <div class="col d-flex align-items-stretch">
-            <label for="selection[]" class="form-label me-auto mb-0 mt-auto"><b>File-Level Metadata</b></label>
-            <button title="Reset" type="submit" class="btn btn-sm btn-warning mx-1" name="action" value="reset"><i
-                class="fa fa-undo"></i></button>
+      <div class="row">
+        <div class="col-2 mt-1">
+          <label class="form-label me-auto mt-auto"><b>Metadata Actions</b></label>
+          <div class="d-flex align-items-stretch">
+            <button onclick="updateEditPanel('{{k}}')" title="Edit Metadata" data-bs-toggle="offcanvas"
+              data-bs-target="#edit_panel" class="btn btn-sm btn-success mx-1"><i
+                class="fa-solid fa-pencil"></i></button>
             <button title="Remove Selection" type="submit" class="btn btn-sm btn-danger mx-1" name="action"
               value="remove"><i class="fa fa-trash-alt"></i></button>
           </div>
         </div>
-        <div class="row">
-          <div class="col me-1">
-            <div class="input-group input-group-sm mb-2">
-              <span class="input-group-text" style="width: 7rem;"><b>Name Pattern</b></span>
-              <input class="form-control" type="text" name="name_pattern" placeholder="e.g., 'S{id}_T{task}.csv'">
-              <button title="Execute" type="submit" class="btn btn-success" name="action" value="name_pattern"><i
-                  class="fa fa-play"></i></button>
-            </div>
-            <div class="input-group input-group-sm mb-2">
-              <span class="input-group-text" style="width: 7rem;"><b>Path Pattern</b></span>
-              <input class="form-control" type="text" name="path_pattern" placeholder="e.g.,'/sub-{id}/ses-{noise}'">
-              <button title="Execute" type="submit" class="btn btn-success" name="action" value="path_pattern"><i
-                  class="fa fa-play"></i></button>
-            </div>
+        <div class="col-10 mt-1">
+          <div class="input-group input-group-sm mb-2">
+            <span class="input-group-text" style="width: 9rem;"><b>Run Name Pattern</b></span>
+            <input class="form-control" type="text" name="name_pattern" placeholder="e.g., 'S{id}_T{task}.csv'">
+            <button title="Execute" type="submit" class="btn btn-success" name="action" value="name_pattern"><i
+                class="fa fa-play me-2"></i>Execute</button>
+          </div>
+          <div class="input-group input-group-sm mb-2">
+            <span class="input-group-text" style="width: 9rem;"><b>Run Path Pattern</b></span>
+            <input class="form-control" type="text" name="path_pattern" placeholder="e.g.,'/sub-{id}/ses-{noise}'">
+            <button title="Execute" type="submit" class="btn btn-success" name="action" value="path_pattern"><i
+                class="fa fa-play me-2"></i>Execute</button>
           </div>
         </div>
       </div>
@@ -168,19 +142,16 @@
                 <div class="row ms-3 mt-1">
                   <div class="col-12 ms-3">
                     {% for mk, mv in item['metadata'].items() %}
-                    <button type="button" class="btn btn-sm px-1 py-0 btn-success">{{mk}}:&nbsp;<b>{{mv}}</b></button>
+                    <span class="btn btn-sm px-1 py-0 btn-secondary">{{mk}}:&nbsp;<b class="me-2">{{mv}}</b><i
+                        class="fa fa-times"></i></span>
                     {% endfor %}
                   </div>
                 </div>
               </td>
               <td>{{item.size}}</td>
               <td class="text-end">
-                <span onclick="updateEditPanel('{{k}}')" title="Edit Metadata" data-bs-toggle="offcanvas"
-                  data-bs-target="#edit_panel" class="btn btn-sm btn-success ms-1"><i
-                    class="fa-solid fa-pencil"></i></span>
                 <span onclick="updateDeletePanel('{{k}}')" title="Delete Metadata" data-bs-toggle="offcanvas"
-                  data-bs-target="#delete_panel" class="btn btn-sm btn-danger ms-1"><i
-                    class="fa fa-trash-alt"></i></span>
+                  data-bs-target="#delete_panel" class="btn btn-sm btn-danger ms-1"><i class="fa fa-times me-2"></i>Drop</span>
               </td>
             </tr>
             {% endfor %}
@@ -188,7 +159,11 @@
         </table>
       </div>
       <hr class="my-2">
+      <div class="d-flex">
+        <button class="btn btn-success ms-auto me-0">Export Dataset</button>
+      </div>
     </div>
+  </div>
 </form>
 <div class="offcanvas offcanvas-bottom" tabindex="-1" id="edit_panel" aria-labelledby="panel_label">
   <div class="offcanvas-header">
@@ -256,14 +231,10 @@
 
   async function updateEditPanel(filename) {
     const meta = await getMetadata(filename);
-    const tags = Object.entries(meta).reduce((acc, [k, v]) => acc + `<button type="button" class="btn btn-sm px-1 py-0 btn-success">${k}:&nbsp;<b>${v}</b></button>\n`, "");
-    document.getElementById("edit_metadata_form").innerHTML = `
-    <div class="row ms-3 mt-1">
-      <div class="col-12 ms-3">
-        ${tags}
-      </div>
-    </div>
-    `;
+    ReactDOM.render(
+      React.createElement(MetadataEditor, { "tags": meta }, null),
+      document.getElementById('edit_metadata_form')
+    );
   }
 
   async function updateDeletePanel(filename) {
@@ -279,4 +250,5 @@
   }
 
 </script>
+<script type="text/babel" src="/static/js/metadata_editor.jsx"></script>
 {% endblock scripts %}

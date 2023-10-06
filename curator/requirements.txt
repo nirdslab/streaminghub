@@ -11,3 +11,4 @@ pillow==10.0.1
 werkzeug==3.0.0
 pydantic~=2.4.2
 parse~=1.19.1
+rich~=13.6.0

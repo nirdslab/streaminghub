@@ -107,6 +107,8 @@ def filePage(var: str = ""):
         path_html += f'<span class="mx-1">/</span><a class="text-link" href="/files/{p_url}">{p_name}</a>'
     logged_in = "login" in session
 
+    dataset_name = session.get("dataset_name", "")
+
     # if method is POST
     config.app.logger.info(f"method={request.method}")
     if request.method == "POST":
@@ -159,10 +161,18 @@ def filePage(var: str = ""):
                 session["selection"] = state
             else:
                 session["selection"] = patch
+
+        # run dataset naming
+        if action == "dataset_name":
+            name = request.form.get("dataset_name")
+            session["dataset_name"] = name
+
+        # redirection
         return redirect("/files/" + var)
 
     return render_template(
         "home.html",
+        dataset_name=dataset_name,
         selection_dict=dict(session.get("selection", {})),
         dir_dict=dir_dict,
         file_dict=file_dict,
@@ -243,14 +253,14 @@ def upload_file(var: str = ""):
             text = text + filename + " Failed because File Already Exists or File Type not secure <br>"
     return render_template("uploadsuccess.html", text=text, fileNo=num_total, fileNo2=num_failed)
 
-@config.app.route("/metadata/<path:var>", methods=['GET'])
+
+@config.app.route("/metadata/<path:var>", methods=["GET"])
 def get_metadata(var: str):
     state = dict(session["selection"])
     if var not in state:
         abort(400)
     item_state: dict = state[var]
     return item_state["metadata"]
-
 
 
 if __name__ == "__main__":

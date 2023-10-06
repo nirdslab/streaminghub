@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 import zipfile
@@ -12,6 +13,8 @@ from hurry.filesize import size
 from config import Config
 
 Chunk = tuple[bytes, int, int, int]
+
+logger = logging.getLogger(__name__)
 
 
 def get_chunk(full_path: Path, start_byte: int, end_byte: int | None = None) -> Chunk:
@@ -162,6 +165,7 @@ def run_pattern(path: str, pattern: str, mode: str, config: Config) -> dict[str,
     path_obj = get_filepath(path, config)
     if mode == "path_pattern":
         arg = path_obj.parent.as_posix()
+        logger.info(arg)
     elif mode == "name_pattern":
         arg = path_obj.name
     else:
@@ -170,6 +174,7 @@ def run_pattern(path: str, pattern: str, mode: str, config: Config) -> dict[str,
         result = parser.parse(arg)
         assert isinstance(result, parse.Result)
         metadata: dict[str, str] = dict(result.named)
-    except:
+    except Exception as e:
+        logging.error([pattern, arg])
         metadata = {}
     return metadata
