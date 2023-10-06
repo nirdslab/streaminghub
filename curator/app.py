@@ -120,9 +120,9 @@ def filePage(var: str = ""):
             paths = request.form.getlist("selection[]")
             patch = {k: util.uri_to_dict(k, config) for k in paths}
             if "selection" in session:
-                state = dict(session["selection"])
-                state.update(patch)
-                session["selection"] = state
+                selection = dict(session["selection"])
+                selection.update(patch)
+                session["selection"] = selection
             else:
                 session["selection"] = patch
             config.app.logger.info(f"updated selection: {len(paths)} added")
@@ -131,10 +131,10 @@ def filePage(var: str = ""):
         if action == "remove":
             paths = request.form.getlist("selection[]")
             if "selection" in session:
-                state = dict(session["selection"])
+                selection = dict(session["selection"])
                 for path in paths:
-                    state.pop(path, None)
-                session["selection"] = state
+                    selection.pop(path, None)
+                session["selection"] = selection
             else:
                 abort(500)
             config.app.logger.info(f"updated selection: {len(paths)} removed")
@@ -145,22 +145,18 @@ def filePage(var: str = ""):
 
         # run pattern on file name or path name
         if action in ["name_pattern", "path_pattern"]:
-            paths = request.form.getlist("selection[]")
+            assert "selection" in session
+            selection = dict(session["selection"])
             pattern = request.form.get(action)
             assert pattern is not None
-            patch = {}
+            paths = request.form.getlist("selection[]")
             for k in paths:
-                uri_dict = util.uri_to_dict(k, config)
-                new_meta = util.run_pattern(k, pattern, action, config)
+                assert k in selection
+                uri_dict = selection[k]
                 assert type(uri_dict["metadata"]) == dict
-                uri_dict["metadata"].update(new_meta)
-                patch[k] = uri_dict
-            if "selection" in session:
-                state = dict(session["selection"])
-                state.update(patch)
-                session["selection"] = state
-            else:
-                session["selection"] = patch
+                patch = util.run_pattern(k, pattern, action, config)
+                uri_dict["metadata"].update(patch)
+            session["selection"] = selection
 
         # run dataset naming
         if action == "dataset_name":

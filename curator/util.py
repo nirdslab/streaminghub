@@ -164,7 +164,7 @@ def run_pattern(path: str, pattern: str, mode: str, config: Config) -> dict[str,
     parser = parse.compile(pattern)
     path_obj = get_filepath(path, config)
     if mode == "path_pattern":
-        arg = path_obj.parent.as_posix()
+        arg = path_obj.relative_to(config.base_dir).parent.as_posix()
         logger.info(arg)
     elif mode == "name_pattern":
         arg = path_obj.name
