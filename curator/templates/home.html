@@ -3,8 +3,10 @@
 <!-- File Browser Panel -->
 <form method="post" class="container mt-4">
   <div class="card">
-    <div class="card-header">
-      <h5 class="d-inline">Add Files into Dataset</h5>
+    <div class="card-header d-flex flex-row">
+      <h5 class="mt-auto mb-0">Choose Data Root and Files</h5>
+      <button title="Set Root" type="submit" class="btn btn-outline btn-outline-dark ms-auto py-0" name="action"
+        value="set_root"><i class="fa fa-folder me-2"></i>Set as Root Folder</button>
     </div>
     <div class="card-body">
       <p>
@@ -64,7 +66,8 @@
           </table>
         </div>
       </div>
-      <button type="submit" class="btn btn-sm btn-success mt-2" name="action" value="update">Add to Dataset</button>
+      <button type="submit" class="btn btn-sm btn-primary mt-2" name="action" value="update"><b>Add to
+          Dataset</b></button>
     </div>
   </div>
 </form>
@@ -73,8 +76,8 @@
   <div class="card">
     <div class="card-header d-flex flex-row">
       <h5 class="mt-auto mb-0">Step 1 - Annotate your Files</h5>
-      <button title="Reset" type="submit" class="btn btn-outline btn-outline-dark ms-auto py-0" name="action" value="reset"><i
-        class="fa fa-refresh me-2"></i>Start Over</button>
+      <button title="Reset" type="submit" class="btn btn-outline btn-outline-dark ms-auto py-0" name="action"
+        value="reset"><i class="fa fa-refresh me-2"></i>Start Over</button>
     </div>
     <div class="card-body">Next, add metadata to the files you selected.
       Start with providing a name for your dataset.
@@ -83,34 +86,36 @@
       <div class="row">
         <div class="input-group input-group-sm mb-2">
           <span class="input-group-text" style="width: 7rem;"><b>Dataset Name</b></span>
-          <input class="form-control" type="text" name="dataset_name" value="{{dataset_name}}" placeholder="Example Dataset">
+          <input class="form-control" type="text" name="dataset_name" value="{{dataset_name}}"
+            placeholder="Example Dataset">
           <button title="Save" type="submit" class="btn btn-success" name="action" value="dataset_name"><i
               class="fa fa-save"></i></button>
         </div>
       </div>
       <div class="row">
-        <div class="col-3 mt-1">
-          <label class="form-label me-auto mt-auto"><b>Metadata Actions</b></label>
-          <div class="d-flex align-items-stretch">
-            <button type="button" onclick="updateEditPanel('{{k}}')" title="Edit Metadata" data-bs-toggle="offcanvas"
-              data-bs-target="#edit_panel" class="btn btn-sm btn-success mx-1"><i
-                class="fa-solid fa-pencil me-2"></i>Edit</button>
-            <button type="submit" title="Clear Metadata" class="btn btn-sm btn-warning mx-1" name="action"
-              value="clear"><i class="fa fa-undo-alt me-2"></i>Clear</button>
-            <button type="submit" title="Drop Items" class="btn btn-sm btn-danger mx-1" name="action"
-              value="drop"><i class="fa fa-times me-2"></i>Drop</button>
+        <div class="col col-md-4 mt-1">
+          <label class="form-label me-auto mt-auto"><b>Selection Actions</b></label>
+          <div>
+            <button type="button" onclick="updateEditPanel()" title="Edit Metadata" data-bs-toggle="offcanvas"
+              data-bs-target="#edit_panel" class="btn btn-sm btn-success m-1"><i class="fas fa-tag me-2"></i>Edit
+              Tags</button>
+            <button type="submit" title="Clear Metadata" class="btn btn-sm btn-warning m-1" name="action"
+              value="clear"><i class="fas fa-eraser me-2"></i>Clear Tags</button>
+            <button type="submit" title="Drop Items" class="btn btn-sm btn-danger m-1" name="action" value="drop"><i
+                class="fas fa-trash me-2"></i>Drop</button>
           </div>
         </div>
-        <div class="col-9 mt-1">
+        <div class="col col-md-8 mt-1">
+          <label class="form-label me-auto mt-auto"><b>Extract Metadata</b></label>
           <div class="input-group input-group-sm mb-2">
             <span class="input-group-text" style="width: 9rem;"><b>Run Name Pattern</b></span>
-            <input class="form-control" type="text" name="name_pattern" placeholder="e.g., 'S{id}_T{task}.csv'">
+            <input class="form-control" type="text" name="name_pattern" placeholder="S{id}_T{task}.csv">
             <button title="Execute" type="submit" class="btn btn-success" name="action" value="name_pattern"><i
                 class="fa fa-play me-2"></i>Execute</button>
           </div>
           <div class="input-group input-group-sm mb-2">
             <span class="input-group-text" style="width: 9rem;"><b>Run Path Pattern</b></span>
-            <input class="form-control" type="text" name="path_pattern" placeholder="e.g.,'/sub-{id}/ses-{noise}'">
+            <input class="form-control" type="text" name="path_pattern" placeholder="/test/sub-{id}/ses-{noise}">
             <button title="Execute" type="submit" class="btn btn-success" name="action" value="path_pattern"><i
                 class="fa fa-play me-2"></i>Execute</button>
           </div>
@@ -123,14 +128,13 @@
             <tr>
               <th><input class="form-check-input me-2" type="checkbox" id="chk-selection-select-all">File</th>
               <th>Size</th>
-              <th class="text-end">Action</th>
             </tr>
           </thead>
           <tbody>
             {% for k, item in selection_dict.items() %}
             <tr title="{{item.f_name}}">
               <td>
-                <div class="row">
+                <div class="row mb-1">
                   <div class="col-12">
                     <input class="form-check-input" data-curator-selection-check type="checkbox" name="selection[]"
                       value="{{k}}">
@@ -141,19 +145,18 @@
                     </a>
                   </div>
                 </div>
-                <div class="row ms-3 mt-1">
-                  <div class="col-12 ms-3">
-                    {% for mk, mv in item['metadata'].items() %}
-                    <span class="btn btn-sm px-1 py-0 btn-secondary">{{mk}}:&nbsp;<b class="me-2">{{mv}}</b><i
-                        class="fa fa-times me-2"></i></span>
-                    {% endfor %}
+                <div class="row mb-1">
+                  <div class="col-12">
+                    <ul class=" ms-3 mb-0">
+                      {% for mk, mv in item['metadata'].items() %}
+                      <li class="btn btn-sm px-1 py-0 btn-secondary">{{mk}}:&nbsp;<b class="me-2">{{mv}}</b><i
+                          class="fas fa-pen fa-xs"></i></li>
+                      {% endfor %}
+                    </ul>
                   </div>
                 </div>
               </td>
               <td>{{item.size}}</td>
-              <td class="text-end">
-                <button type="submit" name="action" value="drop_single{{k}}" title="Drop Item" class="btn btn-sm btn-danger ms-1"><i class="fa fa-times me-2"></i>Drop</span>
-              </td>
             </tr>
             {% endfor %}
           </tbody>
@@ -161,15 +164,16 @@
       </div>
       <hr class="my-2">
       <div class="d-flex">
-        <button class="btn btn-success ms-auto me-0">Export Dataset</button>
+        <button class="btn btn-sm btn-primary ms-auto me-0"><b>Step 2 - Describe File Contents</b><i
+            class="fa-solid fa-arrow-right ms-2"></i></button>
       </div>
     </div>
   </div>
 </form>
-<div class="offcanvas offcanvas-bottom" tabindex="-1" id="edit_panel" aria-labelledby="panel_label">
+<div class="offcanvas offcanvas-bottom h-100" tabindex="-1" id="edit_panel">
   <div class="offcanvas-header">
     <h5 class="offcanvas-title" id="panel_label">Edit Metadata</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
   </div>
   <div class="offcanvas-body small">
     <form id="edit_metadata_form">
@@ -207,23 +211,25 @@
     })
   })
 
-  async function getMetadata(arg) {
-    console.log(arg);
+  async function getMetadata(args) {
+    const query = Array.from(args).map(f => new URLSearchParams({ "files[]": f })).join("&");
     let msg = null;
     try {
-      const res = await fetch(`/metadata/${encodeURI(arg)}`);
+      const res = await fetch('/metadata?' + query);
       msg = await res.json();
-      console.log(msg);
     } catch (err) {
       console.error("An error occured", err);
     }
     return msg;
   }
 
-  async function updateEditPanel(filename) {
-    const meta = await getMetadata(filename);
+  async function updateEditPanel() {
+    const selectionAllQuery = "[data-curator-selection-check]:checked";
+    const nodes = document.querySelectorAll(selectionAllQuery);
+    const filenames = Array.from(nodes).map(e => e.value);
+    const meta = await getMetadata(filenames);
     ReactDOM.render(
-      React.createElement(MetadataEditor, { "tags": meta }, null),
+      React.createElement(MetadataEditor, { "meta": meta }, null),
       document.getElementById('edit_metadata_form')
     );
   }

@@ -268,13 +268,16 @@ def upload_file(var: str = ""):
     return render_template("uploadsuccess.html", text=text, fileNo=num_total, fileNo2=num_failed)
 
 
-@config.app.route("/metadata/<path:var>", methods=["GET"])
-def get_metadata(var: str):
+@config.app.route("/metadata", methods=["GET"])
+def get_metadata():
+    files = request.args.getlist('files[]')
     state = dict(session["selection"])
-    if var not in state:
-        abort(400)
-    item_state: dict = state[var]
-    return item_state["metadata"]
+    metadata = {}
+    for file in files:
+        if file not in state:
+            abort(400)
+        metadata[file] = state[file]["metadata"]
+    return metadata
 
 
 if __name__ == "__main__":
