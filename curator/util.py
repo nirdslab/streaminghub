@@ -10,8 +10,6 @@ import parse
 from flask import Response, request
 from hurry.filesize import size
 
-from config import Config
-
 Chunk = tuple[bytes, int, int, int]
 
 logger = logging.getLogger(__name__)
@@ -54,12 +52,12 @@ def get_file_extension(fp: Path) -> str:
     return fp.suffix.lower()
 
 
-def is_media(fp: Path, config: Config) -> tuple[bool, str, str]:
+def is_media(fp: Path, ext_dict: dict) -> tuple[bool, str, str]:
     """ """
     tp = "other"
     ext = get_file_extension(fp)
-    if ext in config.ext_dict:
-        tp = config.ext_dict[ext][0]
+    if ext in ext_dict:
+        tp = ext_dict[ext][0]
     return tp in ["audio", "video"], tp, ext
 
 
@@ -88,11 +86,11 @@ def zip_directory(dest_path: Path, source_dir: Path) -> None:
                     zip.write(filename, arcname)
 
 
-def is_hidden(path: Path, config: Config) -> bool:
+def is_hidden(path: Path, hidden_list: list) -> bool:
     if path.is_dir():
-        return path.parts[-1] in config.hidden_list
+        return path.parts[-1] in hidden_list
     if path.is_file():
-        return path.name.startswith(".") or path.name in config.hidden_list
+        return path.name.startswith(".") or path.name in hidden_list
     return False
 
 
@@ -103,15 +101,15 @@ def get_filepath(path: str, base_dir: Path) -> Path:
     return fp
 
 
-def dir_exists(path: str, config: Config) -> bool:
-    fp = get_filepath(path, config.base_dir)
+def dir_exists(path: str, base_dir: Path) -> bool:
+    fp = get_filepath(path, base_dir)
     return fp.exists()
 
 
-def path_to_dict(i: Path, config: Config):
+def path_to_dict(i: Path, base_dir: Path, ext_dict: dict):
     f_name = i.name
-    f_url = i.relative_to(config.base_dir).as_posix()
-    image = get_icon(i, config.ext_dict)
+    f_url = i.relative_to(base_dir).as_posix()
+    image = get_icon(i, ext_dict)
     try:
         stat = i.stat()
         dtc = datetime.utcfromtimestamp(stat.st_ctime).strftime("%Y-%m-%d %H:%M:%S")
@@ -125,12 +123,11 @@ def path_to_dict(i: Path, config: Config):
     return target
 
 
-def uri_to_dict(var: str, config: Config, base: Path | None = None):
-    base = base or config.base_dir
-    i = get_filepath(var, base)
+def uri_to_dict(var: str, base_dir: Path, ext_dict: dict):
+    i = get_filepath(var, base_dir)
     f_name = i.name
-    f_url = i.relative_to(base).as_posix()
-    image = get_icon(i, config.ext_dict)
+    f_url = i.relative_to(base_dir).as_posix()
+    image = get_icon(i, ext_dict)
     metadata = {}
     try:
         stat = i.stat()
@@ -145,7 +142,7 @@ def uri_to_dict(var: str, config: Config, base: Path | None = None):
     return target
 
 
-def get_dir_listing(path: Path, config: Config):
+def get_dir_listing(path: Path, base_dir: Path, ext_dict: dict, hidden_list: list):
     assert path.is_dir()
     itemList = sorted(path.iterdir(), key=lambda x: [not x.is_dir(), x])
     dir_list_dict: dict[str, dict] = {}
@@ -153,19 +150,19 @@ def get_dir_listing(path: Path, config: Config):
 
     for i in itemList:
         target = dir_list_dict if i.is_dir() else file_list_dict
-        if not is_hidden(i, config):
-            f_url = i.relative_to(config.base_dir).as_posix()
-            target[f_url] = path_to_dict(i, config)
+        if not is_hidden(i, hidden_list):
+            f_url = i.relative_to(base_dir).as_posix()
+            target[f_url] = path_to_dict(i, base_dir, ext_dict)
 
     return dir_list_dict, file_list_dict
 
 
-def run_pattern(path: str, pattern: str, mode: str, config: Config) -> dict[str, str]:
+def run_pattern(path: str, pattern: str, mode: str, base_dir: Path) -> dict[str, str]:
     assert mode in ["name_pattern", "path_pattern"]
     parser = parse.compile(pattern)
-    path_obj = get_filepath(path, config.base_dir)
+    path_obj = get_filepath(path, base_dir)
     if mode == "path_pattern":
-        arg = path_obj.relative_to(config.base_dir).parent.as_posix()
+        arg = path_obj.relative_to(base_dir).parent.as_posix()
         logger.info(arg)
     elif mode == "name_pattern":
         arg = path_obj.name

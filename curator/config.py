@@ -33,8 +33,7 @@ class Config:
             data = json.load(json_data_file)
         self.hidden_list: list[str] = data["hidden"]
         self.pwd_hash: str = data["pwd_hash"]
-        self.orig_base_dir = Path(data["base_dir"]).resolve()
-        self.base_dir = self.orig_base_dir
+        self.base_dir = Path(data["base_dir"]).resolve()
         self.temp_dir = Path(data["temp_dir"]).resolve()
         self.temp_dir.mkdir(exist_ok=True)
         # supported file types dict

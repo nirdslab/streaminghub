@@ -9,22 +9,23 @@ import util
 config = Config()
 
 
-def rereference_selection(new_base: Path):
+def rereference_selection(prev_base: Path, new_base: Path):
+    rel_base = new_base
     prefix = Path()
-    if new_base.is_relative_to(config.base_dir):
-        new_base = new_base.relative_to(config.base_dir)
+    if rel_base.is_relative_to(prev_base):
+        rel_base = rel_base.relative_to(prev_base)
     else:
-        prefix  = config.base_dir.relative_to(new_base)
+        prefix = prev_base.relative_to(rel_base)
     tgt = {}
     if "selection" in session:
         for k, v in session["selection"].items():
             pk = Path(k)
-            if pk.is_relative_to(new_base):
-                rp = pk.relative_to(new_base)
+            if pk.is_relative_to(rel_base):
+                rp = pk.relative_to(rel_base)
             else:
                 rp = prefix / pk
             rk = rp.as_posix()
-            rv = util.uri_to_dict(rk, config, new_base)
+            rv = util.uri_to_dict(rk, rel_base, config.ext_dict)
             rv["metadata"] = dict(v["metadata"])
             tgt[rk] = rv
     session["selection"] = tgt
@@ -109,14 +110,15 @@ def ensure_logged_in(redirect_path: str):
 @config.app.route("/files/", methods=["GET", "POST"])
 @config.app.route("/files/<path:var>", methods=["GET", "POST"])
 def filePage(var: str = ""):
-    path = util.get_filepath(var, config.base_dir)
+    base_dir = Path(session.get("base_dir", config.base_dir))
+    path = util.get_filepath(var, base_dir)
     ensure_logged_in("/login/files/" + var)
     if not path.exists():
         abort(404)
     if not path.is_dir():
         abort(400)
     try:
-        dir_dict, file_dict = util.get_dir_listing(path, config)
+        dir_dict, file_dict = util.get_dir_listing(path, base_dir, config.ext_dict, config.hidden_list)
         view_id = get_view_id()
     except:
         abort(500)
@@ -140,7 +142,7 @@ def filePage(var: str = ""):
         # update selection
         if action == "update":
             paths = request.form.getlist("selection[]")
-            patch = {k: util.uri_to_dict(k, config) for k in paths}
+            patch = {k: util.uri_to_dict(k, base_dir, config.ext_dict) for k in paths}
             if "selection" in session:
                 selection = dict(session["selection"])
                 selection.update(patch)
@@ -188,7 +190,7 @@ def filePage(var: str = ""):
                 assert k in selection
                 uri_dict = selection[k]
                 assert type(uri_dict["metadata"]) == dict
-                patch = util.run_pattern(k, pattern, action, config)
+                patch = util.run_pattern(k, pattern, action, base_dir)
                 uri_dict["metadata"].update(patch)
             session["selection"] = selection
 
@@ -204,15 +206,15 @@ def filePage(var: str = ""):
             selection.pop(name, None)
 
         if action == "reset_root":
-            if config.base_dir != config.orig_base_dir:
-                rereference_selection(config.orig_base_dir)
-                rp = config.base_dir.relative_to(config.orig_base_dir)
-                config.base_dir = config.orig_base_dir
+            if base_dir != config.base_dir:
+                rereference_selection(base_dir, config.base_dir)
+                session.pop("base_dir")
+                rp = base_dir.relative_to(config.base_dir)
                 return redirect(f"/files/" + rp.as_posix())
 
         if action == "set_root":
-            rereference_selection(path)
-            config.base_dir = path
+            rereference_selection(base_dir, path)
+            session["base_dir"] = path.as_posix()
             return redirect("/files")
 
         # redirection
@@ -238,13 +240,14 @@ def homePage():
 @config.app.route("/browse/<path:var>", defaults={"browse": True})
 @config.app.route("/download/<path:var>", defaults={"browse": False})
 def browseFile(var: str, browse: bool):
+    base_dir = session.get("base_dir", config.base_dir)
     if "login" not in session:
         return redirect("/login/download/" + var)
-    path = util.get_filepath(var, config.base_dir)
+    path = util.get_filepath(var, base_dir)
     try:
         if not browse:
             return send_file(path, download_name=path.name)
-        flag, tp, ext = util.is_media(path, config)
+        flag, tp, ext = util.is_media(path, config.ext_dict)
         if flag:
             return util.send_media(path, f"{tp}/{ext}")
         return send_file(path)
@@ -254,11 +257,12 @@ def browseFile(var: str, browse: bool):
 
 @config.app.route("/download_dir/<path:var>")
 def download_folder(var: str):
+    base_dir = session.get("base_dir", config.base_dir)
     if "login" not in session:
         return redirect("/login/downloadFolder/" + var)
-    path = util.get_filepath(var, config.base_dir)
+    path = util.get_filepath(var, base_dir)
     assert path.is_dir()
-    if util.is_hidden(path, config):
+    if util.is_hidden(path, config.hidden_list):
         abort(403)
     zip_name = path.with_suffix(".zip").name
     zip_path = config.temp_dir / zip_name
@@ -272,12 +276,13 @@ def download_folder(var: str):
 @config.app.route("/upload/", methods=["POST"])
 @config.app.route("/upload/<path:var>", methods=["POST"])
 def upload_file(var: str = ""):
+    base_dir = session.get("base_dir", config.base_dir)
     if "login" not in session:
         return render_template("login.html")
     text = ""
-    path = util.get_filepath(var, config.base_dir)
+    path = util.get_filepath(var, base_dir)
     assert path.is_dir()
-    if util.is_hidden(path, config):
+    if util.is_hidden(path, config.hidden_list):
         abort(403)
     files = request.files.getlist("files[]")
     num_total = len(files)
