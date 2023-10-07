@@ -26,14 +26,15 @@ class Config:
         self.app.logger.info("Your Computer IP Address is: " + self.IPAddr)
         # Config file
         fname = "config.json"
-        if platform.system()  == "Windows":
-            fname = "config_win.json" 
+        if platform.system() == "Windows":
+            fname = "config_win.json"
         config_fp = Path(__file__).with_name(fname)
         with open(config_fp) as json_data_file:
             data = json.load(json_data_file)
         self.hidden_list: list[str] = data["hidden"]
         self.pwd_hash: str = data["pwd_hash"]
-        self.base_dir = Path(data["base_dir"]).resolve()
+        self.orig_base_dir = Path(data["base_dir"]).resolve()
+        self.base_dir = self.orig_base_dir
         self.temp_dir = Path(data["temp_dir"]).resolve()
         self.temp_dir.mkdir(exist_ok=True)
         # supported file types dict

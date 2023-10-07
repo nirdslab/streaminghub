@@ -63,13 +63,13 @@ def is_media(fp: Path, config: Config) -> tuple[bool, str, str]:
     return tp in ["audio", "video"], tp, ext
 
 
-def get_icon(fp: Path, config: Config) -> str:
+def get_icon(fp: Path, ext_dict: dict) -> str:
     if fp.is_dir():
         return "/static/icons/folder.png"
     if fp.is_file():
         ext = get_file_extension(fp)
-        if ext in config.ext_dict:
-            return config.ext_dict[ext][1]
+        if ext in ext_dict:
+            return ext_dict[ext][1]
     return "/static/icons/file.png"
 
 
@@ -96,22 +96,22 @@ def is_hidden(path: Path, config: Config) -> bool:
     return False
 
 
-def get_filepath(path: str, config: Config) -> Path:
-    fp = config.base_dir
+def get_filepath(path: str, base_dir: Path) -> Path:
+    fp = base_dir
     if path:
         fp /= Path(unquote(path))
     return fp
 
 
 def dir_exists(path: str, config: Config) -> bool:
-    fp = get_filepath(path, config)
+    fp = get_filepath(path, config.base_dir)
     return fp.exists()
 
 
 def path_to_dict(i: Path, config: Config):
     f_name = i.name
     f_url = i.relative_to(config.base_dir).as_posix()
-    image = get_icon(i, config)
+    image = get_icon(i, config.ext_dict)
     try:
         stat = i.stat()
         dtc = datetime.utcfromtimestamp(stat.st_ctime).strftime("%Y-%m-%d %H:%M:%S")
@@ -125,11 +125,12 @@ def path_to_dict(i: Path, config: Config):
     return target
 
 
-def uri_to_dict(var: str, config: Config):
-    i = get_filepath(var, config)
+def uri_to_dict(var: str, config: Config, base: Path | None = None):
+    base = base or config.base_dir
+    i = get_filepath(var, base)
     f_name = i.name
-    f_url = i.relative_to(config.base_dir).as_posix()
-    image = get_icon(i, config)
+    f_url = i.relative_to(base).as_posix()
+    image = get_icon(i, config.ext_dict)
     metadata = {}
     try:
         stat = i.stat()
@@ -162,7 +163,7 @@ def get_dir_listing(path: Path, config: Config):
 def run_pattern(path: str, pattern: str, mode: str, config: Config) -> dict[str, str]:
     assert mode in ["name_pattern", "path_pattern"]
     parser = parse.compile(pattern)
-    path_obj = get_filepath(path, config)
+    path_obj = get_filepath(path, config.base_dir)
     if mode == "path_pattern":
         arg = path_obj.relative_to(config.base_dir).parent.as_posix()
         logger.info(arg)

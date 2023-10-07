@@ -1,3 +1,4 @@
+from pathlib import Path
 from flask import Response, abort, jsonify, redirect, render_template, request, send_file, session
 from werkzeug.utils import secure_filename
 from urllib.parse import unquote
@@ -6,6 +7,27 @@ from config import Config
 import util
 
 config = Config()
+
+
+def rereference_selection(new_base: Path):
+    prefix = Path()
+    if new_base.is_relative_to(config.base_dir):
+        new_base = new_base.relative_to(config.base_dir)
+    else:
+        prefix  = config.base_dir.relative_to(new_base)
+    tgt = {}
+    if "selection" in session:
+        for k, v in session["selection"].items():
+            pk = Path(k)
+            if pk.is_relative_to(new_base):
+                rp = pk.relative_to(new_base)
+            else:
+                rp = prefix / pk
+            rk = rp.as_posix()
+            rv = util.uri_to_dict(rk, config, new_base)
+            rv["metadata"] = dict(v["metadata"])
+            tgt[rk] = rv
+    session["selection"] = tgt
 
 
 @config.app.errorhandler(400)
@@ -87,7 +109,7 @@ def ensure_logged_in(redirect_path: str):
 @config.app.route("/files/", methods=["GET", "POST"])
 @config.app.route("/files/<path:var>", methods=["GET", "POST"])
 def filePage(var: str = ""):
-    path = util.get_filepath(var, config)
+    path = util.get_filepath(var, config.base_dir)
     ensure_logged_in("/login/files/" + var)
     if not path.exists():
         abort(404)
@@ -132,20 +154,20 @@ def filePage(var: str = ""):
             paths = request.form.getlist("selection[]")
             if "selection" in session:
                 selection = dict(session["selection"])
-                for path in paths:
-                    selection.pop(path, None)
+                for p in paths:
+                    selection.pop(p, None)
                 session["selection"] = selection
             else:
                 abort(500)
             config.app.logger.info(f"updated selection: {len(paths)} dropped")
-        
+
         # clear metadata from selection
         if action == "clear":
             paths = request.form.getlist("selection[]")
             if "selection" in session:
                 selection = dict(session["selection"])
-                for path in paths:
-                    selection[path]["metadata"].clear()
+                for p in paths:
+                    selection[p]["metadata"].clear()
                 session["selection"] = selection
             else:
                 abort(500)
@@ -181,6 +203,18 @@ def filePage(var: str = ""):
             assert type(selection) == dict
             selection.pop(name, None)
 
+        if action == "reset_root":
+            if config.base_dir != config.orig_base_dir:
+                rereference_selection(config.orig_base_dir)
+                rp = config.base_dir.relative_to(config.orig_base_dir)
+                config.base_dir = config.orig_base_dir
+                return redirect(f"/files/" + rp.as_posix())
+
+        if action == "set_root":
+            rereference_selection(path)
+            config.base_dir = path
+            return redirect("/files")
+
         # redirection
         return redirect("/files/" + var)
 
@@ -206,7 +240,7 @@ def homePage():
 def browseFile(var: str, browse: bool):
     if "login" not in session:
         return redirect("/login/download/" + var)
-    path = util.get_filepath(var, config)
+    path = util.get_filepath(var, config.base_dir)
     try:
         if not browse:
             return send_file(path, download_name=path.name)
@@ -222,7 +256,7 @@ def browseFile(var: str, browse: bool):
 def download_folder(var: str):
     if "login" not in session:
         return redirect("/login/downloadFolder/" + var)
-    path = util.get_filepath(var, config)
+    path = util.get_filepath(var, config.base_dir)
     assert path.is_dir()
     if util.is_hidden(path, config):
         abort(403)
@@ -241,7 +275,7 @@ def upload_file(var: str = ""):
     if "login" not in session:
         return render_template("login.html")
     text = ""
-    path = util.get_filepath(var, config)
+    path = util.get_filepath(var, config.base_dir)
     assert path.is_dir()
     if util.is_hidden(path, config):
         abort(403)
@@ -270,7 +304,7 @@ def upload_file(var: str = ""):
 
 @config.app.route("/metadata", methods=["GET"])
 def get_metadata():
-    files = request.args.getlist('files[]')
+    files = request.args.getlist("files[]")
     state = dict(session["selection"])
     metadata = {}
     for file in files:
