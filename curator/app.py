@@ -307,9 +307,9 @@ def upload_file(var: str = ""):
     return render_template("uploadsuccess.html", text=text, fileNo=num_total, fileNo2=num_failed)
 
 
-@config.app.route("/metadata", methods=["GET"])
+@config.app.route("/metadata", methods=["POST"])
 def get_metadata():
-    files = request.args.getlist("files[]")
+    files = request.get_json()["files"]
     state = dict(session["selection"])
     metadata = {}
     for file in files:

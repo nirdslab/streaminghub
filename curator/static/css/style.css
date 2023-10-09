@@ -61,6 +61,11 @@
     overflow: auto;
 }
 
+.short-container {
+    max-height: 4em;
+    overflow: auto;
+}
+
 .file-container th {
     position: sticky;
     top: 0;

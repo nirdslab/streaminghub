@@ -5,11 +5,11 @@
   <div class="card">
     <div class="card-header d-flex flex-row">
       <h5 class="mt-auto mb-0">Choose Data Root and Files</h5>
-      <div class="d-flex ms-auto">  
-        <button title="Set Root" type="submit" class="btn btn-outline btn-outline-success ms-auto py-0 mx-1" name="action"
-        value="set_root"><i class="fa fa-folder me-2"></i>Use as Root</button>
-        <button title="Reset Root" type="submit" class="btn btn-outline btn-outline-dark ms-auto py-0 mx-1" name="action"
-        value="reset_root"><i class="fa fa-undo me-2"></i>Reset Root</button>
+      <div class="d-flex ms-auto">
+        <button title="Set Root" type="submit" class="btn btn-outline btn-outline-success ms-auto py-0 mx-1"
+          name="action" value="set_root"><i class="fa fa-folder me-2"></i>Use as Root</button>
+        <button title="Reset Root" type="submit" class="btn btn-outline btn-outline-dark ms-auto py-0 mx-1"
+          name="action" value="reset_root"><i class="fa fa-undo me-2"></i>Reset Root</button>
       </div>
     </div>
     <div class="card-body">
@@ -168,8 +168,8 @@
       </div>
       <hr class="my-2">
       <div class="d-flex">
-        <button class="btn btn-sm btn-primary ms-auto me-0"><b>Step 2 - Describe File Contents</b><i
-            class="fa-solid fa-arrow-right ms-2"></i></button>
+        <a href="/map" class="btn btn-sm btn-primary ms-auto me-0"><b>Step 2 - Describe File Contents</b><i
+            class="fa-solid fa-arrow-right ms-2"></i></a>
       </div>
     </div>
   </div>
@@ -216,10 +216,16 @@
   })
 
   async function getMetadata(args) {
-    const query = Array.from(args).map(f => new URLSearchParams({ "files[]": f })).join("&");
-    let msg = null;
+    let msg = {};
     try {
-      const res = await fetch('/metadata?' + query);
+      const res = await fetch('/metadata?', {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        method: "post",
+        body: JSON.stringify({ files: args })
+      });
       msg = await res.json();
     } catch (err) {
       console.error("An error occured", err);

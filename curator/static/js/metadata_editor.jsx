@@ -33,12 +33,21 @@ const MetadataEditor = ({ meta }) => {
     }
 
     const group = (vf) => Object.entries(vf).map(([v, f]) => (
-        <li className="list-group-item"><b>{v}</b><ul>{pills(f)}</ul></li>
+        <li className="list-group-item">
+            <div className="d-flex flex-row align-items-center">
+                <b>{v}</b>
+                <span className="badge bg-success rounded-pill ms-auto">{f.length}</span>
+            </div>
+            <hr className="my-1"></hr>
+            <div className="short-container">
+                <ul>{pills(f)}</ul>
+            </div>
+        </li>
     ))
 
 
     const htmlTags = Object.entries(tags).map(([k, vf]) => (
-        <div className="col-6 my-2">
+        <div className="col-12 col-sm-6 col-md-3 my-2">
             <div className="card">
                 <div className="card-header bg-success text-light py-1 text-center"><b>{k}</b></div>
                 <ul className="list-group list-group-flush">{group(vf)}</ul>
