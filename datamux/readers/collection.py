@@ -1,7 +1,9 @@
-import asyncio
 import logging
 import random
+import time
+from multiprocessing import Queue
 from pathlib import Path
+from threading import Thread
 
 import pylsl
 from dfds import Parser
@@ -67,30 +69,32 @@ class CollectionReader(Reader):
         collection_name: str,
         stream_name: str,
         attrs: dict,
-        queue: asyncio.Queue,
+        queue: Queue,
         transform,
-    ) -> asyncio.Task:
+    ) -> None:
         collection = [c for c in self.__collections if c.name == collection_name][0]
         stream = [s for s in collection.streams.values() if s.name == stream_name][0]
         stream.attrs.update(attrs, dfds_mode="replay")
-        return asyncio.create_task(self.__replay_coro(collection, stream, queue, transform))
+        thread = Thread(None, self.replay_coro, stream_name, (collection, stream, queue, transform), daemon=True)
+        thread.start()
 
     def restream(
         self,
         collection_name: str,
         stream_name: str,
         attrs: dict,
-    ) -> asyncio.Task:
+    ) -> None:
         collection = [c for c in self.__collections if c.name == collection_name][0]
         stream = [s for s in collection.streams.values() if s.name == stream_name][0]
         stream.attrs.update(attrs, dfds_mode="restream")
-        return asyncio.create_task(self.__restream_coro(collection, stream))
+        thread = Thread(None, self.restream_coro, stream_name, (collection, stream), daemon=True)
+        thread.start()
 
-    async def __replay_coro(
+    def replay_coro(
         self,
         collection: Collection,
         stream: Stream,
-        queue: asyncio.Queue,
+        queue: Queue,
         transform,
     ):
         freq = stream.frequency
@@ -111,11 +115,11 @@ class CollectionReader(Reader):
             msg = dict(index=index, value=value)
             if transform is not None:
                 msg = transform(msg)
-            await queue.put(msg)
-            await asyncio.sleep(dt)
+            queue.put_nowait(msg)
+            time.sleep(dt)
         self.logger.info(f"ended replay")
 
-    async def __restream_coro(
+    def restream_coro(
         self,
         collection: Collection,
         stream: Stream,
@@ -143,5 +147,5 @@ class CollectionReader(Reader):
                 # FIXME currently only supports 1D index
                 outlet.push_sample(value.tolist(), index[0])
                 current_index += 1
-            await asyncio.sleep(dt)
+            time.sleep(dt)
         self.logger.info(f"ended restream")

@@ -1,4 +1,5 @@
 import asyncio
+from multiprocessing import Queue
 
 from dfds.typing import Collection, Stream
 from pydantic import BaseModel
@@ -68,7 +69,7 @@ class DataMuxAPI:
         collection_name: str,
         stream_name: str,
         attrs: dict,
-        sink: asyncio.Queue,
+        sink: Queue,
         transform=None,
     ) -> StreamAck:
         """
@@ -86,12 +87,8 @@ class DataMuxAPI:
         """
         topic = prefix + gen_randseq()
         t = (lambda x: [topic.encode()] + transform(x)[1:]) if transform is not None else None
-        task = self.reader_c.replay(collection_name, stream_name, attrs, sink, t)
-        status = not task.cancelled()
-        return StreamAck(
-            status=status,
-            randseq=topic,
-        )
+        self.reader_c.replay(collection_name, stream_name, attrs, sink, t)
+        return StreamAck(status=True, randseq=topic)
 
     def publish_collection_stream(
         self,
@@ -110,9 +107,8 @@ class DataMuxAPI:
         Returns:
             StreamAck: status and reference information.
         """
-        task = self.reader_c.restream(collection_name, stream_name, attrs)
-        status = not task.cancelled()
-        return StreamAck(status=status)
+        self.reader_c.restream(collection_name, stream_name, attrs)
+        return StreamAck(status=True)
 
     def list_live_streams(
         self,
@@ -131,7 +127,7 @@ class DataMuxAPI:
         self,
         stream_name: str,
         attrs: dict,
-        sink: asyncio.Queue,
+        sink: Queue,
         transform=None,
     ) -> StreamAck:
         """
@@ -148,9 +144,5 @@ class DataMuxAPI:
         """
         topic = prefix + gen_randseq()
         t = (lambda x: [topic.encode()] + transform(x)[1:]) if transform is not None else None
-        task = self.reader_n.relay(stream_name, attrs, sink, t)
-        status = not task.cancelled()
-        return StreamAck(
-            status=status,
-            randseq=topic,
-        )
+        self.reader_n.relay(stream_name, attrs, sink, t)
+        return StreamAck(status=True, randseq=topic)

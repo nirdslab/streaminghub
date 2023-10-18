@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import multiprocessing
 
 from dotenv import load_dotenv
 from rich.logging import RichHandler
@@ -37,12 +38,12 @@ async def main():
             "id": "gaze",
         }
     )
-    sink = asyncio.Queue()
+    sink = multiprocessing.Queue()
     ack = api.replay_collection_stream(collection_name, stream_name, attrs, sink)
     logger.info(f"received ack for collection stream: {ack}")
     # print 25 points
     for _ in range(25):
-        item = await sink.get()
+        item = sink.get()
         logger.info(item)
 
     # test 4 - make LSL stream from a collection stream
@@ -61,12 +62,12 @@ async def main():
     logger.info("relaying LSL stream")
     assert len(live_streams) > 0
     ls = live_streams[0]
-    sink = asyncio.Queue()
+    sink = multiprocessing.Queue()
     ack = api.read_live_stream(ls.name, ls.attrs, sink)
     logger.info(f"received ack for live stream: {ack}")
     # print 25 points
     for _ in range(25):
-        item = await sink.get()
+        item = sink.get()
         logger.info(item)
 
 

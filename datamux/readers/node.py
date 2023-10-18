@@ -1,5 +1,6 @@
-import asyncio
 import logging
+from multiprocessing import Queue
+from threading import Thread
 
 import pylsl
 from dfds.typing import Stream
@@ -43,9 +44,9 @@ class NodeReader(Reader):
         self,
         stream_name: str,
         attrs: dict,
-        queue: asyncio.Queue,
+        queue: Queue,
         transform,
-    ) -> asyncio.Task:
+    ) -> None:
         stream = None
         for s in self.__streams:
             is_name_matched = s.name == stream_name
@@ -66,7 +67,8 @@ class NodeReader(Reader):
         self.logger.info("creating inlet")
         inlet = pylsl.StreamInlet(stream_info)
         self.logger.info("creating relay task")
-        return asyncio.create_task(self.__relay_coro(inlet, queue, transform))
+        thread = Thread(None, self.relay_coro, stream_name, (inlet, queue, transform), daemon=True)
+        thread.start()
 
     def __create_query(
         self,
@@ -79,10 +81,10 @@ class NodeReader(Reader):
         query_str = " and ".join([f"{k}='{v}'" for k, v in query_args.items()])
         return query_str
 
-    async def __relay_coro(
+    def relay_coro(
         self,
         inlet: pylsl.StreamInlet,
-        queue: asyncio.Queue,
+        queue: Queue,
         transform,
     ):
         stream = stream_inlet_to_stream(inlet)
@@ -97,12 +99,12 @@ class NodeReader(Reader):
         self.logger.info("started relay")
         while True:
             try:
-                (values, indices) = inlet.pull_chunk(timeout=0.0)
+                (values, indices) = inlet.pull_chunk()
             except pylsl.LostError as e:
                 self.logger.info(f"LSL connection lost: {e}")
                 break
             if values is None or len(values) == 0:
-                await asyncio.sleep(1e-3)
+                pass
             else:
                 for index, value in zip(indices, values):
                     # FIXME currently only supports 1D index
@@ -111,5 +113,5 @@ class NodeReader(Reader):
                     msg = dict(index=index_dict, value=value_dict)
                     if transform is not None:
                         msg = transform(msg)
-                    await queue.put(msg)
+                    queue.put_nowait(msg)
         self.logger.info("ended relay")

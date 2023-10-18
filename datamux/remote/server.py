@@ -1,4 +1,7 @@
 import asyncio
+from functools import partial
+import multiprocessing
+from threading import Thread
 
 from api import DataMuxAPI
 from rpc import create_rpc_server
@@ -20,6 +23,7 @@ class DataMuxServer:
         self.active = False
         self.api_in = asyncio.Queue()
         self.api_out = asyncio.Queue()
+        self.data_q = multiprocessing.Queue()
         # rpc module
         self.rpc = create_rpc_server(
             name=rpc_name,
@@ -53,7 +57,7 @@ class DataMuxServer:
             elif topic == TOPIC_READ_LIVE_STREAM:
                 stream_name = content["stream_name"]
                 attrs = content["attrs"]
-                ack = self.api.read_live_stream(stream_name, attrs, self.api_out, transform)
+                ack = self.api.read_live_stream(stream_name, attrs, self.data_q, transform)
                 retval = ack.model_dump()
             # REPLAY MODE (File -> Queue) ==============================================================================================
             elif topic == TOPIC_LIST_COLLECTIONS:
@@ -67,7 +71,7 @@ class DataMuxServer:
                 collec_name = content["collection_name"]
                 stream_name = content["stream_name"]
                 attrs = content["attrs"]
-                ack = self.api.replay_collection_stream(collec_name, stream_name, attrs, self.api_out, transform)
+                ack = self.api.replay_collection_stream(collec_name, stream_name, attrs, self.data_q, transform)
                 retval = ack.model_dump()
             # RESTREAM MODE (File -> LSL) ==============================================================================================
             elif topic == TOPIC_PUBLISH_COLLECTION_STREAM:
@@ -81,7 +85,15 @@ class DataMuxServer:
                 retval = dict(error="Unknown Request")
 
             msg = transform(retval)
-            await self.api_out.put(msg)
+            self.api_out.put_nowait(msg)
+
+    def requeue(
+        self,
+        loop: asyncio.AbstractEventLoop,
+    ):
+        while self.active:
+            msg = self.data_q.get()
+            loop.call_soon_threadsafe(self.api_out.put_nowait, msg)
 
     async def start(
         self,
@@ -89,6 +101,8 @@ class DataMuxServer:
         port: int,
     ):
         self.active = True
+        loop = asyncio.get_running_loop()
+        Thread(None, self.requeue, None, (loop,), daemon=True).start()
         asyncio.create_task(self.handle_requests())
         asyncio.create_task(self.rpc.start(host, port))
         flag = asyncio.Future()
