@@ -1,4 +1,5 @@
 import logging
+import os
 from pathlib import Path
 
 import dfds
@@ -8,7 +9,8 @@ logging.basicConfig(level=logging.INFO)
 
 def test_parser():
     parser = dfds.Parser()
-    fp = Path.cwd().joinpath("repository", "adhd_sin.collection.json").resolve().as_posix()
+    fp = Path(os.getenv("SHUB_META_DIR", "repository")) / "adhd_sin.collection.json"
+    fp = fp.resolve().as_posix()
     collection = parser.get_collection_metadata(fp)
     assert collection is not None
 

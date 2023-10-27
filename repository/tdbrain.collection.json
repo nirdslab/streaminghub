@@ -80,5 +80,5 @@
       ]
     }
   },
-  "pattern": "sub-{subject}_ses-{session}_task-{task}_eeg.parquet"
+  "pattern": "parquet://sub-{subject}_ses-{session}_task-{task}_eeg"
 }

@@ -144,5 +144,5 @@
       ]
     }
   },
-  "pattern": "{state}_{city}"
+  "pattern": "h5://{state}_{city}"
 }

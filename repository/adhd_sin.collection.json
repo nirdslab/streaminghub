@@ -78,5 +78,5 @@
       ]
     }
   },
-  "pattern": "P{participant}_N{noise}_Q{question}"
+  "pattern": "h5://P{participant}_N{noise}_Q{question}"
 }

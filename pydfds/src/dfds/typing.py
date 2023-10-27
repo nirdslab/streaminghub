@@ -5,6 +5,7 @@ from typing import List, Optional, Tuple
 
 import h5py
 import numpy as np
+import pandas as pd
 import parse
 import pydantic as p
 
@@ -38,7 +39,7 @@ class Field(p.BaseModel):
     description: str
     dtype: type
 
-    @p.field_validator("dtype", mode='before')
+    @p.field_validator("dtype", mode="before")
     def parse_dtype(cls, v):
         return dtype_map_fwd[v]
 
@@ -121,13 +122,15 @@ class DataLoader:
     ) -> None:
         super().__init__()
         self.__collection = collection
-        self.__parser = parse.compile(self.__collection.pattern)
+        self.__protocol, self.__pattern = self.__collection.pattern.split("://", 1)
+        self.__parser = parse.compile(self.__pattern)
 
         import os
+        from pathlib import Path
+
         base_dir = os.getenv("SHUB_DATA_DIR")
         assert base_dir
-        self.__fpath = os.path.join(base_dir, self.__collection.name, "data.h5")
-        assert os.path.isfile(self.__fpath)
+        self.__fpath = Path(base_dir) / self.__collection.name
 
     def ls(
         self,
@@ -140,15 +143,29 @@ class DataLoader:
 
         """
         available = []
-        with h5py.File(self.__fpath, "r") as file:
-            for key, dataset in file.items():
-                if not isinstance(dataset, h5py.Dataset):
-                    continue
-                result = self.__parser.parse(key)
+        if self.__protocol == "h5":
+            fp = self.__fpath / "data.h5"
+            assert fp.exists() and fp.is_file()
+            with h5py.File(fp, "r") as file:
+                for key, dataset in file.items():
+                    if not isinstance(dataset, h5py.Dataset):
+                        continue
+                    result = self.__parser.parse(key)
+                    assert isinstance(result, parse.Result)
+                    attrs: dict[str, str] = dict(dataset.attrs.items())
+                    attrs.update({"collection": self.__collection.name, **result.named})
+                    available.append(attrs)
+        elif self.__protocol == "parquet":
+            fp = self.__fpath
+            for key in fp.glob("*.parquet"):
+                result = self.__parser.parse(fp.with_suffix("").name)
                 assert isinstance(result, parse.Result)
-                attrs: dict[str, str] = dict(dataset.attrs.items())
+                dataset = pd.read_parquet(key)
+                attrs: dict[str, str] = {}  # TODO get extra metadata from elsewhere
                 attrs.update({"collection": self.__collection.name, **result.named})
                 available.append(attrs)
+        else:
+            raise ValueError(f"Unsupported protocol: {self.__protocol}")
         return available
 
     def read(
@@ -169,10 +186,22 @@ class DataLoader:
         parser_attrs = {k: v for k, v in attributes.items() if k in parser_keys}
         rec_path = str.format(self.__parser._format, **parser_attrs)
         # Read the record from file
-        with h5py.File(self.__fpath, "r") as file:
-            dataset = file.get(rec_path, default=None)  # type: ignore
-            assert isinstance(dataset, h5py.Dataset)
-            attrs = dict(dataset.attrs.items())
+        if self.__protocol == "h5":
+            fp = self.__fpath / "data.h5"
+            assert fp.exists() and fp.is_file()
+            with h5py.File(fp, "r") as file:
+                dataset = file.get(rec_path, default=None)  # type: ignore
+                assert isinstance(dataset, h5py.Dataset)
+                attrs = dict(dataset.attrs.items())
+                attrs.update({"collection": self.__collection.name, **parser_attrs})
+                data = np.array(dataset)
+        elif self.__protocol == "parquet":
+            fp = self.__fpath / (rec_path + ".parquet")
+            dataset = pd.read_parquet(fp)
+            dataset.index.name = "t"
+            attrs: dict[str, str] = {}  # TODO get extra metadata from elsewhere
             attrs.update({"collection": self.__collection.name, **parser_attrs})
-            data = np.array(dataset)
+            data = dataset.to_records()
+        else:
+            raise ValueError(f"Unsupported protocol: {self.__protocol}")
         return attrs, data

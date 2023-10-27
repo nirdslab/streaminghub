@@ -70,5 +70,5 @@
       ]
     }
   },
-  "pattern": "S{subject}_{mode}_{task}back_{position}"
+  "pattern": "h5://S{subject}_{mode}_{task}back_{position}"
 }
