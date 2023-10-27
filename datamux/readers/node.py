@@ -7,6 +7,7 @@ from dfds.typing import Stream
 
 from . import Reader
 from .util import stream_info_to_stream, stream_inlet_to_stream
+import util
 
 
 class NodeReader(Reader):
@@ -95,6 +96,11 @@ class NodeReader(Reader):
         index_cols = list(stream.index)
         value_cols = list(stream.fields)
 
+        # termination indicator
+        eof = util.END_OF_STREAM
+        if transform is not None:
+            eof = transform(eof)
+
         # relay each record
         self.logger.info("started relay")
         while True:
@@ -114,4 +120,5 @@ class NodeReader(Reader):
                     if transform is not None:
                         msg = transform(msg)
                     queue.put_nowait(msg)
+        queue.put_nowait(eof)
         self.logger.info("ended relay")

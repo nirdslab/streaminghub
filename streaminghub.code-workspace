@@ -21,7 +21,12 @@
 			"path": "datamux"
 		},
 		{
+			"name": "flowmaker",
 			"path": "flowmaker"
+		},
+		{
+			"name": "datasets",
+			"path": "../../datasets"
 		}
 	],
 	"settings": {

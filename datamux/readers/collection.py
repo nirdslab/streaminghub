@@ -1,4 +1,5 @@
 import logging
+import os
 import random
 import time
 from multiprocessing import Queue
@@ -8,6 +9,8 @@ from threading import Thread
 import pylsl
 from dfds import Parser
 from dfds.typing import Collection, Stream
+
+import util
 
 from . import Reader
 from .util import stream_to_stream_info
@@ -45,7 +48,8 @@ class CollectionReader(Reader):
         self,
     ) -> None:
         self.__collections.clear()
-        for fp in Path.cwd().joinpath("repository").resolve().glob("*.collection.json"):
+        fp_repository = Path(os.getenv("SHUB_META_DIR", "../repository"))
+        for fp in fp_repository.resolve().glob("*.collection.json"):
             collection = self.__parser.get_collection_metadata(fp.as_posix())
             self.__collections.append(collection)
 
@@ -107,6 +111,11 @@ class CollectionReader(Reader):
         attrs, data = collection.dataloader().read(stream.attrs)
         stream.attrs.update(attrs)
 
+        # termination indicator
+        eof = util.END_OF_STREAM
+        if transform is not None:
+            eof = transform(eof)
+
         # replay each record
         self.logger.info(f"started replay")
         for record in data:
@@ -117,6 +126,7 @@ class CollectionReader(Reader):
                 msg = transform(msg)
             queue.put_nowait(msg)
             time.sleep(dt)
+        queue.put_nowait(eof)
         self.logger.info(f"ended replay")
 
     def restream_coro(

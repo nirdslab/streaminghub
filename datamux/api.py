@@ -86,7 +86,7 @@ class DataMuxAPI:
             StreamAck: status and reference information.
         """
         topic = prefix + gen_randseq()
-        t = (lambda x: [topic.encode()] + transform(x)[1:]) if transform is not None else None
+        t = (lambda x: [topic.encode(), *transform(x)]) if transform is not None else None
         self.reader_c.replay(collection_name, stream_name, attrs, sink, t)
         return StreamAck(status=True, randseq=topic)
 
@@ -143,6 +143,6 @@ class DataMuxAPI:
             StreamAck: status and reference information.
         """
         topic = prefix + gen_randseq()
-        t = (lambda x: [topic.encode()] + transform(x)[1:]) if transform is not None else None
+        t = (lambda x: [topic.encode(), *transform(x)]) if transform is not None else None
         self.reader_n.relay(stream_name, attrs, sink, t)
         return StreamAck(status=True, randseq=topic)

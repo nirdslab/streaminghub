@@ -7,6 +7,7 @@ import multiprocessing
 from dotenv import load_dotenv
 from rich.logging import RichHandler
 
+import util
 from api import DataMuxAPI
 
 
@@ -41,10 +42,12 @@ async def main():
     sink = multiprocessing.Queue()
     ack = api.replay_collection_stream(collection_name, stream_name, attrs, sink)
     logger.info(f"received ack for collection stream: {ack}")
-    # print 25 points
-    for _ in range(25):
+    # print 1000 points or until EOF
+    for _ in range(1000):
         item = sink.get()
         logger.info(item)
+        if item == util.END_OF_STREAM:
+            break
 
     # test 4 - make LSL stream from a collection stream
     logger.info("creating LSL stream")
@@ -65,10 +68,12 @@ async def main():
     sink = multiprocessing.Queue()
     ack = api.read_live_stream(ls.name, ls.attrs, sink)
     logger.info(f"received ack for live stream: {ack}")
-    # print 25 points
-    for _ in range(25):
+    # print 1000 points or until EOF
+    for _ in range(1000):
         item = sink.get()
         logger.info(item)
+        if item == util.END_OF_STREAM:
+            break
 
 
 if __name__ == "__main__":

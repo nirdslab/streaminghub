@@ -5,6 +5,7 @@ from typing import Any, Dict, Generator
 
 DICT = Dict[str, Any]
 DICT_GENERATOR = Generator[DICT, None, None]
+END_OF_STREAM = {} # NOTE do not change
 
 
 def asyncify(func, executor):

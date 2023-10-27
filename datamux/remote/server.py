@@ -47,8 +47,7 @@ class DataMuxServer:
 
         while self.active:
             topic, content, id = await self.api_in.get()
-
-            transform = lambda retval: [topic, retval, id]
+            transform = lambda retval: [retval, id]
 
             # LIVE MODE (LSL -> Queue) =================================================================================================
             if topic == TOPIC_LIST_LIVE_STREAMS:
@@ -84,7 +83,7 @@ class DataMuxServer:
             else:
                 retval = dict(error="Unknown Request")
 
-            msg = transform(retval)
+            msg = [topic] + transform(retval)
             self.api_out.put_nowait(msg)
 
     def requeue(
