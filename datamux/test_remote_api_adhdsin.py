@@ -33,13 +33,9 @@ async def main():
     stream_name = "Gaze"
     attrs = dict(
         {
-            "diagnosis": "Non-ADHD",
-            "gender": "female",
             "noise": "0",
             "participant": "12",
             "question": "10",
-            "collection": "adhd_sin",
-            "id": "gaze",
         }
     )
     sink = asyncio.Queue()

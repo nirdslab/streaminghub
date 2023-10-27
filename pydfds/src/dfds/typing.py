@@ -158,9 +158,8 @@ class DataLoader:
         elif self.__protocol == "parquet":
             fp = self.__fpath
             for key in fp.glob("*.parquet"):
-                result = self.__parser.parse(fp.with_suffix("").name)
+                result = self.__parser.parse(key.with_suffix("").name)
                 assert isinstance(result, parse.Result)
-                dataset = pd.read_parquet(key)
                 attrs: dict[str, str] = {}  # TODO get extra metadata from elsewhere
                 attrs.update({"collection": self.__collection.name, **result.named})
                 available.append(attrs)

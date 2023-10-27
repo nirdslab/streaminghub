@@ -7,149 +7,139 @@
   },
   "outputs": {
     "eeg": {
-      "name": "EEG",
+      "name": "eeg",
       "description": "EEG electrode potential",
       "unit": "mV",
       "frequency": 100,
       "fields": {
         "Fp1": {
           "name": "Frontopolar 1",
-          "description": "",
+          "description": "Frontopolar 1",
           "dtype": "f32"
         },
         "Fp2": {
           "name": "Frontopolar 2",
-          "description": "",
+          "description": "Frontopolar 2",
           "dtype": "f32"
         },
         "F7": {
           "name": "Frontal 7",
-          "description": "",
+          "description": "Frontal 7",
           "dtype": "f32"
         },
         "F3": {
           "name": "Frontal 3",
-          "description": "",
+          "description": "Frontal 3",
           "dtype": "f32"
         },
         "Fz": {
           "name": "Frontal zero",
-          "description": "",
+          "description": "Frontal zero",
           "dtype": "f32"
         },
         "F4": {
           "name": "Frontal 4",
-          "description": "",
+          "description": "Frontal 4",
           "dtype": "f32"
         },
         "F8": {
           "name": "Frontal 8",
-          "description": "",
+          "description": "Frontal 8",
           "dtype": "f32"
         },
         "FC3": {
           "name": "Frontocentral 3",
-          "description": "",
+          "description": "Frontocentral 3",
           "dtype": "f32"
         },
         "FCz": {
           "name": "Frontocentral zero",
-          "description": "",
+          "description": "Frontocentral zero",
           "dtype": "f32"
         },
         "FC4": {
           "name": "Frontocentral 4",
-          "description": "",
+          "description": "Frontocentral 4",
           "dtype": "f32"
         },
         "T7": {
           "name": "Temporal 7",
-          "description": "",
+          "description": "Temporal 7",
           "dtype": "f32"
         },
         "C3": {
           "name": "Central 3",
-          "description": "",
+          "description": "Central 3",
           "dtype": "f32"
         },
         "Cz": {
           "name": "Central zero",
-          "description": "",
+          "description": "Central zero",
           "dtype": "f32"
         },
         "C4": {
           "name": "Central 4",
-          "description": "",
+          "description": "Central 4",
           "dtype": "f32"
         },
         "T8": {
           "name": "Temporal 8",
-          "description": "",
+          "description": "Temporal 8",
           "dtype": "f32"
         },
         "CP3": {
           "name": "Centroparietal 3",
-          "description": "",
+          "description": "Centroparietal 3",
           "dtype": "f32"
         },
         "CPz": {
           "name": "Centroparietal zero",
-          "description": "",
+          "description": "Centroparietal zero",
           "dtype": "f32"
         },
         "CP4": {
           "name": "Centroparietal 4",
-          "description": "",
+          "description": "Centroparietal 4",
           "dtype": "f32"
         },
         "P7": {
           "name": "Parietal 7",
-          "description": "",
-          "dtype": "f32"
-        },
-        "T5": {
-          "name": "Temporal 5",
-          "description": "",
+          "description": "Parietal 7",
           "dtype": "f32"
         },
         "P3": {
           "name": "Parietal 3",
-          "description": "",
+          "description": "Parietal 3",
           "dtype": "f32"
         },
         "Pz": {
           "name": "Parietal zero",
-          "description": "",
+          "description": "Parietal zero",
           "dtype": "f32"
         },
         "P4": {
           "name": "Parietal 4",
-          "description": "",
+          "description": "Parietal 4",
           "dtype": "f32"
         },
         "P8": {
           "name": "Parietal 8",
-          "description": "",
-          "dtype": "f32"
-        },
-        "T6": {
-          "name": "Temporal 6",
-          "description": "",
+          "description": "Parietal 8",
           "dtype": "f32"
         },
         "O1": {
           "name": "Occipital 1",
-          "description": "",
+          "description": "Occipital 1",
           "dtype": "f32"
         },
         "Oz": {
           "name": "Occipital zero",
-          "description": "",
+          "description": "Occipital zero",
           "dtype": "f32"
         },
         "O2": {
           "name": "Occipital 2",
-          "description": "",
+          "description": "Occipital 2",
           "dtype": "f32"
         }
       },
@@ -162,14 +152,14 @@
       }
     },
     "ecg": {
-      "name": "ECG",
+      "name": "ecg",
       "description": "ECG Electrode Potential",
       "unit": "mV",
       "frequency": 100,
       "fields": {
         "Erbs": {
           "name": "Clavical bone",
-          "description": "",
+          "description": "Clavical bone",
           "dtype": "f32"
         }
       },
@@ -182,34 +172,34 @@
       }
     },
     "orientation": {
-      "name": "Orientation",
+      "name": "orientation",
       "description": "Orientation of the Head",
       "unit": "",
       "frequency": 100,
       "fields": {
         "VPVA": {
           "name": "Vertical (above)",
-          "description": "",
+          "description": "Vertical (above)",
           "dtype": "f32"
         },
         "VNVB": {
           "name": "Vertical (below)",
-          "description": "",
+          "description": "Vertical (below)",
           "dtype": "f32"
         },
         "HPHL": {
           "name": "Horizontal (left)",
-          "description": "",
+          "description": "Horizontal (left)",
           "dtype": "f32"
         },
         "HNHR": {
           "name": "Horizontal (right)",
-          "description": "",
+          "description": "Horizontal (right)",
           "dtype": "f32"
         },
         "OrbOcc": {
           "name": "Orbicularis Oculi",
-          "description": "",
+          "description": "Orbicularis Oculi",
           "dtype": "f32"
         }
       },
@@ -222,14 +212,14 @@
       }
     },
     "mass": {
-      "name": "Mass Spectrometer",
+      "name": "mass",
       "description": "Mass Spectrometer Readings",
       "unit": "Th",
       "frequency": 100,
       "fields": {
         "Mass": {
           "name": "Mass Spectrometry",
-          "description": "",
+          "description": "Mass Spectrometry",
           "dtype": "f32"
         }
       },
