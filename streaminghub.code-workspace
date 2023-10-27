@@ -5,6 +5,14 @@
 			"path": "."
 		},
 		{
+			"name": "datasets",
+			"path": "../../datasets"
+		},
+		{
+			"name": "repository",
+			"path": "repository"
+		},
+		{
 			"name": "dfds",
 			"path": "dfds"
 		},
@@ -23,25 +31,24 @@
 		{
 			"name": "flowmaker",
 			"path": "flowmaker"
-		},
-		{
-			"name": "datasets",
-			"path": "../../datasets"
 		}
 	],
 	"settings": {
 		"jupyter.notebookFileRoot": "${workspaceFolder}",
 		"terminal.integrated.env.linux": {
 			"PYTHONPATH": "${workspaceFolder}",
-			"SHUB_DATA_DIR": "${env:HOME}/datasets"
+			"SHUB_DATA_DIR": "${env:HOME}/datasets",
+			"SHUB_META_DIR": "${workspaceFolder}/repository"
 		},
 		"terminal.integrated.env.osx": {
 			"PYTHONPATH": "${workspaceFolder}",
-			"SHUB_DATA_DIR": "${env:HOME}/datasets"
+			"SHUB_DATA_DIR": "${env:HOME}/datasets",
+			"SHUB_META_DIR": "${workspaceFolder}/repository"
 		},
 		"terminal.integrated.env.windows": {
 			"PYTHONPATH": "${workspaceFolder}",
-			"SHUB_DATA_DIR": "${env:USERPROFILE}\\datasets"
+			"SHUB_DATA_DIR": "${env:USERPROFILE}\\datasets",
+			"SHUB_META_DIR": "${workspaceFolder}\\repository"
 		},
 		"peacock.remoteColor": "#1857a4aa",
 		"[python]": {

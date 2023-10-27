@@ -1,82 +1,84 @@
 {
   "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/collection.jsonschema",
-  "name": "adhd_sin",
-  "description": "Eye movements of participants during an audiovisual-SIN task",
+  "name": "tdbrain",
+  "description": "The Two Decades Brainclinics Research Archive for Insights in Neurophysiology (TDBRAIN) database",
   "keywords": [
-    "SIN",
-    "ADHD"
+    "MDD",
+    "ADHD",
+    "SMC",
+    "OCD",
+    "Healthy"
   ],
   "authors": [
     {
-      "name": "Anne M. P. Michalek",
-      "affiliation": "Old Dominion University",
-      "email": "aperrott@odu.edu"
+      "name": "Hanneke van Dijk",
+      "affiliation": "Research Institute Brainclinics; Maastricht University",
+      "email": "example@abc.com"
+    },
+    {
+      "name": "Guido van Wingen",
+      "affiliation": "Amsterdam UMC",
+      "email": "example@abc.com"
+    },
+    {
+      "name": "Damiaan Denys",
+      "affiliation": "Amsterdam UMC",
+      "email": "example@abc.com"
+    },
+    {
+      "name": "Sebastian Olbrich",
+      "affiliation": "University Hospital of Psychiatry Zurich",
+      "email": "example@abc.com"
+    },
+    {
+      "name": "Rosalinde van Ruth",
+      "affiliation": "neuroCare Group",
+      "email": "example@abc.com"
+    },
+    {
+      "name": "Martijn Arns",
+      "affiliation": "Research Institute Brainclinics; Maastricht University",
+      "email": "example@abc.com"
     }
   ],
   "streams": {
-    "gaze": {
-      "@ref": "./tobii_pro_x2_60.node.json#/outputs/gaze"
+    "eeg": {
+      "@ref": "./brainclinics_eeg.node.json#/outputs/eeg"
     },
-    "pupil": {
-      "@ref": "./tobii_pro_x2_60.node.json#/outputs/pupil"
+    "ecg": {
+      "@ref": "./brainclinics_eeg.node.json#/outputs/ecg"
+    },
+    "orientation": {
+      "@ref": "./brainclinics_eeg.node.json#/outputs/orientation"
+    },
+    "mass": {
+      "@ref": "./brainclinics_eeg.node.json#/outputs/mass"
     }
   },
   "groups": {
-    "participant": {
-      "description": "The ID of each participant",
+    "subject": {
+      "description": "The ID of each subject",
       "values": [
-        "3",
-        "5",
-        "12",
-        "14",
-        "18",
-        "21",
-        "24",
-        "26",
-        "30",
-        "32",
-        "34",
-        "35",
-        "36",
-        "37",
-        "38",
-        "47"
+        "19681349",
+        "19681385",
+        "19684666",
+        "19686324"
       ]
     },
-    "question": {
-      "description": "The ID of in each question",
+    "session": {
+      "description": "The ID of in each session",
       "values": [
         "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "10",
-        "11",
-        "12",
-        "13",
-        "14",
-        "15",
-        "16",
-        "17",
-        "18"
+        "2"
       ]
     },
-    "noise": {
-      "description": "The noise level of each question",
+    "task": {
+      "description": "Name of the task",
       "values": [
-        "0",
-        "5",
-        "10",
-        "15",
-        "20",
-        "25"
+        "restEO",
+        "restEC"
       ]
     }
   },
-  "pattern": "P{participant}_N{noise}_Q{question}"
+  "pattern": "sub-{subject}_ses-{session}_task-{task}_eeg.parquet"
 }
