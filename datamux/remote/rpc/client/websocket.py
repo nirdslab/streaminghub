@@ -3,9 +3,7 @@ import logging
 
 from websockets.client import WebSocketClientProtocol, connect
 
-from codec import create_codec
-
-from . import RpcClient
+from . import RpcClient, create_codec
 
 
 class WebsocketRPC(RpcClient):

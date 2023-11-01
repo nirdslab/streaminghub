@@ -1,6 +1,6 @@
 import logging
 from multiprocessing import Queue
-from threading import Thread
+from threading import Thread, Event
 
 import pylsl
 from dfds.typing import Stream
@@ -47,6 +47,7 @@ class NodeReader(Reader):
         attrs: dict,
         queue: Queue,
         transform,
+        flag,
     ) -> None:
         stream = None
         for s in self.__streams:
@@ -68,7 +69,7 @@ class NodeReader(Reader):
         self.logger.info("creating inlet")
         inlet = pylsl.StreamInlet(stream_info)
         self.logger.info("creating relay task")
-        thread = Thread(None, self.relay_coro, stream_name, (inlet, queue, transform), daemon=True)
+        thread = Thread(None, self.relay_coro, stream_name, (inlet, queue, transform, flag), daemon=True)
         thread.start()
 
     def __create_query(
@@ -87,6 +88,7 @@ class NodeReader(Reader):
         inlet: pylsl.StreamInlet,
         queue: Queue,
         transform,
+        flag: Event,
     ):
         stream = stream_inlet_to_stream(inlet)
         if not "dfds_mode" in stream.attrs:
@@ -102,8 +104,12 @@ class NodeReader(Reader):
             eof = transform(eof)
 
         # relay each record
-        self.logger.info("started relay")
+        self.logger.info("relay started")
         while True:
+            if flag.is_set():
+                self.logger.info(f"relay stop requested")
+                break
+
             try:
                 (values, indices) = inlet.pull_chunk()
             except pylsl.LostError as e:
@@ -120,5 +126,7 @@ class NodeReader(Reader):
                     if transform is not None:
                         msg = transform(msg)
                     queue.put_nowait(msg)
+
+        inlet.close_stream()
         queue.put_nowait(eof)
-        self.logger.info("ended relay")
+        self.logger.info("relay ended")

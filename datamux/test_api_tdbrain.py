@@ -37,6 +37,7 @@ async def main():
     )
     sink = multiprocessing.Queue()
     ack = api.replay_collection_stream(collection_name, stream_name, attrs, sink)
+    assert ack.randseq is not None
     logger.info(f"received ack for collection stream: {ack}")
     # print 1000 points or until EOF
     for _ in range(1000):
@@ -44,6 +45,7 @@ async def main():
         logger.info(item)
         if item == util.END_OF_STREAM:
             break
+    api.stop_task(ack.randseq)
 
     # test 4 - make LSL stream from a collection stream
     logger.info("creating LSL stream")
@@ -63,6 +65,7 @@ async def main():
     ls = live_streams[0]
     sink = multiprocessing.Queue()
     ack = api.read_live_stream(ls.name, ls.attrs, sink)
+    assert ack.randseq is not None
     logger.info(f"received ack for live stream: {ack}")
     # print 1000 points or until EOF
     for _ in range(1000):
@@ -70,6 +73,7 @@ async def main():
         logger.info(item)
         if item == util.END_OF_STREAM:
             break
+    api.stop_task(ack.randseq)
 
 
 if __name__ == "__main__":

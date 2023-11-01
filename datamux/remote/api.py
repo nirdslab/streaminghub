@@ -5,8 +5,8 @@ from collections import defaultdict
 from dfds.typing import Collection, Stream
 
 from api import StreamAck
-from rpc import create_rpc_client
 
+from .rpc import create_rpc_client
 from .topics import *
 
 
@@ -184,8 +184,19 @@ class DataMuxRemoteAPI:
             stream_name=stream_name,
             attrs=attrs,
         )
-        qresult = await self.__send_await__(topic, content)
-        info = await qresult.get()
+        result = await self.__send_await__(topic, content)
+        info = await result.get()
+        ack = StreamAck(**info)
+        return ack
+    
+    async def stop_task(
+        self,
+        randseq: str,
+    ) -> StreamAck:
+        topic = TOPIC_STOP_TASK
+        content = dict(randseq=randseq)
+        result = await self.__send_await__(topic, content)
+        info = await result.get()
         ack = StreamAck(**info)
         return ack
 

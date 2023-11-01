@@ -1,11 +1,10 @@
 import asyncio
-from functools import partial
 import multiprocessing
 from threading import Thread
 
 from api import DataMuxAPI
-from rpc import create_rpc_server
 
+from .rpc import create_rpc_server
 from .topics import *
 
 
@@ -78,6 +77,11 @@ class DataMuxServer:
                 stream_name = content["stream_name"]
                 attrs = content["attrs"]
                 ack = self.api.publish_collection_stream(collection_name, stream_name, attrs)
+                retval = ack.model_dump()
+            # ACTIONS ==================================================================================================================
+            elif topic == TOPIC_STOP_TASK:
+                randseq = content["randseq"]
+                ack = self.api.stop_task(randseq)
                 retval = ack.model_dump()
             # FALLBACK =================================================================================================================
             else:

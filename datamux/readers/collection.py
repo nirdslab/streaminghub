@@ -4,7 +4,7 @@ import random
 import time
 from multiprocessing import Queue
 from pathlib import Path
-from threading import Thread
+from threading import Event, Thread
 
 import pylsl
 from dfds import Parser
@@ -75,11 +75,14 @@ class CollectionReader(Reader):
         attrs: dict,
         queue: Queue,
         transform,
+        flag,
     ) -> None:
         collection = [c for c in self.__collections if c.name == collection_name][0]
         stream = [s for s in collection.streams.values() if s.name == stream_name][0]
         stream.attrs.update(attrs, dfds_mode="replay")
-        thread = Thread(None, self.replay_coro, stream_name, (collection, stream, queue, transform), daemon=True)
+        thread = Thread(
+            None, self.replay_coro, stream_name, (collection, stream, queue, transform, flag), daemon=True
+        )
         thread.start()
 
     def restream(
@@ -100,6 +103,7 @@ class CollectionReader(Reader):
         stream: Stream,
         queue: Queue,
         transform,
+        flag: Event,
     ):
         freq = stream.frequency
         if freq <= 0:
@@ -117,17 +121,25 @@ class CollectionReader(Reader):
             eof = transform(eof)
 
         # replay each record
-        self.logger.info(f"started replay")
+        self.logger.info(f"replay started")
         for record in data:
+
+            if flag.is_set():
+                self.logger.info(f"replay stop requested")
+                break
+            
             index = dict(zip(index_cols, record[index_cols].item()))
             value = dict(zip(value_cols, record[value_cols].item()))
             msg = dict(index=index, value=value)
+
             if transform is not None:
                 msg = transform(msg)
+            
             queue.put_nowait(msg)
             time.sleep(dt)
+
         queue.put_nowait(eof)
-        self.logger.info(f"ended replay")
+        self.logger.info(f"replay ended")
 
     def restream_coro(
         self,
@@ -149,13 +161,19 @@ class CollectionReader(Reader):
         current_index = 0
 
         # restream each record
+        started = False
         self.logger.info(f"started restream: dt={dt:.4f}, n={num_samples}")
         while current_index < num_samples:
             index = data[current_index][index_cols]
             value = data[current_index][value_cols]
             if outlet.have_consumers():
-                # FIXME currently only supports 1D index
-                outlet.push_sample(value.tolist(), index[0])
+                started = True
+                x = value.tolist()
+                t = index[0]  # FIXME currently only supports 1D index
+                outlet.push_sample(x, t)
                 current_index += 1
+            elif started:
+                # if no consumers after starting, stop restreaming
+                break
             time.sleep(dt)
         self.logger.info(f"ended restream")

@@ -1,18 +1,12 @@
-import asyncio
 from multiprocessing import Queue
+from threading import Event
 
 from dfds.typing import Collection, Stream
-from pydantic import BaseModel
 
 from readers import CollectionReader, NodeReader
-from util import gen_randseq
+from util import StreamAck, gen_randseq
 
 prefix = "d_"
-
-
-class StreamAck(BaseModel):
-    status: bool
-    randseq: str | None = None
 
 
 class DataMuxAPI:
@@ -34,6 +28,7 @@ class DataMuxAPI:
         """
         self.reader_n = NodeReader()
         self.reader_c = CollectionReader()
+        self.context: dict[str, Event] = {}
 
     def list_collections(
         self,
@@ -85,10 +80,21 @@ class DataMuxAPI:
         Returns:
             StreamAck: status and reference information.
         """
-        topic = prefix + gen_randseq()
-        t = (lambda x: [topic.encode(), *transform(x)]) if transform is not None else None
-        self.reader_c.replay(collection_name, stream_name, attrs, sink, t)
-        return StreamAck(status=True, randseq=topic)
+        randseq = prefix + gen_randseq()
+        t = (lambda x: [randseq.encode(), *transform(x)]) if transform is not None else None
+        self.context[randseq] = Event()
+        self.reader_c.replay(collection_name, stream_name, attrs, sink, t, self.context[randseq])
+        return StreamAck(status=True, randseq=randseq)
+
+    def stop_task(
+        self,
+        randseq: str,
+    ) -> StreamAck:
+        if randseq in self.context:
+            flag = self.context.pop(randseq)
+            flag.set()
+            return StreamAck(status=True)
+        return StreamAck(status=True)
 
     def publish_collection_stream(
         self,
@@ -142,7 +148,8 @@ class DataMuxAPI:
         Returns:
             StreamAck: status and reference information.
         """
-        topic = prefix + gen_randseq()
-        t = (lambda x: [topic.encode(), *transform(x)]) if transform is not None else None
-        self.reader_n.relay(stream_name, attrs, sink, t)
-        return StreamAck(status=True, randseq=topic)
+        randseq = prefix + gen_randseq()
+        t = (lambda x: [randseq.encode(), *transform(x)]) if transform is not None else None
+        self.context[randseq] = Event()
+        self.reader_n.relay(stream_name, attrs, sink, t, self.context[randseq])
+        return StreamAck(status=True, randseq=randseq)
