@@ -15,7 +15,7 @@ async def main():
 
     host = "localhost"
     port = 3300
-    server = DataMuxServer(rpc_name="websocket", codec_name="avro")
+    server = DataMuxServer(rpc_name="websocket", codec_name="json")
     await server.start(host, port)
 
 
