@@ -8,7 +8,8 @@ from websockets.datastructures import Headers, HeadersLike
 from websockets.exceptions import ConnectionClosed
 from websockets.server import WebSocketServerProtocol, serve
 
-from . import RpcServer, Codec, create_codec
+from ..codec import Codec, create_codec
+from . import RpcServer
 
 
 class WebsocketRPC(RpcServer):

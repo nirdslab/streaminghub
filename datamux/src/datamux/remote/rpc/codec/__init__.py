@@ -1,10 +1,9 @@
-import asyncio
 from .codec import Codec
 
 
 def create_codec(
     backend: str,
-):
+) -> Codec:
     if backend == "json":
         from .json import JSONCodec
 

@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from dfds.typing import Collection, Stream
 
-from src.datamux.api import StreamAck
+from datamux.api import StreamAck
 
 from .rpc import create_rpc_client
 from .topics import *

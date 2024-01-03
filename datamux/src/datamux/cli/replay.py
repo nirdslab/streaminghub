@@ -19,8 +19,8 @@ from multiprocessing import Queue
 from dfds.typing import Stream
 from rich.logging import RichHandler
 
-import src.datamux.util as util
-from src.datamux.api import DataMuxAPI
+import datamux.util as util
+from datamux.api import DataMuxAPI
 
 DIGIT_CHARS = "0123456789"
 SHUTDOWN_FLAG = threading.Event()

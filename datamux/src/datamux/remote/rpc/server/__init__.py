@@ -1,6 +1,5 @@
 import asyncio
 from abc import ABC, abstractmethod
-from ..codec import Codec, create_codec
 
 
 class RpcServer(ABC):

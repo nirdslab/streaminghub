@@ -1,13 +1,14 @@
 import logging
 from multiprocessing import Queue
-from threading import Thread, Event
+from threading import Event, Thread
 
 import pylsl
 from dfds.typing import Stream
 
+import datamux.util as util
+
 from . import Reader
 from .util import stream_info_to_stream, stream_inlet_to_stream
-import src.datamux.util as util
 
 
 class NodeReader(Reader):
