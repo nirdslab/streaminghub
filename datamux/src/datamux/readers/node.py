@@ -7,7 +7,7 @@ from dfds.typing import Stream
 
 from . import Reader
 from .util import stream_info_to_stream, stream_inlet_to_stream
-import util
+import src.datamux.util as util
 
 
 class NodeReader(Reader):

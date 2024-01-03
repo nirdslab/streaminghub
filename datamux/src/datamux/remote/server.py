@@ -2,7 +2,7 @@ import asyncio
 import multiprocessing
 from threading import Thread
 
-from api import DataMuxAPI
+from src.datamux.api import DataMuxAPI
 
 from .rpc import create_rpc_server
 from .topics import *

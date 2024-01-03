@@ -4,7 +4,7 @@ from threading import Event
 from dfds.typing import Collection, Stream
 
 from readers import CollectionReader, NodeReader
-from util import StreamAck, gen_randseq
+from src.datamux.util import StreamAck, gen_randseq
 
 prefix = "d_"
 

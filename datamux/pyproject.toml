@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "streaminghub-datamux"
+version = "0.1.0"
+authors = [{ name = "Yasith Jayawardana", email = "yasith@cs.odu.edu" }]
+description = "A library to stream data into real-time analytics pipelines"
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.10"
+keywords = ["dfds", "metadata", "parser"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy>=1.26.3",
+    "pandas>=2.1.4",
+    "pylsl>=1.16.2",
+    "websockets>=12.0",
+    "pillow>=10.2.0",
+    "lxml>=5.0.0",
+    "jsonschema>=4.20.0",
+    "msgpack>=1.0.7",
+    "pyzmq>=25.1.2",
+    "matplotlib>=3.8.2",
+    "h5py>=3.10.0",
+    "python-dotenv>=1.0.0",
+    "xmltodict>=0.13.0",
+    "streaminghub-pydfds>=0.1.32",
+    "avro>=1.11.3",
+    "click>=8.1.7",
+    "rich>=13.7.0",
+    "pyarrow>=14.0.2",
+    "tqdm>=4.66.1",
+]
+
+[project.urls]
+homepage = "https://github.com/nirdslab/streaminghub/tree/master/datamux"
+
+[project.optional-dependencies]
+dev = ["black", "build", "twine", "bumpver", "isort", "pip-tools", "pytest"]
+
+[tool.bumpver]
+current_version = "0.1.0"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "bump datamux version {old_version} -> {new_version}"
+tag_message = "{new_version}"
+tag_scope = "default"
+commit = true
+tag = true
+push = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = ['version = "{version}"']
+"README.md" = ['pip install streaminghub-datamux=={version}']

@@ -10,7 +10,7 @@ import pylsl
 from dfds import Parser
 from dfds.typing import Collection, Stream
 
-import util
+import src.datamux.util as util
 
 from . import Reader
 from .util import stream_to_stream_info

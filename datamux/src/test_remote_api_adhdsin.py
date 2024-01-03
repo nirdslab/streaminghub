@@ -2,26 +2,29 @@
 
 import asyncio
 import logging
-import multiprocessing
 
 from dotenv import load_dotenv
 from rich.logging import RichHandler
 
-import util
-from api import DataMuxAPI
+import datamux.util as util
+from datamux.remote.api import DataMuxRemoteAPI
 
 
 async def main():
-    api = DataMuxAPI()
+    server_host = "localhost"
+    server_port = 3300
+
+    api = DataMuxRemoteAPI(rpc_name="websocket", codec_name="avro")
+    await api.connect(server_host, server_port)
 
     # test 1 - collections
     logger.info("listing collections")
-    collections = api.list_collections()
+    collections = await api.list_collections()
     logger.info(f"received collections: {collections}")
 
     # test 2 - collection streams
     logger.info("listing collection streams - adhd_sin")
-    collection_streams = api.list_collection_streams("adhd_sin")
+    collection_streams = await api.list_collection_streams("adhd_sin")
     logger.info(f"received collection_streams: {collection_streams}")
 
     # test 3 - replay collection stream
@@ -35,45 +38,45 @@ async def main():
             "question": "10",
         }
     )
-    sink = multiprocessing.Queue()
-    ack = api.replay_collection_stream(collection_name, stream_name, attrs, sink)
+    sink = asyncio.Queue()
+    ack = await api.replay_collection_stream(collection_name, stream_name, attrs, sink)
     assert ack.randseq is not None
     logger.info(f"received ack for collection stream: {ack}")
     # print 1000 points or until EOF
     for _ in range(1000):
-        item = sink.get()
+        item = await sink.get()
         logger.info(item)
         if item == util.END_OF_STREAM:
             break
-    api.stop_task(ack.randseq)
+    await api.stop_task(ack.randseq)
 
     # test 4 - make LSL stream from a collection stream
     logger.info("creating LSL stream")
-    status = api.publish_collection_stream(collection_name, stream_name, attrs)
+    status = await api.publish_collection_stream(collection_name, stream_name, attrs)
     logger.info(f"created LSL stream: {status}")
     assert status
     await asyncio.sleep(5)
 
     # test 5 - list all LSL streams
     logger.info("listing LSL streams")
-    live_streams = api.list_live_streams()
+    live_streams = await api.list_live_streams()
     logger.info(f"got LSL streams: {live_streams}")
 
     # test 6 - relay LSL stream
     logger.info("relaying LSL stream")
     assert len(live_streams) > 0
     ls = live_streams[0]
-    sink = multiprocessing.Queue()
-    ack = api.read_live_stream(ls.name, ls.attrs, sink)
+    sink = asyncio.Queue()
+    ack = await api.read_live_stream(ls.name, ls.attrs, sink)
     assert ack.randseq is not None
     logger.info(f"received ack for live stream: {ack}")
     # print 1000 points or until EOF
     for _ in range(1000):
-        item = sink.get()
+        item = await sink.get()
         logger.info(item)
         if item == util.END_OF_STREAM:
             break
-    api.stop_task(ack.randseq)
+    await api.stop_task(ack.randseq)
 
 
 if __name__ == "__main__":

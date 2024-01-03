@@ -6,7 +6,7 @@ import logging
 from dotenv import load_dotenv
 from rich.logging import RichHandler
 
-from remote.server import DataMuxServer
+from datamux.remote.server import DataMuxServer
 
 
 async def main():
