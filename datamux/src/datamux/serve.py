@@ -8,8 +8,13 @@ from rich.logging import RichHandler
 from datamux.remote.server import DataMuxServer
 
 
-async def serve(host: str, port: int):
-    server = DataMuxServer(rpc_name="websocket", codec_name="json")
+async def serve(
+    host: str,
+    port: int,
+    rpc: str,
+    codec: str,
+):
+    server = DataMuxServer(rpc_name=rpc, codec_name=codec)
     await server.start(host, port)
 
 
@@ -19,7 +24,9 @@ if __name__ == "__main__":
 
     host = "localhost"
     port = 3300
+    rpc = "websocket"
+    codec = "avro"
     try:
-        asyncio.run(serve(host, port))
+        asyncio.run(serve(host, port, rpc, codec))
     except KeyboardInterrupt:
         logger.warning("Interrupt received, shutting down.")

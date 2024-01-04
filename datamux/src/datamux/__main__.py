@@ -13,9 +13,11 @@ if __name__ == "__main__":
     parser.add_argument("command", choices=["serve", "init", "replay"])
     parser.add_argument("-H", "--host", type=str)
     parser.add_argument("-p", "--port", type=int)
+    parser.add_argument("-r", "--rpc", type=str, choices=["websocket"])
+    parser.add_argument("-c", "--codec", type=str, choices=["avro", "json"])
     parser.add_argument("--data_dir", type=str)
     parser.add_argument("--meta_dir", type=str)
-
+    
     args = parser.parse_args()
 
     # Serving Remote API
@@ -23,7 +25,11 @@ if __name__ == "__main__":
         from .serve import serve
 
         try:
-            asyncio.run(serve(args.host, args.port))
+            assert args.host is not None
+            assert args.port is not None
+            assert args.rpc is not None
+            assert args.codec is not None
+            asyncio.run(serve(args.host, args.port, args.rpc, args.codec))
         except KeyboardInterrupt:
             logging.warning("Interrupt received, shutting down.")
 
