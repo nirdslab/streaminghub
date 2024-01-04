@@ -83,8 +83,6 @@ python-dateutil==2.8.2
     # via
     #   matplotlib
     #   pandas
-python-dotenv==1.0.0
-    # via streaminghub-datamux (pyproject.toml)
 pytz==2023.3.post1
     # via pandas
 pyzmq==25.1.2
@@ -101,7 +99,7 @@ rpds-py==0.16.2
     #   referencing
 six==1.16.0
     # via python-dateutil
-streaminghub-pydfds==0.1.32
+streaminghub-pydfds==0.1.33
     # via streaminghub-datamux (pyproject.toml)
 tqdm==4.66.1
     # via streaminghub-datamux (pyproject.toml)

@@ -4,11 +4,9 @@ import asyncio
 import logging
 import multiprocessing
 
-from dotenv import load_dotenv
-from rich.logging import RichHandler
-
 import datamux.util as util
 from datamux.api import DataMuxAPI
+from rich.logging import RichHandler
 
 
 async def main():
@@ -78,7 +76,6 @@ async def main():
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
-    load_dotenv()
     logger = logging.getLogger(__name__)
     try:
         asyncio.run(main())

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "streaminghub-datamux"
-version = "0.1.1"
+version = "0.1.2"
 authors = [{ name = "Yasith Jayawardana", email = "yasith@cs.odu.edu" }]
 description = "A library to stream data into real-time analytics pipelines"
 readme = "README.md"
@@ -28,9 +28,8 @@ dependencies = [
     "pyzmq>=25.1.2",
     "matplotlib>=3.8.2",
     "h5py>=3.10.0",
-    "python-dotenv>=1.0.0",
     "xmltodict>=0.13.0",
-    "streaminghub-pydfds>=0.1.32",
+    "streaminghub-pydfds>=0.1.33",
     "avro>=1.11.3",
     "click>=8.1.7",
     "rich>=13.7.0",
@@ -45,7 +44,7 @@ homepage = "https://github.com/nirdslab/streaminghub/tree/master/datamux"
 dev = ["black", "build", "twine", "bumpver", "isort", "pip-tools", "pytest"]
 
 [tool.bumpver]
-current_version = "0.1.1"
+current_version = "0.1.2"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump datamux version {old_version} -> {new_version}"
 tag_message = "{new_version}"

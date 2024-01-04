@@ -3,10 +3,8 @@
 import asyncio
 import logging
 import multiprocessing
-
 import timeit
 
-from dotenv import load_dotenv
 from rich.logging import RichHandler
 
 import datamux.util as util
@@ -14,11 +12,13 @@ from datamux.api import DataMuxAPI
 
 
 async def main():
-    times = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    N = 10
+    P = 8000
+    t_replay = []
+    t_relay = []
+    api = DataMuxAPI()
 
-    for i in range (10):
-        api = DataMuxAPI()
-
+    for _ in range(N):
         # test 1 - collections
         logger.info("listing collections")
         collections = api.list_collections()
@@ -44,17 +44,19 @@ async def main():
         ack = api.replay_collection_stream(collection_name, stream_name, attrs, sink)
         assert ack.randseq is not None
         logger.info(f"received ack for collection stream: {ack}")
-        # print 1000 points or until EOF
-        for _ in range(8000):
+        # print P points or until EOF
+        startTime = timeit.default_timer()
+        for i in range(P):
             item = sink.get()
             logger.info(item)
             if item == util.END_OF_STREAM:
                 break
-            if _ == 0:
+            if i == 0:
                 startTime = timeit.default_timer()
+        endTime = timeit.default_timer()
+        t_replay.append(endTime - startTime)
         api.stop_task(ack.randseq)
 
-        endTime = timeit.default_timer()
         # test 4 - make LSL stream from a collection stream
         logger.info("creating LSL stream")
         status = api.publish_collection_stream(collection_name, stream_name, attrs)
@@ -75,22 +77,25 @@ async def main():
         ack = api.read_live_stream(ls.name, ls.attrs, sink)
         assert ack.randseq is not None
         logger.info(f"received ack for live stream: {ack}")
-        # print 1000 points or until EOF
-        for _ in range(1000):
+        # print P points or until EOF
+        startTime = timeit.default_timer()
+        for i in range(P):
             item = sink.get()
             logger.info(item)
             if item == util.END_OF_STREAM:
                 break
+            if i == 0:
+                startTime = timeit.default_timer()
+        endTime = timeit.default_timer()
+        t_relay.append(endTime - startTime)
         api.stop_task(ack.randseq)
 
-        times[i] = [endTime - startTime]
+    print("Elapsed Time (Replay): ", t_replay)
+    print("Elapsed Time (Relay): ", t_relay)
 
-    for x in range(10):
-        print("Elapsed Time: ", times[x])
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
-    load_dotenv()
     logger = logging.getLogger(__name__)
     try:
         asyncio.run(main())

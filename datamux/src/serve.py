@@ -3,16 +3,12 @@
 import asyncio
 import logging
 
-from dotenv import load_dotenv
 from rich.logging import RichHandler
 
 from datamux.remote.server import DataMuxServer
 
 
 async def main():
-
-    load_dotenv()
-
     host = "localhost"
     port = 3300
     server = DataMuxServer(rpc_name="websocket", codec_name="json")
