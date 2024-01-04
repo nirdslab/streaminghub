@@ -175,7 +175,7 @@ rpds-py==0.16.2
     #   referencing
 six==1.16.0
     # via python-dateutil
-streaminghub-pydfds==0.1.33
+streaminghub-pydfds==0.1.34
     # via streaminghub-datamux (pyproject.toml)
 toml==0.10.2
     # via bumpver

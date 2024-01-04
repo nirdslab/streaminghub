@@ -1,1 +1,1 @@
-streaminghub-datamux~=0.1.2
+streaminghub-datamux~=0.1.4
