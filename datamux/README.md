@@ -11,9 +11,22 @@ It provides the modes listed below.
 
 ## Installation
 
+First, install datamux as a pip package.
+
 ```bash
 
 pip install streaminghub-datamux==0.1.4
+
+```
+
+## Initialization
+
+Next, configure where datamux should look for data and metadata.
+The configuration is stored at ```~/.streaminghubrc```.
+
+```bash
+
+python -m datamux init --data_dir="<path/to/dataset/dir>" --meta_dir="<path/to/metadata/dir>"
 
 ```
 
@@ -33,10 +46,17 @@ from datamux.remote.api import DataMuxRemoteAPI
 
 ### Remote API
 
+To start the remote API, run the following at server-side.
+
+```bash
+python -m datamux serve -H "<hostname>" -p <port>
+```
+
+At client side, you can connect to this server via the Python API.
 ```python
 
-server_host = "localhost"
-server_port = 3300
+server_host = "<hostname>"
+server_port = <port>
 api = DataMuxRemoteAPI(rpc_name="websocket", codec_name="json")
 await api.connect(server_host, server_port)
 
