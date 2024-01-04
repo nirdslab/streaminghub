@@ -1,1 +1,2 @@
 streaminghub-datamux~=0.1.4
+rich~=13.7.0
