@@ -3,10 +3,12 @@ import random
 import time
 from multiprocessing import Queue
 from threading import Event, Thread
+import timeit
+import numpy as np
 
 import pylsl
 from dfds import Parser
-from dfds.typing import Collection, Stream, Config
+from dfds.typing import Collection, Config, Stream
 
 import datamux.util as util
 
@@ -106,6 +108,7 @@ class CollectionReader(Reader):
         queue: Queue,
         transform,
         flag: Event,
+        strict_time: bool = True,
     ):
         freq = stream.frequency
         if freq <= 0:
@@ -122,22 +125,49 @@ class CollectionReader(Reader):
         if transform is not None:
             eof = transform(eof)
 
+        # preprocessing
+        data = data.sort_values(index_cols, ascending=True)
+        # if index not present, create one with given frequency
+        for col in index_cols:
+            if col not in data.columns:
+                data[col] = np.arange(len(data)) / freq
+        # TODO time to seconds
+        primary_index = index_cols[0]
+        dt_true = float(data.iloc[1][primary_index] - data.iloc[0][primary_index])
+        si_scales = np.array([1, 1e3, 1e6, 1e9], dtype=int)
+        scale = si_scales[np.abs(si_scales - dt_true / dt).argmin()]
+        data[primary_index] = data[primary_index] / scale
+
         # replay each record
         self.logger.info(f"replay started")
-        for record in data:
+        t0, T0 = None, None
+        for _, record in data.iterrows():
+            # terminating condition
             if flag.is_set():
                 self.logger.info(f"replay stop requested")
                 break
 
-            index = dict(zip(index_cols, record[index_cols].item()))
-            value = dict(zip(value_cols, record[value_cols].item()))
+            # create record
+            index = {k: record[k] for k in index_cols}
+            value = {k: record[k] for k in value_cols}
             msg = dict(index=index, value=value)
-
             if transform is not None:
                 msg = transform(msg)
 
+            # wait until time requirements are met
+            if strict_time:
+                if t0 is None or T0 is None:
+                    t0, T0 = timeit.default_timer(), index[index_cols[0]]
+                else:
+                    ti, Ti = timeit.default_timer(), index[index_cols[0]]
+                    dt = (Ti - T0) - (ti - t0)
+                    if dt > 0:
+                        time.sleep(dt)
+            else:
+                time.sleep(dt)
+
+            # send record
             queue.put_nowait(msg)
-            time.sleep(dt)
 
         queue.put_nowait(eof)
         self.logger.info(f"replay ended")

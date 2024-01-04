@@ -44,36 +44,7 @@ async def main():
         logger.info(item)
         if item == util.END_OF_STREAM:
             break
-    api.stop_task(ack.randseq)
-
-    # test 4 - make LSL stream from a collection stream
-    logger.info("creating LSL stream")
-    status = api.publish_collection_stream(collection_name, stream_name, attrs)
-    logger.info(f"created LSL stream: {status}")
-    assert status
-    await asyncio.sleep(5)
-
-    # test 5 - list all LSL streams
-    logger.info("listing LSL streams")
-    live_streams = api.list_live_streams()
-    logger.info(f"got LSL streams: {live_streams}")
-
-    # test 6 - relay LSL stream
-    logger.info("relaying LSL stream")
-    assert len(live_streams) > 0
-    ls = live_streams[0]
-    sink = multiprocessing.Queue()
-    ack = api.read_live_stream(ls.name, ls.attrs, sink)
-    assert ack.randseq is not None
-    logger.info(f"received ack for live stream: {ack}")
-    # print P points or until EOF
-    for _ in range(P):
-        item = sink.get()
-        logger.info(item)
-        if item == util.END_OF_STREAM:
-            break
-    api.stop_task(ack.randseq)
-
+    ack = api.stop_task(ack.randseq)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])

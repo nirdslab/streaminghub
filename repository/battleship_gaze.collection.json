@@ -1,0 +1,111 @@
+{
+  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/collection.jsonschema",
+  "name": "battleship_gaze",
+  "description": "Eye movements of pairs of participants recorded during a two-player battleship game",
+  "keywords": [
+    "Gaming",
+    "Joint Attention"
+  ],
+  "authors": [
+    {
+      "name": "Bhanuka Mahanama",
+      "affiliation": "Old Dominion University",
+      "email": "bhanuka@cs.odu.edu"
+    },
+    {
+      "name": "Yasasi Abeysinghe",
+      "affiliation": "Old Dominion University",
+      "email": "yasasi@cs.odu.edu"
+    },
+    {
+      "name": "Sampath Jayarathna",
+      "affiliation": "Old Dominion University",
+      "email": "sampath@cs.odu.edu"
+    }
+  ],
+  "streams": {
+    "gaze": {
+      "name": "Gaze",
+      "description": "gaze point",
+      "unit": "",
+      "frequency": 30,
+      "fields": {
+        "eye-tracker": {
+          "name": "ID of eye tracker",
+          "description": "",
+          "dtype": "i32"
+        },
+        "gaze-x": {
+          "name": "gaze x",
+          "description": "",
+          "dtype": "f32"
+        },
+        "gaze-y": {
+          "name": "gaze y",
+          "description": "",
+          "dtype": "f32"
+        }
+      },
+      "index": {
+        "origin-timestamp": {
+          "name": "timestamp",
+          "description": "Recording Timestamp",
+          "dtype": "f32"
+        }
+      }
+    },
+    "pupil": {
+      "name": "Pupil",
+      "description": "pupil diameter",
+      "unit": "mm",
+      "frequency": 30,
+      "fields": {
+        "eye-tracker": {
+          "name": "ID of eye tracker",
+          "description": "",
+          "dtype": "i8"
+        },
+        "diameter": {
+          "name": "pd (avg)",
+          "description": "",
+          "dtype": "f32"
+        },
+        "left-diameter": {
+          "name": "left pd",
+          "description": "",
+          "dtype": "f32"
+        },
+        "right-diameter": {
+          "name": "right pd",
+          "description": "",
+          "dtype": "f32"
+        }
+      },
+      "index": {
+        "origin-timestamp": {
+          "name": "timestamp",
+          "description": "Recording Timestamp",
+          "dtype": "f32"
+        }
+      }
+    }
+  },
+  "groups": {
+    "session": {
+      "description": "The ID of each session",
+      "values": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    "stream_name": {
+      "description": "Name of stream",
+      "values": [
+        "gaze",
+        "pupil"
+      ]
+    }
+  },
+  "pattern": "csv://ses-{session}/{stream_name}"
+}

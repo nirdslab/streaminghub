@@ -13,7 +13,7 @@ It provides the modes listed below.
 
 ```bash
 
-pip install streaminghub-datamux==0.1.2
+pip install streaminghub-datamux==0.1.3
 
 ```
 

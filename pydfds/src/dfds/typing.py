@@ -186,7 +186,7 @@ class DataLoader:
     def read(
         self,
         attributes: dict,
-    ) -> Tuple[dict, np.ndarray]:
+    ) -> Tuple[dict, pd.DataFrame]:
         """
         Given the attributes of a record, return its data
 
@@ -194,7 +194,7 @@ class DataLoader:
             attributes (dict): attributes of the requested record
 
         Returns:
-            Tuple[dict, np.ndarray]: (attributes, data) of the requested record
+            Tuple[dict, pd.DataFrame]: (attributes, data) of the requested record
         """
         # compute the path from attributes
         parser_keys: List[str] = self.__parser.named_fields
@@ -209,21 +209,19 @@ class DataLoader:
                 assert isinstance(dataset, h5py.Dataset)
                 attrs = dict(dataset.attrs.items())
                 attrs.update({"collection": self.__collection.name, **parser_attrs})
-                data = np.array(dataset)
+                dataset = pd.DataFrame(np.array(dataset))
         elif self.__protocol == "parquet":
             fp = self.__fpath / (rec_path + ".parquet")
             dataset = pd.read_parquet(fp)
             dataset.index.name = "t"
             attrs: dict[str, str] = {}  # TODO get extra metadata from elsewhere
             attrs.update({"collection": self.__collection.name, **parser_attrs})
-            data = dataset.to_records()
         elif self.__protocol == "csv":
             fp = self.__fpath / (rec_path + ".csv")
             dataset = pd.read_csv(fp)
             dataset.index.name = "t"
             attrs: dict[str, str] = {}  # TODO get extra metadata from elsewhere
             attrs.update({"collection": self.__collection.name, **parser_attrs})
-            data = dataset.to_records()
         else:
             raise ValueError(f"Unsupported protocol: {self.__protocol}")
-        return attrs, data
+        return attrs, dataset
