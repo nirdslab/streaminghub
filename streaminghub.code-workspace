@@ -6,7 +6,7 @@
 		},
 		{
 			"name": "sh_metadata",
-			"path": "../../.streaminghub/metadata"
+			"path": "../../.streaminghub/meta"
 		},
 		{
 			"name": "streaminghub",

@@ -15,7 +15,7 @@ First, install datamux as a pip package.
 
 ```bash
 
-pip install streaminghub-datamux==0.1.5
+pip install streaminghub-datamux==0.1.6
 
 ```
 

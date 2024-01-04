@@ -109,6 +109,7 @@ class CollectionReader(Reader):
         transform,
         flag: Event,
         strict_time: bool = True,
+        use_relative_timestamps: bool = True,
     ):
         freq = stream.frequency
         if freq <= 0:
@@ -131,7 +132,7 @@ class CollectionReader(Reader):
         for col in index_cols:
             if col not in data.columns:
                 data[col] = np.arange(len(data)) / freq
-        # TODO time to seconds
+        # always convert time to seconds
         primary_index = index_cols[0]
         dt_true = float(data.iloc[1][primary_index] - data.iloc[0][primary_index])
         si_scales = np.array([1, 1e3, 1e6, 1e9], dtype=int)
@@ -150,9 +151,6 @@ class CollectionReader(Reader):
             # create record
             index = {k: record[k] for k in index_cols}
             value = {k: record[k] for k in value_cols}
-            msg = dict(index=index, value=value)
-            if transform is not None:
-                msg = transform(msg)
 
             # wait until time requirements are met
             if strict_time:
@@ -165,8 +163,15 @@ class CollectionReader(Reader):
                         time.sleep(dt)
             else:
                 time.sleep(dt)
+            
+            # postprocessing
+            if use_relative_timestamps:
+                index[index_cols[0]] -= T0
 
             # send record
+            msg = dict(index=index, value=value)
+            if transform is not None:
+                msg = transform(msg)
             queue.put_nowait(msg)
 
         queue.put_nowait(eof)
