@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import itertools
+from pathlib import Path
 from typing import List, Optional, Tuple
 
 import h5py
@@ -32,6 +33,17 @@ dtype_map_inv = {
     np.uint16: "u16",
     np.uint32: "u32",
 }
+
+
+class Config(p.BaseModel):
+    data_dir: Path
+    meta_dir: Path
+
+    @p.field_validator("data_dir", "meta_dir", mode="before")
+    def parse_path(cls, v) -> Path:
+        path = Path(v).expanduser().resolve()
+        assert path.exists() and path.is_dir()
+        return path
 
 
 class Field(p.BaseModel):
@@ -106,8 +118,9 @@ class Collection(p.BaseModel):
 
     def dataloader(
         self,
+        config: Config,
     ) -> DataLoader:
-        return DataLoader(self)
+        return DataLoader(self, config)
 
 
 class DataLoader:
@@ -119,18 +132,13 @@ class DataLoader:
     def __init__(
         self,
         collection: Collection,
+        config: Config,
     ) -> None:
         super().__init__()
         self.__collection = collection
         self.__protocol, self.__pattern = self.__collection.pattern.split("://", 1)
         self.__parser = parse.compile(self.__pattern)
-
-        import os
-        from pathlib import Path
-
-        base_dir = os.getenv("SHUB_DATA_DIR")
-        assert base_dir
-        self.__fpath = Path(base_dir) / self.__collection.name
+        self.__fpath = Path(config.data_dir) / self.__collection.name
 
     def ls(
         self,
@@ -158,6 +166,14 @@ class DataLoader:
         elif self.__protocol == "parquet":
             fp = self.__fpath
             for key in fp.glob("*.parquet"):
+                result = self.__parser.parse(key.with_suffix("").name)
+                assert isinstance(result, parse.Result)
+                attrs: dict[str, str] = {}  # TODO get extra metadata from elsewhere
+                attrs.update({"collection": self.__collection.name, **result.named})
+                available.append(attrs)
+        elif self.__protocol == "csv":
+            fp = self.__fpath
+            for key in fp.glob("*.csv"):
                 result = self.__parser.parse(key.with_suffix("").name)
                 assert isinstance(result, parse.Result)
                 attrs: dict[str, str] = {}  # TODO get extra metadata from elsewhere
@@ -197,6 +213,13 @@ class DataLoader:
         elif self.__protocol == "parquet":
             fp = self.__fpath / (rec_path + ".parquet")
             dataset = pd.read_parquet(fp)
+            dataset.index.name = "t"
+            attrs: dict[str, str] = {}  # TODO get extra metadata from elsewhere
+            attrs.update({"collection": self.__collection.name, **parser_attrs})
+            data = dataset.to_records()
+        elif self.__protocol == "csv":
+            fp = self.__fpath / (rec_path + ".csv")
+            dataset = pd.read_csv(fp)
             dataset.index.name = "t"
             attrs: dict[str, str] = {}  # TODO get extra metadata from elsewhere
             attrs.update({"collection": self.__collection.name, **parser_attrs})

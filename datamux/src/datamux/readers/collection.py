@@ -1,14 +1,12 @@
 import logging
-import os
 import random
 import time
 from multiprocessing import Queue
-from pathlib import Path
 from threading import Event, Thread
 
 import pylsl
 from dfds import Parser
-from dfds.typing import Collection, Stream
+from dfds.typing import Collection, Stream, Config
 
 import datamux.util as util
 
@@ -39,6 +37,13 @@ class CollectionReader(Reader):
     __collections: list[Collection] = []
     logger = logging.getLogger(__name__)
 
+    def __init__(
+        self,
+        config: Config,
+    ) -> None:
+        super().__init__()
+        self.config = config
+
     def list_collections(
         self,
     ) -> list[Collection]:
@@ -48,8 +53,7 @@ class CollectionReader(Reader):
         self,
     ) -> None:
         self.__collections.clear()
-        fp_repository = Path(os.getenv("SHUB_META_DIR", "../repository"))
-        for fp in fp_repository.resolve().glob("*.collection.json"):
+        for fp in self.config.meta_dir.glob("*.collection.json"):
             collection = self.__parser.get_collection_metadata(fp.as_posix())
             self.__collections.append(collection)
 
@@ -59,7 +63,7 @@ class CollectionReader(Reader):
     ) -> list[Stream]:
         collection = [c for c in self.__collections if c.name == collection_name][0]
         streams = []
-        dataloader = collection.dataloader()
+        dataloader = collection.dataloader(self.config)
         for attrs in dataloader.ls():
             for stream_id, stream in collection.streams.items():
                 stream = stream.model_copy(deep=True)
@@ -110,7 +114,7 @@ class CollectionReader(Reader):
         index_cols = list(stream.index)
         value_cols = list(stream.fields)
 
-        attrs, data = collection.dataloader().read(stream.attrs)
+        attrs, data = collection.dataloader(self.config).read(stream.attrs)
         stream.attrs.update(attrs)
 
         # termination indicator
@@ -150,7 +154,7 @@ class CollectionReader(Reader):
         index_cols = list(stream.index)
         value_cols = list(stream.fields)
 
-        attrs, data = collection.dataloader().read(stream.attrs)
+        attrs, data = collection.dataloader(self.config).read(stream.attrs)
         stream.attrs.update(attrs)
 
         outlet = pylsl.StreamOutlet(stream_to_stream_info(stream))

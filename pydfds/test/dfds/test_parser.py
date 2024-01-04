@@ -1,6 +1,4 @@
 import logging
-import os
-from pathlib import Path
 
 import dfds
 
@@ -9,9 +7,10 @@ logging.basicConfig(level=logging.INFO)
 
 def test_parser():
     parser = dfds.Parser()
-    fp = Path(os.getenv("SHUB_META_DIR", "repository")) / "adhd_sin.collection.json"
-    fp = fp.resolve().as_posix()
-    collection = parser.get_collection_metadata(fp)
+    config = dfds.load_config()
+
+    fp = config.meta_dir / "adhd_sin.collection.json"
+    collection = parser.get_collection_metadata(fp.as_posix())
     assert collection is not None
 
     # print all possible recordings, regardless of existence
@@ -22,7 +21,7 @@ def test_parser():
             assert stream is not None
 
     # print only existing recordings
-    dataloader = collection.dataloader()
+    dataloader = collection.dataloader(config)
     for ls_attrs in dataloader.ls():
         attrs, data = dataloader.read(ls_attrs)
         assert data is not None

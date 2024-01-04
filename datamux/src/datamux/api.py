@@ -1,6 +1,7 @@
 from multiprocessing import Queue
 from threading import Event
 
+import dfds
 from dfds.typing import Collection, Stream
 
 from .readers import CollectionReader, NodeReader
@@ -26,8 +27,9 @@ class DataMuxAPI:
         Create API instance.
 
         """
+        self.config = dfds.load_config()
         self.reader_n = NodeReader()
-        self.reader_c = CollectionReader()
+        self.reader_c = CollectionReader(self.config)
         self.context: dict[str, Event] = {}
 
     def list_collections(

@@ -1,35 +1,30 @@
 {
 	"folders": [
 		{
+			"name": "sh_data",
+			"path": "../../.streaminghub/data"
+		},
+		{
+			"name": "sh_metadata",
+			"path": "../../.streaminghub/metadata"
+		},
+		{
 			"name": "streaminghub",
 			"path": "."
 		},
 		{
-			"name": "datasets",
-			"path": "../../datasets"
-		},
-		{
-			"name": "repository",
-			"path": "repository"
-		},
-		{
-			"name": "dfds",
 			"path": "dfds"
 		},
 		{
-			"name": "pydfds",
 			"path": "pydfds"
 		},
 		{
-			"name": "curator",
 			"path": "curator"
 		},
 		{
-			"name": "datamux",
 			"path": "datamux"
 		},
 		{
-			"name": "flowmaker",
 			"path": "flowmaker"
 		},
 		{
@@ -40,18 +35,12 @@
 		"jupyter.notebookFileRoot": "${workspaceFolder}",
 		"terminal.integrated.env.linux": {
 			"PYTHONPATH": "${workspaceFolder}",
-			"SHUB_DATA_DIR": "${env:HOME}/datasets",
-			"SHUB_META_DIR": "${workspaceFolder}/repository"
 		},
 		"terminal.integrated.env.osx": {
 			"PYTHONPATH": "${workspaceFolder}",
-			"SHUB_DATA_DIR": "${env:HOME}/datasets",
-			"SHUB_META_DIR": "${workspaceFolder}/repository"
 		},
 		"terminal.integrated.env.windows": {
 			"PYTHONPATH": "${workspaceFolder}",
-			"SHUB_DATA_DIR": "${env:USERPROFILE}\\datasets",
-			"SHUB_META_DIR": "${workspaceFolder}\\repository"
 		},
 		"peacock.remoteColor": "#1857a4aa",
 		"[python]": {

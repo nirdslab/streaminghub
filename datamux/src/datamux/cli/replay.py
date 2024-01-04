@@ -12,7 +12,6 @@ the datasets that's already collected.
 import argparse
 import asyncio
 import logging
-import os
 import threading
 from multiprocessing import Queue
 
@@ -66,10 +65,10 @@ def main():
     parser = argparse.ArgumentParser(prog="replay.py")
     # required args
     parser.add_argument("--collection-name", "-n", required=True)
+    parser.add_argument("--data-dir", "-d", required=True)
+    parser.add_argument("--meta-dir", "-m", required=True)
     # optional args
     parser.add_argument("--attributes", "-a", required=False)
-    parser.add_argument("--data-dir", "-d", required=False, default=os.getenv("SHUB_DATA_DIR"))
-    parser.add_argument("--meta-dir", "-m", required=False, default=os.getenv("SHUB_META_DIR"))
     # parse all args
     known_args, args = parser.parse_known_args()
     collection_name = known_args.collection_name
