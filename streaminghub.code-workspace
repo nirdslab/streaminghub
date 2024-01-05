@@ -26,9 +26,6 @@
 		},
 		{
 			"path": "flowmaker"
-		},
-		{
-			"path": "examples"
 		}
 	],
 	"settings": {

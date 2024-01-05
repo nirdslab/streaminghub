@@ -44,7 +44,8 @@ async def main():
         logger.info(item)
         if item == util.END_OF_STREAM:
             break
-    ack = api.stop_task(ack.randseq)
+    api.stop_task(ack.randseq)
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])

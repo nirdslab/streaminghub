@@ -1,10 +1,10 @@
 # StreamingHub
 
 <img src="https://i.imgur.com/xSieE3V.png" height="100px"><br>
-StreamingHub is a visual programming framework to simplify data analysis workflows.<br>
-<img src="archived/assets/demo-animated.gif" width="100%">
+StreamingHub is a multi-component framework for developing real-time bio-signal analysis workflows.<br>
+<img src="assets/demo-animated.gif" width="100%">
 
-This repository hosts the following modules,
+It provides the following components:
 
 ## DFDS | `dfds/`
 
@@ -13,49 +13,39 @@ JSON schemas to describe data streams, data sets, and analytics, along with a fe
 
 ## PyDFDS | `pydfds/`
 
-A Python package for using DFDS in StreamingHub projects.
-**Technologies:** Python, PyLSL
+A Python package to read DFDS-annotated datasets and their metadata.<br>
+**Technologies:** Python, Pydantic, JSONSchema, Pydantic
+
+## Curator | `curator/`
+
+A Web interface to annotate files with DFDS metadata and rearranging them in a standard form.<br>
+**Technologies:** Python, Flask, PyDFDS
 
 ## DataMux | `datamux/`
 
-Scripts to stream sensory data in real-time, replay stored data from datasets, and stream mock data for testing.<br>
+A Python package providing a high-level API to read bio-signal streams.
+It supports three modes:
+(a) relaying real-time sensory data,
+(b) replaying recordings from datasets, and
+(c) simulating mock data as test cases.<br>
 **Technologies:** Python, PyLSL, WebSockets
 
-## Node-RED Addons | `node-red-addons/`
+## FlowMaker | `flowmaker/`
 
-Node-RED support package to use StreamingHub.<br>
-It adds widgets to discover data streams, display metadata, auto-populate
+Node-RED addons for using DataMux APIs and visualizing bio-signal data within Node-RED.<br>
 **Technologies:** Javascript, JSON, Vega
 
-## Experimental | `experimental/`
+## Repository | `repository/`
+A collection of DFDS metadata for commonly used bio-signal datasets and eye-trackers.<br/>
+**Technologies:** Python, DataMux, OpenGL
 
-Streaminghub modules that are still in experimental stage.
-These modules aim to improve the architecture and performance of streaminghub, and would likely be promoted into core 
-streaminghub modules in the future.<br/>
+## Projects | `projects/`
+A collection of real-time bio-signal analysis experiments built upon StreamingHub.<br/>
+**Technologies:** Python, DataMux, OpenGL
 
-## Projects
-A collection of projects conducted using StreamingHub for different use cases.<br/>
-**Technologies:** DFDS, JSON, Python, OpenGL
-
-## Archived Projects
-
-### Orange3 Addons | `old/orange3-addons`
-
-Orange3 support package to use StreamingHub.<br>
-It adds widgets to discover data streams, display their metadata, and subscribe to them.<br>
-**Technologies:** Python, PyQt5, Orange3, PyLSL.
-
-### WebUI | `old/webui`
-
-Web interface to generate and validate DFDS metadata.<br>
-**Technologies:** Angular, Typescript, Monaco Editor
-
-### Old WebUI | `old/webui-old`
-
-Web interface to generate and validate DFDS metadata.<br>
-**Technologies:** Angular, Typescript, Monaco Editor
-
-<hr/>
+## Archived | `archived/`
+An archive of abandoned projects.<br/>
+**Technologies:** Python, DataMux, OpenGL
 
 ## Citation
 
