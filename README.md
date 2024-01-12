@@ -37,7 +37,7 @@ Node-RED addons for using DataMux APIs and visualizing bio-signal data within No
 
 ## Repository | `repository/`
 A collection of DFDS metadata for commonly used bio-signal datasets and eye-trackers.<br/>
-**Technologies:** Python, DataMux, OpenGL
+**Technologies:** JSON, DFDS
 
 ## Projects | `projects/`
 A collection of real-time bio-signal analysis experiments built upon StreamingHub.<br/>
@@ -45,7 +45,7 @@ A collection of real-time bio-signal analysis experiments built upon StreamingHu
 
 ## Archived | `archived/`
 An archive of abandoned projects.<br/>
-**Technologies:** Python, DataMux, OpenGL
+**Technologies:** Python, Flask, Angular
 
 ## Citation
 
