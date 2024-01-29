@@ -1,8 +1,10 @@
 import json
 import logging
-from typing import Tuple
+
+from pydantic_core import to_jsonable_python
 
 from .codec import Codec
+from .util import to_serializable
 
 
 class JSONCodec(Codec):
@@ -22,7 +24,11 @@ class JSONCodec(Codec):
         if len(content) == 0:
             content_enc = b""
         else:
-            content_str = json.dumps(content)
+            try:
+                content_str = json.dumps(to_jsonable_python(content, fallback=to_serializable))
+            except Exception as e:
+                self.logger.error(f"topic={topic},content={content} cannot be JSON encoded")
+                raise e
             content_enc = content_str.encode()
         payload = topic + b"||" + content_enc
         return payload
@@ -30,7 +36,7 @@ class JSONCodec(Codec):
     def decode(
         self,
         payload: bytes,
-    ) -> Tuple[bytes, dict]:
+    ) -> tuple[bytes, dict]:
         self.logger.debug(f"decode(): payload={payload}")
         topic, content_enc = payload.split(b"||", maxsplit=1)
         content = {}

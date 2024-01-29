@@ -7,8 +7,11 @@ import avro
 import avro.datafile
 import avro.io
 import avro.schema
+from numpy import float32, float64
+from pydantic_core import to_jsonable_python
 
 from .codec import Codec
+from .util import to_serializable
 
 prefix = b"d_"
 
@@ -29,9 +32,11 @@ class AvroCodec(Codec):
     }
     __type_map = {
         bool: "boolean",
-        int: "int",
-        float: "float",
         bytes: "bytes",
+        float: "double",
+        float32: "float",
+        float64: "double",
+        int: "int",
         str: "string",
     }
 
@@ -100,7 +105,7 @@ class AvroCodec(Codec):
         # encoding
         buffer = io.BytesIO()
         encoder = avro.io.BinaryEncoder(buffer)
-        writer.write(content, encoder)
+        writer.write(to_jsonable_python(content, fallback=to_serializable), encoder)
         content_bytes = buffer.getvalue()
         # return encoded data
         return content_bytes
@@ -123,7 +128,7 @@ class AvroCodec(Codec):
         self,
         content: dict,
     ) -> bytes:
-        content_str = json.dumps(content)
+        content_str = json.dumps(to_jsonable_python(content, fallback=to_serializable))
         content_bytes = content_str.encode()
         return content_bytes
 

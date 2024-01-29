@@ -15,7 +15,7 @@ First, install datamux as a pip package.
 
 ```bash
 
-pip install streaminghub-datamux==0.1.6
+pip install streaminghub-datamux==0.1.7
 
 ```
 
@@ -51,6 +51,12 @@ To start the remote API, run the following at server-side.
 
 ```bash
 python -m datamux serve -H "<host_name>" -p <port> -r <rpc_name> -c <codec_name>
+```
+
+If you are running from source (from the datamux/ folder), use the following command instead.
+
+```bash
+PYTHONPATH=src python -m datamux serve -H "<host_name>" -p <port> -r <rpc_name> -c <codec_name>
 ```
 
 At client side, you can connect to this server via the Python API.
