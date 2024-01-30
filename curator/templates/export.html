@@ -1,0 +1,84 @@
+{% extends 'layout.html' %}
+{% block content %}
+<form method="post" class="container mt-4">
+  <div class="card">
+    <div class="card-header d-flex flex-row">
+      <h5 class="mt-auto mb-0">Step 2 - Export Dataset</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <p class="mb-1 pb-0">
+          First, choose the file format you want the data to be exported.
+        </p>
+        <div class="input-group">
+          <label class="col-sm-2 col-form-label"><b>Data File Format</b></label>
+          <select name="format" class="form-select">
+            <option>HDF5 Archive (*.h5)</option>
+            <option>CSV (*.csv)</option>
+            <option>Numpy (*.npy)</option>
+            <option selected="selected">Parquet (*.parquet)</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <hr class="my-2 mt-3">
+        <p class="mb-1 pb-0">
+          We have auto-generated an indexing pattern for your dataset.
+          If required, you can modify it to your need.
+        </p>
+        <div class="input-group">
+          <label class="col-sm-2 col-form-label"><b>Indexing Pattern</b></label>
+          <input type="text" name="pattern" class="form-control" value="{{pattern}}">
+        </div>
+      </div>
+      <div class="row">
+        <hr class="my-2 mt-3">
+        <p class="mb-1 pb-0">
+          Next, review the data and metadata that will be exported.
+          If you find any issues, please go back to step 1 and fix them prior to exporting.
+        </p>
+        <div class="file-container table-responsive">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Metadata</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for k, item in file_dict.items() %}
+              <tr title="{{item.f_name}}">
+                <td>
+                  <a class="text-link" href="/files/{{item.f_url}}">
+                    <img class="icon" src='{{item.image}}' />
+                    {{item.f_url}}
+                  </a>
+                </td>
+                <td>
+                  <ul class="m-0 p-0">
+                    {% for mk, mv in item['metadata'].items() %}
+                    <li class="btn btn-sm px-1 py-0 btn-secondary">{{mk}}:&nbsp;<b class="me-2">{{mv}}</b><i
+                        class="fas fa-pen fa-xs"></i></li>
+                    {% endfor %}
+                  </ul>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="row">
+        <hr class="my-2">
+        <p class="mb-1 pb-0">
+          Next, click on "Export" to convert data into DFDS compatible format and generate DFDS metadata.
+        </p>
+        <div class="d-flex">
+          <a href="/files" class="btn btn-sm btn-primary me-1"><b>&ltri; Back to Step 1</b></a>
+          <button type="submit" class="btn btn-sm btn-success"><b>Export &rtri;</b></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock content %}

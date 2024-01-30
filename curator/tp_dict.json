@@ -69,5 +69,12 @@
             ".cpp"
         ],
         "icon": "/static/icons/code.png"
+    },
+    "numpy": {
+        "exts": [
+            ".npy",
+            ".npz"
+        ],
+        "icon": "/static/icons/numpy.png"
     }
 }

@@ -1,5 +1,5 @@
 from pathlib import Path
-from flask import Response, abort, jsonify, redirect, render_template, request, send_file, session
+from flask import Response, abort, flash, jsonify, redirect, render_template, request, send_file, session
 from werkzeug.utils import secure_filename
 from urllib.parse import unquote
 
@@ -306,6 +306,10 @@ def upload_file(var: str = ""):
             text = text + filename + " Failed because File Already Exists or File Type not secure <br>"
     return render_template("uploadsuccess.html", text=text, fileNo=num_total, fileNo2=num_failed)
 
+@config.app.route("/export", methods=["GET"])
+def get_export():
+    file_dict = dict(session["selection"])
+    return render_template("export.html", file_dict=file_dict, pattern="{split}/{species}")
 
 @config.app.route("/metadata", methods=["POST"])
 def get_metadata():
