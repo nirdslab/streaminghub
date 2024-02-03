@@ -1,0 +1,8 @@
+name: datamux
+channels:
+  - conda-forge
+dependencies:
+  - conda-forge::python=3.11
+  - conda-forge::pip
+  - pip:
+    - "-r requirements.txt"
