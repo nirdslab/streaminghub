@@ -1,6 +1,6 @@
 import logging
 
-from dfds.url import PathOrURL
+from streaminghub_pydfds.url import PathOrURL
 
 logging.basicConfig(level=logging.INFO)
 

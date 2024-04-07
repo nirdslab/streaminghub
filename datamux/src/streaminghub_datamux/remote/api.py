@@ -2,9 +2,8 @@ import asyncio
 import logging
 from collections import defaultdict
 
-from dfds.typing import Collection, Stream
-
-from datamux.api import StreamAck
+from streaminghub_datamux.api import StreamAck
+from streaminghub_pydfds.typing import Collection, Stream
 
 from .rpc import create_rpc_client
 from .topics import *

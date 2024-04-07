@@ -13,10 +13,10 @@
         <div class="input-group">
           <label class="col-sm-2 col-form-label"><b>Data File Format</b></label>
           <select name="format" class="form-select">
-            <option>HDF5 Archive (*.h5)</option>
-            <option>CSV (*.csv)</option>
-            <option>Numpy (*.npy)</option>
-            <option selected="selected">Parquet (*.parquet)</option>
+            <option value="h5">HDF5 Archive (*.h5)</option>
+            <option value="csv">CSV (*.csv)</option>
+            <option value="npy">Numpy (*.npy)</option>
+            <option value="parquet" selected="selected">Parquet (*.parquet)</option>
           </select>
         </div>
       </div>
@@ -72,6 +72,7 @@
         <hr class="my-2">
         <p class="mb-1 pb-0">
           Next, click on "Export" to convert data into DFDS compatible format and generate DFDS metadata.
+          Once done, you will be prompted to download the content.
         </p>
         <div class="d-flex">
           <a href="/files" class="btn btn-sm btn-primary me-1"><b>&ltri; Back to Step 1</b></a>

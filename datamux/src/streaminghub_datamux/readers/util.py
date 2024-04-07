@@ -1,6 +1,6 @@
 import pylsl
 import xmltodict
-from dfds.typing import Stream, dtype_map_inv
+from streaminghub_pydfds.typing import Stream, dtype_map_inv
 
 
 def stream_to_stream_info(

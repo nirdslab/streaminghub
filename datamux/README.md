@@ -37,11 +37,11 @@ python -m datamux init --data_dir="<path/to/dataset/dir>" --meta_dir="<path/to/m
 ```python
 
 # Required functions / flags
-import datamux.util as util
+import streaminghub_datamux.util as util
 # Direct API (for running on the same system)
-from datamux.api import DataMuxAPI
+from streaminghub_datamux.api import DataMuxAPI
 # Remote API (for running on a remote server)
-from datamux.remote.api import DataMuxRemoteAPI
+from streaminghub_datamux.remote.api import DataMuxRemoteAPI
 
 ```
 

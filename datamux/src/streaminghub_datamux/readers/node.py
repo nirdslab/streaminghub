@@ -3,7 +3,7 @@ from multiprocessing import Queue
 from threading import Event, Thread
 
 import pylsl
-from dfds.typing import Stream
+from streaminghub_pydfds.typing import Stream
 
 import datamux.util as util
 

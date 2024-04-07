@@ -3,8 +3,7 @@ import asyncio
 import logging
 
 from rich.logging import RichHandler
-
-from datamux.remote.server import DataMuxServer
+from streaminghub_datamux.remote.server import DataMuxServer
 
 
 async def serve(

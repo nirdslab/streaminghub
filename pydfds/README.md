@@ -16,8 +16,8 @@ pip install streaminghub-pydfds==0.1.34
 
 ```python
 
-from dfds import Parser
-from dfds.typing import Collection, Stream
+from streaminghub_pydfds import Parser
+from streaminghub_pydfds.typing import Collection, Stream
 from util import restream_data
 
 # define a DFDS parser

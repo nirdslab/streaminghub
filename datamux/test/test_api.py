@@ -12,7 +12,7 @@ from test_configs import data_config, runs
 from tqdm import tqdm
 
 import datamux.util as util
-from datamux.api import DataMuxAPI
+from streaminghub_datamux.api import DataMuxAPI
 
 
 async def connect():
@@ -45,6 +45,7 @@ async def timeit_replay(
             if i == 0:
                 start_time = int_time = timeit.default_timer()
             else:
+                logger.info(item)
                 t = timeit.default_timer()
                 int_time, int_duration = t, (t - int_time)
                 t_jitter.append(int_duration)
@@ -73,7 +74,7 @@ async def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.WARN, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
+    logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
     logger = logging.getLogger(__name__)
     try:
         asyncio.run(main())

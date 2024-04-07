@@ -1,10 +1,11 @@
 from pathlib import Path
-from flask import Response, abort, flash, jsonify, redirect, render_template, request, send_file, session
-from werkzeug.utils import secure_filename
 from urllib.parse import unquote
 
-from config import Config
-import util
+from flask import Response, abort, jsonify, redirect, render_template, request, send_file, session
+from werkzeug.utils import secure_filename
+
+from . import util
+from .config import Config
 
 config = Config()
 
@@ -306,10 +307,26 @@ def upload_file(var: str = ""):
             text = text + filename + " Failed because File Already Exists or File Type not secure <br>"
     return render_template("uploadsuccess.html", text=text, fileNo=num_total, fileNo2=num_failed)
 
+
 @config.app.route("/export", methods=["GET"])
 def get_export():
     file_dict = dict(session["selection"])
+    return render_template("export.html", file_dict=file_dict, pattern="{split}/{species}", location="")
+
+
+@config.app.route("/export", methods=["POST"])
+def do_export():
+    file_dict = dict(session["selection"])
+    format = str(request.form.get("format"))
+    pattern = str(request.form.get("pattern"))
+    config.app.logger.info(f"pattern={pattern}, format={format}")
+    assert len(pattern) > 0
+    # assert format in ["h5", "csv", "parquet", "npy"]
+    for file in file_dict:
+        config.app.logger.info(file)
+    # TODO create dataset in temp/ folder and push it as a download.
     return render_template("export.html", file_dict=file_dict, pattern="{split}/{species}")
+
 
 @config.app.route("/metadata", methods=["POST"])
 def get_metadata():

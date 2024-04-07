@@ -7,8 +7,8 @@ import timeit
 import numpy as np
 
 import pylsl
-from dfds import Parser
-from dfds.typing import Collection, Config, Stream
+from streaminghub_pydfds import Parser
+from streaminghub_pydfds.typing import Collection, Config, Stream
 
 import datamux.util as util
 

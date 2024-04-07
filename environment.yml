@@ -1,0 +1,14 @@
+channels:
+  - conda-forge
+dependencies:
+  - conda-forge::python=3.10
+  - conda-forge::pip
+  - conda-forge::setuptools
+  - conda-forge::nodejs=18
+  - conda-forge::go
+  - conda-forge::schedule
+  - pip:
+      # source packages
+      - "-e pydfds/"
+      - "-e datamux/"
+      - "-e curator/"

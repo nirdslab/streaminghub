@@ -2,7 +2,7 @@ import asyncio
 import multiprocessing
 from threading import Thread
 
-from datamux.api import DataMuxAPI
+from streaminghub_datamux.api import DataMuxAPI
 
 from .rpc import create_rpc_server
 from .topics import *

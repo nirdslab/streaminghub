@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "streaminghub-curator"
+version = "0.0.1"
+authors = [{ name = "Yasith Jayawardana", email = "yasith@cs.odu.edu" }]
+description = "A web interface to package datasets with DFDS metadata"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+keywords = ["dfds", "metadata", "packaging"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "flask~=3.0.1",
+    "flask-session~=0.6.0",
+    "hurry.filesize~=0.9",
+    "werkzeug~=3.0.1",
+    "pydantic~=2.6.0",
+    "parse~=1.20.1",
+    "rich~=13.7.0",
+]
+
+[project.urls]
+homepage = "https://github.com/nirdslab/streaminghub/tree/master/curator"
+
+[project.optional-dependencies]
+dev = ["black", "build", "twine", "bumpver", "isort", "pip-tools", "pytest"]
+
+[tool.bumpver]
+current_version = "0.0.1"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "bump datamux version {old_version} -> {new_version}"
+tag_message = "{new_version}"
+tag_scope = "default"
+commit = true
+tag = true
+push = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = ['version = "{version}"']
+"README.md" = ['pip install streaminghub-curator=={version}']

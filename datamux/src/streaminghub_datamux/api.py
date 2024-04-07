@@ -1,8 +1,8 @@
 from multiprocessing import Queue
 from threading import Event
 
-import dfds
-from dfds.typing import Collection, Stream
+from streaminghub_pydfds import load_config
+from streaminghub_pydfds.typing import Collection, Stream
 
 from .readers import CollectionReader, NodeReader
 from .util import StreamAck, gen_randseq
@@ -27,7 +27,7 @@ class DataMuxAPI:
         Create API instance.
 
         """
-        self.config = dfds.load_config()
+        self.config = load_config()
         self.reader_n = NodeReader()
         self.reader_c = CollectionReader(self.config)
         self.context: dict[str, Event] = {}

@@ -1,0 +1,2 @@
+include src/streaminghub_curator/static/*
+include src/streaminghub_curator/templates/*

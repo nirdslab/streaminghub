@@ -1,24 +1,24 @@
 # StreamingHub
 
 <img src="https://i.imgur.com/xSieE3V.png" height="100px"><br>
-StreamingHub is a multi-component framework for developing real-time bio-signal analysis workflows.<br>
+StreamingHub is a framework for developing real-time bio-signal analysis workflows.<br>
 <img src="assets/demo-animated.gif" width="100%">
 
 It provides the following components:
 
 ## DFDS | `dfds/`
 
-JSON schemas to describe data streams, data sets, and analytics, along with a few samples.<br>
+JSON schemas to describe data streams, data sets, and analytics, along with a few samples.`<br>`
 **Technologies:** JSON, JSON Schema
 
 ## PyDFDS | `pydfds/`
 
-A Python package to read DFDS-annotated datasets and their metadata.<br>
+A Python package to read DFDS-annotated datasets and their metadata.`<br>`
 **Technologies:** Python, Pydantic, JSONSchema, Pydantic
 
 ## Curator | `curator/`
 
-A Web interface to annotate files with DFDS metadata and rearranging them in a standard form.<br>
+A Web interface to annotate files with DFDS metadata and rearranging them in a standard form.`<br>`
 **Technologies:** Python, Flask, PyDFDS
 
 ## DataMux | `datamux/`
@@ -27,24 +27,27 @@ A Python package providing a high-level API to read bio-signal streams.
 It supports three modes:
 (a) relaying real-time sensory data,
 (b) replaying recordings from datasets, and
-(c) simulating mock data as test cases.<br>
+(c) simulating mock data as test cases.`<br>`
 **Technologies:** Python, PyLSL, WebSockets
 
 ## FlowMaker | `flowmaker/`
 
-Node-RED addons for using DataMux APIs and visualizing bio-signal data within Node-RED.<br>
+Node-RED addons for using DataMux APIs and visualizing bio-signal data within Node-RED.`<br>`
 **Technologies:** Javascript, JSON, Vega
 
 ## Repository | `repository/`
-A collection of DFDS metadata for commonly used bio-signal datasets and eye-trackers.<br/>
+
+A collection of DFDS metadata for commonly used bio-signal datasets and eye-trackers.`<br/>`
 **Technologies:** JSON, DFDS
 
-## Projects | `projects/`
-A collection of real-time bio-signal analysis experiments built upon StreamingHub.<br/>
+## Examples | `examples/`
+
+A set of real-time bio-signal analysis experiments built upon StreamingHub.`<br/>`
 **Technologies:** Python, DataMux, OpenGL
 
 ## Archived | `archived/`
-An archive of abandoned projects.<br/>
+
+An archive of abandoned projects.`<br/>`
 **Technologies:** Python, Flask, Angular
 
 ## Citation
