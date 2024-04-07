@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -341,6 +342,10 @@ def get_metadata():
 
 
 if __name__ == "__main__":
-    local = "127.0.0.1"
-    public = "0.0.0.0"
-    config.app.run(host=public, debug=True, port=8000)
+
+    parser = argparse.ArgumentParser("Streaminghub Curator")
+    parser.add_argument("--host", "-H", type=str, default="127.0.0.1")
+    parser.add_argument("--port", "-p", type=int, default=8000)
+    args = parser.parse_args()
+
+    config.app.run(host=args.host, port=args.port, debug=True)

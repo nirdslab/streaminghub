@@ -16,7 +16,7 @@ import random
 import sys
 import time
 
-import dfds
+import streaminghub_pydfds as dfds
 from rich.logging import RichHandler
 
 SYNTAX = "datasource_simulate [path/to/datasource/spec]"

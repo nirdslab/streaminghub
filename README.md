@@ -50,6 +50,75 @@ A set of real-time bio-signal analysis experiments built upon StreamingHub.`<br/
 An archive of abandoned projects.`<br/>`
 **Technologies:** Python, Flask, Angular
 
+## Install from Source (for Development)
+
+### Option 1 - Micromamba
+
+We recommend using `micromamba` to seamlessly install both python and non-python dependencies.
+
+```bash
+# clone the repository
+git clone git@github.com:nirdslab/streaminghub.git
+
+# cd into project directory
+cd streaminghub/
+
+# install micromamba (recommended)
+"${SHELL}" <(curl -L https://micro.mamba.pm/install.sh)
+
+# create an environment with required dependencies
+micromamba env create -n streaminghub --file environment.yml
+
+# activate environment
+micromamba activate streaminghub
+```
+
+### Option 2 - Pip
+
+If using `streaminghub` for an existing project, you can directly install the required components via `pip`.
+
+```bash
+# clone the repository
+git clone git@github.com:nirdslab/streaminghub.git
+
+# install curator (from source)
+pip install -e streaminghub/curator
+
+# install pydfds (from source)
+pip install -e streaminghub/pydfds
+
+# install datamux (from source)
+pip install -e streaminghub/datamux
+
+```
+
+## Install from PyPI
+
+If your plan to use `streaminghub`, without modifying/extending functionality, please install the published versions from `pip`.
+
+```bash
+
+# install curator (from PyPI)
+pip install streaminghub_curator
+
+# install pydfds (from PyPI)
+pip install streaminghub_pydfds
+
+# install datamux (from PyPI)
+pip install streaminghub_datamux
+
+```
+
+## Running the Project
+
+```bash
+# starting streaminghub curator
+python -m streaminghub_curator --host=<HOSTNAME> --port=<PORT>
+
+# starting datamux server (for streaming live data)
+python -m streaminghub_datamux
+```
+
 ## Citation
 
 If you found this work useful in your research, please consider citing us.

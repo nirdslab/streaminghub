@@ -1,6 +1,6 @@
 import logging
 
-import dfds
+import streaminghub_pydfds as dfds
 
 logging.basicConfig(level=logging.INFO)
 

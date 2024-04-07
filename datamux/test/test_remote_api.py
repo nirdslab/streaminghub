@@ -7,12 +7,11 @@ import timeit
 from statistics import stdev
 
 import pandas as pd
+import streaminghub_datamux.util as util
 from rich.logging import RichHandler
+from streaminghub_datamux.remote.api import DataMuxRemoteAPI
 from test_configs import data_config, runs
 from tqdm import tqdm
-
-import streaminghub_datamux.util as util
-from streaminghub_datamux.remote.api import DataMuxRemoteAPI
 
 
 async def connect(codec: str, host: str, port: int):

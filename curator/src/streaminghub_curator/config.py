@@ -7,7 +7,6 @@ from pathlib import Path
 
 from flask import Flask
 from flask_session import Session
-from rich.logging import RichHandler
 
 
 class Config:
@@ -15,15 +14,6 @@ class Config:
         # get host information
         self.hostname = socket.gethostname()
         self.IPAddr = socket.gethostbyname(self.hostname)
-        # define app
-        self.app = Flask(__name__)
-        self.app.secret_key = os.urandom(32)
-        self.app.config["SESSION_TYPE"] = "filesystem"
-        Session(self.app)
-        # self.app.logger.handlers = [RichHandler()]
-        self.app.logger.setLevel(logging.INFO)
-        self.app.logger.info("Your Computer Name is: " + self.hostname)
-        self.app.logger.info("Your Computer IP Address is: " + self.IPAddr)
         # Config file
         template_dir = Path(__file__).parent / "templates"
         fname = "config.json"
@@ -44,3 +34,12 @@ class Config:
         self.ext_dict = {str(ext): (tp, str(data["icon"])) for tp, data in tp_dict.items() for ext in data["exts"]}
         # default settings
         self.default_view = 1
+        # define app
+        self.app = Flask("streaminghub-curator", template_folder=template_dir)
+        self.app.secret_key = os.urandom(32)
+        self.app.config["SESSION_TYPE"] = "filesystem"
+        Session(self.app)
+        # self.app.logger.handlers = [RichHandler()]
+        self.app.logger.setLevel(logging.INFO)
+        self.app.logger.info("Your Computer Name is: " + self.hostname)
+        self.app.logger.info("Your Computer IP Address is: " + self.IPAddr)

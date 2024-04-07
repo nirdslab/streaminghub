@@ -15,11 +15,10 @@ import logging
 import threading
 from multiprocessing import Queue
 
-from streaminghub_pydfds.typing import Stream
+import streaminghub_datamux.util as util
 from rich.logging import RichHandler
-
-import datamux.util as util
 from streaminghub_datamux.api import DataMuxAPI
+from streaminghub_pydfds.typing import Stream
 
 DIGIT_CHARS = "0123456789"
 SHUTDOWN_FLAG = threading.Event()

@@ -3,16 +3,15 @@
 import asyncio
 import logging
 import multiprocessing
-from statistics import stdev
 import timeit
+from statistics import stdev
 
 import pandas as pd
+import streaminghub_datamux.util as util
 from rich.logging import RichHandler
+from streaminghub_datamux.api import DataMuxAPI
 from test_configs import data_config, runs
 from tqdm import tqdm
-
-import datamux.util as util
-from streaminghub_datamux.api import DataMuxAPI
 
 
 async def connect():
@@ -64,7 +63,7 @@ async def main():
     api = await connect()
     for run in runs:
         rows = [[run.dataset_name, run.num_points] for _ in range(run.num_runs)]
-        _df = pd.DataFrame(rows, columns=['dataset_name', 'num_points'])
+        _df = pd.DataFrame(rows, columns=["dataset_name", "num_points"])
         time, jitter = await timeit_replay(api, *run)
         _df["time"] = time
         _df["jitter"] = jitter

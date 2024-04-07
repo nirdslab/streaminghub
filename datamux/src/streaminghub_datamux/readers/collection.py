@@ -1,16 +1,15 @@
 import logging
 import random
 import time
+import timeit
 from multiprocessing import Queue
 from threading import Event, Thread
-import timeit
-import numpy as np
 
+import numpy as np
 import pylsl
+import streaminghub_datamux.util as util
 from streaminghub_pydfds import Parser
 from streaminghub_pydfds.typing import Collection, Config, Stream
-
-import datamux.util as util
 
 from . import Reader
 from .util import stream_to_stream_info
@@ -163,7 +162,7 @@ class CollectionReader(Reader):
                         time.sleep(dt)
             else:
                 time.sleep(dt)
-            
+
             # postprocessing
             if use_relative_timestamps:
                 index[index_cols[0]] -= T0

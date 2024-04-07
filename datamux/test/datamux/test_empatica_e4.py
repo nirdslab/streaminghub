@@ -6,12 +6,13 @@ import unittest
 
 import pylsl
 
-from mocks import start_server
+from streaminghub_datamux.interfaces.mocks import start_server
 
 
 async def listen(inlet: pylsl.StreamInlet):
     while True:
         samples, timestamps = inlet.pull_chunk()
+        assert samples is not None
         for sample, timestamp in zip(samples, timestamps):
             print("\t".join(map(lambda x: str(x).ljust(20), [inlet.info().type(), timestamp, sample])), flush=True)
         await asyncio.sleep(0.1)
