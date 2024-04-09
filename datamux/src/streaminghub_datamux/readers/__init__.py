@@ -1,6 +1,6 @@
 class Reader:
     """
-    Base Class for DFDS Data Readers
+    Base Class for DFDS Data Readers (Role - Replaying Recorded Data)
 
     """
 

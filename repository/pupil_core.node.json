@@ -6,117 +6,182 @@
     "category": "Eye Tracker"
   },
   "outputs": {
-    "camera": {
-      "name": "Camera Feed",
-      "description": "Camera (World)",
+    "world": {
+      "name": "world camera",
+      "description": "world camera",
       "frequency": 128,
-      "unit": "",
+      "unit": "px",
       "fields": {
-        "camera_r": {
-          "name": "camera - red channel",
-          "description": "Red Channel in the World Camera Feed",
-          "dtype": "u8"
-        },
-        "camera_g": {
-          "name": "camera - green channel",
-          "description": "Green Channel in the World Camera Feed",
-          "dtype": "u8"
-        },
-        "camera_b": {
-          "name": "camera - blue channel",
-          "description": "Blue Channel in the World Camera Feed",
+        "frame": {
+          "name": "frame",
+          "description": "frame",
           "dtype": "u8"
         }
       },
       "index": {
         "t": {
           "name": "t",
-          "description": "Timestamp",
+          "description": "timestamp",
           "dtype": "f32"
         }
       }
     },
-    "gaze": {
-      "name": "Gaze Position",
-      "description": "Binocular Gaze Position of Eye.0(L) and Eye.1(R)",
+    "eye_l": {
+      "name": "left eye camera",
+      "description": "left eye camera",
       "frequency": 128,
-      "unit": "",
+      "unit": "px",
       "fields": {
-        "gaze.0_x": {
-          "name": "eye 0 gaze - x coord",
-          "description": "Normalized X Coordinate of Gaze, in Eye 0",
-          "dtype": "f32"
-        },
-        "gaze.0_y": {
-          "name": "eye 0 gaze - y coord",
-          "description": "Normalized Y Coordinate of Gaze, in Eye 0",
-          "dtype": "f32"
-        },
-        "gaze.0_c": {
-          "name": "eye 0 gaze - confidence",
-          "description": "Confidence of Predicted Gaze Coordinate in Eye 0",
-          "dtype": "f32"
-        },
-        "gaze.1_x": {
-          "name": "eye 1 gaze - x coord",
-          "description": "Normalized X Coordinate of Gaze, in Eye 1",
-          "dtype": "f32"
-        },
-        "gaze.1_y": {
-          "name": "eye 1 gaze - y coord",
-          "description": "Normalized Y Coordinate of Gaze, in Eye 1",
-          "dtype": "f32"
-        },
-        "gaze.1_c": {
-          "name": "eye 1 gaze - confidence",
-          "description": "Confidence of Predicted Gaze Coordinate in Eye 1",
-          "dtype": "f32"
+        "frame": {
+          "name": "frame",
+          "description": "frame",
+          "dtype": "u8"
         }
       },
       "index": {
         "t": {
           "name": "t",
-          "description": "Timestamp",
+          "description": "timestamp",
           "dtype": "f32"
         }
       }
     },
-    "fxn": {
-      "name": "fixation",
-      "description": "Fixations",
-      "frequency": 0,
+    "eye_r": {
+      "name": "right eye camera",
+      "description": "right eye camera",
+      "frequency": 128,
       "unit": "",
       "fields": {
-        "fxn_x": {
-          "name": "fixation - x coord",
-          "description": "Normalized X Coordinate of Detected Fixation",
+        "frame": {
+          "name": "frame",
+          "description": "frame",
+          "dtype": "u8"
+        }
+      },
+      "index": {
+        "t": {
+          "name": "t",
+          "description": "timestamp",
+          "dtype": "f32"
+        }
+      }
+    },
+    "gaze_l": {
+      "name": "left gaze",
+      "description": "left gaze",
+      "frequency": 128,
+      "unit": "",
+      "fields": {
+        "x": {
+          "name": "x",
+          "description": "x",
           "dtype": "f32"
         },
-        "fxn_y": {
-          "name": "fixation - y coord",
-          "description": "Normalized Y Coordinate of Detected Fixation",
+        "y": {
+          "name": "y",
+          "description": "y",
           "dtype": "f32"
         },
-        "fxn_w": {
-          "name": "fixation dispersion",
-          "description": "Dispersion of Detected Fixation",
+        "z": {
+          "name": "z",
+          "description": "z",
           "dtype": "f32"
         },
-        "fxn_d": {
-          "name": "fixation duration",
-          "description": "Duration of Detected Fixation",
-          "dtype": "f32"
-        },
-        "fxn_c": {
-          "name": "fixation confidence",
-          "description": "Confidence of the Predicted Fixatino",
+        "c": {
+          "name": "confidence",
+          "description": "confidence",
           "dtype": "f32"
         }
       },
       "index": {
         "t": {
           "name": "t",
-          "description": "Timestamp",
+          "description": "timestamp",
+          "dtype": "f32"
+        }
+      }
+    },
+    "gaze_r": {
+      "name": "right gaze",
+      "description": "right gaze",
+      "frequency": 128,
+      "unit": "",
+      "fields": {
+        "x": {
+          "name": "x",
+          "description": "x",
+          "dtype": "f32"
+        },
+        "y": {
+          "name": "y",
+          "description": "y",
+          "dtype": "f32"
+        },
+        "z": {
+          "name": "z",
+          "description": "z",
+          "dtype": "f32"
+        },
+        "c": {
+          "name": "confidence",
+          "description": "confidence",
+          "dtype": "f32"
+        }
+      },
+      "index": {
+        "t": {
+          "name": "t",
+          "description": "timestamp",
+          "dtype": "f32"
+        }
+      }
+    },
+    "pupil_l": {
+      "name": "left pupil",
+      "description": "left pupil",
+      "frequency": 128,
+      "unit": "",
+      "fields": {
+        "d": {
+          "name": "d",
+          "description": "diameter",
+          "dtype": "f32"
+        },
+        "c": {
+          "name": "confidence",
+          "description": "confidence",
+          "dtype": "f32"
+        }
+      },
+      "index": {
+        "t": {
+          "name": "t",
+          "description": "timestamp",
+          "dtype": "f32"
+        }
+      }
+    },
+    "pupil_r": {
+      "name": "right pupil",
+      "description": "right pupil",
+      "frequency": 128,
+      "unit": "",
+      "fields": {
+        "d": {
+          "name": "d",
+          "description": "diameter",
+          "dtype": "f32"
+        },
+        "c": {
+          "name": "confidence",
+          "description": "confidence",
+          "dtype": "f32"
+        }
+      },
+      "index": {
+        "t": {
+          "name": "t",
+          "description": "timestamp",
           "dtype": "f32"
         }
       }

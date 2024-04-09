@@ -78,6 +78,7 @@ class Stream(p.BaseModel):
 
 
 class Node(p.BaseModel):
+    id: str = p.Field(default="")
     device: Optional[Device] = p.Field(default=None)
     uri: Optional[str] = p.Field(default=None)
     inputs: dict[str, Stream] = p.Field(default=dict())

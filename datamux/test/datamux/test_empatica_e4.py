@@ -6,7 +6,7 @@ import unittest
 
 import pylsl
 
-from streaminghub_datamux.interfaces.mocks import start_server
+from streaminghub_datamux.mocks import start_server
 
 
 async def listen(inlet: pylsl.StreamInlet):
