@@ -2,7 +2,6 @@
 import io
 import logging
 import multiprocessing
-from threading import Thread
 
 import msgpack
 import numpy as np
@@ -10,9 +9,8 @@ import streaminghub_pydfds as dfds
 import zmq
 from PIL import Image
 from rich.logging import RichHandler
+from streaminghub_datamux.typing import Proxy
 from streaminghub_pydfds.typing import Node, Stream
-
-from . import Proxy
 
 
 class PupilCoreProxy(Proxy):
@@ -26,16 +24,19 @@ class PupilCoreProxy(Proxy):
     logger = logging.getLogger(__name__)
     sub_port: int
     pub_port: int
-    topics: list[str] = [
-        "frame.",  # camera stream {world, eye0, eye1}
-        "gaze.",  # gaze position data
-        "pupil.",  # pupil data
-        # "fixations",  # fixation data
-        # 'notify',    # notifications
-    ]
-    is_setup: bool = False
+    stream_ids = {
+        "world": "frame.world",
+        "eye_l": "frame.eye.1",
+        "eye_r": "frame.eye.0",
+        "gaze_l": "gaze.3d.1",
+        "gaze_r": "gaze.3d.0",
+        "pupil_l": "pupil.1",
+        "pupil_r": "pupil.0"
+    }
     nodes: list[Node] = []
     node_template: Node
+    ctx: zmq.Context
+    ctrl_sock: zmq.Socket
 
     def __init__(
         self,
@@ -52,37 +53,28 @@ class PupilCoreProxy(Proxy):
         super().__init__()
         # save params
         self.config = dfds.load_config()
-        self.pupil_remote_ip = pupil_remote_ip
-        self.pupil_remote_port = pupil_remote_port
+        self.ctrl_ip = pupil_remote_ip
+        self.ctrl_port = pupil_remote_port
         # get DFDS metadata for pupil core
         fp = (self.config.meta_dir / "pupil_core.node.json").as_posix()
         self.node_template = dfds.Parser().get_node_metadata(fp)
         # initialize proxy
         self.ctx = zmq.Context()
-        self.pupil_remote_sock = self.ctx.socket(zmq.REQ)
-        self.pupil_pub_sock = self.ctx.socket(zmq.PUB)
-        self.pupil_sub_sock = self.ctx.socket(zmq.SUB)
+        self.ctrl_sock = self.ctx.socket(zmq.REQ)
 
-    def setup(
-        self,
-    ) -> None:
-        conn_str = f"tcp://{self.pupil_remote_ip}:{self.pupil_remote_port}"
-        self.logger.debug(f"Connecting to Pupil Remote: {conn_str}...")
-        self.pupil_remote_sock.connect(conn_str)
-        self.logger.debug(f"Connected to Pupil Remote: {conn_str}")
-
-        self.logger.debug("Requesting SUB_PORT and PUB_PORT...")
-        self.pupil_remote_sock.send_string("SUB_PORT")
-        self.sub_port = int(self.pupil_remote_sock.recv_string())
-        self.pupil_remote_sock.send_string("PUB_PORT")
-        self.pub_port = int(self.pupil_remote_sock.recv_string())
+    def setup(self):
+        conn_str = f"tcp://{self.ctrl_ip}:{self.ctrl_port}"
+        self.logger.debug(f"Getting PUB_PORT and SUB_PORT from {conn_str}...")
+        self.ctrl_sock.connect(conn_str)
+        self.ctrl_sock.send_string("SUB_PORT")
+        self.sub_port = int(self.ctrl_sock.recv_string())
+        self.ctrl_sock.send_string("PUB_PORT")
+        self.pub_port = int(self.ctrl_sock.recv_string())
         self.logger.debug(f"Received SUB_PORT={self.sub_port}, PUB_PORT={self.pub_port}")
 
-    def send_sock_opts(self, sock_opt: int):
-        # subscribe to topics
-        for sub_id in self.topics:
-            self.pupil_sub_sock.setsockopt_string(sock_opt, sub_id)
-            self.logger.debug(f"set opt={sock_opt} for topic={sub_id}")
+    def send_sock_opts(self, sock: zmq.Socket, opt: int, topic: str):
+        sock.setsockopt_string(opt, topic)
+        self.logger.debug(f"set opt={opt}, topic={topic}")
 
     def _proxy_coro(
         self,
@@ -90,14 +82,17 @@ class PupilCoreProxy(Proxy):
         stream_id: str,
         q: multiprocessing.Queue,
     ) -> None:
-        conn_str = f"tcp://{self.pupil_remote_ip}:{self.sub_port}"
-        self.pupil_sub_sock.connect(conn_str)
+        conn_str = f"tcp://{self.ctrl_ip}:{self.sub_port}"
+        assert stream_id in self.stream_ids
+        sock = self.ctx.socket(zmq.SUB)
+        sock.connect(conn_str)
         self.logger.debug(f"Started task for device={node_id}, stream: {stream_id}...")
-        self.send_sock_opts(zmq.SUBSCRIBE)
+        stream_topic = self.stream_ids[stream_id]
+        self.send_sock_opts(sock, zmq.SUBSCRIBE, stream_topic)
         while True:
             try:
                 # receive raw data (bytes)
-                [topic, msg, *extra] = self.pupil_sub_sock.recv_multipart()
+                [topic, msg, *extra] = sock.recv_multipart()
                 topic = topic.decode()
                 # message content
                 payload: dict | None = None
@@ -113,8 +108,9 @@ class PupilCoreProxy(Proxy):
             except KeyboardInterrupt:
                 self.logger.debug(f"Interrupted task for device={node_id}, stream: {stream_id}...")
                 break
-        self.send_sock_opts(zmq.UNSUBSCRIBE)
-        self.pupil_sub_sock.disconnect(conn_str)
+        self.send_sock_opts(sock, zmq.UNSUBSCRIBE, stream_topic)
+        sock.disconnect(conn_str)
+        sock.close()
         self.logger.debug(f"Ended task for device={node_id}, stream: {stream_id}...")
 
     def _proxy_msg(
@@ -131,11 +127,11 @@ class PupilCoreProxy(Proxy):
             c = message.get("confidence", 0.0)
             # left pupil diam
             if topic.startswith("pupil.1"):
-                pupil_d = message["diameter_3d"]
+                pupil_d = message["diameter"]
                 queue.put_nowait({"pupil_l": dict(d=pupil_d, c=c, t=t)})
             # right pupil diam
             if topic.startswith("pupil.0"):
-                pupil_d = message["diameter_3d"]
+                pupil_d = message["diameter"]
                 queue.put_nowait({"pupil_r": dict(d=pupil_d, c=c, t=t)})
             # left gaze pos
             if topic.startswith("gaze.3d.1"):
@@ -160,11 +156,8 @@ class PupilCoreProxy(Proxy):
                 queue.put_nowait({"eye_r": dict(frame=frame, t=t)})
 
     def list_nodes(self) -> list[Node]:
-        if not self.is_setup:
-            self.setup()
-            self.is_setup = True
-        node_ids = []  # TODO fix this
-        self.nodes = [Node(id=id, **self.node_template.model_dump()) for id in node_ids]
+        node_ids = ["1"]  # TODO fix this
+        self.nodes = [Node(**self.node_template.model_dump(exclude={"id"}), id=id) for id in node_ids]
         return self.nodes
 
     def list_streams(self, node_id: str) -> list[Stream]:
@@ -175,11 +168,14 @@ class PupilCoreProxy(Proxy):
 
 def main():
     proxy = PupilCoreProxy()
+    proxy.setup()
     nodes = proxy.list_nodes()
     assert len(nodes) > 0
+    print(nodes)
     node = nodes[0]
     streams = proxy.list_streams(node.id)
     assert len(streams) > 0
+    print(streams)
     stream = streams[0]
     queue = multiprocessing.Queue()
     proxy.proxy(node.id, stream.name, queue)

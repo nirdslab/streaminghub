@@ -8,10 +8,10 @@ from threading import Event, Thread
 import numpy as np
 import pylsl
 import streaminghub_datamux.util as util
+from streaminghub_datamux.typing import Reader
 from streaminghub_pydfds import Parser
 from streaminghub_pydfds.typing import Collection, Config, Stream
 
-from . import Reader
 from .util import stream_to_stream_info
 
 

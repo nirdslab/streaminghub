@@ -4,9 +4,9 @@ from threading import Event, Thread
 
 import pylsl
 import streaminghub_datamux.util as util
+from streaminghub_datamux.typing import Reader
 from streaminghub_pydfds.typing import Stream
 
-from . import Reader
 from .util import stream_info_to_stream, stream_inlet_to_stream
 
 

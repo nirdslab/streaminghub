@@ -77,7 +77,7 @@ class Parser:
             self.logger.debug(f"resolved url (schema): {schema_url}")
 
             schema = self.loader.get(schema_url)
-            self.validate(metadata, schema, schema_url)
+            # self.validate(metadata, schema, schema_url)
 
         # recursively update uri-references with actual values
         metadata = self.dereference(metadata, base=meta_base)

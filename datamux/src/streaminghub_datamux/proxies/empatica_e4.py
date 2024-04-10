@@ -4,13 +4,11 @@ import logging
 import multiprocessing
 import re
 import socket
-from threading import Thread
 
 import streaminghub_pydfds as dfds
 from rich.logging import RichHandler
+from streaminghub_datamux.typing import Proxy
 from streaminghub_pydfds.typing import Node, Stream
-
-from . import Proxy
 
 
 class E4ServerState:
@@ -53,7 +51,6 @@ class EmpaticaE4Proxy(Proxy):
 
     buffer_size: int = 4096
     logger = logging.getLogger(__name__)
-    is_setup: bool = False
     nodes: list[Node] = []
     node_template: Node
 
@@ -81,13 +78,11 @@ class EmpaticaE4Proxy(Proxy):
         ]
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+    def setup(self):
+        self.sock.connect((socket.gethostname(), 28000))
+
     def encode(self, s_: str) -> bytes:
         return codecs.encode(s_ + "\r\n")
-
-    def setup(self) -> None:
-        if not self.is_setup:
-            self.sock.connect((socket.gethostname(), 28000))
-            self.is_setup = True
 
     def handle_outgoing_msgs(
         self,
@@ -183,27 +178,24 @@ class EmpaticaE4Proxy(Proxy):
         return typ, cmd, sid, arg, data
 
     def list_nodes(self) -> list[Node]:
-        if not self.is_setup:
-            self.setup()
-            self.is_setup = True
-        # request devices list
-        device_ids = []
-        self.logger.debug("Getting list of devices...")
+        # request available nodes
+        node_ids = []
+        self.logger.debug("Getting available nodes...")
         self.sock.send(self.encode(E4SSCommand.DEVICE_LIST))
         self.server_state = E4ServerState.WAITING
         # DEVICE_LIST response
         buffer: str = codecs.decode(self.sock.recv(self.buffer_size))
         for message in filter(None, map(str.strip, buffer.split("\r\n"))):
             typ, cmd, sid, arg, data = self.parse_message(message)
-            device_ids = [x.split()[0] for x in data.strip("| ").split("|")]
-            n = len(device_ids)
+            node_ids = [x.split()[0] for x in data.strip("| ").split("|")]
+            n = len(node_ids)
             assert n == int(arg)
-            self.logger.debug(f"device(s) found: {n}")
+            self.logger.debug(f"nodes(s) found: {n}")
             if n == 0:
                 self.server_state = E4ServerState.NO_DEVICES
             else:
                 self.server_state = E4ServerState.DEVICES_FOUND
-            self.nodes = [Node(id=id, **self.node_template.model_dump()) for id in device_ids]
+            self.nodes = [Node(**self.node_template.model_dump(exclude={"id"}), id=id) for id in node_ids]
         return self.nodes
 
     def list_streams(
@@ -233,18 +225,21 @@ class EmpaticaE4Proxy(Proxy):
 
 def main():
     proxy = EmpaticaE4Proxy()
+    proxy.setup()
     nodes = proxy.list_nodes()
+    print(nodes)
     assert len(nodes) > 0
     node = nodes[0]
     streams = proxy.list_streams(node.id)
+    print(streams)
     assert len(streams) > 0
     stream = streams[0]
-    queue = multiprocessing.Queue()
-    proxy.proxy(node.id, stream.name, queue)
+    # queue = multiprocessing.Queue()
+    # proxy.proxy(node.id, stream.name, queue)
 
-    while True:
-        item = queue.get()
-        print(item)
+    # while True:
+    #     item = queue.get()
+    #     print(item)
 
 
 if __name__ == "__main__":

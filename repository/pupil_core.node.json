@@ -7,7 +7,7 @@
   },
   "outputs": {
     "world": {
-      "name": "world camera",
+      "name": "world",
       "description": "world camera",
       "frequency": 128,
       "unit": "px",
@@ -27,7 +27,7 @@
       }
     },
     "eye_l": {
-      "name": "left eye camera",
+      "name": "eye_l",
       "description": "left eye camera",
       "frequency": 128,
       "unit": "px",
@@ -47,7 +47,7 @@
       }
     },
     "eye_r": {
-      "name": "right eye camera",
+      "name": "eye_r",
       "description": "right eye camera",
       "frequency": 128,
       "unit": "",
@@ -67,7 +67,7 @@
       }
     },
     "gaze_l": {
-      "name": "left gaze",
+      "name": "gaze_l",
       "description": "left gaze",
       "frequency": 128,
       "unit": "",
@@ -102,7 +102,7 @@
       }
     },
     "gaze_r": {
-      "name": "right gaze",
+      "name": "gaze_r",
       "description": "right gaze",
       "frequency": 128,
       "unit": "",
@@ -137,7 +137,7 @@
       }
     },
     "pupil_l": {
-      "name": "left pupil",
+      "name": "pupil_l",
       "description": "left pupil",
       "frequency": 128,
       "unit": "",
@@ -162,7 +162,7 @@
       }
     },
     "pupil_r": {
-      "name": "right pupil",
+      "name": "pupil_r",
       "description": "right pupil",
       "frequency": 128,
       "unit": "",
