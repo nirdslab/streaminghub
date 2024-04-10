@@ -3,28 +3,22 @@ from multiprocessing import Queue
 from threading import Event, Thread
 
 import pylsl
+import streaminghub_datamux as datamux
 import streaminghub_datamux.util as util
-from streaminghub_datamux.typing import Reader
-from streaminghub_pydfds.typing import Stream
+import streaminghub_pydfds as dfds
 
 from .util import stream_info_to_stream, stream_inlet_to_stream
 
 
-class NodeReader(Reader):
+class LSLProxy(datamux.Proxy):
     """
-    Stream Reader for DFDS Nodes
+    LabStreamingLayer Proxy for Real-Time Data Streaming
 
-    Functions Provided:
-
-    * refresh_streams()
-
-    * list_streams()
-
-    * relay(stream_id, queue)
+    Dependencies: PyLSL + liblsl
 
     """
 
-    __streams: list[Stream] = []
+    __streams: list[dfds.Stream] = []
     logger = logging.getLogger(__name__)
 
     def refresh_streams(
@@ -36,22 +30,47 @@ class NodeReader(Reader):
             stream = stream_info_to_stream(stream_info)
             self.__streams.append(stream)
 
+    def __create_query(
+        self,
+        stream: dfds.Stream,
+    ) -> str:
+        query_args = {}
+        query_args["name"] = stream.name
+        for k, v in stream.attrs.items():
+            query_args[f"desc/attrs/{k}"] = v
+        query_str = " and ".join([f"{k}='{v}'" for k, v in query_args.items()])
+        return query_str
+
+    def setup(self) -> None:
+        # nothing to set up here
+        pass
+
+    def list_nodes(self) -> list[dfds.Node]:
+        # no concept of node here. maybe use host/ip later?
+        return [dfds.Node(id="lsl")]
+
     def list_streams(
         self,
-    ) -> list[Stream]:
+        node_id: str,
+    ) -> list[dfds.Stream]:
+        assert node_id == "lsl"
+        self.refresh_streams()
         return self.__streams
 
-    def relay(
+    def _proxy_coro(
         self,
-        stream_name: str,
-        attrs: dict,
+        node_id: str,
+        stream_id: str,
         queue: Queue,
+        *,
         transform,
-        flag,
-    ) -> None:
+        flag: Event,
+        attrs: dict = {},
+    ):
+        assert node_id == "lsl"
         stream = None
         for s in self.__streams:
-            is_name_matched = s.name == stream_name
+            is_name_matched = s.name == stream_id
             is_attrs_matched = dict(s.attrs) == attrs
             if is_name_matched and is_attrs_matched:
                 stream = s
@@ -69,27 +88,7 @@ class NodeReader(Reader):
         self.logger.info("creating inlet")
         inlet = pylsl.StreamInlet(stream_info)
         self.logger.info("creating relay task")
-        thread = Thread(None, self.relay_coro, stream_name, (inlet, queue, transform, flag), daemon=True)
-        thread.start()
 
-    def __create_query(
-        self,
-        stream: Stream,
-    ) -> str:
-        query_args = {}
-        query_args["name"] = stream.name
-        for k, v in stream.attrs.items():
-            query_args[f"desc/attrs/{k}"] = v
-        query_str = " and ".join([f"{k}='{v}'" for k, v in query_args.items()])
-        return query_str
-
-    def relay_coro(
-        self,
-        inlet: pylsl.StreamInlet,
-        queue: Queue,
-        transform,
-        flag: Event,
-    ):
         stream = stream_inlet_to_stream(inlet)
         if not "dfds_mode" in stream.attrs:
             stream.attrs.update(dfds_mode="relay")

@@ -1,5 +1,4 @@
 import pylsl
-import xmltodict
 from streaminghub_pydfds.typing import Stream, dtype_map_inv
 
 
@@ -44,30 +43,3 @@ def stream_to_stream_info(
         n_node_device.append_child_value("manufacturer", device.manufacturer)
         n_node_device.append_child_value("model", device.model)
     return stream_info
-
-
-def stream_info_to_stream(
-    stream_info: pylsl.StreamInfo,
-) -> Stream:
-    # read stream info in dict format
-    inlet = pylsl.StreamInlet(stream_info)
-    stream = stream_inlet_to_stream(inlet)
-    inlet.close_stream()
-    return stream
-
-
-def stream_inlet_to_stream(
-    stream_inlet: pylsl.StreamInlet,
-) -> Stream:
-    # read stream info in dict format
-    info_xml = stream_inlet.info().as_xml()
-
-    # parse stream info
-    info: dict = xmltodict.parse(info_xml)["info"]
-    desc: dict = info["desc"]
-    desc["name"] = info["name"] or ""
-    desc["unit"] = info["type"] or ""
-    desc["frequency"] = info["nominal_srate"] or ""
-    desc["@node"] = desc.pop("node")
-    # generate stream object from dict
-    return Stream(**desc)

@@ -22,15 +22,13 @@ class CollectionReader(Reader):
 
     Functions provided:
 
-    * list_collections() - return a list of currently available collections
+    * list_collections() - list available collections
 
-    * refresh_collections() - refresh the list of currently available collections
+    * list_streams(collection_id) - list recorded streams in a collection
 
-    * list_streams(collection_name) - list the streams in a collection
+    * replay(collection_id, stream_id, attrs, queue) - replay a recorded stream
 
-    * replay(collection_name, stream_name, queue) - replay data from a stream in a collection
-
-    * restream(collection_name, stream_name) - restream (via lsl) data from a stream in a collection
+    * restream(collection_id, stream_id, attrs) - restream (via lsl) a recorded stream
 
     """
 
@@ -48,21 +46,14 @@ class CollectionReader(Reader):
     def list_collections(
         self,
     ) -> list[Collection]:
+        self._refresh_collections()
         return self.__collections
-
-    def refresh_collections(
-        self,
-    ) -> None:
-        self.__collections.clear()
-        for fp in self.config.meta_dir.glob("*.collection.json"):
-            collection = self.__parser.get_collection_metadata(fp.as_posix())
-            self.__collections.append(collection)
 
     def list_streams(
         self,
-        collection_name: str,
+        collection_id: str,
     ) -> list[Stream]:
-        collection = [c for c in self.__collections if c.name == collection_name][0]
+        collection = [c for c in self.__collections if c.name == collection_id][0]
         streams = []
         dataloader = collection.dataloader(self.config)
         for attrs in dataloader.ls():
@@ -73,43 +64,28 @@ class CollectionReader(Reader):
                 streams.append(stream)
         return streams
 
-    def replay(
+    def _refresh_collections(
         self,
-        collection_name: str,
-        stream_name: str,
-        attrs: dict,
-        queue: Queue,
-        transform,
-        flag,
     ) -> None:
-        collection = [c for c in self.__collections if c.name == collection_name][0]
-        stream = [s for s in collection.streams.values() if s.name == stream_name][0]
-        stream.attrs.update(attrs, dfds_mode="replay")
-        thread = Thread(None, self.replay_coro, stream_name, (collection, stream, queue, transform, flag), daemon=True)
-        thread.start()
+        self.__collections.clear()
+        for fp in self.config.meta_dir.glob("*.collection.json"):
+            collection = self.__parser.get_collection_metadata(fp.as_posix())
+            self.__collections.append(collection)
 
-    def restream(
+    def _replay_coro(
         self,
-        collection_name: str,
-        stream_name: str,
+        collection_id: str,
+        stream_id: str,
         attrs: dict,
-    ) -> None:
-        collection = [c for c in self.__collections if c.name == collection_name][0]
-        stream = [s for s in collection.streams.values() if s.name == stream_name][0]
-        stream.attrs.update(attrs, dfds_mode="restream")
-        thread = Thread(None, self.restream_coro, stream_name, (collection, stream), daemon=True)
-        thread.start()
-
-    def replay_coro(
-        self,
-        collection: Collection,
-        stream: Stream,
-        queue: Queue,
+        q: Queue,
         transform,
         flag: Event,
         strict_time: bool = True,
         use_relative_timestamps: bool = True,
     ):
+        collection = [c for c in self.__collections if c.name == collection_id][0]
+        stream = [s.model_copy() for s in collection.streams.values() if s.name == stream_id][0]
+        stream.attrs.update(attrs, dfds_mode="replay")
         freq = stream.frequency
         if freq <= 0:
             freq = random.randint(1, 50)  # assign a random frequency between 0 and 50
@@ -171,16 +147,20 @@ class CollectionReader(Reader):
             msg = dict(index=index, value=value)
             if transform is not None:
                 msg = transform(msg)
-            queue.put_nowait(msg)
+            q.put_nowait(msg)
 
-        queue.put_nowait(eof)
+        q.put_nowait(eof)
         self.logger.info(f"replay ended")
 
-    def restream_coro(
+    def _restream_coro(
         self,
-        collection: Collection,
-        stream: Stream,
+        collection_id: str,
+        stream_id: str,
+        attrs: dict,
     ):
+        collection = [c for c in self.__collections if c.name == collection_id][0]
+        stream = [s.model_copy() for s in collection.streams.values() if s.name == stream_id][0]
+        stream.attrs.update(attrs, dfds_mode="restream")
         freq = stream.frequency
         if freq <= 0:
             freq = random.randint(1, 50)  # assign a random frequency between 0 and 50

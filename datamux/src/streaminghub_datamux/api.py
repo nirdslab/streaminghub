@@ -1,10 +1,10 @@
 from multiprocessing import Queue
 from threading import Event
 
-from streaminghub_pydfds import load_config
-from streaminghub_pydfds.typing import Collection, Stream
+import streaminghub_pydfds as dfds
 
-from .readers import CollectionReader, NodeReader
+from .proxies import MultiProxy
+from .readers import CollectionReader
 from .util import StreamAck, gen_randseq
 
 prefix = "d_"
@@ -27,28 +27,27 @@ class DataMuxAPI:
         Create API instance.
 
         """
-        self.config = load_config()
-        self.reader_n = NodeReader()
+        self.config = dfds.load_config()
+        self.proxy_n = MultiProxy()
         self.reader_c = CollectionReader(self.config)
         self.context: dict[str, Event] = {}
 
     def list_collections(
         self,
-    ) -> list[Collection]:
+    ) -> list[dfds.Collection]:
         """
         List all collections.
 
         Returns:
             list[Collection]: list of available collections.
         """
-        self.reader_c.refresh_collections()
         collections = self.reader_c.list_collections()
         return collections
 
     def list_collection_streams(
         self,
         collection_name: str,
-    ) -> list[Stream]:
+    ) -> list[dfds.Stream]:
         """
         List all streams in a collection.
 
@@ -85,7 +84,7 @@ class DataMuxAPI:
         randseq = prefix + gen_randseq()
         t = (lambda x: [randseq.encode(), *transform(x)]) if transform is not None else None
         self.context[randseq] = Event()
-        self.reader_c.replay(collection_name, stream_name, attrs, sink, t, self.context[randseq])
+        self.reader_c.replay(collection_name, stream_name, attrs, sink, transform=t, flag=self.context[randseq])
         return StreamAck(status=True, randseq=randseq)
 
     def stop_task(
@@ -118,22 +117,35 @@ class DataMuxAPI:
         self.reader_c.restream(collection_name, stream_name, attrs)
         return StreamAck(status=True)
 
+    def list_live_nodes(
+        self,
+    ) -> list[dfds.Node]:
+        """
+        List all live nodes.
+
+        Returns:
+            list[Node]: list of live nodes.
+        """
+        nodes = self.proxy_n.list_nodes()
+        return nodes
+
     def list_live_streams(
         self,
-    ) -> list[Stream]:
+        node_id: str,
+    ) -> list[dfds.Stream]:
         """
-        List all live streams.
+        List all streams in a live node.
 
         Returns:
             list[Stream]: list of available live streams.
         """
-        self.reader_n.refresh_streams()
-        streams = self.reader_n.list_streams()
+        streams = self.proxy_n.list_streams(node_id)
         return streams
 
-    def read_live_stream(
+    def proxy_live_stream(
         self,
-        stream_name: str,
+        node_id: str,
+        stream_id: str,
         attrs: dict,
         sink: Queue,
         transform=None,
@@ -142,7 +154,8 @@ class DataMuxAPI:
         Read data from a live stream (LSL) into a given queue.
 
         Args:
-            stream_name (str): name of live stream.
+            node_id (str): id of live node.
+            stream_id (str): id of the live stream.
             attrs (dict): attributes specifying which live stream to read.
             sink (asyncio.Queue): destination to buffer replayed data.
             transform (Callable): optional transform to apply to each data point.
@@ -153,5 +166,5 @@ class DataMuxAPI:
         randseq = prefix + gen_randseq()
         t = (lambda x: [randseq.encode(), *transform(x)]) if transform is not None else None
         self.context[randseq] = Event()
-        self.reader_n.relay(stream_name, attrs, sink, t, self.context[randseq])
+        self.proxy_n.proxy(node_id, stream_id, sink, attrs=attrs, transform=t, flag=self.context[randseq])
         return StreamAck(status=True, randseq=randseq)

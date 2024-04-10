@@ -5,15 +5,14 @@ import multiprocessing
 
 import msgpack
 import numpy as np
+import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
 import zmq
 from PIL import Image
 from rich.logging import RichHandler
-from streaminghub_datamux.typing import Proxy
-from streaminghub_pydfds.typing import Node, Stream
 
 
-class PupilCoreProxy(Proxy):
+class PupilCoreProxy(datamux.Proxy):
     """
     Pupil Core Proxy for Real-Time Data Streaming
 
@@ -31,10 +30,10 @@ class PupilCoreProxy(Proxy):
         "gaze_l": "gaze.3d.1",
         "gaze_r": "gaze.3d.0",
         "pupil_l": "pupil.1",
-        "pupil_r": "pupil.0"
+        "pupil_r": "pupil.0",
     }
-    nodes: list[Node] = []
-    node_template: Node
+    nodes: list[dfds.Node] = []
+    node_template: dfds.Node
     ctx: zmq.Context
     ctrl_sock: zmq.Socket
 
@@ -155,12 +154,12 @@ class PupilCoreProxy(Proxy):
                 assert frame is not None
                 queue.put_nowait({"eye_r": dict(frame=frame, t=t)})
 
-    def list_nodes(self) -> list[Node]:
+    def list_nodes(self) -> list[dfds.Node]:
         node_ids = ["1"]  # TODO fix this
-        self.nodes = [Node(**self.node_template.model_dump(exclude={"id"}), id=id) for id in node_ids]
+        self.nodes = [dfds.Node(**self.node_template.model_dump(exclude={"id"}), id=id) for id in node_ids]
         return self.nodes
 
-    def list_streams(self, node_id: str) -> list[Stream]:
+    def list_streams(self, node_id: str) -> list[dfds.Stream]:
         node_ids = [node.id for node in self.nodes]
         assert node_id in node_ids
         return list(self.nodes[node_ids.index(node_id)].outputs.values())

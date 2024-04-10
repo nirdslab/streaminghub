@@ -5,10 +5,9 @@ import multiprocessing
 import re
 import socket
 
+import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
 from rich.logging import RichHandler
-from streaminghub_datamux.typing import Proxy
-from streaminghub_pydfds.typing import Node, Stream
 
 
 class E4ServerState:
@@ -41,7 +40,7 @@ class E4SSCommand:
     PAUSE = "pause"
 
 
-class EmpaticaE4Proxy(Proxy):
+class EmpaticaE4Proxy(datamux.Proxy):
     """
     Empatica E4 Proxy for Real-Time Data Streaming
 
@@ -51,8 +50,8 @@ class EmpaticaE4Proxy(Proxy):
 
     buffer_size: int = 4096
     logger = logging.getLogger(__name__)
-    nodes: list[Node] = []
-    node_template: Node
+    nodes: list[dfds.Node] = []
+    node_template: dfds.Node
 
     def __init__(
         self,
@@ -177,7 +176,7 @@ class EmpaticaE4Proxy(Proxy):
             raise ValueError(f"Unknown message: {message}")
         return typ, cmd, sid, arg, data
 
-    def list_nodes(self) -> list[Node]:
+    def list_nodes(self) -> list[dfds.Node]:
         # request available nodes
         node_ids = []
         self.logger.debug("Getting available nodes...")
@@ -195,13 +194,13 @@ class EmpaticaE4Proxy(Proxy):
                 self.server_state = E4ServerState.NO_DEVICES
             else:
                 self.server_state = E4ServerState.DEVICES_FOUND
-            self.nodes = [Node(**self.node_template.model_dump(exclude={"id"}), id=id) for id in node_ids]
+            self.nodes = [dfds.Node(**self.node_template.model_dump(exclude={"id"}), id=id) for id in node_ids]
         return self.nodes
 
     def list_streams(
         self,
         node_id: str,
-    ) -> list[Stream]:
+    ) -> list[dfds.Stream]:
         node_ids = [node.id for node in self.nodes]
         assert node_id in node_ids
         return list(self.nodes[node_ids.index(node_id)].outputs.values())
