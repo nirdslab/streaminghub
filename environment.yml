@@ -4,6 +4,7 @@ dependencies:
   - conda-forge::python=3.10
   - conda-forge::pip
   - conda-forge::setuptools
+  - conda-forge::hatch
   - conda-forge::nodejs=18
   - conda-forge::go
   - conda-forge::schedule

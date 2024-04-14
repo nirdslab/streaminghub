@@ -3,8 +3,8 @@ import multiprocessing
 from threading import Thread
 
 from streaminghub_datamux.api import DataMuxAPI
+from streaminghub_datamux.rpc import create_rpc_server
 
-from .rpc import create_rpc_server
 from .topics import *
 
 
@@ -50,12 +50,14 @@ class DataMuxServer:
 
             # LIVE MODE (LSL -> Queue) =================================================================================================
             if topic == TOPIC_LIST_LIVE_STREAMS:
-                streams = self.api.list_live_streams()
+                node_id = content["node_id"]
+                streams = self.api.list_live_streams(node_id)
                 retval = [s.model_dump() for s in streams]
             elif topic == TOPIC_READ_LIVE_STREAM:
+                node_id = content["node_id"]
                 stream_name = content["stream_name"]
                 attrs = content["attrs"]
-                ack = self.api.read_live_stream(stream_name, attrs, self.data_q, transform)
+                ack = self.api.proxy_live_stream(node_id, stream_name, attrs, self.data_q, transform)
                 retval = ack.model_dump()
             # REPLAY MODE (File -> Queue) ==============================================================================================
             elif topic == TOPIC_LIST_COLLECTIONS:

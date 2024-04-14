@@ -8,7 +8,7 @@ version = "0.1.7"
 authors = [{ name = "Yasith Jayawardana", email = "yasith@cs.odu.edu" }]
 description = "A library to stream data into real-time analytics pipelines"
 readme = "README.md"
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 requires-python = ">=3.10"
 keywords = ["dfds", "metadata", "parser"]
 classifiers = [
@@ -16,6 +16,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+urls.homepage = "https://github.com/nirdslab/streaminghub/tree/master/datamux"
 dependencies = [
     "numpy>=1.26.3",
     "pandas>=2.1.4",
@@ -37,12 +38,32 @@ dependencies = [
     "tqdm>=4.66.1",
     "rich~=13.7.0",
 ]
+optional-dependencies.dev = [
+    "black",
+    "build",
+    "twine",
+    "bumpver",
+    "isort",
+    "pip-tools",
+    "pytest",
+]
 
-[project.urls]
-homepage = "https://github.com/nirdslab/streaminghub/tree/master/datamux"
+[project.entry-points."streaminghub_datamux.proxy"]
+lsl = "streaminghub_datamux.plugins.proxy_labstreaminglayer:LSLProxy"
+empatica_e4 = "streaminghub_datamux.plugins.proxy_empatica_e4:EmpaticaE4Proxy"
+pupil_core = "streaminghub_datamux.plugins.proxy_pupil_core:PupilCoreProxy"
 
-[project.optional-dependencies]
-dev = ["black", "build", "twine", "bumpver", "isort", "pip-tools", "pytest"]
+[project.entry-points."streaminghub_datamux.rpc.codec"]
+avro = "streaminghub_datamux.plugins.codec_avro:AvroCodec"
+json = "streaminghub_datamux.plugins.codec_json:JSONCodec"
+msgpack = "streaminghub_datamux.plugins.codec_msgpack:MsgpackCodec"
+
+[project.entry-points."streaminghub_datamux.rpc.client"]
+websocket = "streaminghub_datamux.plugins.rpc_websocket:WebsocketClient"
+
+[project.entry-points."streaminghub_datamux.rpc.server"]
+websocket = "streaminghub_datamux.plugins.rpc_websocket:WebsocketServer"
+
 
 [tool.bumpver]
 current_version = "0.1.7"

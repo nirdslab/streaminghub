@@ -17,17 +17,20 @@ import sys
 import time
 
 import streaminghub_pydfds as dfds
+import streaminghub_datamux as datamux
+from streaminghub_datamux.api import DataMuxAPI
 from rich.logging import RichHandler
 
 SYNTAX = "datasource_simulate [path/to/datasource/spec]"
 
 logger = logging.getLogger(__name__)
+api = DataMuxAPI()
 
 
-async def emit(source_id: str, spec: dfds.DataSourceSpec, stream_id: str):
+async def emit(source_id: str, spec: dfds.Collection, stream_id: str):
     stream = spec.streams[stream_id]
     f = stream.frequency
-    outlet = dfds.create_outlet_for_stream(source_id, spec.device, stream_id, stream)
+    outlet = api.create_outlet_for_stream(source_id, spec.device, stream_id, stream)
     logger.info(f"created stream: {stream.name}")
     while True:
         # calculate dt from f. if f=0, assign a random dt
@@ -43,8 +46,8 @@ async def emit(source_id: str, spec: dfds.DataSourceSpec, stream_id: str):
         await asyncio.sleep(dt)
 
 
-async def begin_streaming_random_data(spec: dfds.DataSourceSpec):
-    source_id = dfds.util.gen_random_source_id()
+async def begin_streaming_random_data(spec: dfds.Collection):
+    source_id = datamux.gen_randseq()
     try:
         logger.info(
             f"DataSource [{source_id}]: Device: {spec.device.model}, {spec.device.manufacturer} ({spec.device.category})"
@@ -64,14 +67,13 @@ def main():
     # parse command-line args
     args = sys.argv
     assert len(args) == 2, f"Invalid Syntax.\nExpected: {SYNTAX}"
-    spec_name = args[1]
-    logger.info(f"DataSourceSpec: {spec_name}")
-    # load DataSourceSpec
-    logger.info("Loading DataSourceSpec...")
-    spec = dfds.get_datasource_spec(spec_name)
-    logger.info("Loaded")
+    collection_name = args[1]
+    logger.info(f"Collection: {collection_name}")
+    logger.info("Loading Collection Streams...")
+    streams = api.list_collection_streams(collection_name)
+    logger.info(f"Loaded: {streams}")
     # start data stream
-    asyncio.get_event_loop().run_until_complete(begin_streaming_random_data(spec))
+    asyncio.get_event_loop().run_until_complete(begin_streaming_random_data(streams))
 
 
 if __name__ == "__main__":
@@ -79,4 +81,4 @@ if __name__ == "__main__":
     try:
         main()
     except AssertionError as e:
-        logger.error(f"Error: {e}", file=sys.stderr)
+        logger.error(f"Error: {e}")

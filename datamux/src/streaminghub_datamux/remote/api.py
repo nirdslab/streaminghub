@@ -2,10 +2,10 @@ import asyncio
 import logging
 from collections import defaultdict
 
-from streaminghub_datamux.api import StreamAck
-from streaminghub_pydfds.typing import Collection, Stream
+import streaminghub_datamux as datamux
+import streaminghub_pydfds as dfds
+from streaminghub_datamux.rpc import create_rpc_client
 
-from .rpc import create_rpc_client
 from .topics import *
 
 
@@ -93,7 +93,7 @@ class DataMuxRemoteAPI:
 
     async def list_collections(
         self,
-    ) -> list[Collection]:
+    ) -> list[dfds.Collection]:
         """
         List all collections.
 
@@ -104,13 +104,13 @@ class DataMuxRemoteAPI:
         content: dict[str, str] = {}
         result = await self.__send_await__(topic, content)
         items = await result.get()
-        collections = [Collection(**item) for item in items]
+        collections = [dfds.Collection(**item) for item in items]
         return collections
 
     async def list_collection_streams(
         self,
         collection_name: str,
-    ) -> list[Stream]:
+    ) -> list[dfds.Stream]:
         """
         List all streams in a collection.
 
@@ -124,7 +124,7 @@ class DataMuxRemoteAPI:
         content = dict(collection_name=collection_name)
         result = await self.__send_await__(topic, content)
         items = await result.get()
-        streams = [Stream(**item) for item in items]
+        streams = [dfds.Stream(**item) for item in items]
         return streams
 
     async def replay_collection_stream(
@@ -133,7 +133,7 @@ class DataMuxRemoteAPI:
         stream_name: str,
         attrs: dict[str, str],
         sink: asyncio.Queue,
-    ) -> StreamAck:
+    ) -> datamux.StreamAck:
         """
         Replay a collection-stream into a given queue.
 
@@ -154,7 +154,7 @@ class DataMuxRemoteAPI:
         )
         result = await self.__send_await__(topic, content)
         info = await result.get()
-        ack = StreamAck(**info)
+        ack = datamux.StreamAck(**info)
         assert ack.randseq is not None
         stream_topic = ack.randseq.encode()
         self.handlers[stream_topic] = sink
@@ -165,7 +165,7 @@ class DataMuxRemoteAPI:
         collection_name: str,
         stream_name: str,
         attrs: dict[str, str],
-    ) -> StreamAck:
+    ) -> datamux.StreamAck:
         """
         Publish a collection-stream as a LSL stream.
 
@@ -185,23 +185,23 @@ class DataMuxRemoteAPI:
         )
         result = await self.__send_await__(topic, content)
         info = await result.get()
-        ack = StreamAck(**info)
+        ack = datamux.StreamAck(**info)
         return ack
-    
+
     async def stop_task(
         self,
         randseq: str,
-    ) -> StreamAck:
+    ) -> datamux.StreamAck:
         topic = TOPIC_STOP_TASK
         content = dict(randseq=randseq)
         result = await self.__send_await__(topic, content)
         info = await result.get()
-        ack = StreamAck(**info)
+        ack = datamux.StreamAck(**info)
         return ack
 
     async def list_live_streams(
         self,
-    ) -> list[Stream]:
+    ) -> list[dfds.Stream]:
         """
         List all live streams.
 
@@ -212,7 +212,7 @@ class DataMuxRemoteAPI:
         content: dict[str, str] = {}
         result = await self.__send_await__(topic, content)
         items = await result.get()
-        streams = [Stream(**item) for item in items]
+        streams = [dfds.Stream(**item) for item in items]
         return streams
 
     async def read_live_stream(
@@ -220,7 +220,7 @@ class DataMuxRemoteAPI:
         stream_name: str,
         attrs: dict,
         sink: asyncio.Queue,
-    ) -> StreamAck:
+    ) -> datamux.StreamAck:
         """
         Read data from a live stream (LSL) into a given queue.
 
@@ -236,7 +236,7 @@ class DataMuxRemoteAPI:
         content = dict(stream_name=stream_name, attrs=attrs)
         result = await self.__send_await__(topic, content)
         info = await result.get()
-        ack = StreamAck(**info)
+        ack = datamux.StreamAck(**info)
         assert ack.randseq is not None
         stream_topic = ack.randseq.encode()
         self.handlers[stream_topic] = sink

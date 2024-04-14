@@ -1,11 +1,11 @@
 from multiprocessing import Queue
 from threading import Event
 
+import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
 
-from .proxies import MultiProxy
-from .readers import CollectionReader
-from .util import StreamAck, gen_randseq
+from .managers import CollectionManager, ProxyManager
+from .util import gen_randseq
 
 prefix = "d_"
 
@@ -28,8 +28,8 @@ class DataMuxAPI:
 
         """
         self.config = dfds.load_config()
-        self.proxy_n = MultiProxy()
-        self.reader_c = CollectionReader(self.config)
+        self.proxy_n = ProxyManager()
+        self.reader_c = CollectionManager(self.config)
         self.context: dict[str, Event] = {}
 
     def list_collections(
@@ -67,7 +67,7 @@ class DataMuxAPI:
         attrs: dict,
         sink: Queue,
         transform=None,
-    ) -> StreamAck:
+    ) -> datamux.StreamAck:
         """
         Replay a collection-stream into a given queue.
 
@@ -85,24 +85,24 @@ class DataMuxAPI:
         t = (lambda x: [randseq.encode(), *transform(x)]) if transform is not None else None
         self.context[randseq] = Event()
         self.reader_c.replay(collection_name, stream_name, attrs, sink, transform=t, flag=self.context[randseq])
-        return StreamAck(status=True, randseq=randseq)
+        return datamux.StreamAck(status=True, randseq=randseq)
 
     def stop_task(
         self,
         randseq: str,
-    ) -> StreamAck:
+    ) -> datamux.StreamAck:
         if randseq in self.context:
             flag = self.context.pop(randseq)
             flag.set()
-            return StreamAck(status=True)
-        return StreamAck(status=True)
+            return datamux.StreamAck(status=True)
+        return datamux.StreamAck(status=True)
 
     def publish_collection_stream(
         self,
         collection_name: str,
         stream_name: str,
         attrs: dict,
-    ) -> StreamAck:
+    ) -> datamux.StreamAck:
         """
         Publish a collection-stream as a LSL stream.
 
@@ -115,7 +115,7 @@ class DataMuxAPI:
             StreamAck: status and reference information.
         """
         self.reader_c.restream(collection_name, stream_name, attrs)
-        return StreamAck(status=True)
+        return datamux.StreamAck(status=True)
 
     def list_live_nodes(
         self,
@@ -149,7 +149,7 @@ class DataMuxAPI:
         attrs: dict,
         sink: Queue,
         transform=None,
-    ) -> StreamAck:
+    ) -> datamux.StreamAck:
         """
         Read data from a live stream (LSL) into a given queue.
 
@@ -167,4 +167,4 @@ class DataMuxAPI:
         t = (lambda x: [randseq.encode(), *transform(x)]) if transform is not None else None
         self.context[randseq] = Event()
         self.proxy_n.proxy(node_id, stream_id, sink, attrs=attrs, transform=t, flag=self.context[randseq])
-        return StreamAck(status=True, randseq=randseq)
+        return datamux.StreamAck(status=True, randseq=randseq)

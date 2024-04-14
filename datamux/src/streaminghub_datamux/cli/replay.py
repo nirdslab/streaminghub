@@ -15,10 +15,10 @@ import logging
 import threading
 from multiprocessing import Queue
 
-import streaminghub_datamux.util as util
+import streaminghub_datamux as datamux
+import streaminghub_pydfds as dfds
 from rich.logging import RichHandler
 from streaminghub_datamux.api import DataMuxAPI
-from streaminghub_pydfds.typing import Stream
 
 DIGIT_CHARS = "0123456789"
 SHUTDOWN_FLAG = threading.Event()
@@ -31,11 +31,11 @@ def log_sink(sink: Queue):
     while True:
         value = sink.get()
         logging.info(value)
-        if value == util.END_OF_STREAM:
+        if value == datamux.END_OF_STREAM:
             break
 
 
-async def begin_streaming(collection_name: str, streams: list[Stream]):
+async def begin_streaming(collection_name: str, streams: list[dfds.Stream]):
     logger.info(f"Started data streaming")
 
     threads: list[threading.Thread] = []
@@ -45,7 +45,7 @@ async def begin_streaming(collection_name: str, streams: list[Stream]):
         assert node is not None
         device = node.device
         assert device is not None
-        source_id = util.gen_randseq()
+        source_id = datamux.gen_randseq()
         logger.info(f"Source [{source_id}]: {device.model}, {device.manufacturer} ({device.category})")
         sink = Queue()
         api.replay_collection_stream(collection_name, stream.name, stream.attrs, sink)

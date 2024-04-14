@@ -3,6 +3,14 @@ import multiprocessing
 from threading import Thread
 
 import streaminghub_pydfds as dfds
+from pydantic import BaseModel
+
+END_OF_STREAM = {}  # NOTE do not change
+
+
+class StreamAck(BaseModel):
+    status: bool
+    randseq: str | None = None
 
 
 class Proxy(abc.ABC):
