@@ -18,7 +18,7 @@ $border: 1px solid grey;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding-bottom: $pad/2;
+    padding-bottom: calc($pad / 2);
   }
 }
 
