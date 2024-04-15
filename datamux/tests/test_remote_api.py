@@ -71,12 +71,12 @@ async def main():
         rows = [[run.dataset_name, run.num_points] for _ in range(run.num_runs)]
         _df = pd.DataFrame(rows, columns=["dataset_name", "num_points"])
         time, jitter = await timeit_replay(api, *run)
-        _df["codec"] = args.codec
+        _df["runtime"] = f"rpc_{args.codec}"
         _df["time"] = time
         _df["jitter"] = jitter
         df = pd.concat([df, _df])
     df.index.rename("run", inplace=True)
-    df.to_csv(f"stats/run_remote_{args.codec}.csv")
+    df.to_csv(f"stats/run_rpc_{args.codec}.csv")
 
 
 if __name__ == "__main__":

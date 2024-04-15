@@ -44,7 +44,6 @@ async def timeit_replay(
             if i == 0:
                 start_time = int_time = timeit.default_timer()
             else:
-                logger.info(item)
                 t = timeit.default_timer()
                 int_time, int_duration = t, (t - int_time)
                 t_jitter.append(int_duration)
@@ -65,11 +64,12 @@ async def main():
         rows = [[run.dataset_name, run.num_points] for _ in range(run.num_runs)]
         _df = pd.DataFrame(rows, columns=["dataset_name", "num_points"])
         time, jitter = await timeit_replay(api, *run)
+        _df["runtime"] = f"ipc"
         _df["time"] = time
         _df["jitter"] = jitter
         df = pd.concat([df, _df])
     df.index.rename("run", inplace=True)
-    df.to_csv("stats/run_direct.csv")
+    df.to_csv("stats/run_ipc.csv")
 
 
 if __name__ == "__main__":
