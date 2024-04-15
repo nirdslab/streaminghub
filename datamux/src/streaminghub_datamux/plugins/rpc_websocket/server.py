@@ -4,7 +4,7 @@ import logging
 from collections import defaultdict
 from typing import Optional, Tuple
 
-from streaminghub_datamux.rpc import RpcCodec, RpcServer, create_rpc_codec
+from streaminghub_datamux.rpc import RpcCodec, RpcServer
 from websockets.datastructures import Headers, HeadersLike
 from websockets.exceptions import ConnectionClosed
 from websockets.server import WebSocketServerProtocol, serve
@@ -18,7 +18,7 @@ class WebsocketServer(RpcServer):
 
     def __init__(
         self,
-        codec_name: str,
+        codecs: dict[str, type[RpcCodec]],
         incoming: asyncio.Queue,
         outgoing: asyncio.Queue,
     ) -> None:
@@ -34,8 +34,8 @@ class WebsocketServer(RpcServer):
         self.outgoing = outgoing
         # demultiplexed queues
         self.demux: dict[bytes, asyncio.Queue] = defaultdict(lambda: asyncio.Queue())
-        # codec module
-        self.codec_name = codec_name
+        # instantiate codecs
+        self.codecs = codecs
         self.logger = logging.getLogger(__name__)
 
     async def __handle_demux__(self):
@@ -106,8 +106,12 @@ class WebsocketServer(RpcServer):
         websocket: WebSocketServerProtocol,
     ):
         id = websocket.id.bytes
-        codec = create_rpc_codec(self.codec_name)
-        self.logger.info(f"client connected: {websocket.id}")
+        # get codec of client
+        assert websocket.request_headers is not None
+        codec_name = websocket.request_headers["X-CODEC"] # type: ignore
+        self.logger.info(f"client codec: {codec_name}")
+        codec = self.codecs[codec_name]()
+        self.logger.info(f"client connected: {websocket.id}, codec={codec_name}")
         outgoing = asyncio.create_task(self.__handle_outgoing__(websocket, codec))
         incoming = asyncio.create_task(self.__handle_incoming__(websocket, codec))
         done, pending = await asyncio.wait([outgoing, incoming], return_when=asyncio.FIRST_COMPLETED)

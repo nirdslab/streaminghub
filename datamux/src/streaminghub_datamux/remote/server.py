@@ -17,7 +17,6 @@ class DataMuxServer:
     def __init__(
         self,
         rpc_name: str,
-        codec_name: str,
     ) -> None:
         self.active = False
         self.api_in = asyncio.Queue()
@@ -26,7 +25,6 @@ class DataMuxServer:
         # rpc module
         self.rpc = create_rpc_server(
             name=rpc_name,
-            codec_name=codec_name,
             incoming=self.api_in,
             outgoing=self.api_out,
         )

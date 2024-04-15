@@ -10,9 +10,8 @@ async def serve(
     host: str,
     port: int,
     rpc: str,
-    codec: str,
 ):
-    server = DataMuxServer(rpc_name=rpc, codec_name=codec)
+    server = DataMuxServer(rpc_name=rpc)
     await server.start(host, port)
 
 
@@ -25,8 +24,7 @@ if __name__ == "__main__":
     parser.add_argument("command", choices=["serve", "init", "replay"])
     parser.add_argument("-H", "--host", type=str)
     parser.add_argument("-p", "--port", type=int)
-    parser.add_argument("-r", "--rpc", type=str, choices=["websocket"])
-    parser.add_argument("-c", "--codec", type=str, choices=["avro", "json"])
+    parser.add_argument("-r", "--rpc", type=str)
     parser.add_argument("--data_dir", type=str)
     parser.add_argument("--meta_dir", type=str)
 
@@ -38,8 +36,7 @@ if __name__ == "__main__":
             assert args.host is not None
             assert args.port is not None
             assert args.rpc is not None
-            assert args.codec is not None
-            asyncio.run(serve(args.host, args.port, args.rpc, args.codec))
+            asyncio.run(serve(args.host, args.port, args.rpc))
         except KeyboardInterrupt:
             logging.warning("Interrupt received, shutting down.")
 

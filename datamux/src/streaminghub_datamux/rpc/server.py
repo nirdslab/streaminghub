@@ -1,6 +1,8 @@
 import asyncio
 from abc import ABC, abstractmethod
 
+from streaminghub_datamux.rpc.codec import RpcCodec
+
 
 class RpcServer(ABC):
     """
@@ -11,7 +13,7 @@ class RpcServer(ABC):
     @abstractmethod
     def __init__(
         self,
-        codec_name: str,
+        codecs: dict[str, type[RpcCodec]],
         incoming: asyncio.Queue,
         outgoing: asyncio.Queue,
     ) -> None: ...

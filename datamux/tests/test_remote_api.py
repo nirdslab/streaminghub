@@ -62,9 +62,9 @@ async def timeit_replay(
 async def main():
     df = pd.DataFrame()
     parse = argparse.ArgumentParser()
-    parse.add_argument("--host", type=str)
-    parse.add_argument("--port", type=int)
-    parse.add_argument("--codec", type=str)
+    parse.add_argument("--host", type=str, required=True)
+    parse.add_argument("--port", type=int, required=True)
+    parse.add_argument("--codec", type=str, required=True)
     args = parse.parse_args()
     api = await connect(args.codec, args.host, args.port)
     for run in runs:

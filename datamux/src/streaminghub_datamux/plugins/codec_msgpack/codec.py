@@ -38,5 +38,5 @@ class MsgpackCodec(RpcCodec):
         topic, content_enc = payload.split(b"||", maxsplit=1)
         content = {}
         if len(content_enc) > 0:
-            content = dict(msgpack.loads(content_enc))  # type: ignore
+            content: dict = msgpack.loads(content_enc) # type: ignore
         return topic, content

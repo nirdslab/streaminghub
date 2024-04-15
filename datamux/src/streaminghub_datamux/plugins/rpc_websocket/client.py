@@ -30,7 +30,7 @@ class WebsocketClient(RpcClient):
     ) -> None:
         self.active = True
         uri = f"ws://{server_host}:{server_port}/ws"
-        self.websocket = await connect(uri)
+        self.websocket = await connect(uri, extra_headers={"X-CODEC": self.codec_name})
         self.logger.info(f"Connected to WebSocket Server: {uri}")
         assert self.websocket is not None
         codec = create_rpc_codec(self.codec_name)

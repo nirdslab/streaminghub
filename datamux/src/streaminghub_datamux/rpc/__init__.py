@@ -13,43 +13,55 @@ def create_rpc_client(
     incoming: asyncio.Queue,
     outgoing: asyncio.Queue,
 ) -> RpcClient:
-    for ep in entry_points(group="streaminghub_datamux.rpc.client"):
-        if ep.name == name:
-            client = ep.load()
-            if issubclass(client, RpcClient):
-                print(f"Loaded RPC client: {name}")
-                return client(codec_name, incoming, outgoing)
-            else:
-                print(f"Invalid RPC client: {name}")
-    raise ValueError(f"RPC client not found: {name}")
+    try:
+        klass = entry_points(name=name, group="streaminghub_datamux.rpc.client").pop().load()
+    except:
+        raise ValueError(f"Unkown streaminghub_datamux.rpc.client:{name}")
+    if issubclass(klass, RpcClient):
+        print(f"Loaded streaminghub_datamux.rpc.client:{name}")
+        return klass(codec_name, incoming, outgoing)
+    else:
+        raise ValueError(f"Invalid streaminghub_datamux.rpc.client:{name}")
 
 
 def create_rpc_server(
     name: str,
-    codec_name: str,
     incoming: asyncio.Queue,
     outgoing: asyncio.Queue,
 ) -> RpcServer:
-    for ep in entry_points(group="streaminghub_datamux.rpc.server"):
-        if ep.name == name:
-            client = ep.load()
-            if issubclass(client, RpcServer):
-                print(f"Loaded RPC client: {name}")
-                return client(codec_name, incoming, outgoing)
-            else:
-                print(f"Invalid RPC client: {name}")
-    raise ValueError(f"RPC client not found: {name}")
+    codecs = get_rpc_codecs()
+    try:
+        klass = entry_points(name=name, group="streaminghub_datamux.rpc.server").pop().load()
+    except:
+        raise ValueError(f"Unkown streaminghub_datamux.rpc.server:{name}")
+    if issubclass(klass, RpcServer):
+        print(f"Loaded streaminghub_datamux.rpc.server:{name}")
+        return klass(codecs, incoming, outgoing)
+    else:
+        raise ValueError(f"Invalid streaminghub_datamux.rpc.server:{name}")
+
+
+def get_rpc_codecs() -> dict[str, type[RpcCodec]]:
+    codecs = {}
+    for ep in entry_points(group="streaminghub_datamux.rpc.codec"):
+        klass = ep.load()
+        if issubclass(klass, RpcCodec):
+            print(f"Loaded streaminghub_datamux.rpc.codec:{ep.name}")
+            codecs[ep.name] = klass
+        else:
+            print(f"Invalid streaminghub_datamux.rpc.codec:{ep.name}")
+    return codecs
 
 
 def create_rpc_codec(
     name: str,
 ) -> RpcCodec:
-    for ep in entry_points(group="streaminghub_datamux.rpc.codec"):
-        if ep.name == name:
-            client = ep.load()
-            if issubclass(client, RpcCodec):
-                print(f"Loaded RPC codec: {name}")
-                return client()
-            else:
-                print(f"Invalid RPC codec: {name}")
-    raise ValueError(f"RPC codec not found: {name}")
+    try:
+        klass = entry_points(name=name, group="streaminghub_datamux.rpc.codec").pop().load()
+    except:
+        raise ValueError(f"Unkown streaminghub_datamux.rpc.codec:{name}")
+    if issubclass(klass, RpcCodec):
+        print(f"Loaded streaminghub_datamux.rpc.codec:{name}")
+        return klass()
+    else:
+        raise ValueError(f"Invalid streaminghub_datamux.rpc.codec:{name}")
