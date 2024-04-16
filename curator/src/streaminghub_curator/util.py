@@ -2,7 +2,7 @@ import logging
 import os
 import re
 import zipfile
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -112,8 +112,8 @@ def path_to_dict(i: Path, base_dir: Path, ext_dict: dict):
     image = get_icon(i, ext_dict)
     try:
         stat = i.stat()
-        dtc = datetime.utcfromtimestamp(stat.st_ctime).strftime("%Y-%m-%d %H:%M:%S")
-        dtm = datetime.utcfromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M:%S")
+        dtc = datetime.fromtimestamp(stat.st_ctime, timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+        dtm = datetime.fromtimestamp(stat.st_mtime, timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
         sz = "---" if i.is_dir() else size(stat.st_size)
     except:
         dtc = "---"
@@ -131,8 +131,8 @@ def uri_to_dict(var: str, base_dir: Path, ext_dict: dict):
     metadata = {}
     try:
         stat = i.stat()
-        dtc = datetime.utcfromtimestamp(stat.st_ctime).strftime("%Y-%m-%d %H:%M:%S")
-        dtm = datetime.utcfromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M:%S")
+        dtc = datetime.fromtimestamp(stat.st_ctime, timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+        dtm = datetime.fromtimestamp(stat.st_mtime, timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
         sz = "---" if i.is_dir() else size(stat.st_size)
     except:
         dtc = "---"
@@ -159,7 +159,23 @@ def get_dir_listing(path: Path, base_dir: Path, ext_dict: dict, hidden_list: lis
 
 def run_pattern(path: str, pattern: str, mode: str, base_dir: Path) -> dict[str, str]:
     assert mode in ["name_pattern", "path_pattern"]
-    parser = parse.compile(pattern)
+
+    # define fallback response
+    metadata = {}
+
+    # define parsers
+    parse_parser = regex_parser = None
+    try:
+        parse_parser = parse.compile(pattern)
+    except Exception as e:
+        logging.warn(f"invalid pattern for 'parse' library: {pattern}", e.args)
+    try:
+        regex_parser = re.compile(pattern)
+    except Exception as e:
+        logging.warn(f"invalid pattern for 're' library: {pattern}", e.args)
+    assert (parse_parser or regex_parser) is not None
+
+    # compute the arg to parse
     path_obj = get_filepath(path, base_dir)
     if mode == "path_pattern":
         arg = path_obj.relative_to(base_dir).parent.as_posix()
@@ -167,12 +183,32 @@ def run_pattern(path: str, pattern: str, mode: str, base_dir: Path) -> dict[str,
     elif mode == "name_pattern":
         arg = path_obj.name
     else:
-        raise ValueError()
-    try:
-        result = parser.parse(arg)
-        assert isinstance(result, parse.Result)
-        metadata: dict[str, str] = dict(result.named)
-    except Exception as e:
-        logging.error([pattern, arg])
-        metadata = {}
+        raise RuntimeError()  # should never happen
+
+    # try parsing the arg
+    arg_parsed = False
+    if (not arg_parsed) and (parse_parser is not None):
+        try:
+            result = parse_parser.parse(arg, evaluate_result=True)
+            if isinstance(result, parse.Result):
+                arg_parsed = True
+                metadata: dict[str, str] = dict(result.named)
+                logging.warn("parse_parser.parse() worked")
+            else:
+                logging.warn("parse_parser.parse() did not work")
+        except Exception as e:
+            logging.error(f"error running parse_parser on string:", e.args)
+    if (not arg_parsed) and (regex_parser is not None):
+        try:
+            result = regex_parser.match(arg)
+            if result is not None:
+                arg_parsed = True
+                metadata: dict[str, str] = result.groupdict()
+                logging.warn("regex_parser.match() worked")
+            else:
+                logging.warn("regex_parse.match() did not work")
+        except Exception as e:
+            logging.error(f"error running regex_parser on string:", e.args)
+
+    # return parsed metadata
     return metadata

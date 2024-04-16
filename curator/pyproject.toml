@@ -18,13 +18,13 @@ classifiers = [
 ]
 urls.homepage = "https://github.com/nirdslab/streaminghub/tree/master/curator"
 dependencies = [
-    "flask~=3.0.1",
-    "flask-session~=0.6.0",
+    "flask~=3.0.3",
+    "flask-session~=0.8.0", 
     "hurry.filesize~=0.9",
-    "werkzeug~=3.0.1",
-    "pydantic~=2.6.0",
+    "werkzeug~=3.0.2",
+    "pydantic~=2.7.0",
     "parse~=1.20.1",
-    "rich~=13.7.0",
+    "rich~=13.7.1",
 ]
 optional-dependencies.dev = [
     "black",

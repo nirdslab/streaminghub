@@ -16,6 +16,7 @@ class Config:
         self.IPAddr = socket.gethostbyname(self.hostname)
         # Config file
         template_dir = Path(__file__).parent / "templates"
+        static_dir = Path(__file__).parent / "static"
         fname = "config.json"
         if platform.system() == "Windows":
             fname = "config_win.json"
@@ -35,7 +36,11 @@ class Config:
         # default settings
         self.default_view = 1
         # define app
-        self.app = Flask("streaminghub-curator", template_folder=template_dir)
+        self.app = Flask(
+            "streaminghub-curator",
+            template_folder=template_dir,
+            static_folder=static_dir
+        )
         self.app.secret_key = os.urandom(32)
         self.app.config["SESSION_TYPE"] = "filesystem"
         Session(self.app)

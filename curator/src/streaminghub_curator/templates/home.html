@@ -10,9 +10,11 @@
           name="action" value="set_root"><i class="fa fa-folder me-2"></i>Use as Root</button>
         <button title="Reset Root" type="submit" class="btn btn-outline btn-outline-dark ms-auto py-0 mx-1"
           name="action" value="reset_root"><i class="fa fa-undo me-2"></i>Reset Root</button>
+        <button title="Reset Root" type="button" class="btn btn-outline btn-outline-dark ms-auto py-0 mx-1"
+        data-bs-toggle="collapse" data-bs-target="#file_explorer">Show/Hide Panel</button>
       </div>
     </div>
-    <div class="card-body">
+    <div class="collapse show card-body" id="file_explorer">
       <p>
         Browser your files using the panel below.
         In each folder, mark the files that belong to the dataset, and click on "Update Selection".
