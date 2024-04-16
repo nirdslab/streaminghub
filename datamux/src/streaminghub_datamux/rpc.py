@@ -1,10 +1,91 @@
 import asyncio
+import logging
+from abc import ABC, abstractmethod
+from functools import singledispatch
 from importlib.metadata import entry_points
+from typing import Any
 
-from .client import RpcClient
-from .codec import RpcCodec
-from .server import RpcServer
-from .util import to_serializable
+import numpy as np
+
+
+@singledispatch
+def to_serializable(val: Any) -> Any:
+    """Used by default."""
+    return str(val)
+
+
+@to_serializable.register(np.float32)
+def ts_float32(val: np.float32):
+    """Used if *val* is an instance of numpy.float32."""
+    return np.float64(val)
+
+
+class RpcClient(ABC):
+    """
+    Base Class for RPC Client
+
+    """
+
+    @abstractmethod
+    def __init__(
+        self,
+        codec_name: str,
+        incoming: asyncio.Queue,
+        outgoing: asyncio.Queue,
+    ) -> None: ...
+
+    @abstractmethod
+    async def connect(self, server_host: str, server_port: int) -> None: ...
+
+    @abstractmethod
+    async def disconnect(self) -> None: ...
+
+
+class RpcCodec(ABC):
+    """
+    Base Class for RPC Codec
+
+    """
+
+    def __init__(
+        self,
+    ):
+        self.logger = logging.getLogger(__name__)
+        self.active = False
+
+    @abstractmethod
+    def encode(
+        self,
+        topic: bytes,
+        content: dict,
+    ) -> bytes | list[bytes]: ...
+
+    @abstractmethod
+    def decode(
+        self,
+        payload: bytes,
+    ) -> tuple[bytes, dict] | None: ...
+
+
+class RpcServer(ABC):
+    """
+    Base Class for RPC Server
+
+    """
+
+    @abstractmethod
+    def __init__(
+        self,
+        codecs: dict[str, type[RpcCodec]],
+        incoming: asyncio.Queue,
+        outgoing: asyncio.Queue,
+    ) -> None: ...
+
+    @abstractmethod
+    async def start(self, host: str, port: int) -> None: ...
+
+    @abstractmethod
+    async def stop(self) -> None: ...
 
 
 def create_rpc_client(

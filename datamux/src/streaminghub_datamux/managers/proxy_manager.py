@@ -16,39 +16,45 @@ class ProxyManager(datamux.Proxy):
         super().__init__()
 
         # find all entrypoints with group=streaminghub_datamux.proxy
-        self.proxies: list[datamux.Proxy] = []
+        self.proxies: dict[str, datamux.Proxy] = {}
         for ep in entry_points(group="streaminghub_datamux.proxy"):
             cls = ep.load()
             if issubclass(cls, datamux.Proxy):
-                self.proxies.append(cls())
+                self.proxies[ep.name] = cls()
                 print(f"Loaded proxy: {ep.name}")
             else:
                 print(f"Invalid proxy: {ep.name}")
-        self.node_ref: list[dfds.Node] = []
-        self.prox_ref: list[datamux.Proxy] = []
+
+        self.nodes: list[dfds.Node] = []
+        self.node_ref: list[str] = []
+        self.prox_ref: list[str] = []
 
     def setup(self) -> None:
-        for proxy in self.proxies:
-            proxy.setup()
+        for prox in self.proxies.values():
+            prox.setup()
 
     def list_nodes(self) -> list[dfds.Node]:
         # generate node id - proxy map
+        self.nodes.clear()
         self.node_ref.clear()
         self.prox_ref.clear()
-        for prox in self.proxies:
+        for prox_name, prox in self.proxies.items():
             nodes = prox.list_nodes()
-            self.node_ref.extend(nodes)
-            self.prox_ref.extend([prox] * len(nodes))
-        return self.node_ref
+            self.nodes.extend(nodes)
+            self.node_ref.extend([n.id for n in nodes])
+            self.prox_ref.extend([prox_name] * len(nodes))
+        return self.nodes
 
     def list_streams(self, node_id: str) -> list[dfds.Stream]:
-        node_ids = [n.id for n in self.node_ref]
-        assert node_id in node_ids
-        prox = self.prox_ref[node_ids.index(node_id)]
+        assert node_id in self.node_ref
+        node_ref = self.node_ref.index(node_id)
+        prox_ref = self.prox_ref.__getitem__(node_ref)
+        node, prox = self.nodes[node_ref], self.proxies[prox_ref]
         return prox.list_streams(node_id)
 
     def _proxy_coro(self, node_id: str, stream_id: str, q: multiprocessing.Queue, **kwargs) -> None:
-        node_ids = [n.id for n in self.node_ref]
-        assert node_id in node_ids
-        prox = self.prox_ref[node_ids.index(node_id)]
+        assert node_id in self.node_ref
+        node_ref = self.node_ref.index(node_id)
+        prox_ref = self.prox_ref.__getitem__(node_ref)
+        prox = self.proxies[prox_ref]
         return prox._proxy_coro(node_id, stream_id, q, **kwargs)
