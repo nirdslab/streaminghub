@@ -41,7 +41,7 @@ class DataMuxAPI:
         Returns:
             list[Collection]: list of available collections.
         """
-        collections = self.reader_c.list_collections()
+        collections = self.reader_c.list_sources()
         return collections
 
     def list_collection_streams(
@@ -84,7 +84,7 @@ class DataMuxAPI:
         randseq = prefix + gen_randseq()
         t = (lambda x: [randseq.encode(), *transform(x)]) if transform is not None else None
         self.context[randseq] = Event()
-        self.reader_c.replay(collection_name, stream_name, attrs, sink, transform=t, flag=self.context[randseq])
+        self.reader_c.attach(collection_name, stream_name, sink, attrs=attrs, transform=t, flag=self.context[randseq])
         return datamux.StreamAck(status=True, randseq=randseq)
 
     def stop_task(
@@ -114,7 +114,7 @@ class DataMuxAPI:
         Returns:
             StreamAck: status and reference information.
         """
-        self.reader_c.restream(collection_name, stream_name, attrs)
+        self.reader_c.serve(collection_name, stream_name, attrs=attrs)
         return datamux.StreamAck(status=True)
 
     def list_live_nodes(
@@ -126,7 +126,7 @@ class DataMuxAPI:
         Returns:
             list[Node]: list of live nodes.
         """
-        nodes = self.proxy_n.list_nodes()
+        nodes = self.proxy_n.list_sources()
         return nodes
 
     def list_live_streams(
@@ -166,5 +166,5 @@ class DataMuxAPI:
         randseq = prefix + gen_randseq()
         t = (lambda x: [randseq.encode(), *transform(x)]) if transform is not None else None
         self.context[randseq] = Event()
-        self.proxy_n.proxy(node_id, stream_id, sink, attrs=attrs, transform=t, flag=self.context[randseq])
+        self.proxy_n.attach(node_id, stream_id, sink, attrs=attrs, transform=t, flag=self.context[randseq])
         return datamux.StreamAck(status=True, randseq=randseq)

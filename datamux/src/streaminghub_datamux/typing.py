@@ -1,6 +1,7 @@
 import abc
 import multiprocessing
 from threading import Thread
+from typing import Generic, TypeVar
 
 import streaminghub_pydfds as dfds
 from pydantic import BaseModel
@@ -13,109 +14,99 @@ class StreamAck(BaseModel):
     randseq: str | None = None
 
 
-class Proxy(abc.ABC):
+class IAttach(abc.ABC):
     """
-    Base Class for DFDS Data Proxies (Role - Proxying Live Data)
+    Base class with functions to listen to data streams via DataMux APIs
 
-    * setup()
+    Functions (Private):
+    * _attach_coro(source_id, stream_id, q, **kwargs)
 
-    * list_nodes()
-
-    * list_streams(node_id: str)
-
-    * proxy(node_id, stream_id, queue)
+    Functions (Public):
+    * attach(source_id, stream_id, q, **kwargs)
 
     """
 
     @abc.abstractmethod
-    def setup(self) -> None: ...
+    def _attach_coro(self, source_id: str, stream_id: str, q: multiprocessing.Queue, **kwargs) -> None: ...
 
-    @abc.abstractmethod
-    def list_nodes(self) -> list[dfds.Node]: ...
-
-    @abc.abstractmethod
-    def list_streams(self, node_id: str) -> list[dfds.Stream]: ...
-
-    @abc.abstractmethod
-    def _proxy_coro(self, node_id: str, stream_id: str, q: multiprocessing.Queue, **kwargs) -> None: ...
-
-    def proxy(
+    def attach(
         self,
-        node_id: str,
+        source_id: str,
         stream_id: str,
         q: multiprocessing.Queue,
         **kwargs,
     ):
         thread = Thread(
             None,
-            self._proxy_coro,
-            f"{node_id}_{stream_id}",
-            (node_id, stream_id, q),
+            self._attach_coro,
+            f"{source_id}_{stream_id}",
+            (source_id, stream_id, q),
             kwargs,
             daemon=True,
         )
         thread.start()
 
 
-class Reader:
+class IServe(abc.ABC):
     """
-    Base Class for DFDS Data Readers (Role - Replaying Recorded Data)
+    Base class with functions to publish data streams onto external programs
 
-    * list_collections()
+    Functions (Private):
+    * _serve_coro(source_id: str, stream_id: str, **kwargs)
 
-    * list_streams(collection_id)
-
-    * replay(collection_id, stream_id, attrs, queue)
-
-    * restream(collection_id, stream_id, attrs)
+    Functions (Public):
+    * serve(source_id: str, stream_id: str, **kwargs)
 
     """
 
     @abc.abstractmethod
-    def list_collections(self) -> list[dfds.Collection]: ...
+    def _serve_coro(self, source_id: str, stream_id: str, **kwargs) -> None: ...
 
-    @abc.abstractmethod
-    def list_streams(self, collection_id: str) -> list[dfds.Stream]: ...
-
-    @abc.abstractmethod
-    def _replay_coro(
-        self, collection_id: str, stream_id: str, attrs: dict, q: multiprocessing.Queue, **kwargs
-    ) -> None: ...
-
-    @abc.abstractmethod
-    def _restream_coro(self, collection_id: str, stream_id: str, attrs: dict, **kwargs) -> None: ...
-
-    def replay(
+    def serve(
         self,
-        collection_id: str,
+        source_id: str,
         stream_id: str,
-        attrs: dict,
-        q: multiprocessing.Queue,
         **kwargs,
     ):
         thread = Thread(
             None,
-            self._replay_coro,
-            f"{collection_id}_{stream_id}",
-            (collection_id, stream_id, attrs, q),
+            self._serve_coro,
+            f"{source_id}_{stream_id}",
+            (source_id, stream_id),
             kwargs,
             daemon=True,
         )
         thread.start()
 
-    def restream(
-        self,
-        collection_id: str,
-        stream_id: str,
-        attrs: dict,
-        **kwargs,
-    ):
-        thread = Thread(
-            None,
-            self._restream_coro,
-            f"{collection_id}_{stream_id}",
-            (collection_id, stream_id, attrs),
-            kwargs,
-            daemon=True,
-        )
-        thread.start()
+
+T = TypeVar("T", dfds.Node, dfds.Collection)
+
+
+class Reader(Generic[T], IAttach, abc.ABC):
+    """
+    Base class with functions to listen data from both live and stored sources
+
+    Functions (Private):
+    * _attach_coro(source_id, stream_id, q, **kwargs)
+
+    Functions (Public):
+    * attach(source_id, stream_id, q, **kwargs)
+    * list_sources()
+    * list_streams(source_id)
+
+    """
+
+    _is_setup = False
+
+    @property
+    def is_setup(self):
+        return self._is_setup
+
+    @abc.abstractmethod
+    def setup(self, **kwargs) -> None: ...
+
+    @abc.abstractmethod
+    def list_sources(self) -> list[T]: ...
+
+    @abc.abstractmethod
+    def list_streams(self, source_id: str) -> list[dfds.Stream]: ...

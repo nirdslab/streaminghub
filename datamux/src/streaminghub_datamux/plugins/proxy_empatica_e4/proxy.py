@@ -7,12 +7,11 @@ import socket
 
 import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
-from rich.logging import RichHandler
 
 from .util import E4ServerState, E4SSCommand
 
 
-class EmpaticaE4Proxy(datamux.Proxy):
+class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
     """
     Empatica E4 Proxy for Real-Time Data Streaming
 
@@ -22,8 +21,8 @@ class EmpaticaE4Proxy(datamux.Proxy):
 
     buffer_size: int = 4096
     logger = logging.getLogger(__name__)
-    nodes: list[dfds.Node] = []
-    node_template: dfds.Node
+    sources: list[dfds.Node] = []
+    source_template: dfds.Node
 
     def __init__(
         self,
@@ -32,7 +31,7 @@ class EmpaticaE4Proxy(datamux.Proxy):
         self.config = dfds.load_config()
         fp = (self.config.meta_dir / "empatica_e4.node.json").as_posix()
         # get DFDS metadata for empatica e4
-        self.node_template = dfds.Parser().get_node_metadata(fp)
+        self.source_template = dfds.Parser().get_node_metadata(fp)
         # initialize proxy
         self.server_state = E4ServerState.NEW
         self.patterns = [
@@ -51,13 +50,14 @@ class EmpaticaE4Proxy(datamux.Proxy):
 
     def setup(self):
         self.sock.connect((socket.gethostname(), 28000))
+        self._is_setup = True
 
     def encode(self, s_: str) -> bytes:
         return codecs.encode(s_ + "\r\n")
 
     def handle_outgoing_msgs(
         self,
-        device_id: str,
+        source_id: str,
         stream_id: str,
         q: multiprocessing.Queue,
     ):
@@ -67,7 +67,7 @@ class EmpaticaE4Proxy(datamux.Proxy):
         elif self.server_state == E4ServerState.DEVICES_FOUND:
             # connect to device
             self.logger.debug("Connecting to device...")
-            self.sock.send(self.encode("%s %s" % (E4SSCommand.DEVICE_CONNECT, device_id)))
+            self.sock.send(self.encode("%s %s" % (E4SSCommand.DEVICE_CONNECT, source_id)))
             self.server_state = E4ServerState.WAITING
         elif self.server_state == E4ServerState.CONNECTED_TO_DEVICE:
             # pause streaming initially
@@ -87,7 +87,7 @@ class EmpaticaE4Proxy(datamux.Proxy):
 
     def handle_incoming_msgs(
         self,
-        device_id: str,
+        source_id: str,
         stream_id: str,
         q: multiprocessing.Queue,
     ):
@@ -148,71 +148,47 @@ class EmpaticaE4Proxy(datamux.Proxy):
             raise ValueError(f"Unknown message: {message}")
         return typ, cmd, sid, arg, data
 
-    def list_nodes(self) -> list[dfds.Node]:
-        # request available nodes
-        node_ids = []
-        self.logger.debug("Getting available nodes...")
+    def list_sources(self) -> list[dfds.Node]:
+        # request available sources
+        source_ids = []
+        self.logger.debug("Getting available sources...")
         self.sock.send(self.encode(E4SSCommand.DEVICE_LIST))
         self.server_state = E4ServerState.WAITING
         # DEVICE_LIST response
         buffer: str = codecs.decode(self.sock.recv(self.buffer_size))
         for message in filter(None, map(str.strip, buffer.split("\r\n"))):
             typ, cmd, sid, arg, data = self.parse_message(message)
-            node_ids = [x.split()[0] for x in data.strip("| ").split("|")]
-            n = len(node_ids)
+            source_ids = [x.split()[0] for x in data.strip("| ").split("|")]
+            n = len(source_ids)
             assert n == int(arg)
-            self.logger.debug(f"nodes(s) found: {n}")
+            self.logger.debug(f"source(s) found: {n}")
             if n == 0:
                 self.server_state = E4ServerState.NO_DEVICES
             else:
                 self.server_state = E4ServerState.DEVICES_FOUND
-            self.nodes = [dfds.Node(**self.node_template.model_dump(exclude={"id"}), id=id) for id in node_ids]
-        return self.nodes
+            self.sources = [dfds.Node(**self.source_template.model_dump(exclude={"id"}), id=id) for id in source_ids]
+        return self.sources
 
     def list_streams(
         self,
-        node_id: str,
+        source_id: str,
     ) -> list[dfds.Stream]:
-        node_ids = [node.id for node in self.nodes]
-        assert node_id in node_ids
-        return list(self.nodes[node_ids.index(node_id)].outputs.values())
+        source_ids = [node.id for node in self.sources]
+        assert source_id in source_ids
+        return list(self.sources[source_ids.index(source_id)].outputs.values())
 
-    def _proxy_coro(
+    def _attach_coro(
         self,
-        device_id: str,
+        source_id: str,
         stream_id: str,
         q: multiprocessing.Queue,
     ) -> None:
-        self.logger.debug(f"Started task for device={device_id}, stream: {stream_id}...")
+        self.logger.debug(f"Started task for source={source_id}, stream: {stream_id}...")
         while True:
             try:
-                self.handle_outgoing_msgs(device_id, stream_id, q)
-                self.handle_incoming_msgs(device_id, stream_id, q)
+                self.handle_outgoing_msgs(source_id, stream_id, q)
+                self.handle_incoming_msgs(source_id, stream_id, q)
             except KeyboardInterrupt:
-                self.logger.debug(f"Interrupted task for device={device_id}, stream: {stream_id}...")
+                self.logger.debug(f"Interrupted task for source={source_id}, stream: {stream_id}...")
                 break
-        self.logger.debug(f"Ended task for device={device_id}, stream: {stream_id}...")
-
-
-def main():
-    proxy = EmpaticaE4Proxy()
-    proxy.setup()
-    nodes = proxy.list_nodes()
-    print(nodes)
-    assert len(nodes) > 0
-    node = nodes[0]
-    streams = proxy.list_streams(node.id)
-    print(streams)
-    assert len(streams) > 0
-    stream = streams[0]
-    # queue = multiprocessing.Queue()
-    # proxy.proxy(node.id, stream.name, queue)
-
-    # while True:
-    #     item = queue.get()
-    #     print(item)
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
-    main()
+        self.logger.debug(f"Ended task for source={source_id}, stream: {stream_id}...")

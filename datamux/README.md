@@ -97,7 +97,7 @@ attrs = dict({"subject": "A", "session": "1", "task": "1"})
 # queue to append replayed data
 sink = asyncio.Queue()
 # start replaying data into queue
-ack = await api.replay_collection_stream("name_of_colelction", "name_of_stream", attrs, sink)
+ack = await api.replay_collection_stream("name_of_collection", "name_of_stream", attrs, sink)
 # each request is assigned a unique ID for later reference
 assert ack.randseq is not None
 # simply await the queue to read data

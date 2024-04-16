@@ -9,10 +9,9 @@ import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
 import zmq
 from PIL import Image
-from rich.logging import RichHandler
 
 
-class PupilCoreProxy(datamux.Proxy):
+class PupilCoreProxy(datamux.Reader[dfds.Node]):
     """
     Pupil Core Proxy for Real-Time Data Streaming
 
@@ -70,14 +69,15 @@ class PupilCoreProxy(datamux.Proxy):
         self.ctrl_sock.send_string("PUB_PORT")
         self.pub_port = int(self.ctrl_sock.recv_string())
         self.logger.debug(f"Received SUB_PORT={self.sub_port}, PUB_PORT={self.pub_port}")
+        self._is_setup = True
 
     def send_sock_opts(self, sock: zmq.Socket, opt: int, topic: str):
         sock.setsockopt_string(opt, topic)
         self.logger.debug(f"set opt={opt}, topic={topic}")
 
-    def _proxy_coro(
+    def _attach_coro(
         self,
-        node_id: str,
+        source_id: str,
         stream_id: str,
         q: multiprocessing.Queue,
     ) -> None:
@@ -85,7 +85,7 @@ class PupilCoreProxy(datamux.Proxy):
         assert stream_id in self.stream_ids
         sock = self.ctx.socket(zmq.SUB)
         sock.connect(conn_str)
-        self.logger.debug(f"Started task for device={node_id}, stream: {stream_id}...")
+        self.logger.debug(f"Started task for source={source_id}, stream: {stream_id}...")
         stream_topic = self.stream_ids[stream_id]
         self.send_sock_opts(sock, zmq.SUBSCRIBE, stream_topic)
         while True:
@@ -105,12 +105,12 @@ class PupilCoreProxy(datamux.Proxy):
                     frame = np.asarray(Image.open(io.BytesIO(extra[0])).convert("RGB"))
                 self._proxy_msg(topic, payload, frame, q)
             except KeyboardInterrupt:
-                self.logger.debug(f"Interrupted task for device={node_id}, stream: {stream_id}...")
+                self.logger.debug(f"Interrupted task for source={source_id}, stream: {stream_id}...")
                 break
         self.send_sock_opts(sock, zmq.UNSUBSCRIBE, stream_topic)
         sock.disconnect(conn_str)
         sock.close()
-        self.logger.debug(f"Ended task for device={node_id}, stream: {stream_id}...")
+        self.logger.debug(f"Ended task for source={source_id}, stream: {stream_id}...")
 
     def _proxy_msg(
         self,
@@ -154,36 +154,12 @@ class PupilCoreProxy(datamux.Proxy):
                 assert frame is not None
                 queue.put_nowait({"eye_r": dict(frame=frame, t=t)})
 
-    def list_nodes(self) -> list[dfds.Node]:
-        node_ids = ["1"]  # TODO fix this
-        self.nodes = [dfds.Node(**self.node_template.model_dump(exclude={"id"}), id=id) for id in node_ids]
+    def list_sources(self) -> list[dfds.Node]:
+        source_ids = ["1"]  # TODO fix this
+        self.nodes = [dfds.Node(**self.node_template.model_dump(exclude={"id"}), id=id) for id in source_ids]
         return self.nodes
 
-    def list_streams(self, node_id: str) -> list[dfds.Stream]:
-        node_ids = [node.id for node in self.nodes]
-        assert node_id in node_ids
-        return list(self.nodes[node_ids.index(node_id)].outputs.values())
-
-
-def main():
-    proxy = PupilCoreProxy()
-    proxy.setup()
-    nodes = proxy.list_nodes()
-    assert len(nodes) > 0
-    print(nodes)
-    node = nodes[0]
-    streams = proxy.list_streams(node.id)
-    assert len(streams) > 0
-    print(streams)
-    stream = streams[0]
-    queue = multiprocessing.Queue()
-    proxy.proxy(node.id, stream.name, queue)
-
-    while True:
-        item = queue.get()
-        print(item)
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
-    main()
+    def list_streams(self, source_id: str) -> list[dfds.Stream]:
+        source_ids = [node.id for node in self.nodes]
+        assert source_id in source_ids
+        return list(self.nodes[source_ids.index(source_id)].outputs.values())

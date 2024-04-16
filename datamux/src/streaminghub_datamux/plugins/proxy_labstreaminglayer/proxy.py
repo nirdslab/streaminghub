@@ -9,7 +9,7 @@ import streaminghub_pydfds as dfds
 from .util import stream_info_to_stream, stream_inlet_to_stream
 
 
-class LSLProxy(datamux.Proxy):
+class LSLProxy(datamux.Reader[dfds.Node]):
     """
     LabStreamingLayer Proxy for Real-Time Data Streaming
 
@@ -20,7 +20,7 @@ class LSLProxy(datamux.Proxy):
     __streams: list[dfds.Stream] = []
     logger = logging.getLogger(__name__)
 
-    def refresh_streams(
+    def _refresh_streams(
         self,
     ) -> None:
         self.__streams.clear()
@@ -42,23 +42,23 @@ class LSLProxy(datamux.Proxy):
 
     def setup(self) -> None:
         # nothing to set up here
-        pass
+        self._is_setup = True
 
-    def list_nodes(self) -> list[dfds.Node]:
+    def list_sources(self) -> list[dfds.Node]:
         # no concept of node here. maybe use host/ip later?
         return [dfds.Node(id="lsl")]
 
     def list_streams(
         self,
-        node_id: str,
+        source_id: str,
     ) -> list[dfds.Stream]:
-        assert node_id == "lsl"
-        self.refresh_streams()
+        assert source_id == "lsl"
+        self._refresh_streams()
         return self.__streams
 
-    def _proxy_coro(
+    def _attach_coro(
         self,
-        node_id: str,
+        source_id: str,
         stream_id: str,
         queue: Queue,
         *,
@@ -66,7 +66,7 @@ class LSLProxy(datamux.Proxy):
         flag: Event,
         attrs: dict = {},
     ):
-        assert node_id == "lsl"
+        assert source_id == "lsl"
         stream = None
         for s in self.__streams:
             is_name_matched = s.name == stream_id

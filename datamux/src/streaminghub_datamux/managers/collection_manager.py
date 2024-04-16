@@ -4,6 +4,7 @@ import time
 import timeit
 from multiprocessing import Queue
 from threading import Event
+from typing import Callable
 
 import numpy as np
 import pylsl
@@ -13,20 +14,15 @@ import streaminghub_pydfds as dfds
 from .util import stream_to_stream_info
 
 
-# TODO change restreaming from pointwise to groupwise
-class CollectionManager(datamux.Reader):
+class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
     """
     Stream Reader for DFDS Collections.
 
-    Functions provided:
-
-    * list_collections() - list available collections
-
-    * list_streams(collection_id) - list recorded streams in a collection
-
-    * replay(collection_id, stream_id, attrs, queue) - replay a recorded stream
-
-    * restream(collection_id, stream_id, attrs) - restream (via lsl) a recorded stream
+    Functions:
+    * attach(source_id, stream_id, q, **kwargs)
+    * serve(source_id, stream_id, **kwargs)
+    * list_sources()
+    * list_streams(source_id)
 
     """
 
@@ -41,17 +37,21 @@ class CollectionManager(datamux.Reader):
         super().__init__()
         self.config = config
 
-    def list_collections(
+    def setup(self, **kwargs) -> None:
+        # nothing to set up for collection manager
+        return None
+
+    def list_sources(
         self,
     ) -> list[dfds.Collection]:
-        self._refresh_collections()
+        self._refresh_sources()
         return self.__collections
 
     def list_streams(
         self,
-        collection_id: str,
+        source_id: str,
     ) -> list[dfds.Stream]:
-        collection = [c for c in self.__collections if c.name == collection_id][0]
+        collection = [c for c in self.__collections if c.name == source_id][0]
         streams = []
         dataloader = collection.dataloader(self.config)
         for attrs in dataloader.ls():
@@ -62,7 +62,7 @@ class CollectionManager(datamux.Reader):
                 streams.append(stream)
         return streams
 
-    def _refresh_collections(
+    def _refresh_sources(
         self,
     ) -> None:
         self.__collections.clear()
@@ -70,18 +70,19 @@ class CollectionManager(datamux.Reader):
             collection = self.__parser.get_collection_metadata(fp.as_posix())
             self.__collections.append(collection)
 
-    def _replay_coro(
+    def _attach_coro(
         self,
-        collection_id: str,
+        source_id: str,
         stream_id: str,
-        attrs: dict,
         q: Queue,
-        transform,
+        *,
+        attrs: dict,
+        transform: Callable,
         flag: Event,
         strict_time: bool = True,
         use_relative_timestamps: bool = True,
     ):
-        collection = [c for c in self.__collections if c.name == collection_id][0]
+        collection = [c for c in self.__collections if c.name == source_id][0]
         stream = [s.model_copy() for s in collection.streams.values() if s.name == stream_id][0]
         stream.attrs.update(attrs, dfds_mode="replay")
         freq = stream.frequency
@@ -150,13 +151,14 @@ class CollectionManager(datamux.Reader):
         q.put_nowait(eof)
         self.logger.info(f"replay ended")
 
-    def _restream_coro(
+    def _serve_coro(
         self,
-        collection_id: str,
+        source_id: str,
         stream_id: str,
+        *,
         attrs: dict,
     ):
-        collection = [c for c in self.__collections if c.name == collection_id][0]
+        collection = [c for c in self.__collections if c.name == source_id][0]
         stream = [s.model_copy() for s in collection.streams.values() if s.name == stream_id][0]
         stream.attrs.update(attrs, dfds_mode="restream")
         freq = stream.frequency
