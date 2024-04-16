@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "orange3-streaminghub"
+version = "0.0.1"
+authors = [{ name = "Yasith Jayawardana", email = "yasith@cs.odu.edu" }]
+description = "Orange3 add-on for working with Streaminghub"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+keywords = ["dfds", "streaming", "orange3-addon"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+urls.homepage = "https://github.com/nirdslab/streaminghub/"
+dependencies = [
+    "Orange3~=3.36.2",
+    "numpy~=1.26.4",
+    "pylsl~=1.16.2",
+    "PyQt5~=5.15.10",
+    "PyQt5-stubs~=5.15.6.0",
+]
+optional-dependencies.dev = ["pytest", "pytest-cov"]
+
+[project.entry-points."orange3.addon"]
+streaming = "streaming"
+
+[project.entry-points."orange.widgets.tutorials"]
+
+
+[project.entry-points."orange.widgets"]
+streaming = "streaming.widgets"
+
+[project.entry-points."orange.canvas.help"]
+streaming = "streaming.widgets:WIDGET_HELP_PATH"
+
+[tool.setuptools.package-data]
+"streaming.widgets" = ["icons/*.svg", "*.js"]
+streaming = ["datasets/*.tab", "datasets/*.csv"]
