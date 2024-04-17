@@ -1,3 +1,4 @@
+from collections import defaultdict
 import logging
 import os
 import re
@@ -9,6 +10,7 @@ from urllib.parse import unquote
 import parse
 from flask import Response, request
 from hurry.filesize import size
+from .typing import FileDescriptor
 
 Chunk = tuple[bytes, int, int, int]
 
@@ -106,7 +108,7 @@ def dir_exists(path: str, base_dir: Path) -> bool:
     return fp.exists()
 
 
-def path_to_dict(i: Path, base_dir: Path, ext_dict: dict):
+def path_to_dict(i: Path, base_dir: Path, ext_dict: dict) -> FileDescriptor:
     f_name = i.name
     f_url = i.relative_to(base_dir).as_posix()
     image = get_icon(i, ext_dict)
@@ -119,11 +121,10 @@ def path_to_dict(i: Path, base_dir: Path, ext_dict: dict):
         dtc = "---"
         dtm = "---"
         sz = "---"
-    target = dict(f_name=f_name, f_url=f_url, image=image, dtc=dtc, dtm=dtm, size=sz)
-    return target
+    return FileDescriptor(f_name=f_name, f_url=f_url, image=image, dtc=dtc, dtm=dtm, size=sz, metadata={})
 
 
-def uri_to_dict(var: str, base_dir: Path, ext_dict: dict):
+def uri_to_dict(var: str, base_dir: Path, ext_dict: dict) -> FileDescriptor:
     i = get_filepath(var, base_dir)
     f_name = i.name
     f_url = i.relative_to(base_dir).as_posix()
@@ -138,15 +139,14 @@ def uri_to_dict(var: str, base_dir: Path, ext_dict: dict):
         dtc = "---"
         dtm = "---"
         sz = "---"
-    target = dict(f_name=f_name, f_url=f_url, image=image, dtc=dtc, dtm=dtm, size=sz, metadata=metadata)
-    return target
+    return FileDescriptor(f_name=f_name, f_url=f_url, image=image, dtc=dtc, dtm=dtm, size=sz, metadata=metadata)
 
 
 def get_dir_listing(path: Path, base_dir: Path, ext_dict: dict, hidden_list: list):
     assert path.is_dir()
     itemList = sorted(path.iterdir(), key=lambda x: [not x.is_dir(), x])
-    dir_list_dict: dict[str, dict] = {}
-    file_list_dict: dict[str, dict] = {}
+    dir_list_dict: dict[str, FileDescriptor] = {}
+    file_list_dict: dict[str, FileDescriptor] = {}
 
     for i in itemList:
         target = dir_list_dict if i.is_dir() else file_list_dict
@@ -212,3 +212,12 @@ def run_pattern(path: str, pattern: str, mode: str, base_dir: Path) -> dict[str,
 
     # return parsed metadata
     return metadata
+
+
+def find_unique_attributes(selection: dict[str, FileDescriptor]) -> dict[str, list[str]]:
+    uniques = defaultdict(list)
+    for file, descriptor in selection.items():
+        for key, value in descriptor.metadata.items():
+            uniques[key].append(value)
+    return dict(uniques)
+

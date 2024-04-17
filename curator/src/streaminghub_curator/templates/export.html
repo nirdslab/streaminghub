@@ -28,7 +28,11 @@
         </p>
         <div class="input-group">
           <label class="col-sm-2 col-form-label"><b>Indexing Pattern</b></label>
-          <input type="text" name="pattern" class="form-control" value="{{pattern}}">
+          <div id="sortable_indexing_pattern" class="form-control d-flex flex-row">
+            {% for attribute in pattern %}
+            <input name="pattern[]" readonly style="user-select: all;" type="text" class="btn btn-sm me-1 btn-outline-dark" value="{{ attribute }}">
+            {% endfor %}
+          </div>
         </div>
       </div>
       <div class="row">
@@ -56,7 +60,7 @@
                 </td>
                 <td>
                   <ul class="m-0 p-0">
-                    {% for mk, mv in item['metadata'].items() %}
+                    {% for mk, mv in item.metadata.items() %}
                     <li class="btn btn-sm px-1 py-0 btn-secondary">{{mk}}:&nbsp;<b class="me-2">{{mv}}</b><i
                         class="fas fa-pen fa-xs"></i></li>
                     {% endfor %}

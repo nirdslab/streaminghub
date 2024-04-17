@@ -2,13 +2,26 @@ import argparse
 from pathlib import Path
 from urllib.parse import unquote
 
-from flask import Response, abort, jsonify, redirect, render_template, request, send_file, session
+from flask import (Response, abort, jsonify, redirect, render_template,
+                   request, send_file, session)
+from streaminghub_curator.typing import FileDescriptor
 from werkzeug.utils import secure_filename
 
 from . import util
 from .config import Config
 
 config = Config()
+
+
+def get_selection() -> dict[str, FileDescriptor]:
+    if "selection" in session:
+        return session["selection"]
+    else:
+        return {}
+
+
+def set_selection(selection):
+    session["selection"] = selection
 
 
 def rereference_selection(prev_base: Path, new_base: Path):
@@ -18,19 +31,18 @@ def rereference_selection(prev_base: Path, new_base: Path):
         rel_base = rel_base.relative_to(prev_base)
     else:
         prefix = prev_base.relative_to(rel_base)
-    tgt = {}
-    if "selection" in session:
-        for k, v in session["selection"].items():
-            pk = Path(k)
-            if pk.is_relative_to(rel_base):
-                rp = pk.relative_to(rel_base)
-            else:
-                rp = prefix / pk
-            rk = rp.as_posix()
-            rv = util.uri_to_dict(rk, rel_base, config.ext_dict)
-            rv["metadata"] = dict(v["metadata"])
-            tgt[rk] = rv
-    session["selection"] = tgt
+    tgt: dict[str, FileDescriptor] = {}
+    for k, v in get_selection().items():
+        pk = Path(k)
+        if pk.is_relative_to(rel_base):
+            rp = pk.relative_to(rel_base)
+        else:
+            rp = prefix / pk
+        rk = rp.as_posix()
+        rv = util.uri_to_dict(rk, rel_base, config.ext_dict)
+        rv.metadata = v.metadata
+        tgt[rk] = rv
+    set_selection(tgt)
 
 
 @config.app.errorhandler(400)
@@ -145,56 +157,45 @@ def filePage(var: str = ""):
         if action == "update":
             paths = request.form.getlist("selection[]")
             patch = {k: util.uri_to_dict(k, base_dir, config.ext_dict) for k in paths}
-            if "selection" in session:
-                selection = dict(session["selection"])
-                selection.update(patch)
-                session["selection"] = selection
-            else:
-                session["selection"] = patch
+            selection = get_selection()
+            selection.update(patch)
+            set_selection(selection)
             config.app.logger.info(f"updated selection: {len(paths)} added")
 
         # drop items from selection
         if action == "drop":
             paths = request.form.getlist("selection[]")
-            if "selection" in session:
-                selection = dict(session["selection"])
-                for p in paths:
-                    selection.pop(p, None)
-                session["selection"] = selection
-            else:
-                abort(500)
+            selection = get_selection()
+            for p in paths:
+                selection.pop(p, None)
+            set_selection(selection)
             config.app.logger.info(f"updated selection: {len(paths)} dropped")
 
         # clear metadata from selection
         if action == "clear":
             paths = request.form.getlist("selection[]")
-            if "selection" in session:
-                selection = dict(session["selection"])
-                for p in paths:
-                    selection[p]["metadata"].clear()
-                session["selection"] = selection
-            else:
-                abort(500)
+            selection = get_selection()
+            for p in paths:
+                selection[p].metadata.clear()
+            set_selection(selection)
             config.app.logger.info(f"updated selection: {len(paths)} dropped")
 
         # reset selection
         if action == "reset":
-            session["selection"] = {}
+            set_selection({})
 
         # run pattern on file name or path name
         if action in ["name_pattern", "path_pattern"]:
-            assert "selection" in session
-            selection = dict(session["selection"])
+            selection = get_selection()
             pattern = request.form.get(action)
             assert pattern is not None
             paths = request.form.getlist("selection[]")
             for k in paths:
                 assert k in selection
                 uri_dict = selection[k]
-                assert type(uri_dict["metadata"]) == dict
                 patch = util.run_pattern(k, pattern, action, base_dir)
-                uri_dict["metadata"].update(patch)
-            session["selection"] = selection
+                uri_dict.metadata.update(patch)
+            set_selection(selection)
 
         # run dataset naming
         if action == "dataset_name":
@@ -203,7 +204,7 @@ def filePage(var: str = ""):
 
         if action.startswith("drop_single"):
             name = action[11:]
-            selection = session["selection"]
+            selection = get_selection()
             assert type(selection) == dict
             selection.pop(name, None)
 
@@ -225,7 +226,7 @@ def filePage(var: str = ""):
     return render_template(
         "home.html",
         dataset_name=dataset_name,
-        selection_dict=dict(session.get("selection", {})),
+        selection_dict=get_selection(),
         dir_dict=dir_dict,
         file_dict=file_dict,
         view_id=view_id,
@@ -311,33 +312,36 @@ def upload_file(var: str = ""):
 
 @config.app.route("/export", methods=["GET"])
 def get_export():
-    file_dict = dict(session["selection"])
-    return render_template("export.html", file_dict=file_dict, pattern="{split}/{species}", location="")
+    selection = get_selection()
+    uniques = util.find_unique_attributes(selection)
+    pattern = list(uniques.keys())
+    return render_template("export.html", file_dict=selection, pattern=pattern, location="")
 
 
 @config.app.route("/export", methods=["POST"])
 def do_export():
-    file_dict = dict(session["selection"])
     format = str(request.form.get("format"))
-    pattern = str(request.form.get("pattern"))
+    pattern: list[str] = request.form.getlist("pattern[]")
     config.app.logger.info(f"pattern={pattern}, format={format}")
+    assert format in ["h5", "csv", "parquet", "npy"]
     assert len(pattern) > 0
-    # assert format in ["h5", "csv", "parquet", "npy"]
-    for file in file_dict:
-        config.app.logger.info(file)
+
     # TODO create dataset in temp/ folder and push it as a download.
-    return render_template("export.html", file_dict=file_dict, pattern="{split}/{species}")
+    selection = get_selection()
+    for file in selection:
+        config.app.logger.info(file)
+    return render_template("export.html", file_dict=selection, pattern=pattern)
 
 
 @config.app.route("/metadata", methods=["POST"])
 def get_metadata():
     files = request.get_json()["files"]
-    state = dict(session["selection"])
+    selection = get_selection()
     metadata = {}
     for file in files:
-        if file not in state:
+        if file not in selection:
             abort(400)
-        metadata[file] = state[file]["metadata"]
+        metadata[file] = selection[file].metadata
     return metadata
 
 
