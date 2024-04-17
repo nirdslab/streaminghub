@@ -1,4 +1,4 @@
-const MetadataEditor = ({ meta }) => {
+function MetadataEditor({ meta }) {
     console.log(meta);
     const [count, setCount] = React.useState(0);
     const tags = {};
