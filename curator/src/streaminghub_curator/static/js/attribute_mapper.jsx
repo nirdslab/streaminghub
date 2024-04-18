@@ -1,4 +1,4 @@
-function StreamEditor({ spec, saveState }) {
+function AttributeMapper({ spec, attribs, saveState }) {
   const fieldSpec = {
     id: "",
     name: "",
@@ -15,6 +15,7 @@ function StreamEditor({ spec, saveState }) {
     index: [{ ...fieldSpec }],
   };
   const [streams, setStreams] = React.useState(spec);
+  const [attrs, setAttrs] = React.useState(attribs);
 
   const addNewStream = () => {
     const newStreams = [...streams];
@@ -149,7 +150,7 @@ function StreamEntryEditor({ stream, setStream, dropStream, fieldSpec }) {
     <div className="card my-1 border-2 border-secondary">
       <div className="card-header border-2 border-secondary p-0">
         <div className="input-group">
-          <label className="input-group-text bg-secondary border-0" style={{"border-radius": 0}}>
+          <label className="input-group-text bg-secondary border-0" style={{ "border-radius": 0 }}>
             <b className="px-2 text-light">ID</b>
           </label>
           <input
@@ -159,7 +160,7 @@ function StreamEntryEditor({ stream, setStream, dropStream, fieldSpec }) {
             value={stream.id}
             onChange={(e) => setStream({ ...stream, id: e.target.value })}
           />
-          <button className="btn btn-secondary p-0" onClick={dropStream} style={{"border-radius": 0}}>
+          <button className="btn btn-secondary p-0" onClick={dropStream} style={{ "border-radius": 0 }}>
             <i className="fas fa-trash p-2"></i>
           </button>
         </div>
@@ -170,7 +171,9 @@ function StreamEntryEditor({ stream, setStream, dropStream, fieldSpec }) {
             <div className="card">
               <div className="card-header d-flex flex-row p-1 ps-3">
                 <div className="d-flex align-items-center">
-                  <span><b className="me-2">Details</b></span>
+                  <span>
+                    <b className="me-2">Details</b>
+                  </span>
                 </div>
               </div>
               <div className="card-body p-1">
@@ -222,16 +225,14 @@ function StreamEntryEditor({ stream, setStream, dropStream, fieldSpec }) {
                   </span>
                 </div>
                 <div className="d-flex ms-auto me-1">
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-secondary p-0"
-                    onClick={() => addRecord("fields")}
-                  >
+                  <button type="button" className="btn btn-sm btn-secondary p-0" onClick={() => addRecord("fields")}>
                     <i className="fa-solid fa-plus p-2"></i>
                   </button>
                 </div>
               </div>
-              <div className="card-body p-1">{stream.fields.map((record, idx) => renderRecord("fields", idx, record))}</div>
+              <div className="card-body p-1">
+                {stream.fields.map((record, idx) => renderRecord("fields", idx, record))}
+              </div>
             </div>
           </div>
         </div>
@@ -245,16 +246,14 @@ function StreamEntryEditor({ stream, setStream, dropStream, fieldSpec }) {
                   </span>
                 </div>
                 <div className="d-flex ms-auto me-1">
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-secondary p-0"
-                    onClick={() => addRecord("index")}
-                  >
+                  <button type="button" className="btn btn-sm btn-secondary p-0" onClick={() => addRecord("index")}>
                     <i className="fa-solid fa-plus p-2"></i>
                   </button>
                 </div>
               </div>
-              <div className="card-body p-1">{stream.index.map((record, idx) => renderRecord("index", idx, record))}</div>
+              <div className="card-body p-1">
+                {stream.index.map((record, idx) => renderRecord("index", idx, record))}
+              </div>
             </div>
           </div>
         </div>

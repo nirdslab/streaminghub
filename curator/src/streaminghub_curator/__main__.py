@@ -1,5 +1,7 @@
 import argparse
+from collections import defaultdict
 from pathlib import Path
+from typing import Any
 from urllib.parse import unquote
 
 from flask import Response, abort, jsonify, redirect, render_template, request, send_file, session
@@ -368,13 +370,58 @@ def update_stream_spec():
     return jsonify(dict(success=True, error=None))
 
 
-@config.app.route("/introspect", methods=["GET"])
-def introspect_attributes():
-    info = {}
+@config.app.route("/attributes", methods=["GET"])
+def get_attribute_editor():
+    return render_template("attributes.html")
+
+
+@config.app.route("/inspect", methods=["GET"])
+def inspect_attributes():
+    # forward index
+    # { path, ref } -> { {col, dtype}, meta }
+    fwd_index: dict[tuple[str, str], dict[str, dict[str, str]]] = {}
     base_dir = Path(session.get("base_dir", config.base_dir))
     for path, desc in get_selection().items():
-        info[path] = {"fields": create_reader(base_dir / path).lsfields(), "metadata": desc.metadata}
-    return jsonify(info)
+        cols = create_reader(base_dir / path).lsfields()
+        meta = desc.metadata
+        # broadcast metadata to all entries in the fields dict
+        for ref, colmap in cols.items():
+            fwd_index[(path, ref)] = dict(cols=colmap, meta=meta)
+
+    # inverse index
+    # {col} -> [ {path, ref, dtype, meta} ]
+    inv_index: defaultdict[str, list[dict[str, str | dict[str, str]]]] = defaultdict(list)
+    for (path, ref), entries in fwd_index.items():
+        cols, meta = entries["cols"], entries["meta"]
+        for col, dtype in cols.items():
+            inv_index[col].append(
+                dict(
+                    path=path,
+                    ref=ref,
+                    dtype=dtype,
+                    meta=meta,
+                )
+            )
+
+    # number of units in selection
+    file_count = len(fwd_index)
+    cols_count = {str(k): len(v) for k, v in inv_index.items()}
+    # get max occurence count of the attributes
+    max_count = max(cols_count.values())
+    # ensure at least one column is common across all files
+    assert max_count == file_count
+    final_index = {
+        k: {
+            "items": v,
+            "summary": {
+                "count": len(v),
+                # bool indicating if attribute has full coverage
+                "fully_covered": len(v) == max_count,
+            },
+        }
+        for k, v in inv_index.items()
+    }
+    return jsonify(final_index)
 
 
 @config.app.route("/streamspec", methods=["GET"])

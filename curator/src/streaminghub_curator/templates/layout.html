@@ -101,6 +101,11 @@
         });
         return true;
       }
+      async function getAttributeMap() {
+        const res = await fetch("/inspect");
+        const json = await res.json();
+        return json;
+      }
     </script>
     {% block scripts %} {% endblock %}
   </body>

@@ -2,39 +2,40 @@
 <div class="container mt-4">
   <div class="card">
     <div class="card-header d-flex flex-row">
-      <h5 class="mt-auto mb-0">Step 2 - Define Streams</h5>
+      <h5 class="mt-auto mb-0">Step 3 - Assign Attributes to Streams</h5>
     </div>
     <div class="card-body">
       <div id="edit_panel">
         <div class="text-center mx-auto">
           <i class="fa-solid fa-spinner fa-spin fa-xl p-3"></i>
-          <br/>
+          <br />
           Loading
         </div>
       </div>
     </div>
     <div class="card-footer d-flex flex-row">
       <div class="d-flex me-auto">
-        <a href="/files" class="btn btn-sm btn-primary ms-auto mx-1"><b>&ltri; Step 1 - Extract Metadata</b></a>
-        <a href="/attributes" class="btn btn-sm btn-success ms-auto mx-1"
-          ><b>Step 3 - Assign Attributes to Streams &rtri;</b></a
-        >
+        <a href="/streams" class="btn btn-sm btn-primary ms-auto mx-1"><b>&ltri; Step 2 - Define Streams</b></a>
+        <a href="/export" class="btn btn-sm btn-success ms-auto mx-1"><b>Step 4 - Review and Export &rtri;</b></a>
       </div>
     </div>
   </div>
 </div>
 {% endblock content %} {% block scripts %}
-<script type="text/babel" src="/static/js/stream_editor.jsx"></script>
+<script type="text/babel" src="/static/js/attribute_mapper.jsx"></script>
 <script>
-  const renderStreamEditor = async () => {
+  const renderAttributeMapper = async () => {
     const spec = await getStreamSpec();
+    const attrs = await getAttributeMap();
+    console.log(attrs);
+    const saveFn = () => none;
     const panel = document.getElementById("edit_panel");
     const root = ReactDOM.createRoot(panel);
     setTimeout(() => {
-      const element = React.createElement(StreamEditor, { spec: spec, saveState: saveStreamSpec }, null);
+      const element = React.createElement(AttributeMapper, { spec: spec, attribs: attrs, saveState: saveFn }, null);
       root.render(element);
-    }, 1000)
+    }, 1000);
   };
-  renderStreamEditor();
+  renderAttributeMapper();
 </script>
 {% endblock scripts %}
