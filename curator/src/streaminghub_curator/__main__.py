@@ -4,6 +4,7 @@ from urllib.parse import unquote
 
 from flask import Response, abort, jsonify, redirect, render_template, request, send_file, session
 from streaminghub_curator.typing import FileDescriptor
+from streaminghub_pydfds.readers import create_reader
 from werkzeug.utils import secure_filename
 
 from . import util
@@ -58,7 +59,7 @@ def rereference_selection(prev_base: Path, new_base: Path):
         rv = util.uri_to_dict(rk, rel_base, config.ext_dict)
         rv.metadata = v.metadata
         tgt[rk] = rv
-    set_selection(tgt)
+    return tgt
 
 
 @config.app.errorhandler(400)
@@ -226,13 +227,15 @@ def filePage(var: str = ""):
 
         if action == "reset_root":
             if base_dir != config.base_dir:
-                rereference_selection(base_dir, config.base_dir)
+                tgt = rereference_selection(base_dir, config.base_dir)
+                set_selection(tgt)
                 session.pop("base_dir")
                 rp = base_dir.relative_to(config.base_dir)
                 return redirect(f"/files/" + rp.as_posix())
 
         if action == "set_root":
-            rereference_selection(base_dir, path)
+            tgt = rereference_selection(base_dir, path)
+            set_selection(tgt)
             session["base_dir"] = path.as_posix()
             return redirect("/files")
 
@@ -365,6 +368,15 @@ def update_stream_spec():
     return jsonify(dict(success=True, error=None))
 
 
+@config.app.route("/introspect", methods=["GET"])
+def introspect_attributes():
+    info = {}
+    base_dir = Path(session.get("base_dir", config.base_dir))
+    for path, desc in get_selection().items():
+        info[path] = {"fields": create_reader(base_dir / path).lsfields(), "metadata": desc.metadata}
+    return jsonify(info)
+
+
 @config.app.route("/streamspec", methods=["GET"])
 def get_stream_spec():
     spec = session.get("spec", default_spec)
@@ -386,7 +398,7 @@ def get_metadata():
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser("Streaminghub Curator")
-    parser.add_argument("--host", "-H", type=str, default="127.0.0.1")
+    parser.add_argument("--host", "-H", type=str, default="0.0.0.0")
     parser.add_argument("--port", "-p", type=int, default=8000)
     args = parser.parse_args()
 

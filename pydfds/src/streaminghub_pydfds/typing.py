@@ -4,35 +4,12 @@ import itertools
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-import h5py
-import numpy as np
 import pandas as pd
 import parse
 import pydantic as p
 
-dtype_map_fwd = {
-    "f16": np.float16,
-    "f32": np.float32,
-    "f64": np.float64,
-    "i8": np.int8,
-    "i16": np.int16,
-    "i32": np.int32,
-    "u8": np.uint8,
-    "u16": np.uint16,
-    "u32": np.uint32,
-}
-
-dtype_map_inv = {
-    np.float16: "f16",
-    np.float32: "f32",
-    np.float64: "f64",
-    np.int8: "i8",
-    np.int16: "i16",
-    np.int32: "i32",
-    np.uint8: "u8",
-    np.uint16: "u16",
-    np.uint32: "u32",
-}
+from .const import dtype_map_fwd, dtype_map_inv
+from .readers import create_reader
 
 
 class Config(p.BaseModel):
@@ -155,33 +132,29 @@ class DataLoader:
         if self.__protocol == "h5":
             fp = self.__fpath / "data.h5"
             assert fp.exists() and fp.is_file()
-            with h5py.File(fp, "r") as file:
-                for key, dataset in file.items():
-                    if not isinstance(dataset, h5py.Dataset):
-                        continue
-                    result = self.__parser.parse(key)
-                    assert isinstance(result, parse.Result)
-                    attrs: dict[str, str] = dict(dataset.attrs.items())
-                    attrs.update({"collection": self.__collection.name, **result.named})
-                    available.append(attrs)
+            for key, attrs in create_reader(fp).lsinfo().items():
+                result = self.__parser.parse(key)
+                assert isinstance(result, parse.Result)
+                available.append(attrs)
         elif self.__protocol == "parquet":
             fp = self.__fpath
             for key in fp.glob("*.parquet"):
                 result = self.__parser.parse(key.with_suffix("").name)
                 assert isinstance(result, parse.Result)
-                attrs: dict[str, str] = {}  # TODO get extra metadata from elsewhere
-                attrs.update({"collection": self.__collection.name, **result.named})
-                available.append(attrs)
+                available.append({})
         elif self.__protocol == "csv":
             fp = self.__fpath
             for key in fp.glob("*.csv"):
                 result = self.__parser.parse(key.with_suffix("").name)
                 assert isinstance(result, parse.Result)
-                attrs: dict[str, str] = {}  # TODO get extra metadata from elsewhere
-                attrs.update({"collection": self.__collection.name, **result.named})
-                available.append(attrs)
+                available.append({})
         else:
             raise ValueError(f"Unsupported protocol: {self.__protocol}")
+
+        # patch metadata with collection / path information
+        for attrs in available:
+            attrs.update({"collection": self.__collection.name, **result.named})
+
         return available
 
     def read(
@@ -201,28 +174,22 @@ class DataLoader:
         parser_keys: List[str] = self.__parser.named_fields
         parser_attrs = {k: v for k, v in attributes.items() if k in parser_keys}
         rec_path = str.format(self.__parser._format, **parser_attrs)
-        # Read the record from file
+
+        # Derive the file path
         if self.__protocol == "h5":
             fp = self.__fpath / "data.h5"
-            assert fp.exists() and fp.is_file()
-            with h5py.File(fp, "r") as file:
-                dataset = file.get(rec_path, default=None)  # type: ignore
-                assert isinstance(dataset, h5py.Dataset)
-                attrs = dict(dataset.attrs.items())
-                attrs.update({"collection": self.__collection.name, **parser_attrs})
-                dataset = pd.DataFrame(np.array(dataset))
         elif self.__protocol == "parquet":
             fp = self.__fpath / (rec_path + ".parquet")
-            dataset = pd.read_parquet(fp)
-            dataset.index.name = "t"
-            attrs: dict[str, str] = {}  # TODO get extra metadata from elsewhere
-            attrs.update({"collection": self.__collection.name, **parser_attrs})
         elif self.__protocol == "csv":
             fp = self.__fpath / (rec_path + ".csv")
-            dataset = pd.read_csv(fp)
-            dataset.index.name = "t"
-            attrs: dict[str, str] = {}  # TODO get extra metadata from elsewhere
-            attrs.update({"collection": self.__collection.name, **parser_attrs})
         else:
             raise ValueError(f"Unsupported protocol: {self.__protocol}")
-        return attrs, dataset
+
+        # load meta and data from file path
+        assert fp.exists() and fp.is_file()
+        meta, data = create_reader(fp).read(rec_path)
+
+        # patch metadata with collection / path information
+        meta.update({"collection": self.__collection.name, **parser_attrs})
+
+        return meta, data
