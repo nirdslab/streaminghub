@@ -149,7 +149,7 @@ function StreamEntryEditor({ stream, setStream, dropStream, fieldSpec }) {
     <div className="card my-1 border-2 border-secondary">
       <div className="card-header border-2 border-secondary p-0">
         <div className="input-group">
-          <label className="input-group-text bg-secondary border-0" style={{"border-radius": 0}}>
+          <label className="input-group-text bg-secondary border-0" style={{"borderRadius": 0}}>
             <b className="px-2 text-light">ID</b>
           </label>
           <input
@@ -159,7 +159,7 @@ function StreamEntryEditor({ stream, setStream, dropStream, fieldSpec }) {
             value={stream.id}
             onChange={(e) => setStream({ ...stream, id: e.target.value })}
           />
-          <button className="btn btn-secondary p-0" onClick={dropStream} style={{"border-radius": 0}}>
+          <button className="btn btn-secondary p-0" onClick={dropStream} style={{"borderRadius": 0}}>
             <i className="fas fa-trash p-2"></i>
           </button>
         </div>

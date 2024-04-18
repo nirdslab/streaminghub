@@ -2,7 +2,7 @@
 <form method="post" class="container mt-4">
   <div class="card">
     <div class="card-header d-flex flex-row">
-      <h5 class="mt-auto mb-0">Step 3 - Export Dataset</h5>
+      <h5 class="mt-auto mb-0">Step 4 - Review and Export</h5>
     </div>
     <div class="card-body">
       <div class="row">
@@ -83,19 +83,13 @@
           will be prompted to download the content.
         </p>
         <div class="d-flex">
-          <a href="/streams" class="btn btn-sm btn-primary me-1"><b>&ltri; Step 2 - Define Streams</b></a>
+          <a href="/attributes" class="btn btn-sm btn-primary me-1"><b>&ltri; Step 3 - Assign Attributes to Streams</b></a>
           <button type="submit" class="btn btn-sm btn-success"><b>Export &rtri;</b></button>
         </div>
       </div>
     </div>
   </div>
 </form>
-<div class="offcanvas offcanvas-bottom h-100" tabindex="-1" id="edit_panel">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="panel_label">Edit Streams</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-  </div>
-</div>
-{% endblock content %} {% block scripts %}
-<script type="text/babel" src="/static/js/stream_editor.jsx"></script>
+{% endblock content %}
+{% block scripts %}
 {% endblock scripts %}

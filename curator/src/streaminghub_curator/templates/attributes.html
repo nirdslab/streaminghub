@@ -9,7 +9,7 @@
         <div class="text-center mx-auto">
           <i class="fa-solid fa-spinner fa-spin fa-xl p-3"></i>
           <br />
-          Loading
+          Finding Attributes from Selected Files
         </div>
       </div>
     </div>
@@ -22,17 +22,15 @@
   </div>
 </div>
 {% endblock content %} {% block scripts %}
-<script type="text/babel" src="/static/js/attribute_mapper.jsx"></script>
+<script type="text/jsx" src="/static/js/attribute_mapper.jsx"></script>
 <script>
   const renderAttributeMapper = async () => {
-    const spec = await getStreamSpec();
-    const attrs = await getAttributeMap();
-    console.log(attrs);
-    const saveFn = () => none;
+    const streams = await getStreamSpec();
+    const attributeMap = await getAttributeMap();
     const panel = document.getElementById("edit_panel");
     const root = ReactDOM.createRoot(panel);
     setTimeout(() => {
-      const element = React.createElement(AttributeMapper, { spec: spec, attribs: attrs, saveState: saveFn }, null);
+      const element = React.createElement(AttributeMapper, { streams, attributeMap, saveAttributeMap }, null);
       root.render(element);
     }, 1000);
   };

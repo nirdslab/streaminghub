@@ -1,7 +1,6 @@
 import argparse
 from collections import defaultdict
 from pathlib import Path
-from typing import Any
 from urllib.parse import unquote
 
 from flask import Response, abort, jsonify, redirect, render_template, request, send_file, session
@@ -375,8 +374,16 @@ def get_attribute_editor():
     return render_template("attributes.html")
 
 
-@config.app.route("/inspect", methods=["GET"])
-def inspect_attributes():
+@config.app.route("/attribmap", methods=["POST"])
+def set_attribute_editor():
+    mapping = request.get_json()
+    config.app.logger.info(f"mapping={mapping}")
+    session["mapping"] = mapping
+    return jsonify(dict(success=True, error=None))
+
+
+@config.app.route("/attribmap", methods=["GET"])
+def get_attribute_map():
     # forward index
     # { path, ref } -> { {col, dtype}, meta }
     fwd_index: dict[tuple[str, str], dict[str, dict[str, str]]] = {}
@@ -421,7 +428,7 @@ def inspect_attributes():
         }
         for k, v in inv_index.items()
     }
-    return jsonify(final_index)
+    return jsonify(dict(cols=final_index, file_count=file_count, mapping=session.get("mapping", None)))
 
 
 @config.app.route("/streamspec", methods=["GET"])

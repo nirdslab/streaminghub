@@ -102,9 +102,20 @@
         return true;
       }
       async function getAttributeMap() {
-        const res = await fetch("/inspect");
+        const res = await fetch("/attribmap");
         const json = await res.json();
         return json;
+      }
+      async function saveAttributeMap(mapping) {
+        const res = await fetch("/attribmap", {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          method: "post",
+          body: JSON.stringify(mapping),
+        });
+        return true;
       }
     </script>
     {% block scripts %} {% endblock %}
