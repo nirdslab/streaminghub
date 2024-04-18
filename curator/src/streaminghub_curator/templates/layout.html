@@ -1,63 +1,107 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <title>Curator - Select Files</title>
+  </head>
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-  <title>Curator - Select Files</title>
-</head>
-
-<body>
-  <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="/"><img src="/static/logo.png" alt="logo"
-          style="margin: 0; padding: 0; height: 2.2rem;"></a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-        <ul class="navbar-nav">
-          <!-- Upload Section -->
-          <div class="d-flex flex-row justify-content-end">
-            <form id="uploadForm" action="/upload/{{currentDir}}" method="post" enctype="multipart/form-data"
-              style="display:none;">
-              <div class="input-group">
-                <input class="form-control" type="file" name="files[]" multiple="true">
-                <input class="btn btn-light ms-1 me-2" type="submit" value="Upload" />
-              </div>
-            </form>
-            <button title="Upload" id="upload_btn" class="btn btn-light ms-1 me-2">Upload</button>
-            {% if logged_in %}
-            <a title="Logout" class="btn btn-light ms-1" href="/logout/">
-              <span class="fas fa-sign-out-alt"></span>
-            </a>
-            {% endif %}
-          </div>
-        </ul>
+  <body>
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/"
+          ><img src="/static/logo.png" alt="logo" style="margin: 0; padding: 0; height: 2.2rem"
+        /></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+          <ul class="navbar-nav">
+            <!-- Upload Section -->
+            <div class="d-flex flex-row justify-content-end">
+              <form
+                id="uploadForm"
+                action="/upload/{{currentDir}}"
+                method="post"
+                enctype="multipart/form-data"
+                style="display: none"
+              >
+                <div class="input-group">
+                  <input class="form-control" type="file" name="files[]" multiple="true" />
+                  <input class="btn btn-light ms-1 me-2" type="submit" value="Upload" />
+                </div>
+              </form>
+              <button title="Upload" id="upload_btn" class="btn btn-light ms-1 me-2">Upload</button>
+              {% if logged_in %}
+              <a title="Logout" class="btn btn-light ms-1" href="/logout/">
+                <span class="fas fa-sign-out-alt"></span>
+              </a>
+              {% endif %}
+            </div>
+          </ul>
+        </div>
       </div>
-    </div>
-  </nav>
-  {% block content %}
-  {% endblock %}
-  <script src="https://kit.fontawesome.com/7754669fef.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.4/babel.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
-  <script>
-    document.getElementById("upload_btn").addEventListener("click", function () {
-      document.getElementById('uploadForm').style.display = "flex";
-      document.getElementById('upload_btn').style.display = "none";
-    });
-    Sortable.create(document.getElementById("sortable_indexing_pattern"))
-  </script>
-  {% block scripts %}
-  {% endblock %}
-</body>
-
+    </nav>
+    {% block content %} {% endblock %}
+    <script src="https://kit.fontawesome.com/7754669fef.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.4/babel.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.js"></script>
+    <script>
+      // make upload button interactive
+      document.getElementById("upload_btn").addEventListener("click", function () {
+        document.getElementById("uploadForm").style.display = "flex";
+        document.getElementById("upload_btn").style.display = "none";
+      });
+    </script>
+    <script>
+      // make all .sortable-container elements sortable
+      document.querySelectorAll(".sortable-container").forEach((value) => {
+        Sortable.create(value);
+      });
+    </script>
+    <script>
+      // define function to get metadata
+      async function getMetadata(files) {
+        let msg = {};
+        try {
+          const res = await fetch("/metadata?", {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            method: "post",
+            body: JSON.stringify({ files: files }),
+          });
+          msg = await res.json();
+        } catch (err) {
+          console.error("An error occured", err);
+        }
+        return msg;
+      }
+      async function getStreamSpec() {
+        const res = await fetch("/streamspec");
+        const json = await res.json();
+        return json;
+      }
+      async function saveStreamSpec(spec) {
+        await fetch("/streamspec", {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          method: "post",
+          body: JSON.stringify(spec),
+        });
+        return true;
+      }
+    </script>
+    {% block scripts %} {% endblock %}
+  </body>
 </html>

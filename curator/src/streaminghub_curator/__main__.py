@@ -2,8 +2,7 @@ import argparse
 from pathlib import Path
 from urllib.parse import unquote
 
-from flask import (Response, abort, jsonify, redirect, render_template,
-                   request, send_file, session)
+from flask import Response, abort, jsonify, redirect, render_template, request, send_file, session
 from streaminghub_curator.typing import FileDescriptor
 from werkzeug.utils import secure_filename
 
@@ -11,6 +10,23 @@ from . import util
 from .config import Config
 
 config = Config()
+
+field_spec = dict(
+    id="",
+    name="",
+    description="",
+    dtype="f32",
+)
+stream_spec = dict(
+    id="",
+    name="",
+    description="",
+    unit="",
+    frequency=0,
+    fields=[field_spec.copy()],
+    index=[field_spec.copy()],
+)
+default_spec = [stream_spec.copy()]
 
 
 def get_selection() -> dict[str, FileDescriptor]:
@@ -310,6 +326,14 @@ def upload_file(var: str = ""):
     return render_template("uploadsuccess.html", text=text, fileNo=num_total, fileNo2=num_failed)
 
 
+@config.app.route("/streams", methods=["GET"])
+def get_streams():
+    selection = get_selection()
+    uniques = util.find_unique_attributes(selection)
+    pattern = list(uniques.keys())
+    return render_template("streams.html", file_dict=selection, pattern=pattern, location="")
+
+
 @config.app.route("/export", methods=["GET"])
 def get_export():
     selection = get_selection()
@@ -331,6 +355,20 @@ def do_export():
     for file in selection:
         config.app.logger.info(file)
     return render_template("export.html", file_dict=selection, pattern=pattern)
+
+
+@config.app.route("/streamspec", methods=["POST"])
+def update_stream_spec():
+    spec = request.get_json()
+    config.app.logger.info(f"spec={spec}")
+    session["spec"] = spec
+    return jsonify(dict(success=True, error=None))
+
+
+@config.app.route("/streamspec", methods=["GET"])
+def get_stream_spec():
+    spec = session.get("spec", default_spec)
+    return jsonify(spec)
 
 
 @config.app.route("/metadata", methods=["POST"])

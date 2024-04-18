@@ -57,7 +57,12 @@
 }
 
 .file-container {
-    max-height: 400px;
+    max-height: 300px;
+    overflow: auto;
+}
+
+.tall-container {
+    max-height: 500px;
     overflow: auto;
 }
 

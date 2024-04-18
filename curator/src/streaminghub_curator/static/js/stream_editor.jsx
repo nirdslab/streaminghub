@@ -1,101 +1,142 @@
-function StreamEditor() {
-  const [formData, setFormData] = React.useState({
+function StreamEditor({ spec, saveState }) {
+  const fieldSpec = {
+    id: "",
+    name: "",
+    description: "",
+    dtype: "f32",
+  };
+  const template = {
+    id: "",
     name: "",
     description: "",
     unit: "",
     frequency: 0,
-    fields: {},
-    index: {},
-  });
+    fields: [{ ...fieldSpec }],
+    index: [{ ...fieldSpec }],
+  };
+  const [streams, setStreams] = React.useState(spec);
 
-  const handleFieldChange = (category, key, field, value) => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [category]: {
-        ...prevFormData[category],
-        [key]: {
-          ...prevFormData[category][key],
-          [field]: value,
-        },
-      },
-    }));
+  const addNewStream = () => {
+    const newStreams = [...streams];
+    newStreams.push({ ...template });
+    setStreams(newStreams);
   };
 
-  const prompt = (text) => {
-    return "abc";
+  const saveStreams = () => {
+    return saveState(streams).then(() => location.reload());
   };
 
-  const handleAddField = () => {
-    const newFieldKey = prompt("Enter new field key:");
-    if (newFieldKey) {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        fields: {
-          ...prevFormData.fields,
-          [newFieldKey]: {
-            name: newFieldKey.toLowerCase().replace(/ /g, "_"),
-            description: "",
-            dtype: "f32",
-          },
-        },
-      }));
-    }
+  const resetStreams = () => {
+    const newStreams = [{ ...template }];
+    return saveState(newStreams).then(() => location.reload());
   };
 
-  const handleAddIndex = () => {
-    const newIndexKey = prompt("Enter new index key:");
-    if (newIndexKey) {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        index: {
-          ...prevFormData.index,
-          [newIndexKey]: {
-            name: newIndexKey.toLowerCase(),
-            description: "",
-            dtype: "f32",
-          },
-        },
-      }));
-    }
+  const setStream = (stream, idx) => {
+    const newStreams = [...streams];
+    newStreams[idx] = stream;
+    setStreams(newStreams);
   };
 
-  const createFieldEntry = (ref, key, field) => (
-    <div className="row">
-      <div className="col-3" key={ref + "_" + key + "_actions"}>
-        <div className="input-group">
-          <label className="form-label">ID={key}</label>
+  const dropStream = (idx) => {
+    const newStreams = streams.filter((_, i) => i !== idx);
+    setStreams(newStreams);
+  };
+
+  return (
+    <>
+      <div className="row">
+        <div className="col">
+          <p>Use the section below to specify which streams you wish to generate from the chosen data.</p>
         </div>
       </div>
-      <div className="col-3" key={ref + "_" + key + "_name"}>
+      <div className="row">
+        <div className="col mb-2">
+          <button className="btn btn-sm btn-primary me-1" onClick={addNewStream}>
+            Add Stream
+          </button>
+          <button className="btn btn-sm btn-success me-1" onClick={saveStreams}>
+            <i className="fa fa-save me-1"></i>Save Streams
+          </button>
+          <button className="btn btn-sm btn-warning me-1" onClick={resetStreams}>
+            <i className="fa fa-undo me-2" aria-hidden="true"></i>Reset
+          </button>
+        </div>
+      </div>
+      <div className="tall-container">
+        {streams.map((stream, idx) => (
+          <StreamEntryEditor
+            key={idx}
+            stream={stream}
+            setStream={(s) => setStream(s, idx)}
+            dropStream={() => dropStream(idx)}
+            fieldSpec={fieldSpec}
+          ></StreamEntryEditor>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function StreamEntryEditor({ stream, setStream, dropStream, fieldSpec }) {
+  const updateRecord = (ref, key, field, value) => {
+    const newStream = { ...stream };
+    newStream[ref][key][field] = value;
+    setStream(newStream);
+  };
+  const addRecord = (ref) => {
+    const newStream = { ...stream };
+    newStream[ref].push({ ...fieldSpec });
+    setStream(newStream);
+  };
+  const dropRecord = (ref, key) => {
+    const newStream = { ...stream };
+    newStream[ref] = newStream[ref].filter((_, i) => i !== key);
+    setStream(newStream);
+  };
+
+  const renderRecord = (ref, idx, record) => (
+    <div className="row" key={`${ref}_${idx}`}>
+      <div className="col-2">
         <div className="input-group">
-          <label className="form-label">Name</label>
+          <label className="input-group-text">ID</label>
           <input
             type="text"
             className="form-control form-control-sm"
-            value={field.name}
-            onChange={(e) => handleFieldChange(ref, key, "name", e.target.value)}
+            value={record.id}
+            onChange={(e) => updateRecord(ref, idx, "id", e.target.value)}
           />
         </div>
       </div>
-      <div className="col-3" key={ref + "_" + key + "_description"}>
+      <div className="col-3">
         <div className="input-group">
-        <label className="form-label">Description</label>
+          <label className="input-group-text">Name</label>
           <input
             type="text"
             className="form-control form-control-sm"
-            value={field.description}
-            onChange={(e) => handleFieldChange(ref, key, "description", e.target.value)}
+            value={record.name}
+            onChange={(e) => updateRecord(ref, idx, "name", e.target.value)}
           />
         </div>
       </div>
-      <div className="col-3" key={ref + "_" + key + "_dtype"}>
+      <div className="col-4">
         <div className="input-group">
-        <label className="form-label">Dtype</label>
+          <label className="input-group-text">Description</label>
+          <input
+            type="text"
+            className="form-control form-control-sm"
+            value={record.description}
+            onChange={(e) => updateRecord(ref, idx, "description", e.target.value)}
+          />
+        </div>
+      </div>
+      <div className="col-3">
+        <div className="input-group">
+          <label className="input-group-text">Type</label>
           <select
             type="text"
             className="form-control form-control-sm"
-            value={field.dtype}
-            onChange={(e) => handleFieldChange(ref, key, "dtype", e.target.value)}
+            value={record.dtype}
+            onChange={(e) => updateRecord(ref, idx, "dtype", e.target.value)}
           >
             <option value="f16">float16</option>
             <option value="f32">float32</option>
@@ -108,84 +149,126 @@ function StreamEditor() {
             <option value="u32">uint32</option>
             <option value="byte">byte</option>
           </select>
+          <button className="btn btn-sm btn-outline-secondary p-0" onClick={(e) => dropRecord(ref, idx)}>
+            <i className="fas fa-trash p-2"></i>
+          </button>
         </div>
       </div>
     </div>
   );
 
   return (
-    <div className="container">
-      <div className="row">
-        <div className="col">
-          <h2>Add New Stream</h2>
-        </div>
-      </div>
-      <div className="row">
-        <div className="col-3">
-          <div className="form-floating">
-            <input
-              type="text"
-              className="form-control form-control-sm"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            />
-            <label>Name:</label>
-          </div>
-        </div>
-        <div className="col-3">
-          <div className="form-floating">
-            <input
-              type="text"
-              className="form-control form-control-sm"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            />
-            <label>Description:</label>
-          </div>
-        </div>
-        <div className="col-3">
-          <div className="form-floating">
-            <input
-              type="text"
-              className="form-control form-control-sm"
-              value={formData.unit}
-              onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-            />
-            <label>Unit:</label>
-          </div>
-        </div>
-        <div className="col-3">
-          <div className="form-floating">
-            <input
-              type="number"
-              className="form-control form-control-sm"
-              value={formData.frequency}
-              onChange={(e) => setFormData({ ...formData, frequency: e.target.value })}
-            />
-            <label>Frequency:</label>
-          </div>
-        </div>
-      </div>
-      <div className="row">
-        <div className="col">
-          <h2>Fields:</h2>
-          <button type="button" className="btn btn-secondary" onClick={handleAddField}>
-            Add Field
+    <div className="card my-1 border-2 border-secondary">
+      <div className="card-header border-2 border-secondary p-0">
+        <div className="input-group">
+          <label className="input-group-text">
+            <b>ID</b>
+          </label>
+          <input
+            type="text"
+            className="form-control form-control-sm"
+            placeholder="Stream ID"
+            value={stream.id}
+            onChange={(e) => setStream({ ...stream, id: e.target.value })}
+          />
+          <button className="btn btn-sm btn-outline-secondary p-0" onClick={dropStream}>
+            <i className="fas fa-trash p-2"></i>
           </button>
         </div>
       </div>
-      {Object.entries(formData.fields).map(([key, field]) => createFieldEntry("fields", key, field))}
-      <div className="row">
-        <div className="col">
-          <h2>Index:</h2>
-          <button type="button" className="btn btn-secondary" onClick={handleAddIndex}>
-            Add Index
-          </button>
+      <div className="card-body py-0 px-1">
+        <div className="row pt-1">
+          <div className="col-3">
+            <div className="input-group">
+              <label className="input-group-text">Name</label>
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                value={stream.name}
+                onChange={(e) => setStream({ ...stream, name: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="col-3">
+            <div className="input-group">
+              <label className="input-group-text">Description</label>
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                value={stream.description}
+                onChange={(e) => setStream({ ...stream, description: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="col-3">
+            <div className="input-group">
+              <label className="input-group-text">Unit</label>
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                value={stream.unit}
+                onChange={(e) => setStream({ ...stream, unit: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="col-3">
+            <div className="input-group">
+              <label className="input-group-text">Frequency (Hz)</label>
+              <input
+                type="number"
+                className="form-control form-control-sm"
+                value={stream.frequency}
+                onChange={(e) => setStream({ ...stream, frequency: e.target.value })}
+              />
+            </div>
+          </div>
         </div>
-      </div>
-      {Object.entries(formData.index).map(([key, index]) => createFieldEntry("index", key, index))}
-      <div className="row">
-        <pre className="col">{JSON.stringify(formData, null, 2)}</pre>
+        <div className="row pt-1">
+          <div className="col">
+            <div className="card">
+              <div className="card-header d-flex flex-row py-1">
+                <div className="d-flex align-items-center">
+                  <span>
+                    <b className="me-2">Fields</b>({stream.fields.length})
+                  </span>
+                </div>
+                <div className="d-flex ms-auto">
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-secondary py-0"
+                    onClick={() => addRecord("fields")}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <div className="card-body">{stream.fields.map((record, idx) => renderRecord("fields", idx, record))}</div>
+            </div>
+          </div>
+        </div>
+        <div className="row pt-1 pb-1">
+          <div className="col">
+            <div className="card">
+              <div className="card-header d-flex flex-row py-1">
+                <div className="d-flex align-items-center">
+                  <span>
+                    <b className="me-2">Index</b>({stream.index.length})
+                  </span>
+                </div>
+                <div className="d-flex ms-auto">
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-secondary py-0"
+                    onClick={() => addRecord("index")}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <div className="card-body">{stream.index.map((record, idx) => renderRecord("index", idx, record))}</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

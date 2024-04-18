@@ -10,11 +10,11 @@
           name="action" value="set_root"><i class="fa fa-folder me-2"></i>Use as Root</button>
         <button title="Reset Root" type="submit" class="btn btn-outline btn-outline-dark ms-auto py-0 mx-1"
           name="action" value="reset_root"><i class="fa fa-undo me-2"></i>Reset Root</button>
-        <button title="Reset Root" type="button" class="btn btn-outline btn-outline-dark ms-auto py-0 mx-1"
-        data-bs-toggle="collapse" data-bs-target="#file_explorer">Show/Hide Panel</button>
+        <button title="Show/Hide Panel" type="button" class="btn btn-outline btn-outline-dark ms-auto py-0 mx-1"
+        data-bs-toggle="collapse" data-bs-target="#file_browser">Show/Hide Panel</button>
       </div>
     </div>
-    <div class="collapse show card-body" id="file_explorer">
+    <div class="collapse show card-body" id="file_browser">
       <p>
         Browser your files using the panel below.
         In each folder, mark the files that belong to the dataset, and click on "Update Selection".
@@ -82,10 +82,15 @@
   <div class="card">
     <div class="card-header d-flex flex-row">
       <h5 class="mt-auto mb-0">Step 1 - Annotate your Files</h5>
-      <button title="Reset" type="submit" class="btn btn-outline btn-outline-dark ms-auto py-0" name="action"
-        value="reset"><i class="fa fa-undo me-2"></i>Reset Selection</button>
+      <div class="d-flex ms-auto">
+        <button title="Reset" type="submit" class="btn btn-outline btn-outline-dark ms-auto py-0 mx-1" name="action"
+          value="reset"><i class="fa fa-undo me-2"></i>Reset Selection</button>
+        <button title="Show/Hide Panel" type="button" class="btn btn-outline btn-outline-dark ms-auto py-0 mx-1"
+          data-bs-toggle="collapse" data-bs-target="#metadata_miner">Show/Hide Panel</button>
+      </div>
     </div>
-    <div class="card-body">Next, add metadata to the files you selected.
+    <div class="collapse show card-body" id="metadata_miner">
+      Next, add metadata to the files you selected.
       Start with providing a name for your dataset.
       Next, add metadata to each file individually, as groups, or all at once.
       </p>
@@ -102,9 +107,6 @@
         <div class="col col-md-4 mt-1">
           <label class="form-label me-auto mt-auto"><b>Selection Actions</b></label>
           <div>
-            <button type="button" onclick="updateEditPanel()" title="Edit Metadata" data-bs-toggle="offcanvas"
-              data-bs-target="#edit_panel" class="btn btn-sm btn-success m-1"><i class="fas fa-tag me-1"></i>Edit
-              Metadata</button>
             <button type="submit" title="Clear Metadata" class="btn btn-sm btn-warning m-1" name="action"
               value="clear"><i class="fas fa-eraser me-1"></i>Clear Metadata</button>
             <button type="submit" title="Drop Items" class="btn btn-sm btn-danger m-1" name="action" value="drop"><i
@@ -140,8 +142,8 @@
             {% for k, item in selection_dict.items() %}
             <tr title="{{item.f_name}}">
               <td>
-                <div class="row mb-1">
-                  <div class="col-12">
+                <div class="row">
+                  <div class="col">
                     <input class="form-check-input" data-curator-selection-check type="checkbox" name="selection[]"
                       value="{{k}}">
                     <a class="text-link" href="/download/{{item.f_url}}">
@@ -150,9 +152,7 @@
                         class="text-primary">{{item.f_name}}</b>
                     </a>
                   </div>
-                </div>
-                <div class="row mb-1">
-                  <div class="col-12">
+                  <div class="col">
                     <ul class=" ms-3 mb-0">
                       {% for mk, mv in item.metadata.items() %}
                       <li class="btn btn-sm px-1 py-0 btn-secondary">{{mk}}:&nbsp;<b class="me-2">{{mv}}</b><i
@@ -170,21 +170,11 @@
       </div>
       <hr class="my-2">
       <div class="d-flex">
-        <a href="/export" class="btn btn-sm btn-primary ms-auto me-0"><b>Step 2 - Export Dataset &rtri;</b></a>
+        <a href="/streams" class="btn btn-sm btn-primary ms-auto me-0"><b>Step 2 - Define Streams &rtri;</b></a>
       </div>
     </div>
   </div>
 </form>
-<div class="offcanvas offcanvas-bottom h-100" tabindex="-1" id="edit_panel">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="panel_label">Edit Metadata</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-  </div>
-  <div class="offcanvas-body small">
-    <form id="edit_metadata_form">
-    </form>
-  </div>
-</div>
 {% endblock content %}
 {% block scripts %}
 <script>
@@ -215,36 +205,6 @@
       document.getElementById("chk-selection-select-all").checked = checked;
     })
   })
-
-  async function getMetadata(args) {
-    let msg = {};
-    try {
-      const res = await fetch('/metadata?', {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        method: "post",
-        body: JSON.stringify({ files: args })
-      });
-      msg = await res.json();
-    } catch (err) {
-      console.error("An error occured", err);
-    }
-    return msg;
-  }
-
-  async function updateEditPanel() {
-    const selectionAllQuery = "[data-curator-selection-check]:checked";
-    const nodes = document.querySelectorAll(selectionAllQuery);
-    const filenames = Array.from(nodes).map(e => e.value);
-    const meta = await getMetadata(filenames);
-    ReactDOM.render(
-      React.createElement(MetadataEditor, { "meta": meta }, null),
-      document.getElementById('edit_metadata_form')
-    );
-  }
-
 </script>
 <script type="text/babel" src="/static/js/metadata_editor.jsx"></script>
 {% endblock scripts %}

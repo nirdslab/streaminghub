@@ -1,15 +1,12 @@
-{% extends 'layout.html' %}
-{% block content %}
+{% extends 'layout.html' %} {% block content %}
 <form method="post" class="container mt-4">
   <div class="card">
     <div class="card-header d-flex flex-row">
-      <h5 class="mt-auto mb-0">Step 2 - Export Dataset</h5>
+      <h5 class="mt-auto mb-0">Step 3 - Export Dataset</h5>
     </div>
     <div class="card-body">
       <div class="row">
-        <p class="mb-1 pb-0">
-          First, choose the file format you want the data to be exported.
-        </p>
+        <p class="mb-1 pb-0">First, choose the file format you want the data to be exported.</p>
         <div class="input-group">
           <label class="col-sm-2 col-form-label"><b>Data File Format</b></label>
           <select name="format" class="form-select">
@@ -21,25 +18,31 @@
         </div>
       </div>
       <div class="row">
-        <hr class="my-2 mt-3">
+        <hr class="my-2 mt-3" />
         <p class="mb-1 pb-0">
-          We have auto-generated an indexing pattern for your dataset.
-          If required, you can modify it to your need.
+          We have auto-generated an indexing pattern for your dataset. If required, you can modify it to your need.
         </p>
         <div class="input-group">
           <label class="col-sm-2 col-form-label"><b>Indexing Pattern</b></label>
-          <div id="sortable_indexing_pattern" class="form-control d-flex flex-row">
+          <div class="form-control d-flex flex-row sortable-container">
             {% for attribute in pattern %}
-            <input name="pattern[]" readonly style="user-select: all;" type="text" class="btn btn-sm me-1 btn-outline-dark" value="{{ attribute }}">
+            <input
+              name="pattern[]"
+              readonly
+              style="user-select: all"
+              type="text"
+              class="btn btn-sm me-1 btn-outline-dark"
+              value="{{ attribute }}"
+            />
             {% endfor %}
           </div>
         </div>
       </div>
       <div class="row">
-        <hr class="my-2 mt-3">
+        <hr class="my-2 mt-3" />
         <p class="mb-1 pb-0">
-          Next, review the data and metadata that will be exported.
-          If you find any issues, please go back to step 1 and fix them prior to exporting.
+          Next, review the data and metadata that will be exported. If you find any issues, please go back to step 1 and
+          fix them prior to exporting.
         </p>
         <div class="file-container table-responsive">
           <table class="table table-sm">
@@ -54,15 +57,16 @@
               <tr title="{{item.f_name}}">
                 <td>
                   <a class="text-link" href="/download/{{item.f_url}}">
-                    <img class="icon" src='{{item.image}}' />
+                    <img class="icon" src="{{item.image}}" />
                     {{item.f_url}}
                   </a>
                 </td>
                 <td>
                   <ul class="m-0 p-0">
                     {% for mk, mv in item.metadata.items() %}
-                    <li class="btn btn-sm px-1 py-0 btn-secondary">{{mk}}:&nbsp;<b class="me-2">{{mv}}</b><i
-                        class="fas fa-pen fa-xs"></i></li>
+                    <li class="btn btn-sm px-1 py-0 btn-secondary">
+                      {{mk}}:&nbsp;<b class="me-2">{{mv}}</b><i class="fas fa-pen fa-xs"></i>
+                    </li>
                     {% endfor %}
                   </ul>
                 </td>
@@ -73,14 +77,13 @@
         </div>
       </div>
       <div class="row">
-        <hr class="my-2">
+        <hr class="my-2" />
         <p class="mb-1 pb-0">
-          Next, click on "Export" to convert data into DFDS compatible format and generate DFDS metadata.
-          Once done, you will be prompted to download the content.
+          Next, click on "Export" to convert data into DFDS compatible format and generate DFDS metadata. Once done, you
+          will be prompted to download the content.
         </p>
         <div class="d-flex">
-          <a href="/files" class="btn btn-sm btn-primary me-1"><b>&ltri; Back to Step 1</b></a>
-          <button type="button" class="btn btn-sm btn-secondary me-1" onclick="openStreamEditor()" data-bs-toggle="offcanvas" data-bs-target="#edit_panel"><b>Edit Streams</b></a>
+          <a href="/streams" class="btn btn-sm btn-primary me-1"><b>&ltri; Back to Step 2</b></a>
           <button type="submit" class="btn btn-sm btn-success"><b>Export &rtri;</b></button>
         </div>
       </div>
@@ -92,42 +95,7 @@
     <h5 class="offcanvas-title" id="panel_label">Edit Streams</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
   </div>
-  <div class="offcanvas-body small">
-    <form id="edit_streams_form">
-    </form>
-  </div>
 </div>
-{% endblock content %}
-{% block scripts %}
-<script>
-  async function getMetadata(args) {
-    let msg = {};
-    try {
-      const res = await fetch('/metadata?', {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        method: "post",
-        body: JSON.stringify({ files: args })
-      });
-      msg = await res.json();
-    } catch (err) {
-      console.error("An error occured", err);
-    }
-    return msg;
-  }
-
-  async function openStreamEditor() {
-    const selectionAllQuery = "[data-curator-selection-check]:checked";
-    const nodes = document.querySelectorAll(selectionAllQuery);
-    const filenames = Array.from(nodes).map(e => e.value);
-    const meta = await getMetadata(filenames);
-    ReactDOM.render(
-      React.createElement(StreamEditor, { "meta": meta }, null),
-      document.getElementById('edit_streams_form')
-    );
-  }
-</script>
+{% endblock content %} {% block scripts %}
 <script type="text/babel" src="/static/js/stream_editor.jsx"></script>
 {% endblock scripts %}
