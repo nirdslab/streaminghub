@@ -32,8 +32,8 @@ class Field(p.BaseModel):
     def parse_dtype(cls, v):
         return dtype_map_fwd[v]
 
-    @p.field_serializer("dtype")
-    def serialize_dtype(self, v, i):
+    @p.field_serializer("dtype", return_type=str, when_used='always')
+    def serialize_dtype(self, v):
         return dtype_map_inv[v]
 
 

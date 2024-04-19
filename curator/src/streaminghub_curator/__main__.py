@@ -1,45 +1,61 @@
 import argparse
+import json
 from collections import defaultdict
 from pathlib import Path
 from urllib.parse import unquote
 
+import numpy as np
+import pandas as pd
+import streaminghub_pydfds as dfds
 from flask import Response, abort, jsonify, redirect, render_template, request, send_file, session
-from streaminghub_curator.typing import FileDescriptor
-from streaminghub_pydfds.readers import create_reader
+from streaminghub_datamux import gen_randseq
 from werkzeug.utils import secure_filename
 
 from . import util
 from .config import Config
+from .typing import FileDescriptor, StreamSpec
 
 config = Config()
 
-field_spec = dict(
-    id="",
-    name="",
-    description="",
-    dtype="f32",
-)
-stream_spec = dict(
-    id="",
-    name="",
-    description="",
-    unit="",
-    frequency=0,
-    fields=[field_spec.copy()],
-    index=[field_spec.copy()],
-)
-default_spec = [stream_spec.copy()]
-
 
 def get_selection() -> dict[str, FileDescriptor]:
-    if "selection" in session:
-        return session["selection"]
-    else:
-        return {}
+    return session.get("selection", {})
 
 
-def set_selection(selection):
+def set_selection(selection: dict[str, FileDescriptor]):
     session["selection"] = selection
+
+
+def get_mapping() -> dict[str, dict[str, str]] | None:
+    return session.get("mapping", None)
+
+
+def set_mapping(mapping: dict[str, dict[str, str]]):
+    session["mapping"] = mapping
+
+
+def get_stream_spec() -> list[StreamSpec]:
+    return session.get("spec", config.default_spec)
+
+
+def set_stream_spec(spec: list[StreamSpec]):
+    session["spec"] = spec
+
+
+def get_base_dir() -> Path:
+    return Path(session.get("base_dir", config.base_dir))
+
+
+def set_base_dir(base_dir: Path):
+    session["base_dir"] = base_dir
+
+
+def get_dataset_name() -> str:
+    return session.get("dataset_name", "")
+
+
+def set_dataset_name(dataset_name: str):
+    session["dataset_name"] = dataset_name
 
 
 def rereference_selection(prev_base: Path, new_base: Path):
@@ -90,68 +106,22 @@ def after_request(response: Response) -> Response:
     return response
 
 
-@config.app.route("/login/")
-@config.app.route("/login/<path:var>")
-def loginMethod(var: str = ""):
-    if config.pwd_hash == "":
-        session["login"] = True
-    if "login" in session:
-        return redirect("/" + var)
-    else:
-        return render_template("login.html")
-
-
-@config.app.route("/login/", methods=["POST"])
-@config.app.route("/login/<path:var>", methods=["POST"])
-def loginPost(var: str = ""):
-    text = request.form["text"]
-    if text == config.pwd_hash:
-        session["login"] = True
-        return redirect("/" + var)
-    else:
-        return redirect("/login/" + var)
-
-
-@config.app.route("/logout/")
-def logoutMethod():
-    if "login" in session:
-        session.pop("login", None)
-    return redirect("/login/")
-
-
-@config.app.route("/changeView")
-def changeView():
-    v = int(request.args.get("view", 0))
-    v = v if v in [0, 1] else 0
-    session["view"] = v
-    return jsonify(view=v)
-
-
-def get_view_id():
-    view_id = int(session.get("view", config.default_view))
-    if view_id not in [0, 1]:
-        abort(500)
-    return view_id
-
-
-def ensure_logged_in(redirect_path: str):
-    if "login" not in session:
-        return redirect(redirect_path)
+@config.app.route("/", methods=["GET"])
+def homePage():
+    return redirect("/files")
 
 
 @config.app.route("/files/", methods=["GET", "POST"])
 @config.app.route("/files/<path:var>", methods=["GET", "POST"])
 def filePage(var: str = ""):
-    base_dir = Path(session.get("base_dir", config.base_dir))
+    base_dir = Path(get_base_dir())
     path = util.get_filepath(var, base_dir)
-    ensure_logged_in("/login/files/" + var)
     if not path.exists():
         abort(404)
     if not path.is_dir():
         abort(400)
     try:
         dir_dict, file_dict = util.get_dir_listing(path, base_dir, config.ext_dict, config.hidden_list)
-        view_id = get_view_id()
     except:
         abort(500)
 
@@ -161,9 +131,8 @@ def filePage(var: str = ""):
         p_url = "/".join(parts[0 : c + 1])
         p_name = unquote(parts[c])
         path_html += f'<span class="mx-1">/</span><a class="text-link" href="/files/{p_url}">{p_name}</a>'
-    logged_in = "login" in session
 
-    dataset_name = session.get("dataset_name", "")
+    dataset_name = get_dataset_name()
 
     # if method is POST
     config.app.logger.info(f"method={request.method}")
@@ -218,7 +187,8 @@ def filePage(var: str = ""):
         # run dataset naming
         if action == "dataset_name":
             name = request.form.get("dataset_name")
-            session["dataset_name"] = name
+            assert name is not None
+            set_dataset_name(name)
 
         if action.startswith("drop_single"):
             name = action[11:]
@@ -230,14 +200,14 @@ def filePage(var: str = ""):
             if base_dir != config.base_dir:
                 tgt = rereference_selection(base_dir, config.base_dir)
                 set_selection(tgt)
-                session.pop("base_dir")
+                set_base_dir(config.base_dir)
                 rp = base_dir.relative_to(config.base_dir)
                 return redirect(f"/files/" + rp.as_posix())
 
         if action == "set_root":
             tgt = rereference_selection(base_dir, path)
             set_selection(tgt)
-            session["base_dir"] = path.as_posix()
+            set_base_dir(path)
             return redirect("/files")
 
         # redirection
@@ -249,23 +219,14 @@ def filePage(var: str = ""):
         selection_dict=get_selection(),
         dir_dict=dir_dict,
         file_dict=file_dict,
-        view_id=view_id,
         breadcrumbs=path_html,
-        logged_in=logged_in,
     )
-
-
-@config.app.route("/", methods=["GET"])
-def homePage():
-    return redirect("/files")
 
 
 @config.app.route("/browse/<path:var>", defaults={"browse": True})
 @config.app.route("/download/<path:var>", defaults={"browse": False})
 def browseFile(var: str, browse: bool):
-    base_dir = session.get("base_dir", config.base_dir)
-    if "login" not in session:
-        return redirect("/login/download/" + var)
+    base_dir = get_base_dir()
     path = util.get_filepath(var, base_dir)
     try:
         if not browse:
@@ -280,9 +241,7 @@ def browseFile(var: str, browse: bool):
 
 @config.app.route("/download_dir/<path:var>")
 def download_folder(var: str):
-    base_dir = session.get("base_dir", config.base_dir)
-    if "login" not in session:
-        return redirect("/login/downloadFolder/" + var)
+    base_dir = get_base_dir()
     path = util.get_filepath(var, base_dir)
     assert path.is_dir()
     if util.is_hidden(path, config.hidden_list):
@@ -299,9 +258,7 @@ def download_folder(var: str):
 @config.app.route("/upload/", methods=["POST"])
 @config.app.route("/upload/<path:var>", methods=["POST"])
 def upload_file(var: str = ""):
-    base_dir = session.get("base_dir", config.base_dir)
-    if "login" not in session:
-        return render_template("login.html")
+    base_dir = get_base_dir()
     text = ""
     path = util.get_filepath(var, base_dir)
     assert path.is_dir()
@@ -338,6 +295,18 @@ def get_streams():
     return render_template("streams.html", file_dict=selection, pattern=pattern, location="")
 
 
+@config.app.route("/metadata", methods=["POST"])
+def get_metadata():
+    files = request.get_json()["files"]
+    selection = get_selection()
+    metadata = {}
+    for file in files:
+        if file not in selection:
+            abort(400)
+        metadata[file] = selection[file].metadata
+    return metadata
+
+
 @config.app.route("/export", methods=["GET"])
 def get_export():
     selection = get_selection()
@@ -348,25 +317,102 @@ def get_export():
 
 @config.app.route("/export", methods=["POST"])
 def do_export():
+
+    # get saved metadata and form input
+    dataset_name = get_dataset_name()
+    selection = get_selection()
+    mapping = get_mapping()  # stream_id: {field_id: column_name}
+    spec = get_stream_spec()
+    base_dir = get_base_dir()
     format = str(request.form.get("format"))
-    pattern: list[str] = request.form.getlist("pattern[]")
-    config.app.logger.info(f"pattern={pattern}, format={format}")
+    pattern = request.form.getlist("pattern[]")
+    pattern_string = "_".join(["{" + k + "}" for k in pattern]) + f".{format}"
+
+    config.app.logger.info(f"format={format}, pattern={pattern}")
+    assert mapping is not None
     assert format in ["h5", "csv", "parquet", "npy"]
     assert len(pattern) > 0
 
-    # TODO create dataset in temp/ folder and push it as a download.
-    selection = get_selection()
-    for file in selection:
-        config.app.logger.info(file)
-    return render_template("export.html", file_dict=selection, pattern=pattern)
+    # create temporary directory for dataset
+    dataset_dir = config.temp_dir / gen_randseq(20)
+    dataset_dir.mkdir(exist_ok=True, parents=True)
+
+    data_dir = dataset_dir / dataset_name
+    data_dir.mkdir(exist_ok=True)
+
+    groups: dict[str, set[str]] = {}
+    for path, descriptor in selection.items():
+        # TODO modify hardcoded "root" value for HDF5 to work
+        _, data = dfds.create_reader(base_dir / path).read("root")
+        # replace meta with stuff from "descriptor"
+        meta = descriptor.metadata
+        # update groups information
+        for k, v in meta.items():
+            items = groups.get(k, set())
+            items.add(v)
+            groups[k] = items
+        # get data ("data") columns ("src")
+        # and save them ("stream_data") with new names ("tgt")
+        stream_data = {}
+        for stream_id, colmap in mapping.items():
+            for field, col in colmap.items():
+                stream_data[field] = data[col].to_numpy()
+        # generate destination df and path
+        dest_df = pd.DataFrame(stream_data)
+        dest_fp = data_dir / str("_".join([meta[k] for k in pattern]) + f".{format}")
+        # save data to path
+        if format == "h5":
+            raise NotImplementedError()
+        if format == "csv":
+            dest_df.to_csv(dest_fp, index=False)
+        if format == "parquet":
+            dest_df.to_parquet(dest_fp, index=False)
+        if format == "npy":
+            np.save(dest_fp, dest_df.to_records(index=False))
+        config.app.logger.debug(f"{path} -> {dest_fp} (cols={dest_df.columns.tolist()})")
+
+    # generate collection metadata
+    collection = dfds.Collection(
+        name=dataset_name,
+        description="Generated by StreamingHub Curator",
+        keywords=[],
+        authors=[],
+        streams={
+            s.id: dfds.Stream(
+                name=s.name,
+                description=s.description,
+                unit=s.unit,
+                frequency=s.frequency,
+                fields={f.id: dfds.Field(**f.model_dump()) for f in s.fields},
+                index={f.id: dfds.Field(**f.model_dump()) for f in s.index},
+            )
+            for s in spec
+        },
+        groups={k: dfds.Group(description="", values=sorted(v)) for k, v in groups.items()},
+        pattern=pattern_string,
+    )
+    with open(dataset_dir / f"{dataset_name}.collection.json", "w") as file:
+        json.dump(collection.model_dump(), file, indent=2)
+
+    # compress dataset into tar file
+    tar_path = dataset_dir / f"{dataset_name}.tar.gz"
+    util.make_tarfile(tar_path, dataset_dir, dataset_name)
+
+    return send_file(tar_path, download_name=tar_path.name)
+
+
+@config.app.route("/streamspec", methods=["GET"])
+def onreq_stream_spec():
+    spec = get_stream_spec()
+    return jsonify([s.model_dump() for s in spec])
 
 
 @config.app.route("/streamspec", methods=["POST"])
 def update_stream_spec():
-    spec = request.get_json()
+    spec: list[dict] = request.get_json()
     config.app.logger.info(f"spec={spec}")
-    session["spec"] = spec
-    return jsonify(dict(success=True, error=None))
+    set_stream_spec([StreamSpec(**s) for s in spec])
+    return jsonify(success=True, error=None)
 
 
 @config.app.route("/attributes", methods=["GET"])
@@ -374,22 +420,14 @@ def get_attribute_editor():
     return render_template("attributes.html")
 
 
-@config.app.route("/attribmap", methods=["POST"])
-def set_attribute_editor():
-    mapping = request.get_json()
-    config.app.logger.info(f"mapping={mapping}")
-    session["mapping"] = mapping
-    return jsonify(dict(success=True, error=None))
-
-
 @config.app.route("/attribmap", methods=["GET"])
 def get_attribute_map():
     # forward index
     # { path, ref } -> { {col, dtype}, meta }
     fwd_index: dict[tuple[str, str], dict[str, dict[str, str]]] = {}
-    base_dir = Path(session.get("base_dir", config.base_dir))
+    base_dir = get_base_dir()
     for path, desc in get_selection().items():
-        cols = create_reader(base_dir / path).lsfields()
+        cols = dfds.create_reader(base_dir / path).lsfields()
         meta = desc.metadata
         # broadcast metadata to all entries in the fields dict
         for ref, colmap in cols.items():
@@ -428,25 +466,15 @@ def get_attribute_map():
         }
         for k, v in inv_index.items()
     }
-    return jsonify(dict(cols=final_index, file_count=file_count, mapping=session.get("mapping", None)))
+    return jsonify(cols=final_index, file_count=file_count, mapping=get_mapping())
 
 
-@config.app.route("/streamspec", methods=["GET"])
-def get_stream_spec():
-    spec = session.get("spec", default_spec)
-    return jsonify(spec)
-
-
-@config.app.route("/metadata", methods=["POST"])
-def get_metadata():
-    files = request.get_json()["files"]
-    selection = get_selection()
-    metadata = {}
-    for file in files:
-        if file not in selection:
-            abort(400)
-        metadata[file] = selection[file].metadata
-    return metadata
+@config.app.route("/attribmap", methods=["POST"])
+def set_attribute_editor():
+    mapping = request.get_json()
+    config.app.logger.info(f"mapping={mapping}")
+    set_mapping(mapping)
+    return jsonify(success=True, error=None)
 
 
 if __name__ == "__main__":

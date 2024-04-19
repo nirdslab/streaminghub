@@ -1,8 +1,9 @@
-from collections import defaultdict
 import logging
 import os
 import re
+import tarfile
 import zipfile
+from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import unquote
@@ -10,11 +11,17 @@ from urllib.parse import unquote
 import parse
 from flask import Response, request
 from hurry.filesize import size
+
 from .typing import FileDescriptor
 
 Chunk = tuple[bytes, int, int, int]
 
 logger = logging.getLogger(__name__)
+
+
+def make_tarfile(output_filename, source_dir, dest_dir):
+    with tarfile.open(output_filename, "w:gz") as tar:
+        tar.add(source_dir, arcname=dest_dir, recursive=True)
 
 
 def get_chunk(full_path: Path, start_byte: int, end_byte: int | None = None) -> Chunk:
@@ -220,4 +227,3 @@ def find_unique_attributes(selection: dict[str, FileDescriptor]) -> dict[str, li
         for key, value in descriptor.metadata.items():
             uniques[key].append(value)
     return dict(uniques)
-

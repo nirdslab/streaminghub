@@ -8,6 +8,8 @@ from pathlib import Path
 from flask import Flask
 from flask_session import Session
 
+from .typing import StreamSpec, FieldSpec
+
 
 class Config:
     def __init__(self):
@@ -34,13 +36,19 @@ class Config:
             tp_dict: dict[str, dict] = json.load(json_data_file)
         self.ext_dict = {str(ext): (tp, str(data["icon"])) for tp, data in tp_dict.items() for ext in data["exts"]}
         # default settings
-        self.default_view = 1
+        self.default_spec = [
+            StreamSpec(
+                id="",
+                name="",
+                description="",
+                unit="",
+                frequency=0,
+                fields=[FieldSpec(id="", name="", description="", dtype="f32")],
+                index=[FieldSpec(id="", name="", description="", dtype="f32")]
+            )
+        ]
         # define app
-        self.app = Flask(
-            "streaminghub-curator",
-            template_folder=template_dir,
-            static_folder=static_dir
-        )
+        self.app = Flask("streaminghub-curator", template_folder=template_dir, static_folder=static_dir)
         self.app.secret_key = os.urandom(32)
         self.app.config["SESSION_TYPE"] = "filesystem"
         Session(self.app)
