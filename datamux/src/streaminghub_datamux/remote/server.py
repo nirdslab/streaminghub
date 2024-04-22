@@ -53,30 +53,30 @@ class DataMuxServer:
                 retval = [s.model_dump() for s in streams]
             elif topic == TOPIC_READ_LIVE_STREAM:
                 node_id = content["node_id"]
-                stream_name = content["stream_name"]
+                stream_id = content["stream_id"]
                 attrs = content["attrs"]
-                ack = self.api.proxy_live_stream(node_id, stream_name, attrs, self.data_q, transform)
+                ack = self.api.proxy_live_stream(node_id, stream_id, attrs, self.data_q, transform)
                 retval = ack.model_dump()
             # REPLAY MODE (File -> Queue) ==============================================================================================
             elif topic == TOPIC_LIST_COLLECTIONS:
                 collections = self.api.list_collections()
                 retval = [c.model_dump() for c in collections]
             elif topic == TOPIC_LIST_COLLECTION_STREAMS:
-                collec_name = content["collection_name"]
-                streams = self.api.list_collection_streams(collec_name)
+                collec_id = content["collection_id"]
+                streams = self.api.list_collection_streams(collec_id)
                 retval = [s.model_dump() for s in streams]
             elif topic == TOPIC_REPLAY_COLLECTION_STREAM:
-                collec_name = content["collection_name"]
-                stream_name = content["stream_name"]
+                collec_id = content["collection_id"]
+                stream_id = content["stream_id"]
                 attrs = content["attrs"]
-                ack = self.api.replay_collection_stream(collec_name, stream_name, attrs, self.data_q, transform)
+                ack = self.api.replay_collection_stream(collec_id, stream_id, attrs, self.data_q, transform)
                 retval = ack.model_dump()
             # RESTREAM MODE (File -> LSL) ==============================================================================================
             elif topic == TOPIC_PUBLISH_COLLECTION_STREAM:
-                collection_name = content["collection_name"]
-                stream_name = content["stream_name"]
+                collection_id = content["collection_id"]
+                stream_id = content["stream_id"]
                 attrs = content["attrs"]
-                ack = self.api.publish_collection_stream(collection_name, stream_name, attrs)
+                ack = self.api.publish_collection_stream(collection_id, stream_id, attrs)
                 retval = ack.model_dump()
             # ACTIONS ==================================================================================================================
             elif topic == TOPIC_STOP_TASK:

@@ -27,7 +27,7 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
     """
 
     __parser = dfds.Parser()
-    __collections: list[dfds.Collection] = []
+    __collections: dict[str, dfds.Collection] = {}
     logger = logging.getLogger(__name__)
 
     def __init__(
@@ -45,13 +45,13 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         self,
     ) -> list[dfds.Collection]:
         self._refresh_sources()
-        return self.__collections
+        return list(self.__collections.values())
 
     def list_streams(
         self,
         source_id: str,
     ) -> list[dfds.Stream]:
-        collection = [c for c in self.__collections if c.name == source_id][0]
+        collection = self.__collections[source_id]
         streams = []
         dataloader = collection.dataloader(self.config)
         for attrs in dataloader.ls():
@@ -67,8 +67,9 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
     ) -> None:
         self.__collections.clear()
         for fp in self.config.meta_dir.glob("*.collection.json"):
+            id = fp.name[:-16]
             collection = self.__parser.get_collection_metadata(fp.as_posix())
-            self.__collections.append(collection)
+            self.__collections[id] = collection
 
     def _attach_coro(
         self,
@@ -82,8 +83,8 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         strict_time: bool = True,
         use_relative_timestamps: bool = True,
     ):
-        collection = [c for c in self.__collections if c.name == source_id][0]
-        stream = [s.model_copy() for s in collection.streams.values() if s.name == stream_id][0]
+        collection = self.__collections[source_id]
+        stream = collection.streams[stream_id].model_copy()
         stream.attrs.update(attrs, dfds_mode="replay")
         freq = stream.frequency
         if freq <= 0:
@@ -101,6 +102,7 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
             eof = transform(eof)
 
         # preprocessing
+        logging.debug(f"index_cols={index_cols}, data.index={data.index.name}, data.columns={data.columns.values}")
         data = data.sort_values(index_cols, ascending=True)
         # if index not present, create one with given frequency
         for col in index_cols:
@@ -158,8 +160,8 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         *,
         attrs: dict,
     ):
-        collection = [c for c in self.__collections if c.name == source_id][0]
-        stream = [s.model_copy() for s in collection.streams.values() if s.name == stream_id][0]
+        collection = self.__collections[source_id]
+        stream = collection.streams[stream_id]
         stream.attrs.update(attrs, dfds_mode="restream")
         freq = stream.frequency
         if freq <= 0:

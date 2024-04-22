@@ -46,24 +46,24 @@ class DataMuxAPI:
 
     def list_collection_streams(
         self,
-        collection_name: str,
+        collection_id: str,
     ) -> list[dfds.Stream]:
         """
         List all streams in a collection.
 
         Args:
-            collection_name (str): name of collection.
+            collection_id (str): name of collection.
 
         Returns:
             list[Stream]: list of streams in collection.
         """
-        streams = self.reader_c.list_streams(collection_name)
+        streams = self.reader_c.list_streams(collection_id)
         return streams
 
     def replay_collection_stream(
         self,
-        collection_name: str,
-        stream_name: str,
+        collection_id: str,
+        stream_id: str,
         attrs: dict,
         sink: Queue,
         transform=None,
@@ -72,8 +72,8 @@ class DataMuxAPI:
         Replay a collection-stream into a given queue.
 
         Args:
-            collection_name (str): name of collection.
-            stream_name (str): name of stream in collection.
+            collection_id (str): name of collection.
+            stream_id (str): name of stream in collection.
             attrs (dict): attributes specifying which recording to replay.
             sink (asyncio.Queue): destination to buffer replayed data.
             transform (Callable): optional transform to apply to each data point.
@@ -84,7 +84,7 @@ class DataMuxAPI:
         randseq = prefix + gen_randseq()
         t = (lambda x: [randseq.encode(), *transform(x)]) if transform is not None else None
         self.context[randseq] = Event()
-        self.reader_c.attach(collection_name, stream_name, sink, attrs=attrs, transform=t, flag=self.context[randseq])
+        self.reader_c.attach(collection_id, stream_id, sink, attrs=attrs, transform=t, flag=self.context[randseq])
         return datamux.StreamAck(status=True, randseq=randseq)
 
     def stop_task(
@@ -99,22 +99,22 @@ class DataMuxAPI:
 
     def publish_collection_stream(
         self,
-        collection_name: str,
-        stream_name: str,
+        collection_id: str,
+        stream_id: str,
         attrs: dict,
     ) -> datamux.StreamAck:
         """
         Publish a collection-stream as a LSL stream.
 
         Args:
-            collection_name (str): name of collection.
-            stream_name (str): name of stream in collection.
+            collection_id (str): name of collection.
+            stream_id (str): name of stream in collection.
             attrs (dict): attributes specifying which recording to publish.
 
         Returns:
             StreamAck: status and reference information.
         """
-        self.reader_c.serve(collection_name, stream_name, attrs=attrs)
+        self.reader_c.serve(collection_id, stream_id, attrs=attrs)
         return datamux.StreamAck(status=True)
 
     def list_live_nodes(

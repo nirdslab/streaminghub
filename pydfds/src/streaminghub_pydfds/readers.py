@@ -92,7 +92,6 @@ class CSVReader(FileReader):
     def read(self, rec_path: str) -> tuple[dict, pd.DataFrame]:
         # ignore rec_path
         data = pd.read_csv(self.fp)
-        data.index.name = "t"  # TODO check and remove this
         meta: dict[str, str] = {}  # TODO get extra metadata from elsewhere
         return meta, data
 
@@ -100,7 +99,7 @@ class CSVReader(FileReader):
 class ParquetReader(FileReader):
 
     def __init__(self, fp: Path) -> None:
-        assert fp.suffix == ".csv"
+        assert fp.suffix == ".parquet"
         self.fp = fp
 
     def lsinfo(self) -> dict[str, dict[str, str]]:

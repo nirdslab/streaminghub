@@ -47,7 +47,7 @@ class Stream(p.BaseModel):
     name: str
     description: str
     unit: str
-    frequency: float
+    frequency: int
     fields: dict[str, Field]
     index: dict[str, Field]
     node: Optional[Node] = p.Field(alias="@node", default=None)
@@ -186,7 +186,7 @@ class DataLoader:
             raise ValueError(f"Unsupported protocol: {self.__protocol}")
 
         # load meta and data from file path
-        assert fp.exists() and fp.is_file()
+        assert fp.exists() and fp.is_file(), f"{fp} not found"
         meta, data = create_reader(fp).read(rec_path)
 
         # patch metadata with collection / path information

@@ -3,9 +3,18 @@ from typing import NamedTuple
 RunConfig = NamedTuple("RunConfig", [("dataset_name", str), ("num_runs", int), ("num_points", int)])
 
 data_config: dict = dict(
-    adhd_sin=dict(
-        collection_name="adhd_sin",
-        stream_name="Gaze",
+    ADHD_SIN=dict(
+        collection_id="ADHD_SIN",
+        stream_id="gaze",
+        attrs=dict(
+            noise="0",
+            participant="012",
+            question="10",
+        ),
+    ),
+    adhd_sin_h5=dict(
+        collection_id="adhd_sin_h5",
+        stream_id="gaze",
         attrs=dict(
             noise="0",
             participant="12",
@@ -13,16 +22,16 @@ data_config: dict = dict(
         ),
     ),
     battleship_gaze=dict(
-        collection_name="battleship_gaze",
-        stream_name="Gaze",
+        collection_id="battleship_gaze",
+        stream_id="gaze",
         attrs=dict(
             session="1",
             stream_name="gaze",
         ),
     ),
     tdbrain=dict(
-        collection_name="tdbrain",
-        stream_name="eeg",
+        collection_id="tdbrain",
+        stream_id="eeg",
         attrs=dict(
             subject="19681349",
             session="1",
@@ -32,10 +41,14 @@ data_config: dict = dict(
 )
 
 runs = [
-    RunConfig("adhd_sin", 10, 60),
-    RunConfig("adhd_sin", 10, 120),
-    RunConfig("adhd_sin", 10, 240),
-    RunConfig("adhd_sin", 10, 480),
+    RunConfig("ADHD_SIN", 10, 60),
+    RunConfig("ADHD_SIN", 10, 120),
+    RunConfig("ADHD_SIN", 10, 240),
+    RunConfig("ADHD_SIN", 10, 480),
+    RunConfig("adhd_sin_h5", 10, 60),
+    RunConfig("adhd_sin_h5", 10, 120),
+    RunConfig("adhd_sin_h5", 10, 240),
+    RunConfig("adhd_sin_h5", 10, 480),
     RunConfig("battleship_gaze", 10, 30),
     RunConfig("battleship_gaze", 10, 60),
     RunConfig("battleship_gaze", 10, 120),

@@ -326,7 +326,7 @@ def do_export():
     base_dir = get_base_dir()
     format = str(request.form.get("format"))
     pattern = request.form.getlist("pattern[]")
-    pattern_string = "_".join(["{" + k + "}" for k in pattern]) + f".{format}"
+    pattern_string = f"{format}://" + "_".join(["{" + k + "}" for k in pattern])
 
     config.app.logger.info(f"format={format}, pattern={pattern}")
     assert mapping is not None

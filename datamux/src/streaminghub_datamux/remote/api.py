@@ -109,19 +109,19 @@ class DataMuxRemoteAPI:
 
     async def list_collection_streams(
         self,
-        collection_name: str,
+        collection_id: str,
     ) -> list[dfds.Stream]:
         """
         List all streams in a collection.
 
         Args:
-            collection_name (str): name of collection.
+            collection_id (str): name of collection.
 
         Returns:
             list[Stream]: list of streams in collection.
         """
         topic = TOPIC_LIST_COLLECTION_STREAMS
-        content = dict(collection_name=collection_name)
+        content = dict(collection_id=collection_id)
         result = await self.__send_await__(topic, content)
         items = await result.get()
         streams = [dfds.Stream(**item) for item in items]
@@ -129,8 +129,8 @@ class DataMuxRemoteAPI:
 
     async def replay_collection_stream(
         self,
-        collection_name: str,
-        stream_name: str,
+        collection_id: str,
+        stream_id: str,
         attrs: dict[str, str],
         sink: asyncio.Queue,
     ) -> datamux.StreamAck:
@@ -138,8 +138,8 @@ class DataMuxRemoteAPI:
         Replay a collection-stream into a given queue.
 
         Args:
-            collection_name (str): name of collection.
-            stream_name (str): name of stream in collection.
+            collection_id (str): name of collection.
+            stream_id (str): name of stream in collection.
             attrs (dict): attributes specifying which recording to replay.
             sink (asyncio.Queue): destination to buffer replayed data.
 
@@ -148,8 +148,8 @@ class DataMuxRemoteAPI:
         """
         topic = TOPIC_REPLAY_COLLECTION_STREAM
         content = dict(
-            collection_name=collection_name,
-            stream_name=stream_name,
+            collection_id=collection_id,
+            stream_id=stream_id,
             attrs=attrs,
         )
         result = await self.__send_await__(topic, content)
@@ -162,16 +162,16 @@ class DataMuxRemoteAPI:
 
     async def publish_collection_stream(
         self,
-        collection_name: str,
-        stream_name: str,
+        collection_id: str,
+        stream_id: str,
         attrs: dict[str, str],
     ) -> datamux.StreamAck:
         """
         Publish a collection-stream as a LSL stream.
 
         Args:
-            collection_name (str): name of collection.
-            stream_name (str): name of stream in collection.
+            collection_id (str): name of collection.
+            stream_id (str): name of stream in collection.
             attrs (dict): attributes specifying which recording to publish.
 
         Returns:
@@ -179,8 +179,8 @@ class DataMuxRemoteAPI:
         """
         topic = TOPIC_PUBLISH_COLLECTION_STREAM
         content = dict(
-            collection_name=collection_name,
-            stream_name=stream_name,
+            collection_id=collection_id,
+            stream_id=stream_id,
             attrs=attrs,
         )
         result = await self.__send_await__(topic, content)
@@ -217,7 +217,7 @@ class DataMuxRemoteAPI:
 
     async def read_live_stream(
         self,
-        stream_name: str,
+        stream_id: str,
         attrs: dict,
         sink: asyncio.Queue,
     ) -> datamux.StreamAck:
@@ -225,7 +225,7 @@ class DataMuxRemoteAPI:
         Read data from a live stream (LSL) into a given queue.
 
         Args:
-            stream_name (str): name of live stream.
+            stream_id (str): name of live stream.
             attrs (dict): attributes specifying which live stream to read.
             sink (asyncio.Queue): destination to buffer replayed data.
 
@@ -233,7 +233,7 @@ class DataMuxRemoteAPI:
             StreamAck: status and reference information.
         """
         topic = TOPIC_READ_LIVE_STREAM
-        content = dict(stream_name=stream_name, attrs=attrs)
+        content = dict(stream_id=stream_id, attrs=attrs)
         result = await self.__send_await__(topic, content)
         info = await result.get()
         ack = datamux.StreamAck(**info)
