@@ -1,58 +1,45 @@
 # StreamingHub
 
-<img src="https://i.imgur.com/xSieE3V.png" height="100px"><br>
-StreamingHub is a framework for developing real-time bio-signal analysis workflows.<br>
-<img src="assets/demo-animated.gif" width="100%">
+<img src="https://i.imgur.com/xSieE3V.png" height="100px">
 
-It provides the following components:
+When designing, testing, and deploying real-time bio-signal processing algorithms/workflows, we usually run them on multiple data sources to check if they work as expected. StreamingHub makes this process more manageable. It provides:
 
-## DFDS | `dfds/`
+* APIs to access data from different devices and datasets
+* Tools to convert existing datasets into open, streaminghub-compatible formats
+* An extensible architecture to support new devices as needed
 
-JSON schemas to describe data streams, data sets, and analytics, along with a few samples.`<br>`
-**Technologies:** JSON, JSON Schema
+<img src="assets/streaminghub-architecture.png" width="100%">
 
-## PyDFDS | `pydfds/`
+**Main Components**
 
-A Python package to read DFDS-annotated datasets and their metadata.`<br>`
-**Technologies:** Python, Pydantic, JSONSchema, Pydantic
+* **DFDS** (`dfds/`) - JSON schemas to describe data streams, data sets, and analytics, along with a few samples.
+* **pyDFDS** (`pydfds/`) - A Python package to read DFDS-annotated datasets and their metadata.
+* **Curator** (`curator/`) - A WebApp to annotate files with DFDS metadata and rearrange them into a standard form.
+* **DataMux** (`datamux/`) - A Python package providing APIs to proxy live sensor data, replay sensor recordings, and simulate mock data.
+* **NodeMux** (`nodemux/`) - Add-on to use DataMux streams in Node-RED workflows
+* **BeamMux** (`beammux/`) - Add-on to use DataMux streams in Apache Beam workflows
 
-## Curator | `curator/`
+**Extras**
 
-A Web interface to annotate files with DFDS metadata and rearranging them in a standard form.`<br>`
-**Technologies:** Python, Flask, PyDFDS
+* **Repository** (`repository/`) - DFDS metadata for common bio-signal devices and datasets
+* **Examples** (`examples/`) - Some real-time workflows developed upon streaminghub
+* **Archive** (`archived/`) - Project graveyard
 
-## DataMux | `datamux/`
+# Motivation
 
-A Python package providing a high-level API to read bio-signal streams.
-It supports three modes:
-(a) relaying real-time sensory data,
-(b) replaying recordings from datasets, and
-(c) simulating mock data as test cases.`<br>`
-**Technologies:** Python, PyLSL, WebSockets
+When building real-time algorithms and workflows to process bio-signals, how would you feed data into them?
 
-## FlowMaker | `flowmaker/`
+**Case 1 - Reading [Live]() Sensor Data:**
+How would you connect to the device?
+Once connected, how would you transform the returned data into a usable format?
 
-Node-RED addons for using DataMux APIs and visualizing bio-signal data within Node-RED.`<br>`
-**Technologies:** Javascript, JSON, Vega
+**Case 2 - Reading [Recorded]() Sensor Data:**
+How would you know which columns / fields to read?
+If you have many data files with different column/field names, how would you read them all?
 
-## Repository | `repository/`
+# Developer Guide
 
-A collection of DFDS metadata for commonly used bio-signal datasets and eye-trackers.`<br/>`
-**Technologies:** JSON, DFDS
-
-## Examples | `examples/`
-
-A set of real-time bio-signal analysis experiments built upon StreamingHub.`<br/>`
-**Technologies:** Python, DataMux, OpenGL
-
-## Archived | `archived/`
-
-An archive of abandoned projects.`<br/>`
-**Technologies:** Python, Flask, Angular
-
-## Install from Source (for Development)
-
-### Option 1 - Micromamba
+## Install via micromamba
 
 We recommend using `micromamba` to seamlessly install both python and non-python dependencies.
 
@@ -73,7 +60,7 @@ micromamba env create -n streaminghub --file environment.yml
 micromamba activate streaminghub
 ```
 
-### Option 2 - Pip
+## Install via pip
 
 If using `streaminghub` for an existing project, you can directly install the required components via `pip`.
 
@@ -92,9 +79,7 @@ pip install -e streaminghub/datamux
 
 ```
 
-## Install from PyPI
-
-If your plan to use `streaminghub`, without modifying/extending functionality, please install the published versions from `pip`.
+# User Guide
 
 ```bash
 
@@ -107,10 +92,6 @@ pip install streaminghub_pydfds
 # install datamux (from PyPI)
 pip install streaminghub_datamux
 
-```
-
-## Running the Project
-
 ```bash
 # starting streaminghub curator
 python -m streaminghub_curator --host=<HOSTNAME> --port=<PORT>
@@ -119,7 +100,7 @@ python -m streaminghub_curator --host=<HOSTNAME> --port=<PORT>
 python -m streaminghub_datamux
 ```
 
-## Citation
+# Citation
 
 If you found this work useful in your research, please consider citing us.
 
