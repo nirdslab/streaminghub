@@ -18,13 +18,12 @@ from multiprocessing import Queue
 import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
 from rich.logging import RichHandler
-from streaminghub_datamux.api import DataMuxAPI
 
 DIGIT_CHARS = "0123456789"
 SHUTDOWN_FLAG = threading.Event()
 logger = logging.getLogger(__name__)
 
-api = DataMuxAPI()
+api = datamux.API()
 
 
 def log_sink(sink: Queue):

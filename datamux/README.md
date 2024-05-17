@@ -32,72 +32,65 @@ python -m datamux init --data_dir="<path/to/dataset/dir>" --meta_dir="<path/to/m
 
 ## Usage
 
-### Imports
+### Basic Setup
+
+First, import datamux from a python script
 
 ```python
-
-# Required functions / flags
-import streaminghub_datamux.util as util
-# Direct API (for running on the same system)
-from streaminghub_datamux.api import DataMuxAPI
-# Remote API (for running on a remote server)
-from streaminghub_datamux.remote.api import DataMuxRemoteAPI
+# import datamux
+import streaminghub_datamux as datamux
 
 ```
 
-### Remote API
-
-To start the remote API, run the following at server-side.
-
-```bash
-python -m datamux serve -H "<host_name>" -p <port> -r <rpc_name> -c <codec_name>
-```
-
-If you are running from source (from the datamux/ folder), use the following command instead.
-
-```bash
-PYTHONPATH=src python -m datamux serve -H "<host_name>" -p <port> -r <rpc_name> -c <codec_name>
-```
-
-At client side, you can connect to this server via the Python API.
+Next, instantiate the Datamux API. Here, you have two options:
 
 ```python
-server_host = "<host_name>"
-server_port = <port>
-server_rpc = "<rpc_name>"
-server_codec = "<codec_name>"
-api = DataMuxRemoteAPI(server_rpc, server_codec)
-await api.connect(server_host, server_port)
+# Option 1 - Local API (runs locally)
+api = datamux.API()
 
+# Option 2 - Remote API (runs over a remote datamux server)
+api = datamux.RemoteAPI(rpc_name="<rpc>", codec_name="<codec>")
+await api.connect(server_host="<host>", server_port=<port>)
 ```
 
-### Direct API
+### Replay Recordings from Collections
 
 ```python
-
-api = DataMuxAPI()
-
-```
-
-### Listing Available Collections and their Streams
-
-```python
-
+# list all collections (each collection provides one or more streams)
 collections = await api.list_collections()
-collection_streams = await api.list_collection_streams("name_of_collection")
-
+# list all recordings (i.e., streams) in a collection, by id
+streams = await api.list_collection_streams(collection_id="<id>")
+# sample attributes of a stream (found in stream.attrs)
+attrs = dict({"subject": "A", "session": "1", "task": "1"})
+# queue to append received data
+sink = asyncio.Queue()
+# start gathering data into queue
+ack = await api.replay_collection_stream(collection_id="<id>", stream_id="<id>", attrs, sink)
+# each request is assigned a unique ID for later reference
+assert ack.randseq is not None
+# simply await the queue to read data
+while True:
+    item = await sink.get()
+    # checking for end-of-stream
+    if item == util.END_OF_STREAM:
+        break
+# once done, stop the task to avoid wasting resources
+await api.stop_task(ack.randseq)
 ```
 
-### Replaying a Collection-Stream
+### Proxy Live Streams from Devices
 
 ```python
-
-# attributes to uniquely identify a recording
+# list all nodes (each node provides one or more streams)
+nodes = await api.list_live_nodes()
+# list all devices (i.e., streams) in a node, by id
+streams = await api.list_live_streams(node_id="<id>")
+# sample attributes of a stream (found in stream.attrs)
 attrs = dict({"subject": "A", "session": "1", "task": "1"})
-# queue to append replayed data
+# queue to append received data
 sink = asyncio.Queue()
-# start replaying data into queue
-ack = await api.replay_collection_stream("name_of_collection", "name_of_stream", attrs, sink)
+# start gathering data into queue
+ack = await api.proxy_live_stream(node_id="<id>", stream_id="<id>", attrs, sink)
 # each request is assigned a unique ID for later reference
 assert ack.randseq is not None
 # simply await the queue to read data
@@ -111,7 +104,7 @@ await api.stop_task(ack.randseq)
 
 ```
 
-### Upgrade a Collection-Stream into LSL Stream
+### Publish Recordings over LSL
 
 ```python
 
@@ -119,45 +112,20 @@ status = await api.publish_collection_stream(collection_name, stream_name, attrs
 
 ```
 
-### List LSL Streams
+## Start a Remote API
 
-```python
+You can start a remote API using the command below.
 
-live_streams = await api.list_live_streams()
-
-```
-
-### Proxy a LSL Stream
-
-```python
-
-# attributes to uniquely identify a LSL stream
-attrs = dict({"subject": "19681349", "session": "1", "task": "restEC"})
-# queue to append proxied data
-sink = asyncio.Queue()
-# start proxying LSL data into queue
-ack = await api.read_live_stream("stream_name", attrs, sink)
-# each request is assigned a unique ID for later reference
-assert ack.randseq is not None
-# simply await the queue to read data
-while True:
-    item = await sink.get()
-    # checking for end-of-stream
-    if item == util.END_OF_STREAM:
-        break
-# once done, stop the task to avoid wasting resources
-await api.stop_task(ack.randseq)
-
+```bash
+python -m datamux serve -H "<host_name>" -p <port> -r <rpc_name> -c <codec_name>
 ```
 
 ## Developer Guide
 
 ```bash
 
-# create a virtual environment
-python -m venv ~/.virtualenvs/datamux
-# activate virtual environment
-source ~/.virtualenvs/datamux/bin/activate
+# goto datamux/ directory
+cd datamux/
 # install pip tools
 python -m pip install --upgrade pip-tools
 # generate requirements.txt

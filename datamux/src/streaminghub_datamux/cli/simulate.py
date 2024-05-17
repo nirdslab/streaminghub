@@ -18,13 +18,12 @@ import time
 
 import streaminghub_pydfds as dfds
 import streaminghub_datamux as datamux
-from streaminghub_datamux.api import DataMuxAPI
 from rich.logging import RichHandler
 
 SYNTAX = "datasource_simulate [path/to/datasource/spec]"
 
 logger = logging.getLogger(__name__)
-api = DataMuxAPI()
+api = datamux.API()
 
 
 async def emit(source_id: str, spec: dfds.Collection, stream_id: str):

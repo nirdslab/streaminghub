@@ -9,18 +9,17 @@ from statistics import stdev
 import pandas as pd
 import streaminghub_datamux as datamux
 from rich.logging import RichHandler
-from streaminghub_datamux.api import DataMuxAPI
 from test_configs import data_config, runs
 from tqdm import tqdm
 
 
 async def connect():
-    api = DataMuxAPI()
+    api = datamux.API()
     return api
 
 
 async def timeit_replay(
-    api: DataMuxAPI,
+    api: datamux.API,
     dataset_name: str,
     num_runs: int,
     num_points: int,
