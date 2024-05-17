@@ -151,7 +151,7 @@ class DataMuxAPI:
         transform=None,
     ) -> datamux.StreamAck:
         """
-        Read data from a live stream (LSL) into a given queue.
+        Proxy data from a live stream onto a given queue.
 
         Args:
             node_id (str): id of live node.

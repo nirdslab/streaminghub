@@ -201,6 +201,7 @@ class DataMuxRemoteAPI:
 
     async def list_live_streams(
         self,
+        node_id: str,
     ) -> list[dfds.Stream]:
         """
         List all live streams.
@@ -209,23 +210,25 @@ class DataMuxRemoteAPI:
             list[Stream]: list of available live streams.
         """
         topic = TOPIC_LIST_LIVE_STREAMS
-        content: dict[str, str] = {}
+        content: dict[str, str] = dict(node_id=node_id)
         result = await self.__send_await__(topic, content)
         items = await result.get()
         streams = [dfds.Stream(**item) for item in items]
         return streams
 
-    async def read_live_stream(
+    async def proxy_live_stream(
         self,
+        node_id: str,
         stream_id: str,
         attrs: dict,
         sink: asyncio.Queue,
     ) -> datamux.StreamAck:
         """
-        Read data from a live stream (LSL) into a given queue.
+        Proxy data from a live stream onto a given queue.
 
         Args:
-            stream_id (str): name of live stream.
+            node_id (str): id of live node.
+            stream_id (str): id of the live stream.
             attrs (dict): attributes specifying which live stream to read.
             sink (asyncio.Queue): destination to buffer replayed data.
 
@@ -233,7 +236,7 @@ class DataMuxRemoteAPI:
             StreamAck: status and reference information.
         """
         topic = TOPIC_READ_LIVE_STREAM
-        content = dict(stream_id=stream_id, attrs=attrs)
+        content = dict(node_id=node_id, stream_id=stream_id, attrs=attrs)
         result = await self.__send_await__(topic, content)
         info = await result.get()
         ack = datamux.StreamAck(**info)
