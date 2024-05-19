@@ -2,7 +2,7 @@
 
 <img src="https://i.imgur.com/xSieE3V.png" height="100px">
 
-When designing, testing, and deploying real-time bio-signal processing algorithms/workflows, we usually run them on multiple data sources to check if they work as expected. StreamingHub makes this process more manageable. It provides:
+When designing, testing, and deploying real-time bio-signal processing algorithms/workflows, we usually run them on multiple data sources to check if they work as expected. StreamingHub makes this process less painful. It provides:
 
 * APIs to access data from different devices and datasets
 * Tools to convert existing datasets into open, streaminghub-compatible formats
