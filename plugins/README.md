@@ -6,19 +6,19 @@
 
 ## Supported Proxies
 
-** Empatica E4
-** LabStreamingLayer
-\*\* Pupil Core
+* Empatica E4
+* LabStreamingLayer
+* Pupil Core
 
 ## Supported Codecs
 
-** Avro
-** JSON
-\*\* Msgpack
+* Avro
+* JSON
+* Msgpack
 
 ## Supported RPC Modes
 
-\*\* Websocket
+* Websocket
 
 ## Installation
 
