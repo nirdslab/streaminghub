@@ -2,6 +2,9 @@
 
 <img src="https://i.imgur.com/xSieE3V.png" height="100px">
 
-This folder contains sample projects that were developed using StreamingHub.
+This folder contains examples to get you started on using StreamingHub.
 
-- Eye Tracking - A Comparison of Gaze Measures When Computed Offline vs Real-Time
+- DFDS Collections - A set of collection metadata describing real datasets.
+- DFDS Nodes - A set of proxy metadata describing real devices.
+- Eye Tracking Study - A comparison of computing gaze measures offline vs real-time
+- Reading from Device Proxy - An example of reading live streams from a device proxy.

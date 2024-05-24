@@ -15,10 +15,39 @@
   ],
   "streams": {
     "gaze": {
-      "@ref": "./tobii_pro_x2_60.node.json#/outputs/gaze"
-    },
-    "pupil": {
-      "@ref": "./tobii_pro_x2_60.node.json#/outputs/pupil"
+      "name": "gaze position",
+      "description": "",
+      "unit": "px",
+      "frequency": 60,
+      "fields": {
+        "lx": {
+          "name": "left x",
+          "description": "",
+          "dtype": "f32"
+        },
+        "ly": {
+          "name": "left y",
+          "description": "",
+          "dtype": "f32"
+        },
+        "rx": {
+          "name": "right x",
+          "description": "",
+          "dtype": "f32"
+        },
+        "ry": {
+          "name": "right y",
+          "description": "",
+          "dtype": "f32"
+        }
+      },
+      "index": {
+        "t": {
+          "name": "timestamp",
+          "description": "",
+          "dtype": "f32"
+        }
+      }
     }
   },
   "groups": {

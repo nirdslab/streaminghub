@@ -12,18 +12,18 @@ When designing, testing, and deploying real-time bio-signal processing algorithm
 
 **Main Components**
 
-- **DFDS** (`dfds/`) - JSON schemas to describe data streams, data sets, and analytics, along with a few samples.
+- **DFDS** (`dfds/`) - JSON schemas to describe data streams, data sets, and analytics.
 - **pyDFDS** (`pydfds/`) - A Python package to read DFDS-annotated datasets and their metadata.
 - **Curator** (`curator/`) - A WebApp to annotate files with DFDS metadata and rearrange them into a standard form.
-- **DataMux** (`datamux/`) - A Python package providing APIs to proxy live sensor data, replay sensor recordings, and simulate mock data.
+- **DataMux** (`datamux/`) - A Python package providing APIs to proxy live data, replay recordings, and simulate mock data.
+- **Plugins** (`plugins/`) - Plugins that provide device proxies, codecs, and RPC modes to datamux.
 - **NodeMux** (`nodemux/`) - Add-on to use DataMux streams in Node-RED workflows
 - **BeamMux** (`beammux/`) - Add-on to use DataMux streams in Apache Beam workflows
 
 **Extras**
 
 - **Repository** (`repository/`) - DFDS metadata for common bio-signal devices and datasets
-- **Examples** (`examples/`) - Some real-time workflows developed upon streaminghub
-- **Archive** (`archived/`) - Project graveyard
+- **Examples** (`examples/`) - Some example to get started on using streaminghub
 
 # Motivation
 

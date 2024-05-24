@@ -14,10 +14,49 @@
   ],
   "streams": {
     "gaze": {
-      "@ref": "./sr_research_eyelink_1000.node.json#/outputs/gaze"
+      "name": "Gaze",
+      "description": "gaze point",
+      "unit": "",
+      "frequency": 1000,
+      "fields": {
+        "x": {
+          "name": "gaze x",
+          "description": "Normalized X-Gaze Point",
+          "dtype": "f32"
+        },
+        "y": {
+          "name": "gaze y",
+          "description": "Normalized Y-Gaze Point",
+          "dtype": "f32"
+        }
+      },
+      "index": {
+        "t": {
+          "name": "timestamp",
+          "description": "Recording Timestamp",
+          "dtype": "f32"
+        }
+      }
     },
     "pupil": {
-      "@ref": "./sr_research_eyelink_1000.node.json#/outputs/pupil"
+      "name": "Pupil",
+      "description": "pupil diameter",
+      "unit": "mm",
+      "frequency": 1000,
+      "fields": {
+        "d": {
+          "name": "pupil d",
+          "description": "Pupil Diameter",
+          "dtype": "f32"
+        }
+      },
+      "index": {
+        "t": {
+          "name": "timestamp",
+          "description": "Recording Timestamp",
+          "dtype": "f32"
+        }
+      }
     }
   },
   "groups": {
