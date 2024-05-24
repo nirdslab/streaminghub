@@ -4,26 +4,26 @@
 
 When designing, testing, and deploying real-time bio-signal processing algorithms/workflows, we usually run them on multiple data sources to check if they work as expected. StreamingHub makes this process less painful. It provides:
 
-* APIs to access data from different devices and datasets
-* Tools to convert existing datasets into open, streaminghub-compatible formats
-* An extensible architecture to support new devices as needed
+- APIs to access data from different devices and datasets
+- Tools to convert existing datasets into open, streaminghub-compatible formats
+- An extensible architecture to support new devices as needed
 
 <img src="assets/streaminghub-architecture.png" width="100%">
 
 **Main Components**
 
-* **DFDS** (`dfds/`) - JSON schemas to describe data streams, data sets, and analytics, along with a few samples.
-* **pyDFDS** (`pydfds/`) - A Python package to read DFDS-annotated datasets and their metadata.
-* **Curator** (`curator/`) - A WebApp to annotate files with DFDS metadata and rearrange them into a standard form.
-* **DataMux** (`datamux/`) - A Python package providing APIs to proxy live sensor data, replay sensor recordings, and simulate mock data.
-* **NodeMux** (`nodemux/`) - Add-on to use DataMux streams in Node-RED workflows
-* **BeamMux** (`beammux/`) - Add-on to use DataMux streams in Apache Beam workflows
+- **DFDS** (`dfds/`) - JSON schemas to describe data streams, data sets, and analytics, along with a few samples.
+- **pyDFDS** (`pydfds/`) - A Python package to read DFDS-annotated datasets and their metadata.
+- **Curator** (`curator/`) - A WebApp to annotate files with DFDS metadata and rearrange them into a standard form.
+- **DataMux** (`datamux/`) - A Python package providing APIs to proxy live sensor data, replay sensor recordings, and simulate mock data.
+- **NodeMux** (`nodemux/`) - Add-on to use DataMux streams in Node-RED workflows
+- **BeamMux** (`beammux/`) - Add-on to use DataMux streams in Apache Beam workflows
 
 **Extras**
 
-* **Repository** (`repository/`) - DFDS metadata for common bio-signal devices and datasets
-* **Examples** (`examples/`) - Some real-time workflows developed upon streaminghub
-* **Archive** (`archived/`) - Project graveyard
+- **Repository** (`repository/`) - DFDS metadata for common bio-signal devices and datasets
+- **Examples** (`examples/`) - Some real-time workflows developed upon streaminghub
+- **Archive** (`archived/`) - Project graveyard
 
 # Motivation
 
@@ -81,7 +81,7 @@ pip install -e streaminghub/datamux
 
 # User Guide
 
-```bash
+````bash
 
 # install curator (from PyPI)
 pip install streaminghub_curator
@@ -98,36 +98,24 @@ python -m streaminghub_curator --host=<HOSTNAME> --port=<PORT>
 
 # starting datamux server (for streaming live data)
 python -m streaminghub_datamux
-```
+````
 
 # Citation
 
-If you found this work useful in your research, please consider citing us.
+If you intend to utilize StreamingHub, kindly ensure proper attribution.
 
 ```bibtex
-@inproceedings{jayawardana2021streaminghub,
-author       = {Jayawardana, Yasith and Jayawardena, Gavindya and Duchowski, Andrew T. and Jayarathna, Sampath},
-title        = {Metadata-Driven Eye Tracking for Real-Time Applications},
-year         = {2021},
-isbn         = {9781450385961},
+@inproceedings{jayawardana2022streaminghub,
+author       = {Jayawardana, Yasith and Ashok, Vikas G. and Jayarathna, Sampath},
+title        = {StreamingHub: Interactive Stream Analysis Workflows},
+year         = {2022},
 publisher    = {Association for Computing Machinery},
 address      = {New York, NY, USA},
-doi          = {10.1145/3469096.3474935},
-booktitle    = {Proceedings of the 21st ACM Symposium on Document Engineering},
-articleno    = {22},
-numpages     = {4},
-location     = {Limerick, Ireland},
-series       = {DocEng '21}
-}
-@inproceedings {jayawardana2020streaminghub
-author       = {Jayawardana, Yasith and Jayarathna, Sampath},
-title        = {Streaming Analytics and Workflow Automation for DFDS},
-doi          = {10.1145/3383583.3398589},
-pages        = {513–514},
-location     = {Virtual Event, China},
-series       = {JCDL '20},
-year         = {2020},
-publisher    = {Association for Computing Machinery},
-address      = {New York, NY, USA}
+doi          = {10.1145/3529372.3530936},
+booktitle    = {Proceedings of the 22nd ACM/IEEE Joint Conference on Digital Libraries},
+articleno    = {15},
+numpages     = {1--10},
+location     = {Virtual},
+series       = {JCDL '22}
 }
 ```
