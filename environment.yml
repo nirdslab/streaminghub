@@ -13,3 +13,4 @@ dependencies:
       - "-e pydfds/"
       - "-e datamux/"
       - "-e curator/"
+      - "-e plugins/"
