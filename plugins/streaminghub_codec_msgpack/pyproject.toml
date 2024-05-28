@@ -28,7 +28,6 @@ optional-dependencies.dev = ["build", "twine", "bumpver", "pip-tools"]
 [project.entry-points."streaminghub_datamux.rpc.codec"]
 msgpack = "streaminghub_codec_msgpack:MsgpackCodec"
 
-
 [tool.bumpver]
 current_version = "0.0.1"
 version_pattern = "MAJOR.MINOR.PATCH"

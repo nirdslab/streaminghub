@@ -2,6 +2,7 @@
 import io
 import logging
 import multiprocessing
+from pathlib import Path
 
 import msgpack
 import numpy as np
@@ -54,7 +55,7 @@ class PupilCoreProxy(datamux.Reader[dfds.Node]):
         self.ctrl_ip = pupil_remote_ip
         self.ctrl_port = pupil_remote_port
         # get DFDS metadata for pupil core
-        fp = (self.config.meta_dir / "pupil_core.node.json").as_posix()
+        fp = (Path(__file__).parent / "node.json").as_posix()
         self.node_template = dfds.Parser().get_node_metadata(fp)
         # initialize proxy
         self.ctx = zmq.Context()

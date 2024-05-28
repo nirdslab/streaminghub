@@ -5,9 +5,8 @@ dependencies:
   - conda-forge::pip
   - conda-forge::setuptools
   - conda-forge::ipykernel
+  - conda-forge::tqdm
   - conda-forge::seaborn
-  - conda-forge::nodejs=18
-  - conda-forge::go
   - pip:
       # source packages
       - "-e pydfds/"

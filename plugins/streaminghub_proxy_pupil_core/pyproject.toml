@@ -30,7 +30,6 @@ optional-dependencies.dev = ["build", "twine", "bumpver", "pip-tools"]
 [project.entry-points."streaminghub_datamux.proxy"]
 pupil_core = "streaminghub_proxy_pupil_core:PupilCoreProxy"
 
-
 [tool.bumpver]
 current_version = "0.0.1"
 version_pattern = "MAJOR.MINOR.PATCH"
@@ -44,3 +43,6 @@ push = false
 [tool.bumpver.file_patterns]
 "pyproject.toml" = ['version = "{version}"']
 "README.md" = ['pip install streaminghub-proxy-pupil-core=={version}']
+
+[tool.setuptools]
+include-package-data = true

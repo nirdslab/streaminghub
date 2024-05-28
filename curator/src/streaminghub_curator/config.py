@@ -52,7 +52,6 @@ class Config:
         self.app.secret_key = os.urandom(32)
         self.app.config["SESSION_TYPE"] = "filesystem"
         Session(self.app)
-        # self.app.logger.handlers = [RichHandler()]
         self.app.logger.setLevel(logging.INFO)
         self.app.logger.info("Your Computer Name is: " + self.hostname)
         self.app.logger.info("Your Computer IP Address is: " + self.IPAddr)

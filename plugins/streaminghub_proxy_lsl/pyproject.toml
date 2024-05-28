@@ -29,7 +29,6 @@ optional-dependencies.dev = ["build", "twine", "bumpver", "pip-tools"]
 [project.entry-points."streaminghub_datamux.proxy"]
 lsl = "streaminghub_proxy_lsl:LSLProxy"
 
-
 [tool.bumpver]
 current_version = "0.0.1"
 version_pattern = "MAJOR.MINOR.PATCH"
@@ -43,3 +42,6 @@ push = false
 [tool.bumpver.file_patterns]
 "pyproject.toml" = ['version = "{version}"']
 "README.md" = ['pip install streaminghub-proxy-lsl=={version}']
+
+[tool.setuptools]
+include-package-data = true

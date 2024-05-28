@@ -4,6 +4,7 @@ import logging
 import multiprocessing
 import re
 import socket
+from pathlib import Path
 
 import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
@@ -29,7 +30,7 @@ class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
     ) -> None:
         super().__init__()
         self.config = dfds.load_config()
-        fp = (self.config.meta_dir / "empatica_e4.node.json").as_posix()
+        fp = (Path(__file__).parent / "node.json").as_posix()
         # get DFDS metadata for empatica e4
         self.source_template = dfds.Parser().get_node_metadata(fp)
         # initialize proxy

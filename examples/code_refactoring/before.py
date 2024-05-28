@@ -1,78 +1,91 @@
 import multiprocessing
+import signal
 import time
-from threading import Thread
 
 
-class Flag:
-
-    _up = True
-
-    def up(self):
-        self._up = True
-
-    def down(self):
-        self._up = False
-
-    def is_up(self):
-        return self._up == True
-
-    def is_down(self):
-        return self._up == False
-
-
-def start_pupil_labs_stream(
+def proxy_pupil_core_stream(
     source_id: str,
     stream_id: str,
     queue: multiprocessing.Queue,
-    flag: Flag,
 ):
     print(source_id, stream_id)
+    run = True
+
+    def handle_signal(signum, frame):
+        nonlocal run
+        run = False
+
+    signal.signal(signal.SIGTERM, handle_signal)
+
     t, dt = 0.0, 0.1  # sampling frequency = 10 Hz
-    while flag.is_up():
+    while run:
         # add mock data to queue
         item = dict(t=t, x=0, y=0, d=0)
         queue.put(item)
-        print(item)
         time.sleep(dt)
         t += dt
 
 
-class Driver:
+def log_data_stream(
+    queue: multiprocessing.Queue,
+):
+    run = True
+
+    def handle_signal(signum, frame):
+        nonlocal run
+        run = False
+
+    signal.signal(signal.SIGTERM, handle_signal)
+
+    while run:
+        try:
+            item = queue.get(timeout=1.0)
+            print(item)
+        except:
+            continue
+
+
+class Runner:
 
     def __init__(self, func, name, queue):
-        self.flag = Flag()
         self.func = func
         self.name = name
         self.queue = queue
 
     def start(self, *args, **kwargs):
-        self.flag.up()
-        self.task = Thread(
+        self.task = multiprocessing.Process(
             group=None,
             target=self.func,
             name=self.name,
-            args=(*args, self.queue, self.flag),
+            args=(*args, self.queue),
             kwargs=kwargs,
             daemon=False,
         )
         self.task.start()
-        print("Started stream -> queue")
+        print(f"Started {self.name}")
 
     def stop(self):
-        self.flag.down()
+        self.task.terminate()
         self.task.join()
-        print("Ended stream -> queue")
+        print(f"Stopped {self.name}")
 
 
 if __name__ == "__main__":
     queue = multiprocessing.Queue()
-    driver = Driver(
-        func=start_pupil_labs_stream,
-        name="pupil_labs_test_driver",
+    dataloader = Runner(
+        func=proxy_pupil_core_stream,
+        name="pupil_core_proxy",
+        queue=queue,
+    )
+    printer = Runner(
+        func=log_data_stream,
+        name="stream_logger",
         queue=queue,
     )
     source_id = "pupil_core"
     stream_id = "gaze"
-    driver.start(source_id, stream_id)
+    dataloader.start(source_id, stream_id)
+    printer.start()
     time.sleep(10)
-    driver.stop()
+    printer.stop()
+    dataloader.stop()

@@ -1,13 +1,12 @@
 import logging
 
 import pylsl
-
-from .typing import Node, Stream
+import streaminghub_pydfds as dfds
 
 
 def create_outlet(
     stream_id: str,
-    stream: Stream,
+    stream: dfds.Stream,
 ) -> pylsl.StreamOutlet:
     """
     Generate LSL outlet from Metadata
@@ -18,7 +17,7 @@ def create_outlet(
     """
     logger = logging.getLogger(__name__)
     assert stream.node is not None, "The stream has no information about its source!"
-    source: Node = stream.node
+    source: dfds.Node = stream.node
     source_id = str(hash(source.model_dump_json()))
 
     info = pylsl.StreamInfo(

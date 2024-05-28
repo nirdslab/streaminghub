@@ -26,7 +26,6 @@ websocket = "streaminghub_rpc_websocket:WebsocketClient"
 [project.entry-points."streaminghub_datamux.rpc.server"]
 websocket = "streaminghub_rpc_websocket:WebsocketServer"
 
-
 [tool.bumpver]
 current_version = "0.0.1"
 version_pattern = "MAJOR.MINOR.PATCH"
