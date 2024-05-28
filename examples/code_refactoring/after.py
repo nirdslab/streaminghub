@@ -5,13 +5,10 @@ from streaminghub_datamux import ManagedTask, Queue
 
 class ProxyLiveStream(ManagedTask):
 
-    def __init__(self, queue: Queue, t=0.0, dt=0.1) -> None:
-        super().__init__(queue)
-        self.t = t
-        self.dt = dt
+    t = 0.0
+    dt = 0.1
 
-    def step(self) -> None:
-        # add mock data to queue
+    def step(self, *args, **kwargs) -> None:
         item = dict(t=self.t, x=0, y=0, d=0)
         self.queue.put(item)
         time.sleep(self.dt)
@@ -20,10 +17,7 @@ class ProxyLiveStream(ManagedTask):
 
 class LogDataStream(ManagedTask):
 
-    def __init__(self, queue: Queue) -> None:
-        super().__init__(queue)
-
-    def step(self) -> None:
+    def step(self, *args, **kwargs) -> None:
         try:
             item = self.queue.get(timeout=1.0)
             print(item)
@@ -35,9 +29,7 @@ if __name__ == "__main__":
     queue = Queue()
     dataloader = ProxyLiveStream(queue)
     printer = LogDataStream(queue)
-    source_id = "pupil_core"
-    stream_id = "gaze"
-    dataloader.start(source_id, stream_id)
+    dataloader.start("pupil_core", "gaze")
     printer.start()
     time.sleep(10)
     printer.stop()

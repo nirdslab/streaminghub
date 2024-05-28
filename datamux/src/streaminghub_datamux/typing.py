@@ -127,25 +127,21 @@ class ManagedTask:
         self.queue = queue
         self.flag = False
 
-    def handle_signal(self, signum, frame) -> None:
+    def __signal__(self, *args) -> None:
         self.flag = True
 
-    @abc.abstractmethod
-    def step(self) -> None:
-        raise NotImplementedError()
-
-    def run(self, *args, **kwargs) -> None:
-        signal.signal(signal.SIGTERM, self.handle_signal)
+    def __run__(self, *args, **kwargs) -> None:
+        signal.signal(signal.SIGTERM, self.__signal__)
         while not self.flag:
-            self.step()
+            self.step(*args, **kwargs)
 
     def start(self, *args, **kwargs):
         self.process = multiprocessing.Process(
             group=None,
-            target=self.run,
-            name=self.name,
-            args=(*args, self.queue),
+            target=self.__run__,
+            args=args,
             kwargs=kwargs,
+            name=self.name,
             daemon=False,
         )
         self.process.start()
@@ -155,6 +151,10 @@ class ManagedTask:
         self.process.terminate()
         self.process.join()
         print(f"Stopped {self.name}")
+
+    @abc.abstractmethod
+    def step(self, *args, **kwargs) -> None:
+        raise NotImplementedError()
 
 
 Queue = multiprocessing.Queue
