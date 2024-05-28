@@ -6,27 +6,33 @@
 
 ## Supported Proxies
 
-* Empatica E4
-* LabStreamingLayer
-* Pupil Core
+* `streaminghub_proxy_empatica_e4` - Empatica E4
+* `streaminghub_proxy_lsl` - LabStreamingLayer
+* `streaminghub_proxy_pupil_core` - Pupil Core
 
 ## Supported Codecs
 
-* Avro
-* JSON
-* Msgpack
+* `streaminghub_codec_avro` - Avro
+* `streaminghub_codec_json` - JSON
+* `streaminghub_codec_msgpack` - Msgpack
 
 ## Supported RPC Modes
 
-* Websocket
+* `streaminghub_rpc_websocket` - Websocket
 
 ## Installation
 
-First, install plugins as a pip package. This will install all Proxies, Codecs, and RPC Modes shown above.
+First, find which plugins you need. Next, install them as pip packages.
+Some examples are given below.
 
 ```bash
-
-pip install streaminghub-plugins==0.0.1
+pip install streaminghub_codec_avro
+pip install streaminghub_codec_json
+pip install streaminghub_codec_msgpack
+pip install streaminghub_proxy_empatica_e4
+pip install streaminghub_proxy_lsl
+pip install streaminghub_proxy_pupil_core
+pip install streaminghub_rpc_websocket
 
 ```
 
@@ -77,7 +83,7 @@ custom_codec = "my_custom_codec:CustomCodec"
 
 ### Creating New RPC Modes
 
-Create a python script `my_custom_rpc.py` and define two new classes which extend the `streaminghub_datamux.rpc.RpcServer` and `streaminghub_datamux.rpc.RpcCodec` base classes, respectively.
+Create a python script `my_custom_rpc.py` and define two new classes which extend the `streaminghub_datamux.rpc.RpcServer` and `streaminghub_datamux.rpc.RpcClient` base classes, respectively.
 
 ```python
 from streaminghub_datamux.rpc import RpcServer, RpcClient

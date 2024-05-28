@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "streaminghub-rpc-websocket"
+version = "0.0.1"
+authors = [{ name = "Yasith Jayawardana", email = "yasith@cs.odu.edu" }]
+description = "Streaminghub plugin for RPC over websocket"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+keywords = ["streaminghub"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+urls.homepage = "https://github.com/nirdslab/streaminghub/tree/master/plugins/streaminghub_rpc_websocket"
+dependencies = ["streaminghub-datamux", "streaminghub-pydfds", "websockets"]
+optional-dependencies.dev = ["build", "twine", "bumpver", "pip-tools"]
+
+[project.entry-points."streaminghub_datamux.rpc.client"]
+websocket = "streaminghub_rpc_websocket:WebsocketClient"
+
+[project.entry-points."streaminghub_datamux.rpc.server"]
+websocket = "streaminghub_rpc_websocket:WebsocketServer"
+
+
+[tool.bumpver]
+current_version = "0.0.1"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "bump plugins version {old_version} -> {new_version}"
+tag_message = "{new_version}"
+tag_scope = "default"
+commit = true
+tag = true
+push = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = ['version = "{version}"']
+"README.md" = ['pip install streaminghub-rpc-websocket=={version}']

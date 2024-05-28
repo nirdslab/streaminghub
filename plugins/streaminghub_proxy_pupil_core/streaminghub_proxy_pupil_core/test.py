@@ -1,9 +1,7 @@
 import logging
 import multiprocessing
 
-from rich.logging import RichHandler
-
-from .proxy import EmpaticaE4Proxy as Proxy
+from .proxy import PupilCoreProxy as Proxy
 
 
 def test():
@@ -26,5 +24,5 @@ def test():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
+    logging.basicConfig(level=logging.DEBUG, format="%(message)s", datefmt="[%X]")
     test()
