@@ -36,7 +36,7 @@ class IAttach(abc.ABC):
         q: multiprocessing.Queue,
         **kwargs,
     ):
-        thread = Thread(
+        proc = multiprocessing.Process(
             None,
             self._attach_coro,
             f"{source_id}_{stream_id}",
@@ -44,7 +44,7 @@ class IAttach(abc.ABC):
             kwargs,
             daemon=True,
         )
-        thread.start()
+        proc.start()
 
 
 class IServe(abc.ABC):
@@ -90,9 +90,10 @@ class Reader(Generic[T], IAttach, abc.ABC):
     * _attach_coro(source_id, stream_id, q, **kwargs)
 
     Functions (Public):
-    * attach(source_id, stream_id, q, **kwargs)
+    * setup(**kwargs)
     * list_sources()
     * list_streams(source_id)
+    * attach(source_id, stream_id, q, **kwargs)
 
     """
 
@@ -110,3 +111,50 @@ class Reader(Generic[T], IAttach, abc.ABC):
 
     @abc.abstractmethod
     def list_streams(self, source_id: str) -> list[dfds.Stream]: ...
+
+
+import abc
+import multiprocessing
+import signal
+
+
+class ManagedTask:
+
+    process: multiprocessing.Process
+
+    def __init__(self, queue: multiprocessing.Queue) -> None:
+        self.name = self.__class__.__name__
+        self.queue = queue
+        self.flag = False
+
+    def handle_signal(self, signum, frame) -> None:
+        self.flag = True
+
+    @abc.abstractmethod
+    def step(self) -> None:
+        raise NotImplementedError()
+
+    def run(self, *args, **kwargs) -> None:
+        signal.signal(signal.SIGTERM, self.handle_signal)
+        while not self.flag:
+            self.step()
+
+    def start(self, *args, **kwargs):
+        self.process = multiprocessing.Process(
+            group=None,
+            target=self.run,
+            name=self.name,
+            args=(*args, self.queue),
+            kwargs=kwargs,
+            daemon=False,
+        )
+        self.process.start()
+        print(f"Started {self.name}")
+
+    def stop(self):
+        self.process.terminate()
+        self.process.join()
+        print(f"Stopped {self.name}")
+
+
+Queue = multiprocessing.Queue
