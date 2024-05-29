@@ -20,7 +20,7 @@ class Runner:
             self.step(*args, **kwargs)
 
     def start(self, *args, **kwargs):
-        self.task = multiprocessing.Process(
+        self.proc = multiprocessing.Process(
             group=None,
             target=self.__run__,
             name=self.name,
@@ -28,12 +28,12 @@ class Runner:
             kwargs=kwargs,
             daemon=False,
         )
-        self.task.start()
+        self.proc.start()
         print(f"Started {self.name}")
 
     def stop(self):
-        self.task.terminate()
-        self.task.join()
+        self.proc.terminate()
+        self.proc.join()
         print(f"Stopped {self.name}")
 
     @abc.abstractmethod

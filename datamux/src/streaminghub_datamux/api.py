@@ -63,7 +63,7 @@ class DataMuxAPI:
         stream_id: str,
         attrs: dict,
         sink: datamux.Queue,
-        transform=None,
+        uid=None,
     ) -> datamux.StreamAck:
         """
         Replay a collection-stream into a given queue.
@@ -73,15 +73,17 @@ class DataMuxAPI:
             stream_id (str): name of stream in collection.
             attrs (dict): attributes specifying which recording to replay.
             sink (asyncio.Queue): destination to buffer replayed data.
-            transform (Callable): optional transform to apply to each data point.
 
         Returns:
             StreamAck: status and reference information.
         """
         randseq = prefix + gen_randseq()
-        t = (lambda x: [randseq.encode(), *transform(x)]) if transform is not None else None
+        _prefix = _suffix = None
+        if uid is not None:
+            _prefix = [randseq.encode()]
+            _suffix = [uid]
         self.context[randseq] = datamux.create_flag()
-        self.reader_c.attach(collection_id, stream_id, sink, attrs=attrs, transform=t, flag=self.context[randseq])
+        self.reader_c.attach(collection_id, stream_id, sink, attrs=attrs, flag=self.context[randseq], prefix=_prefix, suffix=_suffix)
         return datamux.StreamAck(status=True, randseq=randseq)
 
     def stop_task(
@@ -145,7 +147,7 @@ class DataMuxAPI:
         stream_id: str,
         attrs: dict,
         sink: datamux.Queue,
-        transform=None,
+        uid=None,
     ) -> datamux.StreamAck:
         """
         Proxy data from a live stream onto a given queue.
@@ -155,13 +157,16 @@ class DataMuxAPI:
             stream_id (str): id of the live stream.
             attrs (dict): attributes specifying which live stream to read.
             sink (asyncio.Queue): destination to buffer replayed data.
-            transform (Callable): optional transform to apply to each data point.
+            uid (Callable): optional uid to append to each data point.
 
         Returns:
             StreamAck: status and reference information.
         """
         randseq = prefix + gen_randseq()
-        t = (lambda x: [randseq.encode(), *transform(x)]) if transform is not None else None
+        _prefix = _suffix = None
+        if uid is not None:
+            _prefix = [randseq.encode()]
+            _suffix = [uid]
         self.context[randseq] = datamux.create_flag()
-        self.proxy_n.attach(node_id, stream_id, sink, attrs=attrs, transform=t, flag=self.context[randseq])
+        self.proxy_n.attach(node_id, stream_id, sink, attrs=attrs, flag=self.context[randseq], prefix=_prefix, suffix=_suffix)
         return datamux.StreamAck(status=True, randseq=randseq)

@@ -10,7 +10,7 @@ class Runner:
         self.queue = queue
 
     def start(self, *args, **kwargs):
-        self.task = multiprocessing.Process(
+        self.proc = multiprocessing.Process(
             group=None,
             target=self.func,
             name=self.func.__name__,
@@ -18,13 +18,13 @@ class Runner:
             kwargs=dict(**kwargs, queue=queue),
             daemon=False,
         )
-        self.task.start()
-        print(f"Started {self.task.name}")
+        self.proc.start()
+        print(f"Started {self.proc.name}")
 
     def stop(self):
-        self.task.terminate()
-        self.task.join()
-        print(f"Stopped {self.task.name}")
+        self.proc.terminate()
+        self.proc.join()
+        print(f"Stopped {self.proc.name}")
 
 
 def proxy_pupil_core_stream(

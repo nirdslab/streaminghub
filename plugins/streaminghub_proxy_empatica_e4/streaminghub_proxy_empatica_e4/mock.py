@@ -13,7 +13,7 @@ import logging
 import sys
 from asyncio.streams import StreamReader, StreamWriter
 from datetime import datetime
-from threading import Thread
+import multiprocessing
 from typing import Dict
 
 
@@ -54,7 +54,7 @@ class SubscriptionContext:
         self.keepalive = True
         self.subscriptions = []
         self.paused = False
-        self.ctx_thread = Thread(target=self.create_streaming_loop)
+        self.ctx_thread = multiprocessing.Process(target=self.create_streaming_loop)
         self.ctx_thread.start()
 
     def subscribe(self, name: str):

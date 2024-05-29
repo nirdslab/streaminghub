@@ -75,7 +75,7 @@ class IServe(abc.ABC):
         stream_id: str,
         **kwargs,
     ):
-        process = multiprocessing.Process(
+        proc = multiprocessing.Process(
             None,
             self._serve_coro,
             f"{source_id}_{stream_id}",
@@ -83,7 +83,7 @@ class IServe(abc.ABC):
             kwargs,
             daemon=True,
         )
-        process.start()
+        proc.start()
 
 
 T = TypeVar("T", dfds.Node, dfds.Collection)
@@ -122,7 +122,7 @@ class Reader(Generic[T], IAttach, abc.ABC):
 
 class ManagedTask:
 
-    process: multiprocessing.Process
+    proc: multiprocessing.Process
 
     def __init__(self, queue: Queue) -> None:
         self.name = self.__class__.__name__
@@ -138,7 +138,7 @@ class ManagedTask:
             self.step(*args, **kwargs)
 
     def start(self, *args, **kwargs):
-        self.process = multiprocessing.Process(
+        self.proc = multiprocessing.Process(
             group=None,
             target=self.__run__,
             args=args,
@@ -146,12 +146,12 @@ class ManagedTask:
             name=self.name,
             daemon=False,
         )
-        self.process.start()
+        self.proc.start()
         print(f"Started {self.name}")
 
     def stop(self):
-        self.process.terminate()
-        self.process.join()
+        self.proc.terminate()
+        self.proc.join()
         print(f"Stopped {self.name}")
 
     @abc.abstractmethod

@@ -12,14 +12,14 @@ the datasets that's already collected.
 import argparse
 import asyncio
 import logging
-import threading
+import multiprocessing
 
 import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
 from rich.logging import RichHandler
 
 DIGIT_CHARS = "0123456789"
-SHUTDOWN_FLAG = threading.Event()
+SHUTDOWN_FLAG = multiprocessing.Event()
 logger = logging.getLogger(__name__)
 
 api = datamux.API()
@@ -36,7 +36,7 @@ def log_sink(sink: datamux.Queue):
 async def begin_streaming(collection_name: str, streams: list[dfds.Stream]):
     logger.info(f"Started data streaming")
 
-    threads: list[threading.Thread] = []
+    procs: list[multiprocessing.Process] = []
 
     for stream in streams:
         node = stream.node
@@ -47,11 +47,11 @@ async def begin_streaming(collection_name: str, streams: list[dfds.Stream]):
         logger.info(f"Source [{source_id}]: {device.model}, {device.manufacturer} ({device.category})")
         sink = datamux.Queue()
         api.replay_collection_stream(collection_name, stream.name, stream.attrs, sink)
-        threads.append(threading.Thread(target=log_sink, args=(sink,)))
+        procs.append(multiprocessing.Process(target=log_sink, args=(sink,)))
         logger.info(f"Source [{source_id}]: started")
 
-    for thread in threads:
-        thread.join()
+    for proc in procs:
+        proc.join()
 
     logger.info(f"Ended data streaming")
 

@@ -78,10 +78,11 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         q: datamux.Queue,
         *,
         attrs: dict,
-        transform: Callable,
         flag: datamux.Flag,
         strict_time: bool = True,
         use_relative_timestamps: bool = True,
+        prefix: list[str] | None = None,
+        suffix: list[str] | None = None,
     ):
         collection = self.__collections[source_id]
         stream = collection.streams[stream_id].model_copy()
@@ -98,8 +99,8 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
 
         # termination indicator
         eof = datamux.END_OF_STREAM
-        if transform is not None:
-            eof = transform(eof)
+        if prefix is not None and suffix is not None:
+            eof = [*prefix, eof, *suffix]
 
         # preprocessing
         logging.debug(f"index_cols={index_cols}, data.index={data.index.name}, data.columns={data.columns.values}")
@@ -146,8 +147,10 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
 
             # send record
             msg = dict(index=index, value=value)
-            if transform is not None:
-                msg = transform(msg)
+
+            if prefix is not None and suffix is not None:
+                msg = [*prefix, msg, *suffix]
+
             q.put_nowait(msg)
 
         q.put_nowait(eof)
