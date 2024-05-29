@@ -1,7 +1,7 @@
 import asyncio
-import multiprocessing
 from threading import Thread
 
+from streaminghub_datamux import Queue
 from streaminghub_datamux.api import DataMuxAPI
 from streaminghub_datamux.rpc import create_rpc_server
 
@@ -21,7 +21,7 @@ class DataMuxServer:
         self.active = False
         self.api_in = asyncio.Queue()
         self.api_out = asyncio.Queue()
-        self.data_q = multiprocessing.Queue()
+        self.data_q = Queue()
         # rpc module
         self.rpc = create_rpc_server(
             name=rpc_name,

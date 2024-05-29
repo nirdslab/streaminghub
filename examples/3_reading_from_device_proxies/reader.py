@@ -7,7 +7,6 @@ over StreamingHub
 """
 
 import logging
-import multiprocessing
 
 import streaminghub_datamux as datamux
 
@@ -15,7 +14,7 @@ import streaminghub_datamux as datamux
 def main():
 
     api = datamux.API()
-    sink = multiprocessing.Queue()
+    sink = datamux.Queue()
 
     node_id = "pupil_core"
 

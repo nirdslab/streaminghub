@@ -13,7 +13,6 @@ import argparse
 import asyncio
 import logging
 import threading
-from multiprocessing import Queue
 
 import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
@@ -26,7 +25,7 @@ logger = logging.getLogger(__name__)
 api = datamux.API()
 
 
-def log_sink(sink: Queue):
+def log_sink(sink: datamux.Queue):
     while True:
         value = sink.get()
         logging.info(value)
@@ -46,7 +45,7 @@ async def begin_streaming(collection_name: str, streams: list[dfds.Stream]):
         assert device is not None
         source_id = datamux.gen_randseq()
         logger.info(f"Source [{source_id}]: {device.model}, {device.manufacturer} ({device.category})")
-        sink = Queue()
+        sink = datamux.Queue()
         api.replay_collection_stream(collection_name, stream.name, stream.attrs, sink)
         threads.append(threading.Thread(target=log_sink, args=(sink,)))
         logger.info(f"Source [{source_id}]: started")

@@ -2,7 +2,6 @@
 
 import asyncio
 import logging
-import multiprocessing
 import timeit
 from statistics import stdev
 
@@ -29,7 +28,7 @@ async def timeit_replay(
     iter = tqdm(range(num_runs))
     for _ in iter:
         args = data_config[dataset_name]
-        sink = multiprocessing.Queue()
+        sink = datamux.Queue()
         _ = api.list_collections()
         ack = api.replay_collection_stream(**args, sink=sink)
         assert ack.randseq is not None

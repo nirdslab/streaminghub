@@ -1,0 +1,130 @@
+{
+    "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/node.jsonschema",
+    "device": {
+      "model": "Pupil Core",
+      "manufacturer": "Pupil Labs",
+      "category": "Eye Tracker"
+    },
+    "outputs": {
+      "gaze_l": {
+        "name": "gaze_l",
+        "description": "left gaze",
+        "frequency": 128,
+        "unit": "",
+        "fields": {
+          "x": {
+            "name": "x",
+            "description": "x",
+            "dtype": "f32"
+          },
+          "y": {
+            "name": "y",
+            "description": "y",
+            "dtype": "f32"
+          },
+          "z": {
+            "name": "z",
+            "description": "z",
+            "dtype": "f32"
+          },
+          "c": {
+            "name": "confidence",
+            "description": "confidence",
+            "dtype": "f32"
+          }
+        },
+        "index": {
+          "t": {
+            "name": "t",
+            "description": "timestamp",
+            "dtype": "f32"
+          }
+        }
+      },
+      "gaze_r": {
+        "name": "gaze_r",
+        "description": "right gaze",
+        "frequency": 128,
+        "unit": "",
+        "fields": {
+          "x": {
+            "name": "x",
+            "description": "x",
+            "dtype": "f32"
+          },
+          "y": {
+            "name": "y",
+            "description": "y",
+            "dtype": "f32"
+          },
+          "z": {
+            "name": "z",
+            "description": "z",
+            "dtype": "f32"
+          },
+          "c": {
+            "name": "confidence",
+            "description": "confidence",
+            "dtype": "f32"
+          }
+        },
+        "index": {
+          "t": {
+            "name": "t",
+            "description": "timestamp",
+            "dtype": "f32"
+          }
+        }
+      },
+      "pupil_l": {
+        "name": "pupil_l",
+        "description": "left pupil",
+        "frequency": 128,
+        "unit": "",
+        "fields": {
+          "d": {
+            "name": "d",
+            "description": "diameter",
+            "dtype": "f32"
+          },
+          "c": {
+            "name": "confidence",
+            "description": "confidence",
+            "dtype": "f32"
+          }
+        },
+        "index": {
+          "t": {
+            "name": "t",
+            "description": "timestamp",
+            "dtype": "f32"
+          }
+        }
+      },
+      "pupil_r": {
+        "name": "pupil_r",
+        "description": "right pupil",
+        "frequency": 128,
+        "unit": "",
+        "fields": {
+          "d": {
+            "name": "d",
+            "description": "diameter",
+            "dtype": "f32"
+          },
+          "c": {
+            "name": "confidence",
+            "description": "confidence",
+            "dtype": "f32"
+          }
+        },
+        "index": {
+          "t": {
+            "name": "t",
+            "description": "timestamp",
+            "dtype": "f32"
+          }
+        }
+      }
+    }
+  }

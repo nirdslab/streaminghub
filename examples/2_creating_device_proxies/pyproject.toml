@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "streaminghub-proxy-example"
+version = "0.0.1"
+authors = [{ name = "Yasith Jayawardana", email = "yasith@cs.odu.edu" }]
+description = "Sample streaminghub plugin that proxies random data"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+keywords = ["streaminghub"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+urls.homepage = "https://github.com/nirdslab/streaminghub/tree/master/plugins/streaminghub_proxy_pupil_core"
+dependencies = [
+    "streaminghub-datamux",
+    "streaminghub-pydfds",
+    "msgpack",
+    "numpy",
+    "pillow",
+    "pyzmq",
+]
+optional-dependencies.dev = ["build", "twine", "bumpver", "pip-tools"]
+
+[project.entry-points."streaminghub_datamux.proxy"]
+example = "streaminghub_proxy_example:ExampleProxy"
+
+[tool.bumpver]
+current_version = "0.0.1"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "bump plugins version {old_version} -> {new_version}"
+tag_message = "{new_version}"
+tag_scope = "default"
+commit = true
+tag = true
+push = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = ['version = "{version}"']
+"README.md" = ['pip install streaminghub-proxy-pupil-core=={version}']
+
+[tool.setuptools]
+include-package-data = true

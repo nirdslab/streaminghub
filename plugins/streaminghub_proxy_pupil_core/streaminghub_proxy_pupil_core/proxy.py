@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import io
 import logging
-import multiprocessing
 from pathlib import Path
 
 import msgpack
@@ -80,7 +79,7 @@ class PupilCoreProxy(datamux.Reader[dfds.Node]):
         self,
         source_id: str,
         stream_id: str,
-        q: multiprocessing.Queue,
+        q: datamux.Queue,
     ) -> None:
         conn_str = f"tcp://{self.ctrl_ip}:{self.sub_port}"
         assert stream_id in self.stream_ids
@@ -118,7 +117,7 @@ class PupilCoreProxy(datamux.Reader[dfds.Node]):
         topic: str,
         message: dict | None,
         frame: np.ndarray | None,
-        queue: multiprocessing.Queue,
+        queue: datamux.Queue,
     ) -> None:
         t = 0.0
         c = 0.0

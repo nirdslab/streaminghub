@@ -34,7 +34,8 @@ def proxy_pupil_core_stream(
 ):
     print(source_id, stream_id)
     flag = False
-    t, dt = 0.0, 0.1  # sampling frequency = 10 Hz
+    t = 0.0
+    dt = 0.1
 
     def handle_signal(signum, frame):
         nonlocal flag

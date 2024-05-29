@@ -1,5 +1,6 @@
 import logging
-import multiprocessing
+
+import streaminghub_datamux as datamux
 
 from .proxy import PupilCoreProxy as Proxy
 
@@ -15,7 +16,7 @@ def test():
     assert len(streams) > 0
     print(streams)
     stream = streams[0]
-    queue = multiprocessing.Queue()
+    queue = datamux.Queue()
     proxy.attach(node.id, stream.name, queue)
 
     while True:

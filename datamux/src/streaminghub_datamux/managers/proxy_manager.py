@@ -1,4 +1,3 @@
-import multiprocessing
 from importlib.metadata import entry_points
 
 import streaminghub_datamux as datamux
@@ -76,6 +75,6 @@ class ProxyManager(datamux.Reader[dfds.Node]):
         prox = self._resolve_prox_by_source_id(source_id)
         return prox.list_streams(source_id)
 
-    def _attach_coro(self, source_id: str, stream_id: str, q: multiprocessing.Queue, **kwargs) -> None:
+    def _attach_coro(self, source_id: str, stream_id: str, q: datamux.Queue, **kwargs) -> None:
         prox = self._resolve_prox_by_source_id(source_id)
         return prox._attach_coro(source_id, stream_id, q, **kwargs)

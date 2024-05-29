@@ -1,6 +1,3 @@
-from multiprocessing import Queue
-from threading import Event
-
 import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
 
@@ -30,7 +27,7 @@ class DataMuxAPI:
         self.config = dfds.load_config()
         self.proxy_n = ProxyManager()
         self.reader_c = CollectionManager(self.config)
-        self.context: dict[str, Event] = {}
+        self.context: dict[str, datamux.Flag] = {}
 
     def list_collections(
         self,
@@ -65,7 +62,7 @@ class DataMuxAPI:
         collection_id: str,
         stream_id: str,
         attrs: dict,
-        sink: Queue,
+        sink: datamux.Queue,
         transform=None,
     ) -> datamux.StreamAck:
         """
@@ -83,7 +80,7 @@ class DataMuxAPI:
         """
         randseq = prefix + gen_randseq()
         t = (lambda x: [randseq.encode(), *transform(x)]) if transform is not None else None
-        self.context[randseq] = Event()
+        self.context[randseq] = datamux.create_flag()
         self.reader_c.attach(collection_id, stream_id, sink, attrs=attrs, transform=t, flag=self.context[randseq])
         return datamux.StreamAck(status=True, randseq=randseq)
 
@@ -147,7 +144,7 @@ class DataMuxAPI:
         node_id: str,
         stream_id: str,
         attrs: dict,
-        sink: Queue,
+        sink: datamux.Queue,
         transform=None,
     ) -> datamux.StreamAck:
         """
@@ -165,6 +162,6 @@ class DataMuxAPI:
         """
         randseq = prefix + gen_randseq()
         t = (lambda x: [randseq.encode(), *transform(x)]) if transform is not None else None
-        self.context[randseq] = Event()
+        self.context[randseq] = datamux.create_flag()
         self.proxy_n.attach(node_id, stream_id, sink, attrs=attrs, transform=t, flag=self.context[randseq])
         return datamux.StreamAck(status=True, randseq=randseq)

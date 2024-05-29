@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import codecs
 import logging
-import multiprocessing
 import re
 import socket
 from pathlib import Path
@@ -60,7 +59,7 @@ class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
         self,
         source_id: str,
         stream_id: str,
-        q: multiprocessing.Queue,
+        q: datamux.Queue,
     ):
         if self.server_state == E4ServerState.NO_DEVICES:
             self.logger.debug("No devices found!")
@@ -90,7 +89,7 @@ class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
         self,
         source_id: str,
         stream_id: str,
-        q: multiprocessing.Queue,
+        q: datamux.Queue,
     ):
         # pull messages from socket
         buffer: str = codecs.decode(self.sock.recv(self.buffer_size))
@@ -182,7 +181,7 @@ class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
         self,
         source_id: str,
         stream_id: str,
-        q: multiprocessing.Queue,
+        q: datamux.Queue,
     ) -> None:
         self.logger.debug(f"Started task for source={source_id}, stream: {stream_id}...")
         while True:

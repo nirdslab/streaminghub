@@ -2,8 +2,6 @@ import logging
 import random
 import time
 import timeit
-from multiprocessing import Queue
-from threading import Event
 from typing import Callable
 
 import numpy as np
@@ -26,8 +24,8 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
 
     """
 
-    __parser = dfds.Parser()
-    __collections: dict[str, dfds.Collection] = {}
+    __parser: dfds.Parser
+    __collections: dict[str, dfds.Collection]
     logger = logging.getLogger(__name__)
 
     def __init__(
@@ -36,6 +34,8 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
     ) -> None:
         super().__init__()
         self.config = config
+        self.__parser = dfds.Parser()
+        self.__collections = dict()
 
     def setup(self, **kwargs) -> None:
         # nothing to set up for collection manager
@@ -75,11 +75,11 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         self,
         source_id: str,
         stream_id: str,
-        q: Queue,
+        q: datamux.Queue,
         *,
         attrs: dict,
         transform: Callable,
-        flag: Event,
+        flag: datamux.Flag,
         strict_time: bool = True,
         use_relative_timestamps: bool = True,
     ):

@@ -1,6 +1,4 @@
 import logging
-from multiprocessing import Queue
-from threading import Event
 
 import pylsl
 import streaminghub_datamux as datamux
@@ -60,10 +58,10 @@ class LSLProxy(datamux.Reader[dfds.Node]):
         self,
         source_id: str,
         stream_id: str,
-        queue: Queue,
+        queue: datamux.Queue,
         *,
         transform,
-        flag: Event,
+        flag: datamux.Flag,
         attrs: dict = {},
     ):
         assert source_id == "lsl"

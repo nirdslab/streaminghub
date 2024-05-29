@@ -1,12 +1,19 @@
 import abc
-import multiprocessing
-from threading import Thread
+import multiprocessing.synchronize
+import signal
 from typing import Generic, TypeVar
 
 import streaminghub_pydfds as dfds
 from pydantic import BaseModel
 
 END_OF_STREAM = {}  # NOTE do not change
+
+Queue = multiprocessing.Queue
+Flag = multiprocessing.synchronize.Event
+
+
+def create_flag() -> Flag:
+    return multiprocessing.Event()
 
 
 class StreamAck(BaseModel):
@@ -27,13 +34,13 @@ class IAttach(abc.ABC):
     """
 
     @abc.abstractmethod
-    def _attach_coro(self, source_id: str, stream_id: str, q: multiprocessing.Queue, **kwargs) -> None: ...
+    def _attach_coro(self, source_id: str, stream_id: str, q: Queue, **kwargs) -> None: ...
 
     def attach(
         self,
         source_id: str,
         stream_id: str,
-        q: multiprocessing.Queue,
+        q: Queue,
         **kwargs,
     ):
         proc = multiprocessing.Process(
@@ -68,7 +75,7 @@ class IServe(abc.ABC):
         stream_id: str,
         **kwargs,
     ):
-        thread = Thread(
+        process = multiprocessing.Process(
             None,
             self._serve_coro,
             f"{source_id}_{stream_id}",
@@ -76,7 +83,7 @@ class IServe(abc.ABC):
             kwargs,
             daemon=True,
         )
-        thread.start()
+        process.start()
 
 
 T = TypeVar("T", dfds.Node, dfds.Collection)
@@ -113,16 +120,11 @@ class Reader(Generic[T], IAttach, abc.ABC):
     def list_streams(self, source_id: str) -> list[dfds.Stream]: ...
 
 
-import abc
-import multiprocessing
-import signal
-
-
 class ManagedTask:
 
     process: multiprocessing.Process
 
-    def __init__(self, queue: multiprocessing.Queue) -> None:
+    def __init__(self, queue: Queue) -> None:
         self.name = self.__class__.__name__
         self.queue = queue
         self.flag = False
@@ -155,6 +157,3 @@ class ManagedTask:
     @abc.abstractmethod
     def step(self, *args, **kwargs) -> None:
         raise NotImplementedError()
-
-
-Queue = multiprocessing.Queue
