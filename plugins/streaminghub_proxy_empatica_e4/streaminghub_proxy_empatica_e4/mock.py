@@ -166,7 +166,9 @@ async def handler(r: StreamReader, w: StreamWriter):
 
 
 async def start_server() -> asyncio.Server:
-    srv = await asyncio.start_server(handler, "localhost", 28000)
+    host, port = "localhost", 28000
+    srv = await asyncio.start_server(handler, host, port)
+    logger.info(f"Streaming server started on {host}:{port}!")
     return srv
 
 
@@ -176,8 +178,6 @@ if __name__ == "__main__":
 
     async def main():
         srv = await start_server()
-        host, port = srv.sockets[0].getsockname()
-        logger.info(f"Streaming server started on {host}:{port}!")
         try:
             async with srv:
                 await srv.serve_forever()

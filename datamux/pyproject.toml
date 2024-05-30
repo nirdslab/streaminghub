@@ -17,7 +17,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 urls.homepage = "https://github.com/nirdslab/streaminghub/tree/master/datamux"
-dependencies = ["numpy", "pandas", "streaminghub-pydfds", "rich"]
+dependencies = ["streaminghub-pydfds", "numpy", "pandas", "pyarrow", "rich"]
 optional-dependencies.dev = [
     "build",
     "twine",

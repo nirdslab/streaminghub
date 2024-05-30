@@ -32,7 +32,7 @@ async def timeit_replay(
         _ = api.list_collections()
         ack = api.replay_collection_stream(**args, sink=sink)
         assert ack.randseq is not None
-        logger.info(f"received ack for collection stream: {ack}")
+        logger.debug(f"received ack for collection stream: {ack}")
         start_time = int_time = timeit.default_timer()
         t_jitter = []
         for i in range(num_points + 1):

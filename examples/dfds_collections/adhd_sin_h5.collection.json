@@ -20,22 +20,22 @@
       "unit": "px",
       "frequency": 60,
       "fields": {
-        "lx": {
+        "x": {
           "name": "left x",
           "description": "",
           "dtype": "f32"
         },
-        "ly": {
+        "y": {
           "name": "left y",
           "description": "",
           "dtype": "f32"
         },
-        "rx": {
+        "dL": {
           "name": "right x",
           "description": "",
           "dtype": "f32"
         },
-        "ry": {
+        "dR": {
           "name": "right y",
           "description": "",
           "dtype": "f32"
