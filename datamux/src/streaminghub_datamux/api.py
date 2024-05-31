@@ -67,7 +67,7 @@ class DataMuxAPI:
         stream_id: str,
         attrs: dict,
         sink: datamux.Queue,
-        uid=None,
+        uid: bytes | None = None,
     ) -> datamux.StreamAck:
         """
         Replay a collection-stream into a given queue.
@@ -83,7 +83,7 @@ class DataMuxAPI:
         """
         randseq = prefix + gen_randseq()
         if uid:
-            transform = partial(envelope, prefix=randseq, suffix=uid)
+            transform = partial(envelope, prefix=randseq.encode(), suffix=uid)
         else:
             transform = identity
         self.context[randseq] = datamux.create_flag()
@@ -158,7 +158,7 @@ class DataMuxAPI:
         stream_id: str,
         attrs: dict,
         sink: datamux.Queue,
-        uid=None,
+        uid: bytes | None = None,
     ) -> datamux.StreamAck:
         """
         Proxy data from a live stream onto a given queue.
@@ -175,7 +175,7 @@ class DataMuxAPI:
         """
         randseq = prefix + gen_randseq()
         if uid:
-            transform = partial(envelope, prefix=randseq, suffix=uid)
+            transform = partial(envelope, prefix=randseq.encode(), suffix=uid)
         else:
             transform = identity
         self.context[randseq] = datamux.create_flag()

@@ -22,5 +22,5 @@ def identity(x):
     return x
 
 
-def envelope(x, prefix: str, suffix: str):
+def envelope(x, prefix: bytes, suffix: bytes):
     return [prefix, x, suffix]
