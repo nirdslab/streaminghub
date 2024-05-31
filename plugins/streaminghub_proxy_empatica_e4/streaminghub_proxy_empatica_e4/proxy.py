@@ -4,9 +4,11 @@ import logging
 import re
 import socket
 from pathlib import Path
+from typing import Callable
 
 import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
+from streaminghub_datamux.typing import Queue
 
 from .util import E4ServerState, E4SSCommand
 
@@ -60,6 +62,7 @@ class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         q: datamux.Queue,
+        transform: Callable,
     ):
         if self.server_state == E4ServerState.NO_DEVICES:
             self.logger.debug("No devices found!")
@@ -90,6 +93,7 @@ class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         q: datamux.Queue,
+        transform: Callable,
     ):
         # pull messages from socket
         buffer: str = codecs.decode(self.sock.recv(self.buffer_size))
@@ -101,7 +105,7 @@ class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
             if typ == "" and self.server_state == E4ServerState.STREAMING:
                 vals = [float(arg)] + list(map(float, data.split()))
                 keys = ["t"] + list(range(len(vals) - 1))
-                q.put_nowait(dict(zip(keys, vals)))
+                q.put_nowait(transform(dict(zip(keys, vals))))
 
             # DEVICE_CONNECT response
             elif cmd == E4SSCommand.DEVICE_CONNECT:
@@ -177,18 +181,40 @@ class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
         assert source_id in source_ids
         return list(self.sources[source_ids.index(source_id)].outputs.values())
 
-    def _attach_coro(
+    def on_attach(
         self,
         source_id: str,
         stream_id: str,
-        q: datamux.Queue,
-    ) -> None:
+        attrs: dict,
+        q: Queue,
+        transform: Callable,
+    ) -> dict:
         self.logger.debug(f"Started task for source={source_id}, stream: {stream_id}...")
-        while True:
-            try:
-                self.handle_outgoing_msgs(source_id, stream_id, q)
-                self.handle_incoming_msgs(source_id, stream_id, q)
-            except KeyboardInterrupt:
-                self.logger.debug(f"Interrupted task for source={source_id}, stream: {stream_id}...")
-                break
+        return {}
+
+    def on_pull(
+        self,
+        source_id: str,
+        stream_id: str,
+        attrs: dict,
+        q: Queue,
+        transform: Callable,
+        state: dict,
+    ) -> int | None:
+        try:
+            self.handle_outgoing_msgs(source_id, stream_id, q, transform)
+            self.handle_incoming_msgs(source_id, stream_id, q, transform)
+        except KeyboardInterrupt:
+            self.logger.debug(f"Interrupted task for source={source_id}, stream: {stream_id}...")
+            return 1
+
+    def on_detach(
+        self,
+        source_id: str,
+        stream_id: str,
+        attrs: dict,
+        q: Queue,
+        transform: Callable,
+        state: dict,
+    ) -> None:
         self.logger.debug(f"Ended task for source={source_id}, stream: {stream_id}...")

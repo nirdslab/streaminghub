@@ -2,6 +2,7 @@
 import io
 import logging
 from pathlib import Path
+from typing import Callable
 
 import msgpack
 import numpy as np
@@ -75,12 +76,14 @@ class PupilCoreProxy(datamux.Reader[dfds.Node]):
         sock.setsockopt_string(opt, topic)
         self.logger.debug(f"set opt={opt}, topic={topic}")
 
-    def _attach_coro(
+    def on_attach(
         self,
         source_id: str,
         stream_id: str,
+        attrs: dict,
         q: datamux.Queue,
-    ) -> None:
+        transform: Callable,
+    ) -> dict:
         conn_str = f"tcp://{self.ctrl_ip}:{self.sub_port}"
         assert stream_id in self.stream_ids
         sock = self.ctx.socket(zmq.SUB)
@@ -88,25 +91,49 @@ class PupilCoreProxy(datamux.Reader[dfds.Node]):
         self.logger.debug(f"Started task for source={source_id}, stream: {stream_id}...")
         stream_topic = self.stream_ids[stream_id]
         self.send_sock_opts(sock, zmq.SUBSCRIBE, stream_topic)
-        while True:
-            try:
-                # receive raw data (bytes)
-                [topic, msg, *extra] = sock.recv_multipart()
-                topic = topic.decode()
-                # message content
-                payload: dict | None = None
-                if len(msg) > 0:
-                    d = msgpack.loads(msg)
-                    assert isinstance(d, dict)
-                    payload = d
-                # frames
-                frame: np.ndarray | None = None
-                if len(extra) > 0:
-                    frame = np.asarray(Image.open(io.BytesIO(extra[0])).convert("RGB"))
-                self._proxy_msg(topic, payload, frame, q)
-            except KeyboardInterrupt:
-                self.logger.debug(f"Interrupted task for source={source_id}, stream: {stream_id}...")
-                break
+        state = {}
+        state["sock"] = sock
+        state["stream_topic"] = stream_topic
+        state["conn_str"] = conn_str
+        return state
+
+    def on_pull(
+        self,
+        source_id: str,
+        stream_id: str,
+        attrs: dict,
+        q: datamux.Queue,
+        transform: Callable,
+        state: dict,
+    ) -> int | None:
+        sock = state["sock"]
+        # receive raw data (bytes)
+        [topic, msg, *extra] = sock.recv_multipart()
+        topic = topic.decode()
+        # message content
+        payload: dict | None = None
+        if len(msg) > 0:
+            d = msgpack.loads(msg)
+            assert isinstance(d, dict)
+            payload = d
+        # frames
+        frame: np.ndarray | None = None
+        if len(extra) > 0:
+            frame = np.asarray(Image.open(io.BytesIO(extra[0])).convert("RGB"))
+        self._proxy_msg(topic, payload, frame, q, transform)
+
+    def on_detach(
+        self,
+        source_id: str,
+        stream_id: str,
+        attrs: dict,
+        q: datamux.Queue,
+        transform: Callable,
+        state: dict,
+    ) -> None:
+        sock = state["sock"]
+        stream_topic = state["stream_topic"]
+        conn_str = state["conn_str"]
         self.send_sock_opts(sock, zmq.UNSUBSCRIBE, stream_topic)
         sock.disconnect(conn_str)
         sock.close()
@@ -118,6 +145,7 @@ class PupilCoreProxy(datamux.Reader[dfds.Node]):
         message: dict | None,
         frame: np.ndarray | None,
         queue: datamux.Queue,
+        transform: Callable,
     ) -> None:
         t = 0.0
         c = 0.0
@@ -127,32 +155,32 @@ class PupilCoreProxy(datamux.Reader[dfds.Node]):
             # left pupil diam
             if topic.startswith("pupil.1"):
                 pupil_d = message["diameter"]
-                queue.put_nowait({"pupil_l": dict(d=pupil_d, c=c, t=t)})
+                queue.put_nowait({"pupil_l": transform(dict(d=pupil_d, c=c, t=t))})
             # right pupil diam
             if topic.startswith("pupil.0"):
                 pupil_d = message["diameter"]
-                queue.put_nowait({"pupil_r": dict(d=pupil_d, c=c, t=t)})
+                queue.put_nowait({"pupil_r": transform(dict(d=pupil_d, c=c, t=t))})
             # left gaze pos
             if topic.startswith("gaze.3d.1"):
                 gaze_x, gaze_y, gaze_z = message["gaze_point_3d"]
-                queue.put_nowait({"gaze_l": dict(x=gaze_x, y=gaze_y, z=gaze_z, c=c, t=t)})
+                queue.put_nowait({"gaze_l": transform(dict(x=gaze_x, y=gaze_y, z=gaze_z, c=c, t=t))})
             # right gaze pos
             if topic.startswith("gaze.3d.0"):
                 gaze_x, gaze_y, gaze_z = message["gaze_point_3d"]
-                queue.put_nowait({"gaze_r": dict(x=gaze_x, y=gaze_y, z=gaze_z, c=c, t=t)})
+                queue.put_nowait({"gaze_r": transform(dict(x=gaze_x, y=gaze_y, z=gaze_z, c=c, t=t))})
         if frame is not None:
             # world frame
             if topic.startswith("frame.world"):
                 assert frame is not None
-                queue.put_nowait({"world": dict(frame=frame, t=t)})
+                queue.put_nowait({"world": transform(dict(frame=frame, t=t))})
             # left eye frame
             if topic.startswith("frame.eye.1"):
                 assert frame is not None
-                queue.put_nowait({"eye_l": dict(frame=frame, t=t)})
+                queue.put_nowait({"eye_l": transform(dict(frame=frame, t=t))})
             # right eye frame
             if topic.startswith("frame.eye.0"):
                 assert frame is not None
-                queue.put_nowait({"eye_r": dict(frame=frame, t=t)})
+                queue.put_nowait({"eye_r": transform(dict(frame=frame, t=t))})
 
     def list_sources(self) -> list[dfds.Node]:
         source_ids = ["1"]  # TODO fix this

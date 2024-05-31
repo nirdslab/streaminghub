@@ -2,9 +2,11 @@
 import logging
 from pathlib import Path
 from random import random
+from typing import Callable
 
 import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
+from streaminghub_datamux.typing import Queue
 
 
 class ExampleProxy(datamux.Reader[dfds.Node]):
@@ -41,28 +43,51 @@ class ExampleProxy(datamux.Reader[dfds.Node]):
     def setup(self):
         self._is_setup = True
 
-    def _attach_coro(
+    def on_attach(
         self,
         source_id: str,
         stream_id: str,
-        q: datamux.Queue,
-    ) -> None:
+        attrs: dict,
+        q: Queue,
+        transform: Callable,
+    ) -> dict:
         assert stream_id in self.stream_ids
         self.logger.debug(f"Started task for source={source_id}, stream: {stream_id}...")
+        return {}
+
+    def on_pull(
+        self,
+        source_id: str,
+        stream_id: str,
+        attrs: dict,
+        q: Queue,
+        transform: Callable,
+        state: dict,
+    ) -> int | None:
         topic = self.stream_ids[stream_id]
-        while True:
-            try:
-                # message content
-                self._proxy_random_msg(topic, q)
-            except KeyboardInterrupt:
-                self.logger.debug(f"Interrupted task for source={source_id}, stream: {stream_id}...")
-                break
+        try:
+            # message content
+            self._proxy_random_msg(topic, q, transform)
+        except KeyboardInterrupt:
+            self.logger.debug(f"Interrupted task for source={source_id}, stream: {stream_id}...")
+            return 1
+
+    def on_detach(
+        self,
+        source_id: str,
+        stream_id: str,
+        attrs: dict,
+        q: Queue,
+        transform: Callable,
+        state: dict,
+    ) -> None:
         self.logger.debug(f"Ended task for source={source_id}, stream: {stream_id}...")
 
     def _proxy_random_msg(
         self,
         topic: str,
         queue: datamux.Queue,
+        transform: Callable,
     ) -> None:
         t = 0.0
         c = 0.0
@@ -71,19 +96,19 @@ class ExampleProxy(datamux.Reader[dfds.Node]):
         # left pupil diam
         if topic.startswith("pupil.1"):
             pupil_d = random()
-            queue.put_nowait({"pupil_l": dict(d=pupil_d, c=c, t=t)})
+            queue.put_nowait(transform({"pupil_l": dict(d=pupil_d, c=c, t=t)}))
         # right pupil diam
         if topic.startswith("pupil.0"):
             pupil_d = random()
-            queue.put_nowait({"pupil_r": dict(d=pupil_d, c=c, t=t)})
+            queue.put_nowait(transform({"pupil_r": dict(d=pupil_d, c=c, t=t)}))
         # left gaze pos
         if topic.startswith("gaze.3d.1"):
             gaze_x, gaze_y, gaze_z = random(), random(), random()
-            queue.put_nowait({"gaze_l": dict(x=gaze_x, y=gaze_y, z=gaze_z, c=c, t=t)})
+            queue.put_nowait(transform({"gaze_l": dict(x=gaze_x, y=gaze_y, z=gaze_z, c=c, t=t)}))
         # right gaze pos
         if topic.startswith("gaze.3d.0"):
             gaze_x, gaze_y, gaze_z = random(), random(), random()
-            queue.put_nowait({"gaze_r": dict(x=gaze_x, y=gaze_y, z=gaze_z, c=c, t=t)})
+            queue.put_nowait(transform({"gaze_r": dict(x=gaze_x, y=gaze_y, z=gaze_z, c=c, t=t)}))
 
     def list_sources(self) -> list[dfds.Node]:
         source_ids = ["1"]  # TODO fix this

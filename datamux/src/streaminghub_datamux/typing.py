@@ -5,6 +5,7 @@ from typing import Generic, TypeVar
 
 import streaminghub_pydfds as dfds
 from pydantic import BaseModel
+from typing import Callable
 
 END_OF_STREAM = {}  # NOTE do not change
 
@@ -25,43 +26,77 @@ class IAttach(abc.ABC):
     """
     Base class with functions to listen to data streams via DataMux APIs
 
-    Functions (Private):
-    * _attach_coro(source_id, stream_id, q, **kwargs)
+    Abstract Function(s):
+    * on_attach(source_id, stream_id, attrs, q, transform, **kwargs)
+    * on_pull(source_id, stream_id, attrs, q, transform, state, **kwargs)
+    * on_detach(source_id, stream_id, attrs, q, transform, state, **kwargs)
 
-    Functions (Public):
-    * attach(source_id, stream_id, q, **kwargs)
+    Implemented Function(s):
+    * attach(source_id, stream_id, attrs, q, transform, flag, **kwargs)
 
     """
-
-    @abc.abstractmethod
-    def _attach_coro(self, source_id: str, stream_id: str, q: Queue, **kwargs) -> None: ...
 
     def attach(
         self,
         source_id: str,
         stream_id: str,
+        attrs: dict,
         q: Queue,
+        transform: Callable,
+        flag: Flag,
         **kwargs,
     ):
         proc = multiprocessing.Process(
             None,
             self._attach_coro,
             f"{source_id}_{stream_id}",
-            (source_id, stream_id, q),
+            (source_id, stream_id, attrs, q, transform, flag),
             kwargs,
             daemon=True,
         )
         proc.start()
+
+    def _attach_coro(
+        self,
+        source_id: str,
+        stream_id: str,
+        attrs: dict,
+        q: Queue,
+        transform: Callable,
+        flag: Flag,
+        **kwargs,
+    ):
+        state = self.on_attach(source_id, stream_id, attrs, q, transform, **kwargs)
+        while not flag.is_set():
+            retval = self.on_pull(source_id, stream_id, attrs, q, transform, state, **kwargs)
+            if retval is not None:
+                break
+        self.on_detach(source_id, stream_id, attrs, q, transform, state, **kwargs)
+
+    @abc.abstractmethod
+    def on_attach(
+        self, source_id: str, stream_id: str, attrs: dict, q: Queue, transform: Callable, **kwargs
+    ) -> dict: ...
+
+    @abc.abstractmethod
+    def on_pull(
+        self, source_id: str, stream_id: str, attrs: dict, q: Queue, transform: Callable, state: dict, **kwargs
+    ) -> int | None: ...
+
+    @abc.abstractmethod
+    def on_detach(
+        self, source_id: str, stream_id: str, attrs: dict, q: Queue, transform: Callable, state: dict, **kwargs
+    ) -> None: ...
 
 
 class IServe(abc.ABC):
     """
     Base class with functions to publish data streams onto external programs
 
-    Functions (Private):
+    Abstract Function(s):
     * _serve_coro(source_id: str, stream_id: str, **kwargs)
 
-    Functions (Public):
+    Implemented Function(s):
     * serve(source_id: str, stream_id: str, **kwargs)
 
     """
@@ -93,14 +128,16 @@ class Reader(Generic[T], IAttach, abc.ABC):
     """
     Base class with functions to listen data from both live and stored sources
 
-    Functions (Private):
-    * _attach_coro(source_id, stream_id, q, **kwargs)
-
-    Functions (Public):
+    Abstract Function(s):
     * setup(**kwargs)
     * list_sources()
     * list_streams(source_id)
-    * attach(source_id, stream_id, q, **kwargs)
+    * on_attach(source_id, stream_id, attrs, q, transform, **kwargs)
+    * on_pull(source_id, stream_id, attrs, q, transform, state, **kwargs)
+    * on_detach(source_id, stream_id, attrs, q, transform, state, **kwargs)
+
+    Implemented Function(s):
+    * attach(source_id, stream_id, attrs, q, transform, flag, **kwargs)
 
     """
 

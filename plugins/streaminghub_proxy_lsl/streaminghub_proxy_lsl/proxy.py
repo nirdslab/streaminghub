@@ -3,6 +3,7 @@ import logging
 import pylsl
 import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
+from typing import Callable
 
 from .util import stream_info_to_stream, stream_inlet_to_stream
 
@@ -54,16 +55,14 @@ class LSLProxy(datamux.Reader[dfds.Node]):
         self._refresh_streams()
         return self.__streams
 
-    def _attach_coro(
+    def on_attach(
         self,
         source_id: str,
         stream_id: str,
-        queue: datamux.Queue,
-        *,
-        transform,
-        flag: datamux.Flag,
-        attrs: dict = {},
-    ):
+        attrs: dict,
+        q: datamux.Queue,
+        transform: Callable,
+    ) -> dict:
         assert source_id == "lsl"
         stream = None
         for s in self.__streams:
@@ -84,45 +83,57 @@ class LSLProxy(datamux.Reader[dfds.Node]):
         # create task to live-stream data
         self.logger.info("creating inlet")
         inlet = pylsl.StreamInlet(stream_info)
-        self.logger.info("creating relay task")
 
         stream = stream_inlet_to_stream(inlet)
         if not "dfds_mode" in stream.attrs:
             stream.attrs.update(dfds_mode="relay")
 
-        # column names
-        index_cols = list(stream.index)
-        value_cols = list(stream.fields)
+        state = {}
+        state["inlet"] = inlet
+        state["stream"] = stream
+        state["index_cols"] = list(stream.index)
+        state["value_cols"] = list(stream.fields)
+        return state
 
+    def on_pull(
+        self,
+        source_id: str,
+        stream_id: str,
+        attrs: dict,
+        q: datamux.Queue,
+        transform: Callable,
+        state: dict,
+    ) -> int | None:
+        inlet = state["inlet"]
+        index_cols = state["index_cols"]
+        value_cols = state["value_cols"]
+        try:
+            (values, indices) = inlet.pull_chunk()
+        except pylsl.LostError as e:
+            self.logger.info(f"LSL connection lost: {e}")
+            return 0
+        if values is None or len(values) == 0:
+            return 0
+        else:
+            for index, value in zip(indices, values):
+                # FIXME currently only supports 1D index
+                index_dict = {index_cols[0]: index}
+                value_dict = dict(zip(value_cols, value))
+                msg = dict(index=index_dict, value=value_dict)
+                q.put_nowait(transform(msg))
+
+    def on_detach(
+        self,
+        source_id: str,
+        stream_id: str,
+        attrs: dict,
+        q: datamux.Queue,
+        transform: Callable,
+        state: dict,
+    ) -> None:
+        inlet = state["inlet"]
         # termination indicator
         eof = datamux.END_OF_STREAM
-        if transform is not None:
-            eof = transform(eof)
-
-        # relay each record
-        self.logger.info("relay started")
-        while True:
-            if flag.is_set():
-                self.logger.info(f"relay stop requested")
-                break
-
-            try:
-                (values, indices) = inlet.pull_chunk()
-            except pylsl.LostError as e:
-                self.logger.info(f"LSL connection lost: {e}")
-                break
-            if values is None or len(values) == 0:
-                pass
-            else:
-                for index, value in zip(indices, values):
-                    # FIXME currently only supports 1D index
-                    index_dict = {index_cols[0]: index}
-                    value_dict = dict(zip(value_cols, value))
-                    msg = dict(index=index_dict, value=value_dict)
-                    if transform is not None:
-                        msg = transform(msg)
-                    queue.put_nowait(msg)
-
         inlet.close_stream()
-        queue.put_nowait(eof)
+        q.put_nowait(transform(eof))
         self.logger.info("relay ended")

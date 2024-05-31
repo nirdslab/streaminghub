@@ -8,6 +8,7 @@ import numpy as np
 import pylsl
 import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
+from streaminghub_datamux.typing import Queue
 
 from .util import stream_to_stream_info
 
@@ -71,19 +72,17 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
             collection = self.__parser.get_collection_metadata(fp.as_posix())
             self.__collections[id] = collection
 
-    def _attach_coro(
+    def on_attach(
         self,
         source_id: str,
         stream_id: str,
-        q: datamux.Queue,
-        *,
         attrs: dict,
-        flag: datamux.Flag,
-        strict_time: bool = True,
-        use_relative_timestamps: bool = True,
-        prefix: list[str] | None = None,
-        suffix: list[str] | None = None,
-    ):
+        q: Queue,
+        transform: Callable,
+        *,
+        strict_time: bool,
+        use_relative_timestamps: bool,
+    ) -> dict:
         collection = self.__collections[source_id]
         stream = collection.streams[stream_id].model_copy()
         stream.attrs.update(attrs, dfds_mode="replay")
@@ -96,11 +95,6 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
 
         attrs, data = collection.dataloader(self.config).read(stream.attrs)
         stream.attrs.update(attrs)
-
-        # termination indicator
-        eof = datamux.END_OF_STREAM
-        if prefix is not None and suffix is not None:
-            eof = [*prefix, eof, *suffix]
 
         # preprocessing
         logging.debug(f"index_cols={index_cols}, data.index={data.index.name}, data.columns={data.columns.values}")
@@ -118,42 +112,87 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
 
         # replay each record
         self.logger.info(f"replay started")
-        t0, T0 = None, None
-        for _, record in data.iterrows():
-            # terminating condition
-            if flag.is_set():
-                self.logger.info(f"replay stop requested")
-                break
 
-            # create record
-            index = {k: record[k] for k in index_cols}
-            value = {k: record[k] for k in value_cols}
+        state = {}
+        state["t0"] = None
+        state["T0"] = None
+        state["dt"] = dt
+        state["data"] = data
+        state["idx"] = 0
+        state["index_cols"] = index_cols
+        state["value_cols"] = value_cols
+        return state
 
-            # wait until time requirements are met
-            if strict_time:
-                if t0 is None or T0 is None:
-                    t0, T0 = timeit.default_timer(), index[index_cols[0]]
-                else:
-                    ti, Ti = timeit.default_timer(), index[index_cols[0]]
-                    dt = (Ti - T0) - (ti - t0)
-                    if dt > 0:
-                        time.sleep(dt)
+    def on_pull(
+        self,
+        source_id: str,
+        stream_id: str,
+        attrs: dict,
+        q: Queue,
+        transform: Callable,
+        state: dict,
+        *,
+        strict_time: bool,
+        use_relative_timestamps: bool,
+    ) -> int | None:
+
+        t0 = state["t0"]
+        T0 = state["T0"]
+        dt = state["dt"]
+        data = state["data"]
+        idx = state["idx"]
+        index_cols = state["index_cols"]
+        value_cols = state["value_cols"]
+
+        # termination condition
+        if idx > len(data):
+            return 0
+
+        # create record
+        record = data.iloc[idx]
+        index = {k: record[k] for k in index_cols}
+        value = {k: record[k] for k in value_cols}
+
+        # wait until time requirements are met
+        if strict_time:
+            if t0 is None or T0 is None:
+                t0, T0 = timeit.default_timer(), index[index_cols[0]]
+                state["t0"] = t0
+                state["T0"] = T0
             else:
-                time.sleep(dt)
+                ti, Ti = timeit.default_timer(), index[index_cols[0]]
+                dt = (Ti - T0) - (ti - t0)
+                if dt > 0:
+                    time.sleep(dt)
+        else:
+            time.sleep(dt)
 
-            # postprocessing
-            if use_relative_timestamps:
-                index[index_cols[0]] -= T0
+        # postprocessing
+        if use_relative_timestamps:
+            index[index_cols[0]] -= T0
 
-            # send record
-            msg = dict(index=index, value=value)
+        # send record
+        msg = dict(index=index, value=value)
+        q.put_nowait(transform(msg))
 
-            if prefix is not None and suffix is not None:
-                msg = [*prefix, msg, *suffix]
+        # increment pointer
+        state["idx"] = idx + 1
 
-            q.put_nowait(msg)
-
-        q.put_nowait(eof)
+    def on_detach(
+        self,
+        source_id: str,
+        stream_id: str,
+        attrs: dict,
+        q: Queue,
+        transform: Callable,
+        state: dict,
+        *,
+        strict_time: bool,
+        use_relative_timestamps: bool,
+    ) -> None:
+        # termination indicator
+        eof = datamux.END_OF_STREAM
+        q.put_nowait(transform(eof))
         self.logger.info(f"replay ended")
 
     def _serve_coro(

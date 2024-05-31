@@ -7,9 +7,12 @@ class SimulationManager(datamux.Reader[dfds.Node]):
     Stream Reader for DFDS Simulations.
 
     Functions:
-    * attach(source_id, stream_id, q, **kwargs)
-    * serve(source_id, stream_id, **kwargs)
+    * setup(**kwargs)
     * list_sources()
     * list_streams(source_id)
+    * on_attach(source_id, stream_id, attrs, q, transform, **kwargs)
+    * on_pull(source_id, stream_id, attrs, q, transform, state, **kwargs)
+    * on_detach(source_id, stream_id, attrs, q, transform, state, **kwargs)
+    * attach(source_id, stream_id, attrs, q, transform, flag, **kwargs)
 
     """

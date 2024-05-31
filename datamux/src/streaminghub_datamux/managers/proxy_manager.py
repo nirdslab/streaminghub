@@ -1,7 +1,9 @@
 from importlib.metadata import entry_points
+from typing import Callable
 
 import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
+from streaminghub_datamux.typing import Flag, Queue
 
 
 class ProxyManager(datamux.Reader[dfds.Node]):
@@ -75,6 +77,6 @@ class ProxyManager(datamux.Reader[dfds.Node]):
         prox = self._resolve_prox_by_source_id(source_id)
         return prox.list_streams(source_id)
 
-    def _attach_coro(self, source_id: str, stream_id: str, q: datamux.Queue, **kwargs) -> None:
+    def attach(self, source_id: str, stream_id: str, attrs: dict, q: Queue, transform: Callable, flag: Flag, **kwargs):
         prox = self._resolve_prox_by_source_id(source_id)
-        return prox._attach_coro(source_id, stream_id, q, **kwargs)
+        return prox.attach(source_id, stream_id, attrs, q, transform, flag, **kwargs)
