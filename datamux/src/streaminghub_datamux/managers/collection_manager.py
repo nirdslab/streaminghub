@@ -1,7 +1,6 @@
 import logging
 import random
 import time
-import timeit
 from typing import Callable
 
 import numpy as np
@@ -27,7 +26,8 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
 
     __parser: dfds.Parser
     __collections: dict[str, dfds.Collection]
-    logger = logging.getLogger(__name__)
+    strict_time = True
+    use_relative_timestamps = True
 
     def __init__(
         self,
@@ -39,13 +39,11 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         self.__collections = dict()
 
     def setup(self, **kwargs) -> None:
-        # nothing to set up for collection manager
-        return None
+        self._refresh_sources()
 
     def list_sources(
         self,
     ) -> list[dfds.Collection]:
-        self._refresh_sources()
         return list(self.__collections.values())
 
     def list_streams(
@@ -70,6 +68,7 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         for fp in self.config.meta_dir.glob("*.collection.json"):
             id = fp.name[:-16]
             collection = self.__parser.get_collection_metadata(fp.as_posix())
+            self.logger.info(f"Found collection: {collection.name}")
             self.__collections[id] = collection
 
     def on_attach(
@@ -79,9 +78,6 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         attrs: dict,
         q: Queue,
         transform: Callable,
-        *,
-        strict_time: bool,
-        use_relative_timestamps: bool,
     ) -> dict:
         collection = self.__collections[source_id]
         stream = collection.streams[stream_id].model_copy()
@@ -131,9 +127,6 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         q: Queue,
         transform: Callable,
         state: dict,
-        *,
-        strict_time: bool,
-        use_relative_timestamps: bool,
     ) -> int | None:
 
         t0 = state["t0"]
@@ -145,7 +138,7 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         value_cols = state["value_cols"]
 
         # termination condition
-        if idx > len(data):
+        if idx == len(data.index):
             return 0
 
         # create record
@@ -154,13 +147,13 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         value = {k: record[k] for k in value_cols}
 
         # wait until time requirements are met
-        if strict_time:
+        if self.strict_time:
             if t0 is None or T0 is None:
-                t0, T0 = timeit.default_timer(), index[index_cols[0]]
+                t0, T0 = time.perf_counter(), index[index_cols[0]]
                 state["t0"] = t0
                 state["T0"] = T0
             else:
-                ti, Ti = timeit.default_timer(), index[index_cols[0]]
+                ti, Ti = time.perf_counter(), index[index_cols[0]]
                 dt = (Ti - T0) - (ti - t0)
                 if dt > 0:
                     time.sleep(dt)
@@ -168,7 +161,7 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
             time.sleep(dt)
 
         # postprocessing
-        if use_relative_timestamps:
+        if self.use_relative_timestamps:
             index[index_cols[0]] -= T0
 
         # send record
@@ -186,9 +179,6 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         q: Queue,
         transform: Callable,
         state: dict,
-        *,
-        strict_time: bool,
-        use_relative_timestamps: bool,
     ) -> None:
         # termination indicator
         eof = datamux.END_OF_STREAM

@@ -26,10 +26,10 @@ class ProxyManager(datamux.Reader[dfds.Node]):
         for ep in entry_points(group="streaminghub_datamux.proxy"):
             cls = ep.load()
             if issubclass(cls, datamux.Reader):
-                print(f"Loading proxy: {ep.name}")
+                self.logger.info(f"Found proxy: {ep.name}")
                 self.proxies[ep.name] = cls()
             else:
-                print(f"Invalid proxy: {ep.name}")
+                self.logger.info(f"Found invalid proxy: {ep.name}")
         self.nodes: list[dfds.Node] = []
         self.node_ref: list[str] = []
         self.prox_ref: list[str] = []

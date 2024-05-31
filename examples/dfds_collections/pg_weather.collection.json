@@ -1,5 +1,5 @@
 {
-  "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/collection.jsonschema",
+  "$schema": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfds/collection.jsonschema",
   "name": "pg_weather",
   "description": "Weather Dataset",
   "keywords": [

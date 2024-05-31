@@ -1,11 +1,11 @@
 import abc
+import logging
 import multiprocessing.synchronize
 import signal
-from typing import Generic, TypeVar
+from typing import Callable, Generic, TypeVar
 
 import streaminghub_pydfds as dfds
 from pydantic import BaseModel
-from typing import Callable
 
 END_OF_STREAM = {}  # NOTE do not change
 
@@ -35,6 +35,8 @@ class IAttach(abc.ABC):
     * attach(source_id, stream_id, attrs, q, transform, flag, **kwargs)
 
     """
+
+    logger = logging.getLogger(__name__)
 
     def attach(
         self,
@@ -67,11 +69,13 @@ class IAttach(abc.ABC):
         **kwargs,
     ):
         state = self.on_attach(source_id, stream_id, attrs, q, transform, **kwargs)
+        self.logger.debug("attached to stream")
         while not flag.is_set():
             retval = self.on_pull(source_id, stream_id, attrs, q, transform, state, **kwargs)
             if retval is not None:
                 break
         self.on_detach(source_id, stream_id, attrs, q, transform, state, **kwargs)
+        self.logger.debug("detached from stream")
 
     @abc.abstractmethod
     def on_attach(
@@ -100,6 +104,8 @@ class IServe(abc.ABC):
     * serve(source_id: str, stream_id: str, **kwargs)
 
     """
+
+    logger = logging.getLogger(__name__)
 
     @abc.abstractmethod
     def _serve_coro(self, source_id: str, stream_id: str, **kwargs) -> None: ...
@@ -141,6 +147,7 @@ class Reader(Generic[T], IAttach, abc.ABC):
 
     """
 
+    logger = logging.getLogger(__name__)
     _is_setup = False
 
     @property
@@ -159,6 +166,7 @@ class Reader(Generic[T], IAttach, abc.ABC):
 
 class ManagedTask:
 
+    logger = logging.getLogger(__name__)
     proc: multiprocessing.Process
 
     def __init__(self, queue: Queue) -> None:
@@ -184,12 +192,12 @@ class ManagedTask:
             daemon=False,
         )
         self.proc.start()
-        print(f"Started {self.name}")
+        self.logger.info(f"Started {self.name}")
 
     def stop(self):
         self.proc.terminate()
         self.proc.join()
-        print(f"Stopped {self.name}")
+        self.logger.info(f"Stopped {self.name}")
 
     @abc.abstractmethod
     def step(self, *args, **kwargs) -> None:

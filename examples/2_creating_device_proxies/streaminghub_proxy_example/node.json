@@ -1,5 +1,5 @@
 {
-    "$schema": "https://www.cs.odu.edu/~cs_pjaya001/dfds/node.jsonschema",
+    "$schema": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfds/node.jsonschema",
     "device": {
       "model": "Pupil Core",
       "manufacturer": "Pupil Labs",

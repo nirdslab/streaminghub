@@ -27,8 +27,11 @@ class DataMuxAPI:
         self.config = dfds.load_config()
         self.reader_c = CollectionManager(self.config)
         self.proxy_n = ProxyManager()
-        print("here")
         self.context: dict[str, datamux.Flag] = {}
+
+        # setup CollectionManager and ProxyManager
+        self.reader_c.setup()
+        # self.proxy_n.setup()  # TODO move to correct place
 
     def list_collections(
         self,
@@ -80,7 +83,7 @@ class DataMuxAPI:
         """
         randseq = prefix + gen_randseq()
         if uid:
-            transform = partial(envelope, prefix=randseq.encode(), suffix=uid)
+            transform = partial(envelope, prefix=randseq, suffix=uid)
         else:
             transform = identity
         self.context[randseq] = datamux.create_flag()
@@ -172,7 +175,7 @@ class DataMuxAPI:
         """
         randseq = prefix + gen_randseq()
         if uid:
-            transform = partial(envelope, prefix=randseq.encode(), suffix=uid)
+            transform = partial(envelope, prefix=randseq, suffix=uid)
         else:
             transform = identity
         self.context[randseq] = datamux.create_flag()
