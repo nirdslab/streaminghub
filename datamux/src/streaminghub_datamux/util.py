@@ -2,6 +2,8 @@ import asyncio
 import random
 from functools import partial, wraps
 
+prefix = "d_"
+
 
 def asyncify(func, executor):
     @wraps(func)
@@ -15,3 +17,10 @@ def gen_randseq(length: int = 5) -> str:
     options = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     return "".join(random.choice(options) for x in range(length))
 
+
+def identity(x):
+    return x
+
+
+def envelope(x, prefix: str, suffix: str):
+    return [prefix, x, suffix]

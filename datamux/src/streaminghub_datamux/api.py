@@ -1,10 +1,10 @@
+from functools import partial
+
 import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
 
 from .managers import CollectionManager, ProxyManager
-from .util import gen_randseq
-
-prefix = "d_"
+from .util import envelope, gen_randseq, identity, prefix
 
 
 class DataMuxAPI:
@@ -25,8 +25,9 @@ class DataMuxAPI:
 
         """
         self.config = dfds.load_config()
-        self.proxy_n = ProxyManager()
         self.reader_c = CollectionManager(self.config)
+        self.proxy_n = ProxyManager()
+        print("here")
         self.context: dict[str, datamux.Flag] = {}
 
     def list_collections(
@@ -78,12 +79,19 @@ class DataMuxAPI:
             StreamAck: status and reference information.
         """
         randseq = prefix + gen_randseq()
-        _prefix = _suffix = None
-        if uid is not None:
-            _prefix = [randseq.encode()]
-            _suffix = [uid]
+        if uid:
+            transform = partial(envelope, prefix=randseq.encode(), suffix=uid)
+        else:
+            transform = identity
         self.context[randseq] = datamux.create_flag()
-        self.reader_c.attach(collection_id, stream_id, sink, attrs=attrs, flag=self.context[randseq], prefix=_prefix, suffix=_suffix)
+        self.reader_c.attach(
+            source_id=collection_id,
+            stream_id=stream_id,
+            attrs=attrs,
+            q=sink,
+            transform=transform,
+            flag=self.context[randseq],
+        )
         return datamux.StreamAck(status=True, randseq=randseq)
 
     def stop_task(
@@ -163,10 +171,17 @@ class DataMuxAPI:
             StreamAck: status and reference information.
         """
         randseq = prefix + gen_randseq()
-        _prefix = _suffix = None
-        if uid is not None:
-            _prefix = [randseq.encode()]
-            _suffix = [uid]
+        if uid:
+            transform = partial(envelope, prefix=randseq.encode(), suffix=uid)
+        else:
+            transform = identity
         self.context[randseq] = datamux.create_flag()
-        self.proxy_n.attach(node_id, stream_id, sink, attrs=attrs, flag=self.context[randseq], prefix=_prefix, suffix=_suffix)
+        self.proxy_n.attach(
+            source_id=node_id,
+            stream_id=stream_id,
+            attrs=attrs,
+            q=sink,
+            transform=transform,
+            flag=self.context[randseq],
+        )
         return datamux.StreamAck(status=True, randseq=randseq)

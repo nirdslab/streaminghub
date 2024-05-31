@@ -3,7 +3,7 @@ from typing import Callable
 
 import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
-from streaminghub_datamux.typing import Flag, Queue
+from streaminghub_datamux.typing import Queue
 
 
 class ProxyManager(datamux.Reader[dfds.Node]):
@@ -26,8 +26,8 @@ class ProxyManager(datamux.Reader[dfds.Node]):
         for ep in entry_points(group="streaminghub_datamux.proxy"):
             cls = ep.load()
             if issubclass(cls, datamux.Reader):
+                print(f"Loading proxy: {ep.name}")
                 self.proxies[ep.name] = cls()
-                print(f"Loaded proxy: {ep.name}")
             else:
                 print(f"Invalid proxy: {ep.name}")
         self.nodes: list[dfds.Node] = []
@@ -77,6 +77,40 @@ class ProxyManager(datamux.Reader[dfds.Node]):
         prox = self._resolve_prox_by_source_id(source_id)
         return prox.list_streams(source_id)
 
-    def attach(self, source_id: str, stream_id: str, attrs: dict, q: Queue, transform: Callable, flag: Flag, **kwargs):
+    def on_attach(
+        self,
+        source_id: str,
+        stream_id: str,
+        attrs: dict,
+        q: Queue,
+        transform: Callable,
+        **kwargs,
+    ) -> dict:
         prox = self._resolve_prox_by_source_id(source_id)
-        return prox.attach(source_id, stream_id, attrs, q, transform, flag, **kwargs)
+        return prox.on_attach(source_id, stream_id, attrs, q, transform, **kwargs)
+
+    def on_pull(
+        self,
+        source_id: str,
+        stream_id: str,
+        attrs: dict,
+        q: Queue,
+        transform: Callable,
+        state: dict,
+        **kwargs,
+    ) -> int | None:
+        prox = self._resolve_prox_by_source_id(source_id)
+        return prox.on_pull(source_id, stream_id, attrs, q, transform, state, **kwargs)
+
+    def on_detach(
+        self,
+        source_id: str,
+        stream_id: str,
+        attrs: dict,
+        q: Queue,
+        transform: Callable,
+        state: dict,
+        **kwargs,
+    ) -> None:
+        prox = self._resolve_prox_by_source_id(source_id)
+        return prox.on_detach(source_id, stream_id, attrs, q, transform, state, **kwargs)
