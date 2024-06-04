@@ -68,6 +68,8 @@ class IAttach(abc.ABC):
         flag: Flag,
         **kwargs,
     ):
+        signal.signal(signal.SIGINT, lambda *_: flag.set())
+        signal.signal(signal.SIGTERM, lambda *_: flag.set())
         state = self.on_attach(source_id, stream_id, attrs, q, transform, **kwargs)
         self.logger.debug("attached to stream")
         while not flag.is_set():
@@ -178,6 +180,7 @@ class ManagedTask:
         self.flag = True
 
     def __run__(self, *args, **kwargs) -> None:
+        signal.signal(signal.SIGINT, self.__signal__)
         signal.signal(signal.SIGTERM, self.__signal__)
         while not self.flag:
             self.step(*args, **kwargs)
