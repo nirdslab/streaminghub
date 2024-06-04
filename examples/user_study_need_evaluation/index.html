@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>index.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="questionnaire---need">Questionnaire - Need</h1>
+<h2 id="introduction">Introduction</h2>
+<p>The text below describes the perspectives of three researchers; <strong>Alice</strong>, <strong>Bob</strong>, and <strong>Cindy</strong>.</p>
+<p><img src="assets/personas.png" alt="Personas"></p>
+<ol>
+<li><strong>Alice (Dataset Curation) -</strong> Collecting and organizing datasets for easy reuse</li>
+<li><strong>Bob (Algorithm Design) -</strong> Developing RT algorithms and validating them on existing data</li>
+<li><strong>Cindy (Improving Productivity) -</strong> Enabling seamless integration of datasets and algorithms</li>
+</ol>
+<h2 id="%F0%9F%91%A9%F0%9F%8F%BD%E2%80%8D%F0%9F%8E%93-alice-dataset-curation">👩🏽‍🎓 Alice (Dataset Curation)</h2>
+<p><strong>Alice</strong> recently recorded eye movement data of <strong>10</strong> participants through a user study. In the study, the participants performed <strong>10</strong> different tasks, each under <strong>3</strong> different conditions, totaling <strong>30</strong> recordings per participant.</p>
+<pre class="hljs"><code><div>ADHD_SIN/
+├── 001_01_1.csv
+├── 001_01_2.csv
+├── 001_01_3.csv
+├ ....
+├── 001_10_1.csv
+├── 001_10_2.csv
+├── 001_10_3.csv
+├ ....
+├── 010_10_1.csv
+├── 010_10_2.csv
+├── 010_10_3.csv
+
+(300 files total)
+</div></code></pre>
+<p>All recordings were stored in CSV format, and named as <code>XXX_YY_Z.csv</code>, where <code>XXX</code>, <code>YY</code>, and <code>Z</code> represent the following.</p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Experiment Variable</th>
+<th>Allowed Values</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>XXX</td>
+<td>participant_id</td>
+<td>001 to 010</td>
+</tr>
+<tr>
+<td>YY</td>
+<td>task_id</td>
+<td>01 to 10</td>
+</tr>
+<tr>
+<td>Z</td>
+<td>condition_id</td>
+<td>1 to 3</td>
+</tr>
+</tbody>
+</table>
+<p>Each <code>XXX_YY_Z.csv</code> file contains time-series data in tabular format.</p>
+<h2 id="%F0%9F%91%A8%F0%9F%8F%BD%E2%80%8D%F0%9F%8E%93-bob-algorithm-design">👨🏽‍🎓 Bob (Algorithm Design)</h2>
+<p><strong>Bob</strong> is developing an algorithm to processes eye movement data streams in real-time. The algorithm resides in a file named <code>impl.py</code>, which looks as follows:</p>
+<pre class="hljs"><code><div><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RTAlgorithm</span>:</span>
+	_output: float
+	<span class="hljs-comment"># algorithm logic</span>
+	...
+
+	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">step</span><span class="hljs-params">(self, t: float, x: float, y: float, d: float)</span> -&gt; float:</span>
+		<span class="hljs-comment"># run algorithm and update self._output</span>
+		...
+		<span class="hljs-comment"># return output</span>
+		<span class="hljs-keyword">return</span> self._output
+</div></code></pre>
+<p>To run the algorithm, <strong>Bob</strong> first creates an instance of <code>RTAlgorithm</code> and then calls the <code>step()</code> function on each measurement <strong>sequentially</strong>. Each <code>step()</code> call returns a scalar-valued output computed over all inputs the <code>RTAlgorithm</code> instance has seen so far.</p>
+<h2 id="%F0%9F%91%A9%F0%9F%8F%BD%E2%80%8D%F0%9F%92%BC-cindy-improving-productivity">👩🏽‍💼 Cindy (Improving Productivity)</h2>
+<p><strong>Cindy</strong> notices that her students put a considerable effort to connect existing datasets with RT algorithms. To improve productivity, she is looking for a solution that works across all/most use cases of her students and collaborators.</p>
+<h2 id="scenario-a---dataset-curation">Scenario A - Dataset Curation</h2>
+<blockquote>
+<p>💡 <strong>Alice wants to make her dataset reusable for others.</strong></p>
+</blockquote>
+<h3 id="question-a1">Question A1</h3>
+<blockquote>
+<p>💡 Alice decides to create a README to answer any questions Bob may get. Based on her past experiences, she tries to cover 4 common questions in the README.</p>
+<p>(a) <strong>what experimental variables exist</strong> (i.e., <code>participant_id</code>, <code>task_id</code>, <code>condition_id</code>),<br>
+(b) <strong>what variables each file represents</strong> (i.e., <code>XXX_YY_Z.csv</code>),<br>
+(c) <strong>what measurements each column represents</strong> (e.g. time in <code>timestamp_ms</code> column),<br>
+(d) <strong>units/scale of each measurement</strong> (e.g., time in <code>ms</code> scale).<br></p>
+<p>When sharing the dataset, Alice asks Bob to first go through the README, find the files/columns needed for his RT algorithm, and scale their values into the algorithm’s target range before calling <code>step()</code>.</p>
+</blockquote>
+<p>Based on your experience, please rate how <strong>difficult</strong> and <strong>time-consuming</strong> you think the process of <strong>covering each aspect through documentation</strong> could get.</p>
+<blockquote>
+<p><strong>Scale: 1 = Very Low; 2 = Low; 3 = Neutral; 4 = High; 5 = Very High</strong></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Criteria</th>
+<th>Difficulty</th>
+<th>Time Demand</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Documenting What Experimental Variables Exist</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Documenting What Variables Each File Represents</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Documenting What Measurements Each Column/Field Represents</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Documenting What Units / Scale Each Measurement is in</td>
+<td><input></td>
+<td><input></td>
+</tr>
+</tbody>
+</table>
+<h3 id="question-a2">Question A2</h3>
+<p>Based on your experience, please rate how <strong>difficult</strong> and <strong>time-consuming</strong> you think the process of <strong>Bob transforming the dataset into target format</strong> could get, under each condition.</p>
+<blockquote>
+<p><strong>Level of Communication</strong></p>
+<ul>
+<li><strong>Good -</strong> Alice is willing to answer any questions Bob might have</li>
+<li><strong>Bad -</strong> Alice doesn’t have time to answer any questions Bob might have</li>
+</ul>
+<p><strong>File Format of Data</strong></p>
+<ul>
+<li><strong>Open -</strong> Alice saved data in a open filetype (CSV). Bob can view them without paid software.</li>
+<li><strong>Closed -</strong> Alice saved data in a closed filetype (EDF) from the recording software. Bob needs paid software to view them.</li>
+</ul>
+</blockquote>
+<blockquote>
+<p><strong>Scale: 1 = Very Low; 2 = Low; 3 = Neutral; 4 = High; 5 = Very High</strong></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Task Difficulty</th>
+<th>Open Filetype</th>
+<th>Closed Filetype</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Good Comms</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Bad Comms</td>
+<td><input></td>
+<td><input></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Time Demand</th>
+<th>Open Filetype</th>
+<th>Closed Filetype</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Good Comms</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Bad Comms</td>
+<td><input></td>
+<td><input></td>
+</tr>
+</tbody>
+</table>
+<h3 id="question-a3">Question A3</h3>
+<blockquote>
+<p>💡 Being a helpful colleague, Alice decides to transform data into the format Bob needs, and share that version instead.</p>
+<p>Bob mentions that his algorithm expects 4 values (<code>t</code>, <code>x</code>, <code>y</code>, <code>d</code>) representing the timestamp (<code>t</code>) in seconds, gaze position (<code>x</code>, <code>y</code>) in range <code>[0,1]</code>, and pupil diameter (<code>d</code>) in mm. However, Alice has saved the data under different names and units (e.g. <code>t</code> is named <code>timestamp_ns</code>, and is in <code>ms</code> scale). To avoid any confusion, she decides to transform the data herself, and share that version instead.</p>
+</blockquote>
+<p>Based on your experience, please rate how <strong>difficult</strong> and <strong>time-consuming</strong> you think the process of <strong>ALICE transforming the dataset into target format</strong> could get, under each condition.</p>
+<blockquote>
+<p><strong>Level of Communication</strong></p>
+<ul>
+<li><strong>Good -</strong> Bob is willing to answer any questions Alice might have</li>
+<li><strong>Bad -</strong> Bob doesn’t have time to answer any questions Alice might have</li>
+</ul>
+<p><strong>Format of Data Files</strong></p>
+<ul>
+<li><strong>Open -</strong> Alice saved data in a open filetype (CSV). She can view them without paid software.</li>
+<li><strong>Closed -</strong> Alice saved data in a closed filetype (EDF) from the recording software. She needs paid software to view them.</li>
+</ul>
+</blockquote>
+<blockquote>
+<p><strong>Scale: 1 = Very Low; 2 = Low; 3 = Neutral; 4 = High; 5 = Very High</strong></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Task Difficulty</th>
+<th>Open Filetype</th>
+<th>Closed Filetype</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Good Comms</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Bad Comms</td>
+<td><input></td>
+<td><input></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Time Demand</th>
+<th>Open Filetype</th>
+<th>Closed Filetype</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Good Comms</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Bad Comms</td>
+<td><input></td>
+<td><input></td>
+</tr>
+</tbody>
+</table>
+<h3 id="question-a4">Question A4</h3>
+<p><strong>Alice</strong> notices that in the past, when sharing user-study datasets, the recipients had similar questions about loading data. This time, to save herself and Bob time, she created a script named <code>dataloader.py</code> to load the data and shared this with Bob. The script looks as follows:</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">import</span> pandas <span class="hljs-keyword">as</span> pd
+
+dataset_dir = <span class="hljs-string">"/path/to/dataset"</span>
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">load_data</span><span class="hljs-params">(
+	participant_id: str,
+	task_id: str,
+	condition_id: str,
+	columns: list[str]
+)</span> -&gt; pd.DataFrame:</span>
+	<span class="hljs-comment"># file names have the pattern XXX_YY_Z.csv</span>
+	file_name = <span class="hljs-string">f"<span class="hljs-subst">{dataset_dir}</span>/<span class="hljs-subst">{participant_id}</span>_<span class="hljs-subst">{task_id}</span>_<span class="hljs-subst">{condition_id}</span>.csv"</span>
+	<span class="hljs-comment"># load the recording</span>
+	df = pd.read_csv(file_name).set_index(<span class="hljs-string">"timestamp_ms"</span>).sort_index()
+	<span class="hljs-comment"># return requested columns</span>
+	<span class="hljs-keyword">return</span> df[columns]
+</div></code></pre>
+<p>To use <code>dataloader.py</code>, Alice instructs Bob to identify the columns needed for his RT algorithm, and pass them as the <code>columns</code> argument when calling <code>load_data()</code>.</p>
+<p>Based on your experience, please rate the processes of <strong>Bob reusing existing data loading code</strong> and <strong>Bob manually writing data loading code</strong> in terms of <strong>task difficulty</strong> and <strong>time demand</strong>.</p>
+<blockquote>
+<p><strong>Scale: 1 = Very Low; 2 = Low; 3 = Neutral; 4 = High; 5 = Very High</strong></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Criteria</th>
+<th>Task Difficulty</th>
+<th>Time Demand</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bob reusing existing data loading code</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Bob manually writing data loading code</td>
+<td><input></td>
+<td><input></td>
+</tr>
+</tbody>
+</table>
+<h2 id="scenario-b---algorithm-design">Scenario B - Algorithm Design</h2>
+<blockquote>
+<p>💡 <strong>Bob wants to evaluate a RT algorithm on multiple datasets</strong></p>
+</blockquote>
+<p><strong>Bob</strong> wants to pass <strong>Alice’s</strong> dataset through the RT algorithm, and check if the algorithm functions as it should. For this, <strong>Bob</strong> only needs 5 columns from each CSV file.</p>
+<ul>
+<li><code>timestamp_ms</code> : timestamp in ms</li>
+<li><code>gazepoint_x</code>: average x-position of both eyes</li>
+<li><code>gazepoint_y</code>: average y-position of both eyes</li>
+<li><code>pd_left</code> : pupil diameter of left eye</li>
+<li><code>pd_right</code>: pupil diameter of right eye</li>
+</ul>
+<p><strong>Bob</strong> picked one CSV file and wrote a script (shown below) to run the algorithm.</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">import</span> pandas <span class="hljs-keyword">as</span> pd
+<span class="hljs-keyword">from</span> impl <span class="hljs-keyword">import</span> RTAlgorithm
+
+<span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">"__main__"</span>:
+  <span class="hljs-comment"># read CSV file</span>
+  df_alg = pd.read_csv(<span class="hljs-string">"/path/to/file.csv"</span>)
+  <span class="hljs-comment"># initialize the algorithm</span>
+  alg = RTAlgorithm()
+	<span class="hljs-comment"># run data SEQUENTIALLY through the algorithm</span>
+  <span class="hljs-keyword">for</span> row <span class="hljs-keyword">in</span> df_alg.rows()
+    <span class="hljs-comment"># get function args</span>
+    t = row.timestamp_ns
+    x = row.gazepoint_x
+    y = row.gazepoint_y
+    d = (row.pd_left + row.pd_right) / <span class="hljs-number">2</span> <span class="hljs-comment"># take the average pd</span>
+    <span class="hljs-comment"># call the algorithm</span>
+    out = alg.step(t,x,y,d)
+    <span class="hljs-comment"># print the output</span>
+    print(out)
+    <span class="hljs-comment"># if required, uncomment to rate-limit at 60 Hz</span>
+    <span class="hljs-comment"># time.sleep(1/60)</span>
+</div></code></pre>
+<h3 id="question-b1">Question B1</h3>
+<blockquote>
+<p>💡 Bob tries to understand the experimental variables (e.g., participants, tasks) in Alice’s dataset, and what its folder structure represents (e.g., one folder per task, one file per participant).</p>
+<p>This helps Bob to understand what types of statistical tests can be run on that dataset.</p>
+</blockquote>
+<p>Based on your experience, please rate how <strong>difficult</strong> and <strong>time-consuming</strong> you think the process of <strong>Bob finding the mapping between experimental variables and data units</strong> could get, under each condition.</p>
+<blockquote>
+<p><strong>Quality of Documentation</strong></p>
+<ul>
+<li><strong>Good -</strong> Alice has created a detailed description of the dataset and its contents</li>
+<li><strong>Bad -</strong> Alice has not created any description for the dataset</li>
+</ul>
+<p><strong>Level of Communication</strong></p>
+<ul>
+<li><strong>Good -</strong> Alice is willing to answer any questions Bob might have</li>
+<li><strong>Bad -</strong> Alice doesn’t have time to answer any questions Bob might have</li>
+</ul>
+<p><strong>Format of Data Files</strong></p>
+<ul>
+<li><strong>Open -</strong> Alice saved data in a open filetype (CSV). Bob can view them without paid software.</li>
+<li><strong>Closed -</strong> Alice saved data in a closed filetype (EDF) from the recording software. Bob needs paid software to view them.</li>
+</ul>
+</blockquote>
+<blockquote>
+<p><strong>Scale : [1 = Very Low; 2 = Low; 3 = Neutral; 4 = High; 5 = Very High]</strong></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Task Difficulty</th>
+<th>Good Docs</th>
+<th>Bad Docs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Good Comms, Open Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Good Comms, Closed Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Bad Comms, Open Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Bad Comms, Closed Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Time Demand</th>
+<th>Good Docs</th>
+<th>Bad Docs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Good Comms, Open Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Good Comms, Closed Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Bad Comms, Open Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Bad Comms, Closed Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+</tbody>
+</table>
+<h3 id="question-b2">Question B2</h3>
+<blockquote>
+<p>💡 Bob tries to understand what each field (e.g., column, key/value) in the recordings of Alice’s dataset represents (e.g., each column is a measurement).</p>
+<p>This helps Bob to understand which fields to read from each recording, and what preprocessing steps to perform before running them through the RT algorithm.</p>
+</blockquote>
+<p>Based on your experience, please rate how <strong>difficult</strong> and <strong>time-consuming</strong> you think the process of <strong>Bob finding which fields to pass as arguments to <code>step(t,x,y,d)</code></strong> could get, under each condition.</p>
+<blockquote>
+<p><strong>Quality of Documentation</strong></p>
+<ul>
+<li><strong>Good -</strong> Alice has created a detailed description of the dataset and its contents</li>
+<li><strong>Bad -</strong> Alice has not created any description for the dataset</li>
+</ul>
+<p><strong>Level of Communication</strong></p>
+<ul>
+<li><strong>Good -</strong> Alice is willing to answer any questions Bob might have</li>
+<li><strong>Bad -</strong> Alice doesn’t have time to answer any questions Bob might have</li>
+</ul>
+<p><strong>Format of Data Files</strong></p>
+<ul>
+<li><strong>Open -</strong> Alice saved data in a open filetype (CSV). Bob can view them without paid software.</li>
+<li><strong>Closed -</strong> Alice saved data in a closed filetype (EDF) from the recording software. Bob needs paid software to view them.</li>
+</ul>
+</blockquote>
+<blockquote>
+<p><strong>Scale : [1 = Very Low; 2 = Low; 3 = Neutral; 4 = High; 5 = Very High]</strong></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Task Difficulty</th>
+<th>Good Docs</th>
+<th>Bad Docs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Good Comms, Open Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Good Comms, Closed Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Bad Comms, Open Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Bad Comms, Closed Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Time Demand</th>
+<th>Good Docs</th>
+<th>Bad Docs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Good Comms, Open Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Good Comms, Closed Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Bad Comms, Open Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Bad Comms, Closed Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+</tbody>
+</table>
+<h3 id="question-b3">Question B3</h3>
+<blockquote>
+<p>💡 Bob tries to mimic the real-world use case of his RT algorithm. In reality, a 60 Hz device would send data at 60 Hz, which means the RT algorithm will also be called at 60 Hz.</p>
+<p>To simulate such conditions from recorded data (i.e., Alice’s dataset), Bob must rate-limit the <code>step()</code> function to the sampling frequency of data. To perform this, Bob needs to know the sampling frequency, and implement the actual rate-limiting.</p>
+</blockquote>
+<p>Based on your experience, please rate how <strong>difficult</strong> and <strong>time-consuming</strong> you think the process of <strong>Bob finding the sampling frequency and implementing the rate-limiting</strong> could get, under each condition.</p>
+<blockquote>
+<p><strong>Quality of Documentation</strong></p>
+<ul>
+<li><strong>Good -</strong> Alice has created a detailed description of the dataset and its contents</li>
+<li><strong>Bad -</strong> Alice has not created any description for the dataset</li>
+</ul>
+<p><strong>Level of Communication</strong></p>
+<ul>
+<li><strong>Good -</strong> Alice is willing to answer any questions Bob might have</li>
+<li><strong>Bad -</strong> Alice doesn’t have time to answer any questions Bob might have</li>
+</ul>
+<p><strong>Format of Data Files</strong></p>
+<ul>
+<li><strong>Open -</strong> Alice saved data in a open filetype (CSV). Bob can view them without paid software.</li>
+<li><strong>Closed -</strong> Alice saved data in a closed filetype (EDF) from the recording software. Bob needs paid software to view them.</li>
+</ul>
+</blockquote>
+<blockquote>
+<p><strong>Scale : [1 = Very Low; 2 = Low; 3 = Neutral; 4 = High; 5 = Very High]</strong></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Task Difficulty</th>
+<th>Good Docs</th>
+<th>Bad Docs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Good Comms, Open Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Good Comms, Closed Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Bad Comms, Open Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Bad Comms, Closed Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Time Demand</th>
+<th>Good Docs</th>
+<th>Bad Docs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Good Comms, Open Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Good Comms, Closed Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Bad Comms, Open Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+<tr>
+<td>Bad Comms, Closed Filetype</td>
+<td><input></td>
+<td><input></td>
+</tr>
+</tbody>
+</table>
+<h3 id="question-b4">Question B4</h3>
+<p>If you wish to find the peak data frequency that your algorithm can handle, would you rather have standard benchmark tests to compute them?</p>
+<ul>
+<li><input type="checkbox" id="checkbox0"><label for="checkbox0">Yes</label></li>
+<li><input type="checkbox" id="checkbox1"><label for="checkbox1">No</label></li>
+</ul>
+<h3 id="question-b5">Question B5</h3>
+<p>If you wish to quantify the performance (e.g., throughput, latency) of your algorithm, would you rather have standard benchmark tests to compute them?</p>
+<ul>
+<li><input type="checkbox" id="checkbox2"><label for="checkbox2">Yes</label></li>
+<li><input type="checkbox" id="checkbox3"><label for="checkbox3">No</label></li>
+</ul>
+<h2 id="scenario-c---improving-productivity">Scenario C - Improving Productivity</h2>
+<blockquote>
+<p>💡 <strong>Cindy wants to streamline how datasets and algorithms are integrated at her lab.</strong></p>
+</blockquote>
+<h3 id="question-c1">Question C1</h3>
+<p>Cindy’s students frequently run <strong>multiple</strong> datasets through <strong>multiple</strong> algorithms on a day-to-day basis. From your experience, rate how difficult and time-demanding this process could get.</p>
+<blockquote>
+<p><strong>Scale : [1 = Very Low; 2 = Low; 3 = Neutral; 4 = High; 5 = Very High]</strong></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Criteria</th>
+<th>Rating</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Difficulty of the job tasks</td>
+<td><input></td>
+</tr>
+<tr>
+<td>Time needed for the job tasks</td>
+<td><input></td>
+</tr>
+</tbody>
+</table>
+<h3 id="question-c2">Question C2</h3>
+<p>Would you agree that such integration must be automated whenever possible?</p>
+<ul>
+<li><input type="checkbox" id="checkbox4"><label for="checkbox4">Yes</label></li>
+<li><input type="checkbox" id="checkbox5"><label for="checkbox5">No</label></li>
+</ul>
+<h3 id="question-c3">Question C3</h3>
+<p>Given the opportunity to change how Cindy’s lab operates, rate how the changes suggested below could impact lab productivity.</p>
+<p><strong>Scale: [1 = Very Negative; 2 = Negative; 3 = None; 4 = Positive; 5 = Very Positive]</strong></p>
+<table>
+<thead>
+<tr>
+<th>Details of Change</th>
+<th>Rating</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Having a system to annotate datasets once, and reuse them on new algorithms</td>
+<td><input></td>
+</tr>
+<tr>
+<td>Having a Python API to read data from any annotated dataset</td>
+<td><input></td>
+</tr>
+</tbody>
+</table>
+
+</body>
+</html>

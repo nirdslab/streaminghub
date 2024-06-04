@@ -145,7 +145,7 @@ class AvroCodec(RpcCodec):
         self.logger.debug(f"encode(): topic={topic}, content={content}")
         lines = []
         if len(content) == 0:
-            self.logger.info(f"encode(): got empty message - topic={topic}")
+            self.logger.debug(f"encode(): got empty message - topic={topic}")
             content_enc = b""
             lines.append(topic + b"||" + content_enc)
         elif topic.startswith(prefix) and len(content) > 0:
@@ -183,7 +183,7 @@ class AvroCodec(RpcCodec):
         topic, content_enc = payload.split(b"||", maxsplit=1)
 
         if len(content_enc) == 0:
-            self.logger.info(f"decode(): got empty message - topic={topic}")
+            self.logger.debug(f"decode(): got empty message - topic={topic}")
             return topic, {}
         elif topic.startswith(b"schema_"):
             subtopic = topic[7:]
