@@ -365,10 +365,10 @@ code {
           : 'default'
     });
   </script>
-<h1 id="questionnaire---need">Questionnaire - Need</h1>
-<h2 id="introduction">Introduction</h2>
+<form action="/survey/submit" method="POST">
+<h1 id="streaminghub-questionnaire---introduction">StreamingHub Questionnaire - Introduction</h1>
 <p>The text below describes the perspectives of three researchers; <strong>Alice</strong>, <strong>Bob</strong>, and <strong>Cindy</strong>.</p>
-<p><img src="assets/personas.png" alt="Personas"></p>
+<p><img src="https://raw.githubusercontent.com/nirdslab/streaminghub/master/evaluation/questionnaire_need/assets/personas.png" alt="Personas"></p>
 <ol>
 <li><strong>Alice (Dataset Curation) -</strong> Collecting and organizing datasets for easy reuse</li>
 <li><strong>Bob (Algorithm Design) -</strong> Developing RT algorithms and validating them on existing data</li>
@@ -435,11 +435,13 @@ code {
 <p>To run the algorithm, <strong>Bob</strong> first creates an instance of <code>RTAlgorithm</code> and then calls the <code>step()</code> function on each measurement <strong>sequentially</strong>. Each <code>step()</code> call returns a scalar-valued output computed over all inputs the <code>RTAlgorithm</code> instance has seen so far.</p>
 <h2 id="%F0%9F%91%A9%F0%9F%8F%BD%E2%80%8D%F0%9F%92%BC-cindy-improving-productivity">👩🏽‍💼 Cindy (Improving Productivity)</h2>
 <p><strong>Cindy</strong> notices that her students put a considerable effort to connect existing datasets with RT algorithms. To improve productivity, she is looking for a solution that works across all/most use cases of her students and collaborators.</p>
-<h2 id="scenario-a---dataset-curation">Scenario A - Dataset Curation</h2>
+<hr>
+<h1 id="scenario-a---dataset-curation">Scenario A - Dataset Curation</h1>
 <blockquote>
 <p>💡 <strong>Alice wants to make her dataset reusable for others.</strong></p>
 </blockquote>
-<h3 id="question-a1">Question A1</h3>
+<hr>
+<h2 id="question-a1">Question A1</h2>
 <blockquote>
 <p>💡 Alice decides to create a README to answer any questions Bob may get. Based on her past experiences, she tries to cover 4 common questions in the README.</p>
 <p>(a) <strong>what experimental variables exist</strong> (i.e., <code>participant_id</code>, <code>task_id</code>, <code>condition_id</code>),<br>
@@ -456,40 +458,41 @@ code {
 <thead>
 <tr>
 <th>Criteria</th>
-<th>Difficulty</th>
+<th>Task Difficulty</th>
 <th>Time Demand</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Documenting What Experimental Variables Exist</td>
-<td><input></td>
-<td><input></td>
+<td><input name="a1_1_d"></td>
+<td><input name="a1_1_t"></td>
 </tr>
 <tr>
 <td>Documenting What Variables Each File Represents</td>
-<td><input></td>
-<td><input></td>
+<td><input name="a1_2_d"></td>
+<td><input name="a1_2_t"></td>
 </tr>
 <tr>
 <td>Documenting What Measurements Each Column/Field Represents</td>
-<td><input></td>
-<td><input></td>
+<td><input name="a1_3_d"></td>
+<td><input name="a1_3_t"></td>
 </tr>
 <tr>
 <td>Documenting What Units / Scale Each Measurement is in</td>
-<td><input></td>
-<td><input></td>
+<td><input name="a1_4_d"></td>
+<td><input name="a1_4_t"></td>
 </tr>
 </tbody>
 </table>
-<h3 id="question-a2">Question A2</h3>
+<hr>
+<h2 id="question-a2">Question A2</h2>
 <p>Based on your experience, please rate how <strong>difficult</strong> and <strong>time-consuming</strong> you think the process of <strong>Bob transforming the dataset into target format</strong> could get, under each condition.</p>
 <blockquote>
 <p><strong>Level of Communication</strong></p>
 <ul>
 <li><strong>Good -</strong> Alice is willing to answer any questions Bob might have</li>
-<li><strong>Bad -</strong> Alice doesn’t have time to answer any questions Bob might have</li>
+<li><strong>Poor -</strong> Alice doesn’t have time to answer any questions Bob might have</li>
 </ul>
 <p><strong>File Format of Data</strong></p>
 <ul>
@@ -503,46 +506,41 @@ code {
 <table>
 <thead>
 <tr>
+<th>Comms</th>
+<th>Filetype</th>
 <th>Task Difficulty</th>
-<th>Open Filetype</th>
-<th>Closed Filetype</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Good Comms</td>
-<td><input></td>
-<td><input></td>
-</tr>
-<tr>
-<td>Bad Comms</td>
-<td><input></td>
-<td><input></td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
 <th>Time Demand</th>
-<th>Open Filetype</th>
-<th>Closed Filetype</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Good Comms</td>
-<td><input></td>
-<td><input></td>
+<td>Good</td>
+<td>Open</td>
+<td><input name="a2_1_d"></td>
+<td><input name="a2_1_t"></td>
 </tr>
 <tr>
-<td>Bad Comms</td>
-<td><input></td>
-<td><input></td>
+<td>Good</td>
+<td>Closed</td>
+<td><input name="a2_2_d"></td>
+<td><input name="a2_2_t"></td>
+</tr>
+<tr>
+<td>Poor</td>
+<td>Open</td>
+<td><input name="a2_3_d"></td>
+<td><input name="a2_3_t"></td>
+</tr>
+<tr>
+<td>Poor</td>
+<td>Closed</td>
+<td><input name="a2_4_d"></td>
+<td><input name="a2_4_t"></td>
 </tr>
 </tbody>
 </table>
-<h3 id="question-a3">Question A3</h3>
+<hr>
+<h2 id="question-a3">Question A3</h2>
 <blockquote>
 <p>💡 Being a helpful colleague, Alice decides to transform data into the format Bob needs, and share that version instead.</p>
 <p>Bob mentions that his algorithm expects 4 values (<code>t</code>, <code>x</code>, <code>y</code>, <code>d</code>) representing the timestamp (<code>t</code>) in seconds, gaze position (<code>x</code>, <code>y</code>) in range <code>[0,1]</code>, and pupil diameter (<code>d</code>) in mm. However, Alice has saved the data under different names and units (e.g. <code>t</code> is named <code>timestamp_ns</code>, and is in <code>ms</code> scale). To avoid any confusion, she decides to transform the data herself, and share that version instead.</p>
@@ -552,7 +550,7 @@ code {
 <p><strong>Level of Communication</strong></p>
 <ul>
 <li><strong>Good -</strong> Bob is willing to answer any questions Alice might have</li>
-<li><strong>Bad -</strong> Bob doesn’t have time to answer any questions Alice might have</li>
+<li><strong>Poor -</strong> Bob doesn’t have time to answer any questions Alice might have</li>
 </ul>
 <p><strong>Format of Data Files</strong></p>
 <ul>
@@ -566,46 +564,41 @@ code {
 <table>
 <thead>
 <tr>
+<th>Comms</th>
+<th>Filetype</th>
 <th>Task Difficulty</th>
-<th>Open Filetype</th>
-<th>Closed Filetype</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Good Comms</td>
-<td><input></td>
-<td><input></td>
-</tr>
-<tr>
-<td>Bad Comms</td>
-<td><input></td>
-<td><input></td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
 <th>Time Demand</th>
-<th>Open Filetype</th>
-<th>Closed Filetype</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Good Comms</td>
-<td><input></td>
-<td><input></td>
+<td>Good</td>
+<td>Open</td>
+<td><input name="a3_1_d"></td>
+<td><input name="a3_1_t"></td>
 </tr>
 <tr>
-<td>Bad Comms</td>
-<td><input></td>
-<td><input></td>
+<td>Good</td>
+<td>Closed</td>
+<td><input name="a3_2_d"></td>
+<td><input name="a3_2_t"></td>
+</tr>
+<tr>
+<td>Poor</td>
+<td>Open</td>
+<td><input name="a3_3_d"></td>
+<td><input name="a3_3_t"></td>
+</tr>
+<tr>
+<td>Poor</td>
+<td>Closed</td>
+<td><input name="a3_4_d"></td>
+<td><input name="a3_4_t"></td>
 </tr>
 </tbody>
 </table>
-<h3 id="question-a4">Question A4</h3>
+<hr>
+<h2 id="question-a4">Question A4</h2>
 <p><strong>Alice</strong> notices that in the past, when sharing user-study datasets, the recipients had similar questions about loading data. This time, to save herself and Bob time, she created a script named <code>dataloader.py</code> to load the data and shared this with Bob. The script looks as follows:</p>
 <pre class="hljs"><code><div><span class="hljs-keyword">import</span> pandas <span class="hljs-keyword">as</span> pd
 
@@ -640,17 +633,18 @@ dataset_dir = <span class="hljs-string">"/path/to/dataset"</span>
 <tbody>
 <tr>
 <td>Bob reusing existing data loading code</td>
-<td><input></td>
-<td><input></td>
+<td><input name="a4_1_d"></td>
+<td><input name="a4_1_t"></td>
 </tr>
 <tr>
 <td>Bob manually writing data loading code</td>
-<td><input></td>
-<td><input></td>
+<td><input name="a4_2_d"></td>
+<td><input name="a4_2_t"></td>
 </tr>
 </tbody>
 </table>
-<h2 id="scenario-b---algorithm-design">Scenario B - Algorithm Design</h2>
+<hr>
+<h1 id="scenario-b---algorithm-design">Scenario B - Algorithm Design</h1>
 <blockquote>
 <p>💡 <strong>Bob wants to evaluate a RT algorithm on multiple datasets</strong></p>
 </blockquote>
@@ -685,7 +679,8 @@ dataset_dir = <span class="hljs-string">"/path/to/dataset"</span>
     <span class="hljs-comment"># if required, uncomment to rate-limit at 60 Hz</span>
     <span class="hljs-comment"># time.sleep(1/60)</span>
 </div></code></pre>
-<h3 id="question-b1">Question B1</h3>
+<hr>
+<h2 id="question-b1">Question B1</h2>
 <blockquote>
 <p>💡 Bob tries to understand the experimental variables (e.g., participants, tasks) in Alice’s dataset, and what its folder structure represents (e.g., one folder per task, one file per participant).</p>
 <p>This helps Bob to understand what types of statistical tests can be run on that dataset.</p>
@@ -695,12 +690,12 @@ dataset_dir = <span class="hljs-string">"/path/to/dataset"</span>
 <p><strong>Quality of Documentation</strong></p>
 <ul>
 <li><strong>Good -</strong> Alice has created a detailed description of the dataset and its contents</li>
-<li><strong>Bad -</strong> Alice has not created any description for the dataset</li>
+<li><strong>Poor -</strong> Alice has not created any description for the dataset</li>
 </ul>
 <p><strong>Level of Communication</strong></p>
 <ul>
 <li><strong>Good -</strong> Alice is willing to answer any questions Bob might have</li>
-<li><strong>Bad -</strong> Alice doesn’t have time to answer any questions Bob might have</li>
+<li><strong>Poor -</strong> Alice doesn’t have time to answer any questions Bob might have</li>
 </ul>
 <p><strong>Format of Data Files</strong></p>
 <ul>
@@ -714,66 +709,74 @@ dataset_dir = <span class="hljs-string">"/path/to/dataset"</span>
 <table>
 <thead>
 <tr>
+<th>Docs</th>
+<th>Comms</th>
+<th>Filetype</th>
 <th>Task Difficulty</th>
-<th>Good Docs</th>
-<th>Bad Docs</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Good Comms, Open Filetype</td>
-<td><input></td>
-<td><input></td>
-</tr>
-<tr>
-<td>Good Comms, Closed Filetype</td>
-<td><input></td>
-<td><input></td>
-</tr>
-<tr>
-<td>Bad Comms, Open Filetype</td>
-<td><input></td>
-<td><input></td>
-</tr>
-<tr>
-<td>Bad Comms, Closed Filetype</td>
-<td><input></td>
-<td><input></td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
 <th>Time Demand</th>
-<th>Good Docs</th>
-<th>Bad Docs</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Good Comms, Open Filetype</td>
-<td><input></td>
-<td><input></td>
+<td>Good</td>
+<td>Good</td>
+<td>Open</td>
+<td><input name="b1_1_d"></td>
+<td><input name="b1_1_t"></td>
 </tr>
 <tr>
-<td>Good Comms, Closed Filetype</td>
-<td><input></td>
-<td><input></td>
+<td>Good</td>
+<td>Good</td>
+<td>Closed</td>
+<td><input name="b1_2_d"></td>
+<td><input name="b1_2_t"></td>
 </tr>
 <tr>
-<td>Bad Comms, Open Filetype</td>
-<td><input></td>
-<td><input></td>
+<td>Good</td>
+<td>Poor</td>
+<td>Open</td>
+<td><input name="b1_3_d"></td>
+<td><input name="b1_3_t"></td>
 </tr>
 <tr>
-<td>Bad Comms, Closed Filetype</td>
-<td><input></td>
-<td><input></td>
+<td>Good</td>
+<td>Poor</td>
+<td>Closed</td>
+<td><input name="b1_4_d"></td>
+<td><input name="b1_4_t"></td>
+</tr>
+<tr>
+<td>Poor</td>
+<td>Good</td>
+<td>Open</td>
+<td><input name="b1_5_d"></td>
+<td><input name="b1_5_t"></td>
+</tr>
+<tr>
+<td>Poor</td>
+<td>Good</td>
+<td>Closed</td>
+<td><input name="b1_6_d"></td>
+<td><input name="b1_6_t"></td>
+</tr>
+<tr>
+<td>Poor</td>
+<td>Poor</td>
+<td>Open</td>
+<td><input name="b1_7_d"></td>
+<td><input name="b1_7_t"></td>
+</tr>
+<tr>
+<td>Poor</td>
+<td>Poor</td>
+<td>Closed</td>
+<td><input name="b1_8_d"></td>
+<td><input name="b1_8_t"></td>
 </tr>
 </tbody>
 </table>
-<h3 id="question-b2">Question B2</h3>
+<hr>
+<h2 id="question-b2">Question B2</h2>
 <blockquote>
 <p>💡 Bob tries to understand what each field (e.g., column, key/value) in the recordings of Alice’s dataset represents (e.g., each column is a measurement).</p>
 <p>This helps Bob to understand which fields to read from each recording, and what preprocessing steps to perform before running them through the RT algorithm.</p>
@@ -783,12 +786,12 @@ dataset_dir = <span class="hljs-string">"/path/to/dataset"</span>
 <p><strong>Quality of Documentation</strong></p>
 <ul>
 <li><strong>Good -</strong> Alice has created a detailed description of the dataset and its contents</li>
-<li><strong>Bad -</strong> Alice has not created any description for the dataset</li>
+<li><strong>Poor -</strong> Alice has not created any description for the dataset</li>
 </ul>
 <p><strong>Level of Communication</strong></p>
 <ul>
 <li><strong>Good -</strong> Alice is willing to answer any questions Bob might have</li>
-<li><strong>Bad -</strong> Alice doesn’t have time to answer any questions Bob might have</li>
+<li><strong>Poor -</strong> Alice doesn’t have time to answer any questions Bob might have</li>
 </ul>
 <p><strong>Format of Data Files</strong></p>
 <ul>
@@ -802,66 +805,74 @@ dataset_dir = <span class="hljs-string">"/path/to/dataset"</span>
 <table>
 <thead>
 <tr>
+<th>Docs</th>
+<th>Comms</th>
+<th>Filetype</th>
 <th>Task Difficulty</th>
-<th>Good Docs</th>
-<th>Bad Docs</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Good Comms, Open Filetype</td>
-<td><input></td>
-<td><input></td>
-</tr>
-<tr>
-<td>Good Comms, Closed Filetype</td>
-<td><input></td>
-<td><input></td>
-</tr>
-<tr>
-<td>Bad Comms, Open Filetype</td>
-<td><input></td>
-<td><input></td>
-</tr>
-<tr>
-<td>Bad Comms, Closed Filetype</td>
-<td><input></td>
-<td><input></td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
 <th>Time Demand</th>
-<th>Good Docs</th>
-<th>Bad Docs</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Good Comms, Open Filetype</td>
-<td><input></td>
-<td><input></td>
+<td>Good</td>
+<td>Good</td>
+<td>Open</td>
+<td><input name="b2_1_d"></td>
+<td><input name="b2_1_t"></td>
 </tr>
 <tr>
-<td>Good Comms, Closed Filetype</td>
-<td><input></td>
-<td><input></td>
+<td>Good</td>
+<td>Good</td>
+<td>Closed</td>
+<td><input name="b2_2_d"></td>
+<td><input name="b2_2_t"></td>
 </tr>
 <tr>
-<td>Bad Comms, Open Filetype</td>
-<td><input></td>
-<td><input></td>
+<td>Good</td>
+<td>Poor</td>
+<td>Open</td>
+<td><input name="b2_3_d"></td>
+<td><input name="b2_3_t"></td>
 </tr>
 <tr>
-<td>Bad Comms, Closed Filetype</td>
-<td><input></td>
-<td><input></td>
+<td>Good</td>
+<td>Poor</td>
+<td>Closed</td>
+<td><input name="b2_4_d"></td>
+<td><input name="b2_4_t"></td>
+</tr>
+<tr>
+<td>Poor</td>
+<td>Good</td>
+<td>Open</td>
+<td><input name="b2_5_d"></td>
+<td><input name="b2_5_t"></td>
+</tr>
+<tr>
+<td>Poor</td>
+<td>Good</td>
+<td>Closed</td>
+<td><input name="b2_6_d"></td>
+<td><input name="b2_6_t"></td>
+</tr>
+<tr>
+<td>Poor</td>
+<td>Poor</td>
+<td>Open</td>
+<td><input name="b2_7_d"></td>
+<td><input name="b2_7_t"></td>
+</tr>
+<tr>
+<td>Poor</td>
+<td>Poor</td>
+<td>Closed</td>
+<td><input name="b2_8_d"></td>
+<td><input name="b2_8_t"></td>
 </tr>
 </tbody>
 </table>
-<h3 id="question-b3">Question B3</h3>
+<hr>
+<h2 id="question-b3">Question B3</h2>
 <blockquote>
 <p>💡 Bob tries to mimic the real-world use case of his RT algorithm. In reality, a 60 Hz device would send data at 60 Hz, which means the RT algorithm will also be called at 60 Hz.</p>
 <p>To simulate such conditions from recorded data (i.e., Alice’s dataset), Bob must rate-limit the <code>step()</code> function to the sampling frequency of data. To perform this, Bob needs to know the sampling frequency, and implement the actual rate-limiting.</p>
@@ -871,12 +882,12 @@ dataset_dir = <span class="hljs-string">"/path/to/dataset"</span>
 <p><strong>Quality of Documentation</strong></p>
 <ul>
 <li><strong>Good -</strong> Alice has created a detailed description of the dataset and its contents</li>
-<li><strong>Bad -</strong> Alice has not created any description for the dataset</li>
+<li><strong>Poor -</strong> Alice has not created any description for the dataset</li>
 </ul>
 <p><strong>Level of Communication</strong></p>
 <ul>
 <li><strong>Good -</strong> Alice is willing to answer any questions Bob might have</li>
-<li><strong>Bad -</strong> Alice doesn’t have time to answer any questions Bob might have</li>
+<li><strong>Poor -</strong> Alice doesn’t have time to answer any questions Bob might have</li>
 </ul>
 <p><strong>Format of Data Files</strong></p>
 <ul>
@@ -890,82 +901,95 @@ dataset_dir = <span class="hljs-string">"/path/to/dataset"</span>
 <table>
 <thead>
 <tr>
+<th>Docs</th>
+<th>Comms</th>
+<th>Filetype</th>
 <th>Task Difficulty</th>
-<th>Good Docs</th>
-<th>Bad Docs</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Good Comms, Open Filetype</td>
-<td><input></td>
-<td><input></td>
-</tr>
-<tr>
-<td>Good Comms, Closed Filetype</td>
-<td><input></td>
-<td><input></td>
-</tr>
-<tr>
-<td>Bad Comms, Open Filetype</td>
-<td><input></td>
-<td><input></td>
-</tr>
-<tr>
-<td>Bad Comms, Closed Filetype</td>
-<td><input></td>
-<td><input></td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
 <th>Time Demand</th>
-<th>Good Docs</th>
-<th>Bad Docs</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Good Comms, Open Filetype</td>
-<td><input></td>
-<td><input></td>
+<td>Good</td>
+<td>Good</td>
+<td>Open</td>
+<td><input name="b3_1_d"></td>
+<td><input name="b3_1_t"></td>
 </tr>
 <tr>
-<td>Good Comms, Closed Filetype</td>
-<td><input></td>
-<td><input></td>
+<td>Good</td>
+<td>Good</td>
+<td>Closed</td>
+<td><input name="b3_2_d"></td>
+<td><input name="b3_2_t"></td>
 </tr>
 <tr>
-<td>Bad Comms, Open Filetype</td>
-<td><input></td>
-<td><input></td>
+<td>Good</td>
+<td>Poor</td>
+<td>Open</td>
+<td><input name="b3_3_d"></td>
+<td><input name="b3_3_t"></td>
 </tr>
 <tr>
-<td>Bad Comms, Closed Filetype</td>
-<td><input></td>
-<td><input></td>
+<td>Good</td>
+<td>Poor</td>
+<td>Closed</td>
+<td><input name="b3_4_d"></td>
+<td><input name="b3_4_t"></td>
+</tr>
+<tr>
+<td>Poor</td>
+<td>Good</td>
+<td>Open</td>
+<td><input name="b3_5_d"></td>
+<td><input name="b3_5_t"></td>
+</tr>
+<tr>
+<td>Poor</td>
+<td>Good</td>
+<td>Closed</td>
+<td><input name="b3_6_d"></td>
+<td><input name="b3_6_t"></td>
+</tr>
+<tr>
+<td>Poor</td>
+<td>Poor</td>
+<td>Open</td>
+<td><input name="b3_7_d"></td>
+<td><input name="b3_7_t"></td>
+</tr>
+<tr>
+<td>Poor</td>
+<td>Poor</td>
+<td>Closed</td>
+<td><input name="b3_8_d"></td>
+<td><input name="b3_8_t"></td>
 </tr>
 </tbody>
 </table>
-<h3 id="question-b4">Question B4</h3>
+<hr>
+<h2 id="question-b4">Question B4</h2>
 <p>If you wish to find the peak data frequency that your algorithm can handle, would you rather have standard benchmark tests to compute them?</p>
-<ul>
-<li><input type="checkbox" id="checkbox0"><label for="checkbox0">Yes</label></li>
-<li><input type="checkbox" id="checkbox1"><label for="checkbox1">No</label></li>
-</ul>
-<h3 id="question-b5">Question B5</h3>
+<input type="radio" name="b4" value="Y">
+<label>Yes</label>
+<br>
+<input type="radio" name="b4" value="N">
+<label>No</label>
+<hr>
+<h2 id="question-b5">Question B5</h2>
 <p>If you wish to quantify the performance (e.g., throughput, latency) of your algorithm, would you rather have standard benchmark tests to compute them?</p>
-<ul>
-<li><input type="checkbox" id="checkbox2"><label for="checkbox2">Yes</label></li>
-<li><input type="checkbox" id="checkbox3"><label for="checkbox3">No</label></li>
-</ul>
-<h2 id="scenario-c---improving-productivity">Scenario C - Improving Productivity</h2>
+<input type="radio" name="b5" value="Y">
+<label>Yes</label>
+<br>
+<input type="radio" name="b5" value="N">
+<label>No</label>
+<hr>
+<h1 id="scenario-c---improving-productivity">Scenario C - Improving Productivity</h1>
 <blockquote>
 <p>💡 <strong>Cindy wants to streamline how datasets and algorithms are integrated at her lab.</strong></p>
 </blockquote>
-<h3 id="question-c1">Question C1</h3>
+<hr>
+<h2 id="question-c1">Question C1</h2>
 <p>Cindy’s students frequently run <strong>multiple</strong> datasets through <strong>multiple</strong> algorithms on a day-to-day basis. From your experience, rate how difficult and time-demanding this process could get.</p>
 <blockquote>
 <p><strong>Scale : [1 = Very Low; 2 = Low; 3 = Neutral; 4 = High; 5 = Very High]</strong></p>
@@ -980,21 +1004,24 @@ dataset_dir = <span class="hljs-string">"/path/to/dataset"</span>
 <tbody>
 <tr>
 <td>Difficulty of the job tasks</td>
-<td><input></td>
+<td><input name="c1_1"></td>
 </tr>
 <tr>
 <td>Time needed for the job tasks</td>
-<td><input></td>
+<td><input name="c1_2"></td>
 </tr>
 </tbody>
 </table>
-<h3 id="question-c2">Question C2</h3>
+<hr>
+<h2 id="question-c2">Question C2</h2>
 <p>Would you agree that such integration must be automated whenever possible?</p>
-<ul>
-<li><input type="checkbox" id="checkbox4"><label for="checkbox4">Yes</label></li>
-<li><input type="checkbox" id="checkbox5"><label for="checkbox5">No</label></li>
-</ul>
-<h3 id="question-c3">Question C3</h3>
+<input type="radio" name="c2" value="Y">
+<label>Yes</label>
+<br>
+<input type="radio" name="c2" value="N">
+<label>No</label>
+<hr>
+<h2 id="question-c3">Question C3</h2>
 <p>Given the opportunity to change how Cindy’s lab operates, rate how the changes suggested below could impact lab productivity.</p>
 <p><strong>Scale: [1 = Very Negative; 2 = Negative; 3 = None; 4 = Positive; 5 = Very Positive]</strong></p>
 <table>
@@ -1007,14 +1034,17 @@ dataset_dir = <span class="hljs-string">"/path/to/dataset"</span>
 <tbody>
 <tr>
 <td>Having a system to annotate datasets once, and reuse them on new algorithms</td>
-<td><input></td>
+<td><input name="c3_1"></td>
 </tr>
 <tr>
 <td>Having a Python API to read data from any annotated dataset</td>
-<td><input></td>
+<td><input name="c3_2"></td>
 </tr>
 </tbody>
 </table>
+<hr>
+<p><button type="submit">Submit</button></p>
+</form>
 
 </body>
 </html>

@@ -1,10 +1,10 @@
-# Questionnaire - Need
+<form action="/survey/submit" method="POST">
 
-## Introduction
+# StreamingHub Questionnaire - Introduction
 
 The text below describes the perspectives of three researchers; **Alice**, **Bob**, and **Cindy**.
 
-![Personas](assets/personas.png)
+![Personas](https://raw.githubusercontent.com/nirdslab/streaminghub/master/evaluation/questionnaire_need/assets/personas.png)
 
 1. **Alice (Dataset Curation) -** Collecting and organizing datasets for easy reuse
 2. **Bob (Algorithm Design) -** Developing RT algorithms and validating them on existing data
@@ -64,11 +64,15 @@ To run the algorithm, **Bob** first creates an instance of `RTAlgorithm` and the
 
 **Cindy** notices that her students put a considerable effort to connect existing datasets with RT algorithms. To improve productivity, she is looking for a solution that works across all/most use cases of her students and collaborators.
 
-## Scenario A - Dataset Curation
+<hr>
+
+# Scenario A - Dataset Curation
 
 > 💡 **Alice wants to make her dataset reusable for others.**
 
-### Question A1
+<hr>
+
+## Question A1
 
 > 💡 Alice decides to create a README to answer any questions Bob may get. Based on her past experiences, she tries to cover 4 common questions in the README.
 >
@@ -83,21 +87,23 @@ Based on your experience, please rate how **difficult** and **time-consuming** y
 
 > **Scale: 1 = Very Low; 2 = Low; 3 = Neutral; 4 = High; 5 = Very High**
 
-| Criteria                                                   | Difficulty | Time Demand |
-| ---------------------------------------------------------- | ---------- | ----------- |
-| Documenting What Experimental Variables Exist              | <input>    | <input>     |
-| Documenting What Variables Each File Represents            | <input>    | <input>     |
-| Documenting What Measurements Each Column/Field Represents | <input>    | <input>     |
-| Documenting What Units / Scale Each Measurement is in      | <input>    | <input>     |
+| Criteria                                                   | Task Difficulty       | Time Demand           |
+| ---------------------------------------------------------- | --------------------- | --------------------- |
+| Documenting What Experimental Variables Exist              | <input name="a1_1_d"> | <input name="a1_1_t"> |
+| Documenting What Variables Each File Represents            | <input name="a1_2_d"> | <input name="a1_2_t"> |
+| Documenting What Measurements Each Column/Field Represents | <input name="a1_3_d"> | <input name="a1_3_t"> |
+| Documenting What Units / Scale Each Measurement is in      | <input name="a1_4_d"> | <input name="a1_4_t"> |
 
-### Question A2
+<hr>
+
+## Question A2
 
 Based on your experience, please rate how **difficult** and **time-consuming** you think the process of **Bob transforming the dataset into target format** could get, under each condition.
 
 > **Level of Communication**
 >
 > - **Good -** Alice is willing to answer any questions Bob might have
-> - **Bad -** Alice doesn’t have time to answer any questions Bob might have
+> - **Poor -** Alice doesn’t have time to answer any questions Bob might have
 >
 > **File Format of Data**
 >
@@ -106,17 +112,16 @@ Based on your experience, please rate how **difficult** and **time-consuming** y
 
 > **Scale: 1 = Very Low; 2 = Low; 3 = Neutral; 4 = High; 5 = Very High**
 
-| Task Difficulty | Open Filetype | Closed Filetype |
-| --------------- | ------------- | --------------- |
-| Good Comms      | <input>       | <input>         |
-| Bad Comms       | <input>       | <input>         |
+| Comms | Filetype | Task Difficulty       | Time Demand           |
+| ----- | -------- | --------------------- | --------------------- |
+| Good  | Open     | <input name="a2_1_d"> | <input name="a2_1_t"> |
+| Good  | Closed   | <input name="a2_2_d"> | <input name="a2_2_t"> |
+| Poor  | Open     | <input name="a2_3_d"> | <input name="a2_3_t"> |
+| Poor  | Closed   | <input name="a2_4_d"> | <input name="a2_4_t"> |
 
-| Time Demand | Open Filetype | Closed Filetype |
-| ----------- | ------------- | --------------- |
-| Good Comms  | <input>       | <input>         |
-| Bad Comms   | <input>       | <input>         |
+<hr>
 
-### Question A3
+## Question A3
 
 > 💡 Being a helpful colleague, Alice decides to transform data into the format Bob needs, and share that version instead.
 >
@@ -127,7 +132,7 @@ Based on your experience, please rate how **difficult** and **time-consuming** y
 > **Level of Communication**
 >
 > - **Good -** Bob is willing to answer any questions Alice might have
-> - **Bad -** Bob doesn’t have time to answer any questions Alice might have
+> - **Poor -** Bob doesn’t have time to answer any questions Alice might have
 >
 > **Format of Data Files**
 >
@@ -136,17 +141,16 @@ Based on your experience, please rate how **difficult** and **time-consuming** y
 
 > **Scale: 1 = Very Low; 2 = Low; 3 = Neutral; 4 = High; 5 = Very High**
 
-| Task Difficulty | Open Filetype | Closed Filetype |
-| --------------- | ------------- | --------------- |
-| Good Comms      | <input>       | <input>         |
-| Bad Comms       | <input>       | <input>         |
+| Comms | Filetype | Task Difficulty       | Time Demand           |
+| ----- | -------- | --------------------- | --------------------- |
+| Good  | Open     | <input name="a3_1_d"> | <input name="a3_1_t"> |
+| Good  | Closed   | <input name="a3_2_d"> | <input name="a3_2_t"> |
+| Poor  | Open     | <input name="a3_3_d"> | <input name="a3_3_t"> |
+| Poor  | Closed   | <input name="a3_4_d"> | <input name="a3_4_t"> |
 
-| Time Demand | Open Filetype | Closed Filetype |
-| ----------- | ------------- | --------------- |
-| Good Comms  | <input>       | <input>         |
-| Bad Comms   | <input>       | <input>         |
+<hr>
 
-### Question A4
+## Question A4
 
 **Alice** notices that in the past, when sharing user-study datasets, the recipients had similar questions about loading data. This time, to save herself and Bob time, she created a script named `dataloader.py` to load the data and shared this with Bob. The script looks as follows:
 
@@ -175,12 +179,14 @@ Based on your experience, please rate the processes of **Bob reusing existing da
 
 > **Scale: 1 = Very Low; 2 = Low; 3 = Neutral; 4 = High; 5 = Very High**
 
-| Criteria                               | Task Difficulty | Time Demand |
-| -------------------------------------- | --------------- | ----------- |
-| Bob reusing existing data loading code | <input>         | <input>     |
-| Bob manually writing data loading code | <input>         | <input>     |
+| Criteria                               | Task Difficulty       | Time Demand           |
+| -------------------------------------- | --------------------- | --------------------- |
+| Bob reusing existing data loading code | <input name="a4_1_d"> | <input name="a4_1_t"> |
+| Bob manually writing data loading code | <input name="a4_2_d"> | <input name="a4_2_t"> |
 
-## Scenario B - Algorithm Design
+<hr>
+
+# Scenario B - Algorithm Design
 
 > 💡 **Bob wants to evaluate a RT algorithm on multiple datasets**
 
@@ -218,7 +224,9 @@ if __name__ == "__main__":
     # time.sleep(1/60)
 ```
 
-### Question B1
+<hr>
+
+## Question B1
 
 > 💡 Bob tries to understand the experimental variables (e.g., participants, tasks) in Alice’s dataset, and what its folder structure represents (e.g., one folder per task, one file per participant).
 >
@@ -229,12 +237,12 @@ Based on your experience, please rate how **difficult** and **time-consuming** y
 > **Quality of Documentation**
 >
 > - **Good -** Alice has created a detailed description of the dataset and its contents
-> - **Bad -** Alice has not created any description for the dataset
+> - **Poor -** Alice has not created any description for the dataset
 >
 > **Level of Communication**
 >
 > - **Good -** Alice is willing to answer any questions Bob might have
-> - **Bad -** Alice doesn’t have time to answer any questions Bob might have
+> - **Poor -** Alice doesn’t have time to answer any questions Bob might have
 >
 > **Format of Data Files**
 >
@@ -243,21 +251,20 @@ Based on your experience, please rate how **difficult** and **time-consuming** y
 
 > **Scale : [1 = Very Low; 2 = Low; 3 = Neutral; 4 = High; 5 = Very High]**
 
-| Task Difficulty             | Good Docs | Bad Docs |
-| --------------------------- | --------- | -------- |
-| Good Comms, Open Filetype   | <input>   | <input>  |
-| Good Comms, Closed Filetype | <input>   | <input>  |
-| Bad Comms, Open Filetype    | <input>   | <input>  |
-| Bad Comms, Closed Filetype  | <input>   | <input>  |
+| Docs | Comms | Filetype | Task Difficulty       | Time Demand           |
+| ---- | ----- | -------- | --------------------- | --------------------- |
+| Good | Good  | Open     | <input name="b1_1_d"> | <input name="b1_1_t"> |
+| Good | Good  | Closed   | <input name="b1_2_d"> | <input name="b1_2_t"> |
+| Good | Poor  | Open     | <input name="b1_3_d"> | <input name="b1_3_t"> |
+| Good | Poor  | Closed   | <input name="b1_4_d"> | <input name="b1_4_t"> |
+| Poor | Good  | Open     | <input name="b1_5_d"> | <input name="b1_5_t"> |
+| Poor | Good  | Closed   | <input name="b1_6_d"> | <input name="b1_6_t"> |
+| Poor | Poor  | Open     | <input name="b1_7_d"> | <input name="b1_7_t"> |
+| Poor | Poor  | Closed   | <input name="b1_8_d"> | <input name="b1_8_t"> |
 
-| Time Demand                 | Good Docs | Bad Docs |
-| --------------------------- | --------- | -------- |
-| Good Comms, Open Filetype   | <input>   | <input>  |
-| Good Comms, Closed Filetype | <input>   | <input>  |
-| Bad Comms, Open Filetype    | <input>   | <input>  |
-| Bad Comms, Closed Filetype  | <input>   | <input>  |
+<hr>
 
-### Question B2
+## Question B2
 
 > 💡 Bob tries to understand what each field (e.g., column, key/value) in the recordings of Alice’s dataset represents (e.g., each column is a measurement).
 >
@@ -268,12 +275,12 @@ Based on your experience, please rate how **difficult** and **time-consuming** y
 > **Quality of Documentation**
 >
 > - **Good -** Alice has created a detailed description of the dataset and its contents
-> - **Bad -** Alice has not created any description for the dataset
+> - **Poor -** Alice has not created any description for the dataset
 >
 > **Level of Communication**
 >
 > - **Good -** Alice is willing to answer any questions Bob might have
-> - **Bad -** Alice doesn’t have time to answer any questions Bob might have
+> - **Poor -** Alice doesn’t have time to answer any questions Bob might have
 >
 > **Format of Data Files**
 >
@@ -282,21 +289,20 @@ Based on your experience, please rate how **difficult** and **time-consuming** y
 
 > **Scale : [1 = Very Low; 2 = Low; 3 = Neutral; 4 = High; 5 = Very High]**
 
-| Task Difficulty             | Good Docs | Bad Docs |
-| --------------------------- | --------- | -------- |
-| Good Comms, Open Filetype   | <input>   | <input>  |
-| Good Comms, Closed Filetype | <input>   | <input>  |
-| Bad Comms, Open Filetype    | <input>   | <input>  |
-| Bad Comms, Closed Filetype  | <input>   | <input>  |
+| Docs | Comms | Filetype | Task Difficulty       | Time Demand           |
+| ---- | ----- | -------- | --------------------- | --------------------- |
+| Good | Good  | Open     | <input name="b2_1_d"> | <input name="b2_1_t"> |
+| Good | Good  | Closed   | <input name="b2_2_d"> | <input name="b2_2_t"> |
+| Good | Poor  | Open     | <input name="b2_3_d"> | <input name="b2_3_t"> |
+| Good | Poor  | Closed   | <input name="b2_4_d"> | <input name="b2_4_t"> |
+| Poor | Good  | Open     | <input name="b2_5_d"> | <input name="b2_5_t"> |
+| Poor | Good  | Closed   | <input name="b2_6_d"> | <input name="b2_6_t"> |
+| Poor | Poor  | Open     | <input name="b2_7_d"> | <input name="b2_7_t"> |
+| Poor | Poor  | Closed   | <input name="b2_8_d"> | <input name="b2_8_t"> |
 
-| Time Demand                 | Good Docs | Bad Docs |
-| --------------------------- | --------- | -------- |
-| Good Comms, Open Filetype   | <input>   | <input>  |
-| Good Comms, Closed Filetype | <input>   | <input>  |
-| Bad Comms, Open Filetype    | <input>   | <input>  |
-| Bad Comms, Closed Filetype  | <input>   | <input>  |
+<hr>
 
-### Question B3
+## Question B3
 
 > 💡 Bob tries to mimic the real-world use case of his RT algorithm. In reality, a 60 Hz device would send data at 60 Hz, which means the RT algorithm will also be called at 60 Hz.
 >
@@ -307,12 +313,12 @@ Based on your experience, please rate how **difficult** and **time-consuming** y
 > **Quality of Documentation**
 >
 > - **Good -** Alice has created a detailed description of the dataset and its contents
-> - **Bad -** Alice has not created any description for the dataset
+> - **Poor -** Alice has not created any description for the dataset
 >
 > **Level of Communication**
 >
 > - **Good -** Alice is willing to answer any questions Bob might have
-> - **Bad -** Alice doesn’t have time to answer any questions Bob might have
+> - **Poor -** Alice doesn’t have time to answer any questions Bob might have
 >
 > **Format of Data Files**
 >
@@ -321,63 +327,87 @@ Based on your experience, please rate how **difficult** and **time-consuming** y
 
 > **Scale : [1 = Very Low; 2 = Low; 3 = Neutral; 4 = High; 5 = Very High]**
 
-| Task Difficulty             | Good Docs | Bad Docs |
-| --------------------------- | --------- | -------- |
-| Good Comms, Open Filetype   | <input>   | <input>  |
-| Good Comms, Closed Filetype | <input>   | <input>  |
-| Bad Comms, Open Filetype    | <input>   | <input>  |
-| Bad Comms, Closed Filetype  | <input>   | <input>  |
+| Docs | Comms | Filetype | Task Difficulty       | Time Demand           |
+| ---- | ----- | -------- | --------------------- | --------------------- |
+| Good | Good  | Open     | <input name="b3_1_d"> | <input name="b3_1_t"> |
+| Good | Good  | Closed   | <input name="b3_2_d"> | <input name="b3_2_t"> |
+| Good | Poor  | Open     | <input name="b3_3_d"> | <input name="b3_3_t"> |
+| Good | Poor  | Closed   | <input name="b3_4_d"> | <input name="b3_4_t"> |
+| Poor | Good  | Open     | <input name="b3_5_d"> | <input name="b3_5_t"> |
+| Poor | Good  | Closed   | <input name="b3_6_d"> | <input name="b3_6_t"> |
+| Poor | Poor  | Open     | <input name="b3_7_d"> | <input name="b3_7_t"> |
+| Poor | Poor  | Closed   | <input name="b3_8_d"> | <input name="b3_8_t"> |
 
-| Time Demand                 | Good Docs | Bad Docs |
-| --------------------------- | --------- | -------- |
-| Good Comms, Open Filetype   | <input>   | <input>  |
-| Good Comms, Closed Filetype | <input>   | <input>  |
-| Bad Comms, Open Filetype    | <input>   | <input>  |
-| Bad Comms, Closed Filetype  | <input>   | <input>  |
+<hr>
 
-### Question B4
+## Question B4
 
 If you wish to find the peak data frequency that your algorithm can handle, would you rather have standard benchmark tests to compute them?
 
-- [ ] Yes
-- [ ] No
+<input type="radio" name="b4" value="Y">
+<label>Yes</label>
+<br>
+<input type="radio" name="b4" value="N">
+<label>No</label>
 
-### Question B5
+<hr>
+
+## Question B5
 
 If you wish to quantify the performance (e.g., throughput, latency) of your algorithm, would you rather have standard benchmark tests to compute them?
 
-- [ ] Yes
-- [ ] No
+<input type="radio" name="b5" value="Y">
+<label>Yes</label>
+<br>
+<input type="radio" name="b5" value="N">
+<label>No</label>
 
-## Scenario C - Improving Productivity
+<hr>
+
+# Scenario C - Improving Productivity
 
 > 💡 **Cindy wants to streamline how datasets and algorithms are integrated at her lab.**
 
-### Question C1
+<hr>
+
+## Question C1
 
 Cindy’s students frequently run **multiple** datasets through **multiple** algorithms on a day-to-day basis. From your experience, rate how difficult and time-demanding this process could get.
 
 > **Scale : [1 = Very Low; 2 = Low; 3 = Neutral; 4 = High; 5 = Very High]**
 
-| Criteria                      | Rating  |
-| ----------------------------- | ------- |
-| Difficulty of the job tasks   | <input> |
-| Time needed for the job tasks | <input> |
+| Criteria                      | Rating              |
+| ----------------------------- | ------------------- |
+| Difficulty of the job tasks   | <input name="c1_1"> |
+| Time needed for the job tasks | <input name="c1_2"> |
 
-### Question C2
+<hr>
+
+## Question C2
 
 Would you agree that such integration must be automated whenever possible?
 
-- [ ] Yes
-- [ ] No
+<input type="radio" name="c2" value="Y">
+<label>Yes</label>
+<br>
+<input type="radio" name="c2" value="N">
+<label>No</label>
 
-### Question C3
+<hr>
+
+## Question C3
 
 Given the opportunity to change how Cindy’s lab operates, rate how the changes suggested below could impact lab productivity.
 
 **Scale: [1 = Very Negative; 2 = Negative; 3 = None; 4 = Positive; 5 = Very Positive]**
 
-| Details of Change                                                           | Rating  |
-| --------------------------------------------------------------------------- | ------- |
-| Having a system to annotate datasets once, and reuse them on new algorithms | <input> |
-| Having a Python API to read data from any annotated dataset                 | <input> |
+| Details of Change                                                           | Rating              |
+| --------------------------------------------------------------------------- | ------------------- |
+| Having a system to annotate datasets once, and reuse them on new algorithms | <input name="c3_1"> |
+| Having a Python API to read data from any annotated dataset                 | <input name="c3_2"> |
+
+<hr>
+
+<button type="submit">Submit</button>
+
+</form>

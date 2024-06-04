@@ -4,7 +4,8 @@
 
 This folder contains examples to get you started on using StreamingHub.
 
-- DFDS Collections - A set of collection metadata describing real datasets.
-- DFDS Nodes - A set of proxy metadata describing real devices.
-- Eye Tracking Study - A comparison of computing gaze measures offline vs real-time
-- Reading from Device Proxy - An example of reading live streams from a device proxy.
+- DFDS Collections - Sample DFDS collection metadata (for real datasets).
+- DFDS Nodes - Sample DFDS proxy metadata (for real devices).
+- Creating Device Proxy - Sample streaminghub device proxy, written as a plugin.
+- Reading from Device Proxy - Sample code to stream data from a device proxy.
+- Refactoring Code - Example of refactoring existing code to work with streaminghub.
