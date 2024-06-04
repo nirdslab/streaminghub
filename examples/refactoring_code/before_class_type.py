@@ -41,7 +41,7 @@ class Runner:
         raise NotImplementedError()
 
 
-class ProxyPupilCore(Runner):
+class SimulateStream(Runner):
 
     t = 0.0
     dt = 0.1
@@ -65,10 +65,10 @@ class LogDataStream(Runner):
 
 if __name__ == "__main__":
     queue = multiprocessing.Queue()
-    dataloader = ProxyPupilCore(queue)
+    simulator = SimulateStream(queue)
     printer = LogDataStream(queue)
-    dataloader.start("pupil_core", "gaze")
+    simulator.start()
     printer.start()
     time.sleep(10)
     printer.stop()
-    dataloader.stop()
+    simulator.stop()

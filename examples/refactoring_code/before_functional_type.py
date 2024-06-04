@@ -27,7 +27,7 @@ class Runner:
         print(f"Stopped {self.proc.name}")
 
 
-def proxy_pupil_core_stream(
+def simulate_data_stream(
     source_id: str,
     stream_id: str,
     queue: multiprocessing.Queue,
@@ -35,7 +35,7 @@ def proxy_pupil_core_stream(
     print(source_id, stream_id)
     flag = False
     t = 0.0
-    dt = 0.1
+    dt = 1.0 / 60.0
 
     def handle_signal(signum, frame):
         nonlocal flag
@@ -77,10 +77,10 @@ def log_data_stream(
 
 if __name__ == "__main__":
     queue = multiprocessing.Queue()
-    dataloader = Runner(proxy_pupil_core_stream, queue)
+    simulator = Runner(simulate_data_stream, queue)
     printer = Runner(log_data_stream, queue)
-    dataloader.start("pupil_core", "gaze")
+    simulator.start()
     printer.start()
     time.sleep(10)
     printer.stop()
-    dataloader.stop()
+    simulator.stop()

@@ -171,9 +171,8 @@ class ManagedTask:
     logger = logging.getLogger(__name__)
     proc: multiprocessing.Process
 
-    def __init__(self, queue: Queue) -> None:
+    def __init__(self) -> None:
         self.name = self.__class__.__name__
-        self.queue = queue
         self.flag = False
 
     def __signal__(self, *args) -> None:
