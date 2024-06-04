@@ -1,3 +1,3 @@
 from .topics import *
-from .api import DataMuxRemoteAPI
+from .api import RemoteAPI
 from .server import DataMuxServer

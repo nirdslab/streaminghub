@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import asyncio
 import logging
 import timeit
 from statistics import stdev
@@ -12,12 +11,12 @@ from test_configs import data_config, runs
 from tqdm import tqdm
 
 
-async def connect():
+def connect():
     api = datamux.API()
     return api
 
 
-async def timeit_replay(
+def timeit_replay(
     api: datamux.API,
     dataset_name: str,
     num_runs: int,
@@ -55,13 +54,13 @@ async def timeit_replay(
     return t_replay, j_replay
 
 
-async def main():
+def main():
     df = pd.DataFrame()
-    api = await connect()
+    api = connect()
     for run in runs:
         rows = [[run.dataset_name, run.num_points] for _ in range(run.num_runs)]
         _df = pd.DataFrame(rows, columns=["dataset_name", "num_points"])
-        time, jitter = await timeit_replay(api, *run)
+        time, jitter = timeit_replay(api, *run)
         _df["runtime"] = f"ipc"
         _df["time"] = time
         _df["jitter"] = jitter
@@ -74,6 +73,6 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
     logger = logging.getLogger(__name__)
     try:
-        asyncio.run(main())
+        main()
     except KeyboardInterrupt:
         logger.warning("Interrupt received, shutting down.")

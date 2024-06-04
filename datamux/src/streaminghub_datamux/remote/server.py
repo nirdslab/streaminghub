@@ -2,7 +2,7 @@ import asyncio
 from threading import Thread
 
 import streaminghub_datamux as datamux
-from streaminghub_datamux.api import DataMuxAPI
+from streaminghub_datamux.api import API
 from streaminghub_datamux.rpc import create_rpc_server
 
 from .topics import *
@@ -29,7 +29,7 @@ class DataMuxServer:
             outgoing=self.api_out,
         )
         # api module
-        self.api = DataMuxAPI()
+        self.api = API()
 
     async def handle_requests(
         self,
@@ -46,7 +46,10 @@ class DataMuxServer:
             topic, content, uid = await self.api_in.get()
 
             # LIVE MODE (LSL -> Queue) =================================================================================================
-            if topic == TOPIC_LIST_LIVE_STREAMS:
+            if topic == TOPIC_LIST_LIVE_NODES:
+                nodes = self.api.list_live_nodes()
+                retval = [n.model_dump() for n in nodes]
+            elif topic == TOPIC_LIST_LIVE_STREAMS:
                 node_id = content["node_id"]
                 streams = self.api.list_live_streams(node_id)
                 retval = [s.model_dump() for s in streams]

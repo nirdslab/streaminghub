@@ -200,5 +200,98 @@ class ManagedTask:
         self.logger.info(f"Stopped {self.name}")
 
     @abc.abstractmethod
-    def step(self, *args, **kwargs) -> None:
-        raise NotImplementedError()
+    def step(self, *args, **kwargs) -> None: ...
+
+
+class IAPI(abc.ABC):
+
+    @abc.abstractmethod
+    def list_collections(self) -> list[dfds.Collection]:
+        """
+        List all collections.
+
+        Returns:
+            list[Collection]: list of available collections.
+        """
+
+    @abc.abstractmethod
+    def list_collection_streams(self, collection_id: str) -> list[dfds.Stream]:
+        """
+        List all streams in a collection.
+
+        Args:
+            collection_id (str): name of collection.
+
+        Returns:
+            list[Stream]: list of streams in collection.
+        """
+
+    @abc.abstractmethod
+    def replay_collection_stream(
+        self, collection_id: str, stream_id: str, attrs: dict, sink: Queue, uid: bytes | None = None
+    ) -> StreamAck:
+        """
+        Replay a collection-stream into a given queue.
+
+        Args:
+            collection_id (str): name of collection.
+            stream_id (str): name of stream in collection.
+            attrs (dict): attributes specifying which recording to replay.
+            sink (asyncio.Queue): destination to buffer replayed data.
+
+        Returns:
+            StreamAck: status and reference information.
+        """
+
+    @abc.abstractmethod
+    def stop_task(self, randseq: str) -> StreamAck: ...
+
+    @abc.abstractmethod
+    def publish_collection_stream(self, collection_id: str, stream_id: str, attrs: dict) -> StreamAck:
+        """
+        Publish a collection-stream as a LSL stream.
+
+        Args:
+            collection_id (str): name of collection.
+            stream_id (str): name of stream in collection.
+            attrs (dict): attributes specifying which recording to publish.
+
+        Returns:
+            StreamAck: status and reference information.
+        """
+
+    @abc.abstractmethod
+    def list_live_nodes(self) -> list[dfds.Node]:
+        """
+        List all live nodes.
+
+        Returns:
+            list[Node]: list of live nodes.
+        """
+
+    @abc.abstractmethod
+    def list_live_streams(self, node_id: str) -> list[dfds.Stream]:
+        """
+        List all streams in a live node.
+
+        Returns:
+            list[Stream]: list of available live streams.
+        """
+
+    @abc.abstractmethod
+    def proxy_live_stream(
+        self, node_id: str, stream_id: str, attrs: dict, sink: Queue, uid: bytes | None = None
+    ) -> StreamAck:
+        """
+        Proxy data from a live stream onto a given queue.
+
+        Args:
+            node_id (str): id of live node.
+            stream_id (str): id of the live stream.
+            attrs (dict): attributes specifying which live stream to read.
+            sink (asyncio.Queue): destination to buffer replayed data.
+            uid (Callable): optional uid to append to each data point.
+
+        Returns:
+            StreamAck: status and reference information.
+        """

@@ -1,6 +1,8 @@
 import asyncio
 import logging
 from collections import defaultdict
+from threading import Thread
+from typing import Coroutine
 
 import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
@@ -9,7 +11,42 @@ from streaminghub_datamux.rpc import create_rpc_client
 from .topics import *
 
 
-class DataMuxRemoteAPI:
+class AsyncExecutor(Thread):
+
+    def __init__(self):
+        super().__init__(daemon=True)
+        self.logger = logging.getLogger(__name__)
+        self.loop = asyncio.new_event_loop()
+        self.outgoing = asyncio.Queue()
+        self.incoming = asyncio.Queue()
+        self.handlers: dict[bytes, datamux.Queue] = defaultdict(lambda: datamux.Queue())
+
+    def run(self):
+        asyncio.set_event_loop(self.loop)
+        self.loop.run_until_complete(self.__handle_incoming__())
+
+    def submit(self, coro: Coroutine):
+        return asyncio.run_coroutine_threadsafe(coro, self.loop)
+
+    async def __handle_incoming__(
+        self,
+    ):
+        while True:
+            topic, content = await self.incoming.get()
+            self.logger.debug(f"<: {topic}: {content}")
+            self.handlers[topic].put(content)
+
+    def send(
+        self,
+        topic: bytes,
+        content: dict,
+    ) -> datamux.Queue:
+        self.logger.debug(f">: {topic}: {content}")
+        self.submit(self.outgoing.put((topic, content))).result()
+        return self.handlers[topic]
+
+
+class RemoteAPI(datamux.IAPI):
     """
     Remote API for DataMux.
 
@@ -34,43 +71,21 @@ class DataMuxRemoteAPI:
             codec_name (str): name of codec. supports {json, avro}.
         """
         self.active = False
-        # queues - sending
-        self.outgoing = asyncio.Queue()
-        # queues - receiving
-        self.incoming = asyncio.Queue()
+        self.executor = AsyncExecutor()
         # rpc module
         self.rpc = create_rpc_client(
             name=rpc_name,
             codec_name=codec_name,
-            incoming=self.incoming,
-            outgoing=self.outgoing,
+            incoming=self.executor.incoming,
+            outgoing=self.executor.outgoing,
         )
-        # request handling module
-        self.handlers: dict[bytes, asyncio.Queue] = defaultdict(lambda: asyncio.Queue())
         self.logger = logging.getLogger(__name__)
 
-    async def __handle_incoming__(
-        self,
-    ):
-        while self.active:
-            topic, content = await self.incoming.get()
-            self.logger.debug(f"<: {topic}: {content}")
-            await self.handlers[topic].put(content)
-
-    async def __send_await__(
-        self,
-        topic: bytes,
-        content: dict,
-    ):
-        self.logger.debug(f">: {topic}: {content}")
-        await self.outgoing.put((topic, content))
-        return self.handlers[topic]
-
-    async def connect(
+    def connect(
         self,
         server_host: str,
         server_port: int,
-    ):
+    ) -> None:
         """
         Establish remote connection.
 
@@ -79,168 +94,114 @@ class DataMuxRemoteAPI:
             server_port (int): Port of running server
         """
         self.active = True
-        await self.rpc.connect(server_host, server_port)
-        asyncio.create_task(self.__handle_incoming__())
+        self.executor.start()
+        self.executor.submit(self.rpc.connect(server_host, server_port)).result()
 
-    async def disconnect(
+    def disconnect(
         self,
-    ):
+    ) -> None:
         """
         Close remote connection.
 
         """
         self.active = False
 
-    async def list_collections(
+    def list_collections(
         self,
     ) -> list[dfds.Collection]:
-        """
-        List all collections.
-
-        Returns:
-            list[Collection]: list of available collections.
-        """
         topic = TOPIC_LIST_COLLECTIONS
         content: dict[str, str] = {}
-        result = await self.__send_await__(topic, content)
-        items = await result.get()
+        items = self.executor.send(topic, content).get()
         collections = [dfds.Collection(**item) for item in items]
         return collections
 
-    async def list_collection_streams(
+    def list_collection_streams(
         self,
         collection_id: str,
     ) -> list[dfds.Stream]:
-        """
-        List all streams in a collection.
-
-        Args:
-            collection_id (str): name of collection.
-
-        Returns:
-            list[Stream]: list of streams in collection.
-        """
         topic = TOPIC_LIST_COLLECTION_STREAMS
         content = dict(collection_id=collection_id)
-        result = await self.__send_await__(topic, content)
-        items = await result.get()
+        items = self.executor.send(topic, content).get()
         streams = [dfds.Stream(**item) for item in items]
         return streams
 
-    async def replay_collection_stream(
+    def replay_collection_stream(
         self,
         collection_id: str,
         stream_id: str,
         attrs: dict[str, str],
-        sink: asyncio.Queue,
+        sink: datamux.Queue,
     ) -> datamux.StreamAck:
-        """
-        Replay a collection-stream into a given queue.
-
-        Args:
-            collection_id (str): name of collection.
-            stream_id (str): name of stream in collection.
-            attrs (dict): attributes specifying which recording to replay.
-            sink (asyncio.Queue): destination to buffer replayed data.
-
-        Returns:
-            StreamAck: status and reference information.
-        """
         topic = TOPIC_REPLAY_COLLECTION_STREAM
         content = dict(
             collection_id=collection_id,
             stream_id=stream_id,
             attrs=attrs,
         )
-        result = await self.__send_await__(topic, content)
-        info = await result.get()
+        info = self.executor.send(topic, content).get()
         ack = datamux.StreamAck(**info)
         assert ack.randseq is not None
         stream_topic = ack.randseq.encode()
-        self.handlers[stream_topic] = sink
+        self.executor.handlers[stream_topic] = sink
         return ack
 
-    async def publish_collection_stream(
+    def publish_collection_stream(
         self,
         collection_id: str,
         stream_id: str,
         attrs: dict[str, str],
     ) -> datamux.StreamAck:
-        """
-        Publish a collection-stream as a LSL stream.
-
-        Args:
-            collection_id (str): name of collection.
-            stream_id (str): name of stream in collection.
-            attrs (dict): attributes specifying which recording to publish.
-
-        Returns:
-            StreamAck: status and reference information.
-        """
         topic = TOPIC_PUBLISH_COLLECTION_STREAM
         content = dict(
             collection_id=collection_id,
             stream_id=stream_id,
             attrs=attrs,
         )
-        result = await self.__send_await__(topic, content)
-        info = await result.get()
+        info = self.executor.send(topic, content).get()
         ack = datamux.StreamAck(**info)
         return ack
 
-    async def stop_task(
+    def list_live_nodes(
+        self,
+    ) -> list[dfds.Node]:
+        topic = TOPIC_LIST_LIVE_NODES
+        content: dict[str, str] = {}
+        items = self.executor.send(topic, content).get()
+        nodes = [dfds.Node(**item) for item in items]
+        return nodes
+
+    def list_live_streams(
+        self,
+        node_id: str,
+    ) -> list[dfds.Stream]:
+        topic = TOPIC_LIST_LIVE_STREAMS
+        content: dict[str, str] = dict(node_id=node_id)
+        items = self.executor.send(topic, content).get()
+        streams = [dfds.Stream(**item) for item in items]
+        return streams
+
+    def proxy_live_stream(
+        self,
+        node_id: str,
+        stream_id: str,
+        attrs: dict,
+        sink: datamux.Queue,
+    ) -> datamux.StreamAck:
+        topic = TOPIC_READ_LIVE_STREAM
+        content = dict(node_id=node_id, stream_id=stream_id, attrs=attrs)
+        info = self.executor.send(topic, content).get()
+        ack = datamux.StreamAck(**info)
+        assert ack.randseq is not None
+        stream_topic = ack.randseq.encode()
+        self.executor.handlers[stream_topic] = sink
+        return ack
+
+    def stop_task(
         self,
         randseq: str,
     ) -> datamux.StreamAck:
         topic = TOPIC_STOP_TASK
         content = dict(randseq=randseq)
-        result = await self.__send_await__(topic, content)
-        info = await result.get()
+        info = self.executor.send(topic, content).get()
         ack = datamux.StreamAck(**info)
-        return ack
-
-    async def list_live_streams(
-        self,
-        node_id: str,
-    ) -> list[dfds.Stream]:
-        """
-        List all live streams.
-
-        Returns:
-            list[Stream]: list of available live streams.
-        """
-        topic = TOPIC_LIST_LIVE_STREAMS
-        content: dict[str, str] = dict(node_id=node_id)
-        result = await self.__send_await__(topic, content)
-        items = await result.get()
-        streams = [dfds.Stream(**item) for item in items]
-        return streams
-
-    async def proxy_live_stream(
-        self,
-        node_id: str,
-        stream_id: str,
-        attrs: dict,
-        sink: asyncio.Queue,
-    ) -> datamux.StreamAck:
-        """
-        Proxy data from a live stream onto a given queue.
-
-        Args:
-            node_id (str): id of live node.
-            stream_id (str): id of the live stream.
-            attrs (dict): attributes specifying which live stream to read.
-            sink (asyncio.Queue): destination to buffer replayed data.
-
-        Returns:
-            StreamAck: status and reference information.
-        """
-        topic = TOPIC_READ_LIVE_STREAM
-        content = dict(node_id=node_id, stream_id=stream_id, attrs=attrs)
-        result = await self.__send_await__(topic, content)
-        info = await result.get()
-        ack = datamux.StreamAck(**info)
-        assert ack.randseq is not None
-        stream_topic = ack.randseq.encode()
-        self.handlers[stream_topic] = sink
         return ack
