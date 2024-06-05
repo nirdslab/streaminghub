@@ -1,16 +1,49 @@
+from __future__ import annotations
+
 import abc
 import logging
+import multiprocessing
 import multiprocessing.synchronize
 import signal
-from typing import Callable, Generic, TypeVar, Union
+import time
+from typing import Callable, Generic, TypeVar
 
 import streaminghub_pydfds as dfds
 from pydantic import BaseModel
 
 END_OF_STREAM = {}  # NOTE do not change
+Q = multiprocessing.Queue
 
-Queue = multiprocessing.Queue
 Flag = multiprocessing.synchronize.Event
+
+D = TypeVar("D")
+
+
+class Queue(Generic[D]):
+
+    q: Q
+
+    def __init__(self, empty: bool = False) -> None:
+        super().__init__()
+        if empty:
+            self.q = None  # type: ignore
+        else:
+            self.q = Q()
+
+    def assign(self, q: Queue):
+        self.q = q.q
+
+    def get(self, block: bool = True, timeout: float | None = None) -> D:
+        return self.q.get(block, timeout)
+
+    def get_nowait(self) -> D:
+        return self.q.get_nowait()
+
+    def put(self, obj: D, block: bool = True, timeout: float | None = None) -> None:
+        return self.q.put(obj, block, timeout)
+
+    def put_nowait(self, obj: D) -> None:
+        return self.q.put_nowait(obj)
 
 
 def create_flag() -> Flag:
@@ -182,10 +215,7 @@ class ITask(abc.ABC):
         signal.signal(signal.SIGINT, self.__signal__)
         signal.signal(signal.SIGTERM, self.__signal__)
         while not self.flag:
-            self.step(*args, **kwargs)
-
-    @abc.abstractmethod
-    def wire(self, *queues: Queue) -> None: ...
+            self(*args, **kwargs)
 
     def start(self, *args, **kwargs):
         self.proc = multiprocessing.Process(
@@ -205,64 +235,114 @@ class ITask(abc.ABC):
         self.logger.info(f"Stopped {self.name}")
 
     @abc.abstractmethod
-    def step(self, *args, **kwargs) -> None: ...
+    def __call__(self, *args, **kwargs) -> None: ...
 
 
-class SourceTask(ITask):
-    q: Queue = None  # type: ignore
-
-    def wire(self, q: Queue):
-        self.q = q
+class ITaskWithSource(ITask):
+    source: Queue
 
 
-class PipeTask(ITask):
-    q_in: Queue = None  # type: ignore
-    q_out: Queue = None  # type: ignore
-
-    def wire(self, q_in: Queue, q_out: Queue):
-        self.q_in = q_in
-        self.q_out = q_out
+class SourceTask(ITaskWithSource):
+    def __init__(self) -> None:
+        super().__init__()
+        self.source = Queue()
 
 
-class SinkTask(ITask):
-    q: Queue = None  # type: ignore
+class PipeTask(ITaskWithSource):
+    target: Queue
 
-    def wire(self, q: Queue):
-        self.q = q
+    def __init__(self) -> None:
+        super().__init__()
+        self.source = Queue(empty=True)
+        self.target = Queue()
 
 
-class Pipeline:
+class SinkTask(ITaskWithSource):
 
-    def __init__(self, head: Union[Queue, SourceTask], *tasks: ITask) -> None:
-        # head
-        if isinstance(head, SourceTask):
-            q = Queue()
-            self.tasks = [head, *tasks]
-        elif isinstance(head, Queue):
-            q = head
-            self.tasks = tasks
-        else:
-            raise ValueError()
-        # body
-        for task in self.tasks:
-            if isinstance(task, (SourceTask, SinkTask)):
-                # wire the current queue
-                task.wire(q)
+    def __init__(self) -> None:
+        super().__init__()
+        self.source = Queue(empty=True)
+
+
+class Pipeline(ITask):
+
+    target: Queue
+
+    @property
+    def source(self) -> Queue:
+        return self.tasks[0].source
+
+    def __init__(self, *tasks: SourceTask | SinkTask | PipeTask | Pipeline) -> None:
+        super().__init__()
+        self.tasks = tasks
+        for i, task in enumerate(self.tasks):
+            if isinstance(task, SourceTask):
+                assert i == 0
+                q = task.source
+                self.logger.info(f"task={task.name}, source={task.source}")
+            elif isinstance(task, SinkTask):
+                assert i == len(self.tasks) - 1
+                task.source = q
+                self.logger.info(f"task={task.name}, source={task.source}")
             elif isinstance(task, PipeTask):
-                q_prev, q = q, Queue()
-                # wire both previous and current queues
-                task.wire(q_prev, q)
-            else:
-                raise ValueError(task)
+                if i == 0:
+                    # source is empty
+                    task.source = Queue(empty=True)
+                    q = task.target
+                    self.logger.info(f"task={task.name}, source={task.source}, target={task.target}")
+                else:
+                    # source is non-empty
+                    task.source = q
+                    q = task.target
+                    self.logger.info(f"task={task.name}, source={task.source}, target={task.target}")
+            elif isinstance(task, Pipeline):
+                assert i > 0
+                # source is non-empty
+                assert q is not None
+                task.source.assign(q)
+                q = task.target
+                self.logger.info(f"task={task.name}, source={task.source}, target={task.target}")
+        self.target = q
 
-    def run(self, duration: float = 10.0):
-        import time
-
+    def start(self):
         for task in self.tasks:
             task.start()
-        time.sleep(duration)
+
+    def stop(self):
         for task in self.tasks:
             task.stop()
+
+    def run(self, duration: float):
+        self.start()
+        time.sleep(duration)
+        self.stop()
+
+    def __call__(self, *args, **kwargs) -> None:
+        raise ValueError("should never be called")
+
+
+# class Parallel(PipeTask):
+
+#     def __init__(self, *pipelines: Pipeline, join: Literal["flat", "sync"] = "flat") -> None:
+#         super().__init__()
+#         self.pipelines = pipelines
+
+#     def step(self, *args, **kwargs) -> None:
+#         for pipeline in self.pipelines:
+#             pipeline.
+
+#         return super().step(*args, **kwargs)
+
+
+# class BatchingWindow(PipeTask):
+
+#     def step(self, *args, **kwargs) -> None:
+#         return super().step(*args, **kwargs)
+
+# class SlidingWindow(PipeTask):
+
+#     def step(self, *args, **kwargs) -> None:
+#         return super().step(*args, **kwargs)
 
 
 class Transform(PipeTask):
@@ -273,9 +353,9 @@ class Transform(PipeTask):
 
     def step(self, *args, **kwargs) -> None:
         try:
-            item = self.q_in.get(timeout=1.0)
+            item = self.source.get(timeout=1.0)
             target = self.fn(item)
-            self.q_out.put(target)
+            self.target.put(target)
         except:
             pass
 

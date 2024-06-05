@@ -115,7 +115,7 @@ class IVT(datamux.PipeTask):
                 d_mean=d_mean,
             )
 
-    def step(self, *args, **kwargs) -> None:
+    def __call__(self, *args, **kwargs) -> None:
         """
         compress gaze stream (t, x, y, d) into a fixation/saccade event stream
         v_threshold = 600 #px/s -> normal threshold is 0.5 o5 0.6 px/ms
@@ -131,7 +131,7 @@ class IVT(datamux.PipeTask):
         d: float
 
         try:
-            item = self.q_in.get(timeout=1.0)
+            item = self.source.get(timeout=1.0)
         except:
             return
 
@@ -180,7 +180,7 @@ class IVT(datamux.PipeTask):
                         if fxn_duration >= 0.06:
                             fxtn = self.make_fixation(p)
                             assert fxtn is not None
-                            self.q_out.put_nowait(fxtn)
+                            self.target.put_nowait(fxtn)
                         else:
                             # does not qualify as fixation - move to temp saccades
                             self.temp_sacpoints.extend(self.temp_fixpoints)
@@ -201,7 +201,7 @@ class IVT(datamux.PipeTask):
                         # saccade -> fixation (fixation starts)
                         sacc = self.make_saccade(p)
                         if sacc is not None:
-                            self.q_out.put_nowait(sacc)
+                            self.target.put_nowait(sacc)
                         else:
                             # does not qualify as saccade - move to temp fixations
                             self.temp_fixpoints.extend(self.temp_sacpoints)
