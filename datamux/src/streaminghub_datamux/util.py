@@ -1,6 +1,7 @@
 import asyncio
 import random
 from functools import partial, wraps
+import time
 
 prefix = "d_"
 
@@ -24,3 +25,6 @@ def identity(x):
 
 def envelope(x, prefix: bytes, suffix: bytes):
     return [prefix, x, suffix]
+
+
+sleep = time.sleep

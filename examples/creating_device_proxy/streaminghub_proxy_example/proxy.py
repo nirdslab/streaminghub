@@ -91,8 +91,6 @@ class ExampleProxy(datamux.Reader[dfds.Node]):
     ) -> None:
         t = 0.0
         c = 0.0
-        t = 0.0
-        c = 0.0
         # left pupil diam
         if topic.startswith("pupil.1"):
             pupil_d = random()

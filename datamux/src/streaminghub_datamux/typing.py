@@ -2,7 +2,7 @@ import abc
 import logging
 import multiprocessing.synchronize
 import signal
-from typing import Callable, Generic, TypeVar
+from typing import Callable, Generic, TypeVar, Union
 
 import streaminghub_pydfds as dfds
 from pydantic import BaseModel
@@ -166,7 +166,7 @@ class Reader(Generic[T], IAttach, abc.ABC):
     def list_streams(self, source_id: str) -> list[dfds.Stream]: ...
 
 
-class ManagedTask:
+class ITask(abc.ABC):
 
     logger = logging.getLogger(__name__)
     proc: multiprocessing.Process
@@ -183,6 +183,9 @@ class ManagedTask:
         signal.signal(signal.SIGTERM, self.__signal__)
         while not self.flag:
             self.step(*args, **kwargs)
+
+    @abc.abstractmethod
+    def wire(self, *queues: Queue) -> None: ...
 
     def start(self, *args, **kwargs):
         self.proc = multiprocessing.Process(
@@ -203,6 +206,78 @@ class ManagedTask:
 
     @abc.abstractmethod
     def step(self, *args, **kwargs) -> None: ...
+
+
+class SourceTask(ITask):
+    q: Queue = None  # type: ignore
+
+    def wire(self, q: Queue):
+        self.q = q
+
+
+class PipeTask(ITask):
+    q_in: Queue = None  # type: ignore
+    q_out: Queue = None  # type: ignore
+
+    def wire(self, q_in: Queue, q_out: Queue):
+        self.q_in = q_in
+        self.q_out = q_out
+
+
+class SinkTask(ITask):
+    q: Queue = None  # type: ignore
+
+    def wire(self, q: Queue):
+        self.q = q
+
+
+class Pipeline:
+
+    def __init__(self, head: Union[Queue, SourceTask], *tasks: ITask) -> None:
+        # head
+        if isinstance(head, SourceTask):
+            q = Queue()
+            self.tasks = [head, *tasks]
+        elif isinstance(head, Queue):
+            q = head
+            self.tasks = tasks
+        else:
+            raise ValueError()
+        # body
+        for task in self.tasks:
+            if isinstance(task, (SourceTask, SinkTask)):
+                # wire the current queue
+                task.wire(q)
+            elif isinstance(task, PipeTask):
+                q_prev, q = q, Queue()
+                # wire both previous and current queues
+                task.wire(q_prev, q)
+            else:
+                raise ValueError(task)
+
+    def run(self, duration: float = 10.0):
+        import time
+
+        for task in self.tasks:
+            task.start()
+        time.sleep(duration)
+        for task in self.tasks:
+            task.stop()
+
+
+class Transform(PipeTask):
+
+    def __init__(self, fn: Callable) -> None:
+        super().__init__()
+        self.fn = fn
+
+    def step(self, *args, **kwargs) -> None:
+        try:
+            item = self.q_in.get(timeout=1.0)
+            target = self.fn(item)
+            self.q_out.put(target)
+        except:
+            pass
 
 
 class IAPI(abc.ABC):

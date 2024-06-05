@@ -5,7 +5,7 @@ import numpy as np
 import streaminghub_datamux as datamux
 
 from .sg import SG
-from .typing import CompositeFixationEvent, CompositeSaccadeEvent, Point
+from .typing import FixationEvent, Point, SaccadeEvent
 
 SACCADE_STATE = 0
 FIXATION_STATE = 1
@@ -15,7 +15,7 @@ SG_DERIV2 = 2
 BLANK_POINT = Point(t=0, x=0, y=0, d=0)
 
 
-class IVT(datamux.ManagedTask):
+class IVT(datamux.PipeTask):
 
     sg_window_len_k = 5  # dfwidth: savitzky-golay filter width 2k+1 = 2(5)+1 =11
     sg_window_len_k = 25  # dfwidth: savitzky-golay filter width 2k+1 = 2(5)+1 =11
@@ -30,8 +30,6 @@ class IVT(datamux.ManagedTask):
         dist: float,
         screen: float,
         vt: float,
-        q_in: datamux.Queue,
-        q_out: datamux.Queue,
     ) -> None:
         super().__init__()
         self.width = float(width)
@@ -40,8 +38,6 @@ class IVT(datamux.ManagedTask):
         self.dist = float(dist)
         self.screen = float(screen)
         self.vt = vt
-        self.q_in = q_in
-        self.q_out = q_out
 
         self.period = 1.0 / self.herz  # sampling period: sec
         self.D = self.dist  # distance: in
@@ -75,18 +71,18 @@ class IVT(datamux.ManagedTask):
         y = f_y.apply([p.y for p in self.gazepoints])
         return Point(t=mid_p.t, x=x, y=y, d=mid_p.d)
 
-    def make_fixation(self) -> CompositeFixationEvent | None:
+    def make_fixation(self, pT: Point) -> FixationEvent | None:
 
         pts = self.temp_fixpoints
 
         if len(pts) > 1:
             t_entry = pts[0].t
-            t_exit = pts[-1].t
+            t_exit = pT.t
             x_mean = np.mean([p.x for p in pts]).item()
             y_mean = np.mean([p.y for p in pts]).item()
             d_mean = np.mean([p.d for p in pts]).item()
 
-            return CompositeFixationEvent(
+            return FixationEvent(
                 t_entry=t_entry,
                 t_exit=t_exit,
                 x_mean=x_mean,
@@ -94,7 +90,7 @@ class IVT(datamux.ManagedTask):
                 d_mean=d_mean,
             )
 
-    def make_saccade(self) -> CompositeSaccadeEvent | None:
+    def make_saccade(self, pT: Point) -> SaccadeEvent | None:
 
         pts = self.temp_sacpoints
         vel = self.velocities
@@ -102,15 +98,15 @@ class IVT(datamux.ManagedTask):
 
         if len(pts) > 1 and len(vel) > 1:
             t_entry = pts[0].t
-            t_exit = pts[-1].t
-            x_dist = pts[-1].x - pts[0].x
-            y_dist = pts[-1].y - pts[0].y
+            t_exit = pT.t
+            x_dist = pT.x - pts[0].x
+            y_dist = pT.y - pts[0].y
             amp = np.sqrt(x_dist**2 + y_dist**2)
             vel_mean = np.mean(vel).item()
             vel_peak = np.max(vel).item()
             d_mean = np.mean([s.d for s in pts]).item()
 
-            return CompositeSaccadeEvent(
+            return SaccadeEvent(
                 t_entry=t_entry,
                 t_exit=t_exit,
                 amp=amp,
@@ -182,7 +178,7 @@ class IVT(datamux.ManagedTask):
                         fxn_duration = self.temp_fixpoints[-1].t - self.temp_fixpoints[0].t
                         # min fix duration 60 ms
                         if fxn_duration >= 0.06:
-                            fxtn = self.make_fixation()
+                            fxtn = self.make_fixation(p)
                             assert fxtn is not None
                             self.q_out.put_nowait(fxtn)
                         else:
@@ -203,7 +199,7 @@ class IVT(datamux.ManagedTask):
                     if self.state == SACCADE_STATE and len(self.temp_sacpoints) > 0:
                         assert len(self.temp_fixpoints) == 0
                         # saccade -> fixation (fixation starts)
-                        sacc = self.make_saccade()
+                        sacc = self.make_saccade(p)
                         if sacc is not None:
                             self.q_out.put_nowait(sacc)
                         else:
