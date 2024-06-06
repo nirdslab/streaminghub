@@ -26,6 +26,8 @@ class LSLProxy(datamux.Reader[dfds.Node]):
         stream_infos = pylsl.resolve_streams()
         for stream_info in stream_infos:
             stream = stream_info_to_stream(stream_info)
+            # at this point, stream.node is already set
+            stream.attrs.update({"mode": "proxy"})
             self.__streams.append(stream)
 
     def __create_query(

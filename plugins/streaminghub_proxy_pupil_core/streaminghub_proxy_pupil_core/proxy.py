@@ -190,4 +190,9 @@ class PupilCoreProxy(datamux.Reader[dfds.Node]):
     def list_streams(self, source_id: str) -> list[dfds.Stream]:
         source_ids = [node.id for node in self.nodes]
         assert source_id in source_ids
-        return list(self.nodes[source_ids.index(source_id)].outputs.values())
+        node = self.nodes[source_ids.index(source_id)]
+        streams = list(node.outputs.values())
+        for stream in streams:
+            stream.node = node
+            stream.attrs.update({"mode": "proxy"})
+        return streams

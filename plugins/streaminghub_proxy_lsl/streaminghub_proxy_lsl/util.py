@@ -25,6 +25,5 @@ def stream_inlet_to_stream(
     desc["name"] = info["name"] or ""
     desc["unit"] = info["type"] or ""
     desc["frequency"] = info["nominal_srate"] or ""
-    desc["@node"] = desc.pop("node")
     # generate stream object from dict
     return Stream(**desc)

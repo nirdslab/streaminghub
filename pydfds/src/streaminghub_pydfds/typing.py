@@ -50,7 +50,7 @@ class Stream(p.BaseModel):
     frequency: int
     fields: dict[str, Field]
     index: dict[str, Field]
-    node: Optional[Node] = p.Field(alias="@node", default=None)
+    node: Optional[Node] = p.Field(default=None)
     attrs: dict[str, str] = p.Field(default=dict())
 
 

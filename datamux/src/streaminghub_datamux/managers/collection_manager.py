@@ -56,8 +56,10 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         for attrs in dataloader.ls():
             for stream_id, stream in collection.streams.items():
                 stream = stream.model_copy(deep=True)
+                if stream.node is None:
+                    stream.node = dfds.Node(id=source_id)
                 stream.attrs.update(attrs)
-                stream.attrs.update({"id": stream_id})
+                stream.attrs.update({"id": stream_id, "mode": "replay"})
                 streams.append(stream)
         return streams
 

@@ -29,9 +29,8 @@ class API(datamux.IAPI):
         self.proxy_n = ProxyManager()
         self.context: dict[str, datamux.Flag] = {}
 
-        # setup CollectionManager and ProxyManager
+        # setup CollectionManager
         self.reader_c.setup()
-        # self.proxy_n.setup()  # TODO move to correct place
 
     def list_collections(
         self,
@@ -89,6 +88,7 @@ class API(datamux.IAPI):
         self,
         node_id: str,
     ) -> list[dfds.Stream]:
+        self.proxy_n.setup(proxy_id=node_id)
         streams = self.proxy_n.list_streams(node_id)
         return streams
 
@@ -106,6 +106,7 @@ class API(datamux.IAPI):
         else:
             transform = identity
         self.context[randseq] = datamux.create_flag()
+        self.proxy_n.setup(proxy_id=node_id)
         self.proxy_n.attach(
             source_id=node_id,
             stream_id=stream_id,
@@ -128,10 +129,13 @@ class API(datamux.IAPI):
     def attach(
         self,
         stream: dfds.Stream,
-        transform = None,
+        transform=None,
     ) -> datamux.SourceTask:
         mode = stream.attrs.get("mode")
         assert mode in ["proxy", "replay"]
         node = stream.node
         assert node is not None
-        return datamux.APIStreamer(self, mode, node.id, stream.name, stream.attrs, transform)
+        node_id = node.id
+        stream_id = stream.attrs.get("id")
+        assert stream_id is not None
+        return datamux.APIStreamer(self, mode, node_id, stream_id, stream.attrs, transform)

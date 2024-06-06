@@ -37,7 +37,7 @@ class PathOrURILoader:
         if obj.has_fragment():
             for part in filter(None, obj.fragment.split("/")):
                 fragment = fragment[part]
-            fragment["@node"] = {"@ref": path}
+            fragment["node"] = {"@ref": path}
 
         # return content
         return fragment

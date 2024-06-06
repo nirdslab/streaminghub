@@ -179,7 +179,12 @@ class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
     ) -> list[dfds.Stream]:
         source_ids = [node.id for node in self.sources]
         assert source_id in source_ids
-        return list(self.sources[source_ids.index(source_id)].outputs.values())
+        node = self.sources[source_ids.index(source_id)]
+        streams = list(node.outputs.values())
+        for stream in streams:
+            stream.node = node
+            stream.attrs.update({"mode": "proxy"})
+        return streams
 
     def on_attach(
         self,

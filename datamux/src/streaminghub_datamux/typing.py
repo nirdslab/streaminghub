@@ -282,22 +282,22 @@ class Pipeline(ITask):
             if isinstance(task, SourceTask):
                 assert i == 0
                 q = task.source
-                self.logger.info(f"task={task.name}, source={task.source}")
+                self.logger.debug(f"task={task.name}, source={task.source}")
             elif isinstance(task, SinkTask):
                 assert i == len(self.tasks) - 1
                 task.source = q
-                self.logger.info(f"task={task.name}, source={task.source}")
+                self.logger.debug(f"task={task.name}, source={task.source}")
             elif isinstance(task, PipeTask):
                 if i == 0:
                     # source is empty
                     task.source = Queue(empty=True)
                     q = task.target
-                    self.logger.info(f"task={task.name}, source={task.source}, target={task.target}")
+                    self.logger.debug(f"task={task.name}, source={task.source}, target={task.target}")
                 else:
                     # source is non-empty
                     task.source = q
                     q = task.target
-                    self.logger.info(f"task={task.name}, source={task.source}, target={task.target}")
+                    self.logger.debug(f"task={task.name}, source={task.source}, target={task.target}")
             elif isinstance(task, Pipeline):
                 assert i > 0
                 # source is non-empty

@@ -118,7 +118,7 @@ class Parser:
         else:
             for k, v in metadata.items():
                 # avoid circular dereferencing
-                if k not in ["@node", "@ref"]:
+                if k not in ["node", "@ref"]:
                     if isinstance(v, dict):
                         metadata[k] = self.dereference(v, base)
         return metadata

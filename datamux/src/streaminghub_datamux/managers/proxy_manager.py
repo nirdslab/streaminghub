@@ -46,7 +46,8 @@ class ProxyManager(datamux.Reader[dfds.Node]):
         """
         assert proxy_id in self.proxies
         prox = self.proxies[proxy_id]
-        prox.setup()
+        if not prox.is_setup:
+            prox.setup()
 
     def list_sources(self) -> list[dfds.Node]:
         """
