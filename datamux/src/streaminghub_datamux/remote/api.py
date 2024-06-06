@@ -112,6 +112,7 @@ class RemoteAPI(datamux.IAPI):
         topic = TOPIC_LIST_COLLECTIONS
         content: dict[str, str] = {}
         items = self.executor.send(topic, content).get()
+        assert items is not None
         collections = [dfds.Collection(**item) for item in items]
         return collections
 
@@ -122,6 +123,7 @@ class RemoteAPI(datamux.IAPI):
         topic = TOPIC_LIST_COLLECTION_STREAMS
         content = dict(collection_id=collection_id)
         items = self.executor.send(topic, content).get()
+        assert items is not None
         streams = [dfds.Stream(**item) for item in items]
         return streams
 
@@ -139,6 +141,7 @@ class RemoteAPI(datamux.IAPI):
             attrs=attrs,
         )
         info = self.executor.send(topic, content).get()
+        assert info is not None
         ack = datamux.StreamAck(**info)
         assert ack.randseq is not None
         stream_topic = ack.randseq.encode()
@@ -158,6 +161,7 @@ class RemoteAPI(datamux.IAPI):
             attrs=attrs,
         )
         info = self.executor.send(topic, content).get()
+        assert info is not None
         ack = datamux.StreamAck(**info)
         return ack
 
@@ -167,6 +171,7 @@ class RemoteAPI(datamux.IAPI):
         topic = TOPIC_LIST_LIVE_NODES
         content: dict[str, str] = {}
         items = self.executor.send(topic, content).get()
+        assert items is not None
         nodes = [dfds.Node(**item) for item in items]
         return nodes
 
@@ -177,6 +182,7 @@ class RemoteAPI(datamux.IAPI):
         topic = TOPIC_LIST_LIVE_STREAMS
         content: dict[str, str] = dict(node_id=node_id)
         items = self.executor.send(topic, content).get()
+        assert items is not None
         streams = [dfds.Stream(**item) for item in items]
         return streams
 
@@ -190,6 +196,7 @@ class RemoteAPI(datamux.IAPI):
         topic = TOPIC_READ_LIVE_STREAM
         content = dict(node_id=node_id, stream_id=stream_id, attrs=attrs)
         info = self.executor.send(topic, content).get()
+        assert info is not None
         ack = datamux.StreamAck(**info)
         assert ack.randseq is not None
         stream_topic = ack.randseq.encode()
@@ -203,5 +210,12 @@ class RemoteAPI(datamux.IAPI):
         topic = TOPIC_STOP_TASK
         content = dict(randseq=randseq)
         info = self.executor.send(topic, content).get()
+        assert info is not None
         ack = datamux.StreamAck(**info)
         return ack
+
+    def attach(
+        self,
+        stream: dfds.Stream,
+    ) -> datamux.SourceTask:
+        raise NotImplementedError()

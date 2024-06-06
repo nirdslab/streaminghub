@@ -2,7 +2,7 @@ import argparse
 import asyncio
 import logging
 
-from rich.logging import RichHandler
+import streaminghub_datamux as datamux
 from streaminghub_datamux.remote import DataMuxServer
 
 
@@ -16,7 +16,7 @@ async def serve(
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
+    datamux.init()
     logger = logging.getLogger(__name__)
 
     parser = argparse.ArgumentParser(prog="DataMux", description="CLI for StreamingHub DataMux")

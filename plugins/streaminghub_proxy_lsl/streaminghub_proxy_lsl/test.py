@@ -1,7 +1,4 @@
-import logging
-
 import streaminghub_datamux as datamux
-from rich.logging import RichHandler
 
 from .proxy import LSLProxy as Proxy
 
@@ -18,7 +15,8 @@ def test():
     print(streams)
     stream = streams[0]
     queue = datamux.Queue()
-    proxy.attach(node.id, stream.name, queue)
+    flag = datamux.create_flag()
+    proxy.attach(node.id, stream.name, stream.attrs, queue, datamux.identity, flag)
 
     while True:
         item = queue.get()
@@ -26,5 +24,5 @@ def test():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
+    datamux.init()
     test()

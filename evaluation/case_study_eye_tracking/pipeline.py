@@ -1,37 +1,41 @@
-import logging
+import os.path
 
 import streaminghub_datamux as datamux
 from gaze.fixation_detection import IVT
-from gaze.output import LogDataStream
-from gaze.synthesis import PinkNoiseSimulator, UniformNoiseSimulator, WhiteNoiseSimulator
-from rich.logging import RichHandler
+from gaze.reporting import LogStream
+from gaze.synthesis import PinkNoiseSimulator, WhiteNoiseSimulator
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
+    datamux.init()
+    output_dir = os.path.dirname(__file__) + "/generated"
 
-    # uniform noise simulator
-    pipeline = datamux.Pipeline(
-        UniformNoiseSimulator(),
-        LogDataStream(),
-    )
-    pipeline.run(duration=10)
+    api = datamux.API()
+    adhd_sin_streams = api.list_collection_streams("ADHD_SIN")
+    n_back_streams = api.list_collection_streams("N_BACK")
 
-    # uniform noise simulator -> fixation/saccade -> white noise simulator
-    pipeline = datamux.Pipeline(
-        UniformNoiseSimulator(),
-        IVT(width=1, height=1, hertz=60, dist=1, screen=1, vt=100),
-        WhiteNoiseSimulator(),
-        LogDataStream(),
-    )
-    pipeline.run(duration=10)
+    for stream in [*adhd_sin_streams, *n_back_streams]:
 
-    # # uniform noise simulator -> fixation/saccade -> pink noise simulator
-    pipeline = datamux.Pipeline(
-        UniformNoiseSimulator(),
-        IVT(width=1, height=1, hertz=60, dist=1, screen=1, vt=100),
-        PinkNoiseSimulator(),
-        LogDataStream(),
-    )
-    pipeline.run(duration=10)
+        # original data
+        pipeline_A = datamux.Pipeline(
+            api.attach(stream, transform=None),
+            LogStream(**stream.attrs, simulation="original"),
+        )
+        pipeline_A.run()
 
-    # TODO run on [N_BACK, ADHD_SIN] again and save results
+        # original data -> fixation/saccade -> simulated white noise
+        pipeline_B = datamux.Pipeline(
+            api.attach(stream, transform=None),
+            IVT(width=1, height=1, hertz=60, dist=1, screen=1, vt=100, transform=None),
+            WhiteNoiseSimulator(freq=60, xy_scale=0.1, d_scale=0.001, transform=None),
+            LogStream(**stream.attrs, simulation="white_noise", log_dir=output_dir),
+        )
+        pipeline_B.run()
+
+        # original data -> fixation/saccade -> simulated pink noise
+        pipeline_C = datamux.Pipeline(
+            api.attach(stream, transform=None),
+            IVT(width=1, height=1, hertz=60, dist=1, screen=1, vt=100, transform=None),
+            PinkNoiseSimulator(freq=60, xy_scale=0.1, d_scale=0.001, transform=None),
+            LogStream(**stream.attrs, simulation="pink_noise", log_dir=output_dir),
+        )
+        pipeline_C.run()

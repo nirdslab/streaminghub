@@ -123,5 +123,11 @@ class API(datamux.IAPI):
         if randseq in self.context:
             flag = self.context.pop(randseq)
             flag.set()
-            return datamux.StreamAck(status=True)
         return datamux.StreamAck(status=True)
+
+    def attach(
+        self,
+        stream: dfds.Stream,
+        transform=None,
+    ) -> datamux.SourceTask:
+        raise NotImplementedError()

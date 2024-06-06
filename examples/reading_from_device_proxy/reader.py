@@ -37,7 +37,7 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]")
+    datamux.init()
     logger = logging.getLogger(__name__)
     try:
         main()

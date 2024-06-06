@@ -16,9 +16,8 @@ import random
 import sys
 import time
 
-import streaminghub_pydfds as dfds
 import streaminghub_datamux as datamux
-from rich.logging import RichHandler
+import streaminghub_pydfds as dfds
 
 SYNTAX = "datasource_simulate [path/to/datasource/spec]"
 
@@ -76,7 +75,7 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
+    datamux.init()
     try:
         main()
     except AssertionError as e:

@@ -30,8 +30,9 @@ class IVT(datamux.PipeTask):
         dist: float,
         screen: float,
         vt: float,
+        transform=None,
     ) -> None:
-        super().__init__()
+        super().__init__(transform)
         self.width = float(width)
         self.height = float(height)
         self.herz = float(hertz)

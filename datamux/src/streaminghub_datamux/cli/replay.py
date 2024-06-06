@@ -16,7 +16,6 @@ import multiprocessing
 
 import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
-from rich.logging import RichHandler
 
 DIGIT_CHARS = "0123456789"
 SHUTDOWN_FLAG = multiprocessing.Event()
@@ -89,7 +88,7 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
+    datamux.init()
     try:
         main()
     except AssertionError as e:

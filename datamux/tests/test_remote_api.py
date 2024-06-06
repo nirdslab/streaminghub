@@ -7,7 +7,6 @@ from statistics import stdev
 
 import pandas as pd
 import streaminghub_datamux as datamux
-from rich.logging import RichHandler
 from test_configs import data_config, runs
 from tqdm import tqdm
 
@@ -78,7 +77,7 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
+    datamux.init()
     logger = logging.getLogger(__name__)
     try:
         main()

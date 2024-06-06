@@ -244,18 +244,20 @@ class ITaskWithSource(ITask):
 
 
 class SourceTask(ITaskWithSource):
-    def __init__(self) -> None:
+    def __init__(self, transform=None) -> None:
         super().__init__()
         self.source = Queue(timeout=0.001)
+        self.transform = transform
 
 
 class PipeTask(ITaskWithSource):
     target: Queue
 
-    def __init__(self) -> None:
+    def __init__(self, transform=None) -> None:
         super().__init__()
         self.source = Queue(timeout=0.001, empty=True)
         self.target = Queue(timeout=0.001)
+        self.transform = transform
 
 
 class SinkTask(ITaskWithSource):
@@ -313,9 +315,10 @@ class Pipeline(ITask):
         for task in self.tasks:
             task.stop()
 
-    def run(self, duration: float):
+    def run(self, duration: float | None = None):
         self.start()
-        time.sleep(duration)
+        if duration is not None:
+            time.sleep(duration)
         self.stop()
 
     def __call__(self, *args, **kwargs) -> None:
@@ -353,12 +356,11 @@ class Transform(PipeTask):
         self.fn = fn
 
     def step(self, *args, **kwargs) -> None:
-        try:
-            item = self.source.get(timeout=1.0)
-            target = self.fn(item)
-            self.target.put(target)
-        except:
-            pass
+        item = self.source.get()
+        if item is None:
+            return
+        target = self.fn(item)
+        self.target.put(target)
 
 
 class IAPI(abc.ABC):
@@ -452,4 +454,18 @@ class IAPI(abc.ABC):
 
         Returns:
             StreamAck: status and reference information.
+        """
+
+    @abc.abstractmethod
+    def attach(
+        self,
+        stream: dfds.Stream,
+    ) -> SourceTask:
+        """
+        Create task to get data from the given stream
+
+        Args:
+            stream (str): stream to attach onto
+        Returns:
+            SourceTask: a task that queues data between task.start() and task.stop() invocations
         """

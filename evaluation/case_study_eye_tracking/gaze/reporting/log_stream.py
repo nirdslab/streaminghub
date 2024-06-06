@@ -1,7 +1,11 @@
 import streaminghub_datamux as datamux
 
 
-class LogDataStream(datamux.SinkTask):
+class LogStream(datamux.SinkTask):
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__()
+        self.attrs = kwargs
 
     def __call__(self, *args, **kwargs) -> None:
         item = self.source.get()

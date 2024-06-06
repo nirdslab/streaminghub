@@ -13,8 +13,8 @@ class WhiteNoiseSimulator(datamux.PipeTask):
 
     """
 
-    def __init__(self, freq: float = 60.0, xy_scale: float = 0.1, d_scale: float = 0.001) -> None:
-        super().__init__()
+    def __init__(self, freq: float = 60.0, xy_scale: float = 0.1, d_scale: float = 0.001, transform=None) -> None:
+        super().__init__(transform)
         self.freq = freq
         self.dt = 1.0 / freq
         self.xy_scale = xy_scale
@@ -83,8 +83,8 @@ class PinkNoiseSimulator(datamux.PipeTask):
         pink_noise = np.fft.irfft(pink_fft, n_samples)
         return pink_noise
 
-    def __init__(self, freq: float = 60.0, xy_scale: float = 0.1, d_scale: float = 0.001) -> None:
-        super().__init__()
+    def __init__(self, freq: float = 60.0, xy_scale: float = 0.1, d_scale: float = 0.001, transform=None) -> None:
+        super().__init__(transform)
         self.freq = freq
         self.dt = 1.0 / freq
         self.xy_scale = xy_scale

@@ -1,5 +1,3 @@
-import logging
-
 import streaminghub_datamux as datamux
 
 from .proxy import PupilCoreProxy as Proxy
@@ -17,7 +15,9 @@ def test():
     print(streams)
     stream = streams[0]
     queue = datamux.Queue()
-    proxy.attach(node.id, stream.name, queue)
+    transform = datamux.identity
+    flag = datamux.create_flag()
+    proxy.attach(node.id, stream.name, stream.attrs, queue, transform, flag)
 
     while True:
         item = queue.get()
@@ -25,5 +25,5 @@ def test():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG, format="%(message)s", datefmt="[%X]")
+    datamux.init()
     test()
