@@ -469,3 +469,38 @@ class IAPI(abc.ABC):
         Returns:
             SourceTask: a task that queues data between task.start() and task.stop() invocations
         """
+
+
+class APIStreamer(SourceTask):
+
+    task_id: str | None = None
+
+    def __init__(self, api: IAPI, mode: str, node_id: str, stream_id: str, attrs: dict, transform=None) -> None:
+        super().__init__()
+        self.api = api
+        self.mode = mode
+        self.node_id = node_id
+        self.stream_id = stream_id
+        self.attrs = attrs
+        self.source = Queue(timeout=0.001)
+        self.transform = transform
+
+    def start(self, *args, **kwargs):
+        if self.mode == "proxy":
+            ack = self.api.proxy_live_stream(self.node_id, self.stream_id, self.attrs, self.source)
+            assert ack.randseq is not None
+            self.task_id = ack.randseq
+        elif self.mode == "replay":
+            ack = self.api.replay_collection_stream(self.node_id, self.stream_id, self.attrs, self.source)
+            assert ack.randseq is not None
+            self.task_id = ack.randseq
+        else:
+            raise ValueError()
+
+    def stop(self):
+        assert self.task_id is not None
+        ack = self.api.stop_task(self.task_id)
+        assert ack.status == True
+
+    def __call__(self, *args, **kwargs) -> None:
+        raise ValueError("should never happen")

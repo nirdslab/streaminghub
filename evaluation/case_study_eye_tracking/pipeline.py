@@ -10,8 +10,12 @@ if __name__ == "__main__":
     output_dir = os.path.dirname(__file__) + "/generated"
 
     api = datamux.API()
+    collections = api.list_collections()
+    collection_names = [c.name for c in collections]
+    print(collection_names)
     adhd_sin_streams = api.list_collection_streams("ADHD_SIN")
-    n_back_streams = api.list_collection_streams("N_BACK")
+    n_back_streams = []
+    # n_back_streams = api.list_collection_streams("n_back")
 
     for stream in [*adhd_sin_streams, *n_back_streams]:
 

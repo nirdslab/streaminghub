@@ -217,5 +217,10 @@ class RemoteAPI(datamux.IAPI):
     def attach(
         self,
         stream: dfds.Stream,
+        transform=None,
     ) -> datamux.SourceTask:
-        raise NotImplementedError()
+        mode = stream.attrs.get("mode")
+        assert mode in ["proxy", "replay"]
+        node = stream.node
+        assert node is not None
+        return datamux.APIStreamer(self, mode, node.id, stream.name, stream.attrs, transform)
