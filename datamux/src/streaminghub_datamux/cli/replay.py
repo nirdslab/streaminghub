@@ -28,6 +28,8 @@ api = datamux.API()
 def log_sink(sink: datamux.Queue):
     while True:
         value = sink.get()
+        if value is None:
+            continue
         logging.info(value)
         if value == datamux.END_OF_STREAM:
             break

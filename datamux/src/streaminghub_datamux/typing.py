@@ -23,8 +23,9 @@ class Queue(Generic[D]):
 
     q: Q
 
-    def __init__(self, empty: bool = False) -> None:
+    def __init__(self, empty: bool = False, timeout=None) -> None:
         super().__init__()
+        self.timeout = timeout
         if empty:
             self.q = None  # type: ignore
         else:
@@ -33,11 +34,11 @@ class Queue(Generic[D]):
     def assign(self, q: Queue):
         self.q = q.q
 
-    def get(self, block: bool = True, timeout: float | None = None) -> D:
-        return self.q.get(block, timeout)
-
-    def get_nowait(self) -> D:
-        return self.q.get_nowait()
+    def get(self) -> D | None:
+        try:
+            return self.q.get(timeout=self.timeout)
+        except:
+            return None
 
     def put(self, obj: D, block: bool = True, timeout: float | None = None) -> None:
         return self.q.put(obj, block, timeout)
@@ -245,7 +246,7 @@ class ITaskWithSource(ITask):
 class SourceTask(ITaskWithSource):
     def __init__(self) -> None:
         super().__init__()
-        self.source = Queue()
+        self.source = Queue(timeout=0.001)
 
 
 class PipeTask(ITaskWithSource):
@@ -253,15 +254,15 @@ class PipeTask(ITaskWithSource):
 
     def __init__(self) -> None:
         super().__init__()
-        self.source = Queue(empty=True)
-        self.target = Queue()
+        self.source = Queue(timeout=0.001, empty=True)
+        self.target = Queue(timeout=0.001)
 
 
 class SinkTask(ITaskWithSource):
 
     def __init__(self) -> None:
         super().__init__()
-        self.source = Queue(empty=True)
+        self.source = Queue(timeout=0.001, empty=True)
 
 
 class Pipeline(ITask):

@@ -97,11 +97,8 @@ class IVT(datamux.PipeTask):
         assert len(pts) == len(vel)
 
         if len(pts) > 1 and len(vel) > 1:
-            t_entry = pts[0].t
-            t_exit = pT.t
-            x_dist = pT.x - pts[0].x
-            y_dist = pT.y - pts[0].y
-            amp = np.sqrt(x_dist**2 + y_dist**2)
+            t_entry, x_entry, y_entry = pts[0].t, pts[0].x, pts[0].y
+            t_exit, x_exit, y_exit = pT.t, pT.x, pT.y
             vel_mean = np.mean(vel).item()
             vel_peak = np.max(vel).item()
             d_mean = np.mean([s.d for s in pts]).item()
@@ -109,7 +106,10 @@ class IVT(datamux.PipeTask):
             return SaccadeEvent(
                 t_entry=t_entry,
                 t_exit=t_exit,
-                amp=amp,
+                x_entry=x_entry,
+                x_exit=x_exit,
+                y_entry=y_entry,
+                y_exit=y_exit,
                 vel_mean=vel_mean,
                 vel_peak=vel_peak,
                 d_mean=d_mean,
@@ -124,15 +124,13 @@ class IVT(datamux.PipeTask):
 
         """
 
-        item: dict
         t: float
         x: float
         y: float
         d: float
 
-        try:
-            item = self.source.get(timeout=1.0)
-        except:
+        item = self.source.get()
+        if item is None:
             return
 
         t, x, y, d = item["t"], item["x"], item["y"], item["d"]

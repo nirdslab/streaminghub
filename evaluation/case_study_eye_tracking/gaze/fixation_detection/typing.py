@@ -14,13 +14,15 @@ class Event(pydantic.BaseModel):
 
 
 class Fixation(Event):
-
     x_mean: float
     y_mean: float
 
 
 class Saccade(Event):
-    amp: float
+    x_entry: float
+    y_entry: float
+    x_exit: float
+    y_exit: float
     vel_mean: float
     vel_peak: float
 
