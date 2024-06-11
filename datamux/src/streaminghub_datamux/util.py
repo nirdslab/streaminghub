@@ -1,7 +1,8 @@
 import asyncio
 import random
-from functools import partial, wraps
 import time
+from functools import partial, wraps
+from typing import Callable
 
 prefix = "d_"
 
@@ -21,6 +22,33 @@ def gen_randseq(length: int = 5) -> str:
 
 def identity(x):
     return x
+
+
+class Enveloper:
+
+    def __init__(
+        self,
+        *,
+        prefix: bytes | None = None,
+        transform: Callable | None = None,
+        suffix: bytes | None = None,
+    ) -> None:
+        self.prefix = prefix
+        self.transform = transform
+        self.suffix = suffix
+
+    def __call__(self, msg):
+        if self.transform is not None:
+            msg = self.transform(msg)
+        if (self.prefix or self.suffix) is not None:
+            package = []
+            if self.prefix is not None:
+                package.append(self.prefix)
+            package.append(msg)
+            if self.suffix is not None:
+                package.append(self.suffix)
+            return package
+        return msg
 
 
 def envelope(x, prefix: bytes, suffix: bytes):

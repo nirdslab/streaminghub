@@ -2,8 +2,10 @@ import asyncio
 import logging
 from collections import defaultdict
 from threading import Thread
-from typing import Coroutine
+from typing import Callable, Coroutine
 
+import pickle
+import base64
 import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
 from streaminghub_datamux.rpc import create_rpc_client
@@ -133,13 +135,10 @@ class RemoteAPI(datamux.IAPI):
         stream_id: str,
         attrs: dict[str, str],
         sink: datamux.Queue,
+        transform: Callable = datamux.identity,
     ) -> datamux.StreamAck:
         topic = TOPIC_REPLAY_COLLECTION_STREAM
-        content = dict(
-            collection_id=collection_id,
-            stream_id=stream_id,
-            attrs=attrs,
-        )
+        content = dict(collection_id=collection_id, stream_id=stream_id, attrs=attrs, transform=base64.b64encode(pickle.dumps(transform)))
         info = self.executor.send(topic, content).get()
         assert info is not None
         ack = datamux.StreamAck(**info)
@@ -192,9 +191,10 @@ class RemoteAPI(datamux.IAPI):
         stream_id: str,
         attrs: dict,
         sink: datamux.Queue,
+        transform: Callable = datamux.identity,
     ) -> datamux.StreamAck:
         topic = TOPIC_READ_LIVE_STREAM
-        content = dict(node_id=node_id, stream_id=stream_id, attrs=attrs)
+        content = dict(node_id=node_id, stream_id=stream_id, attrs=attrs, transform=base64.b64encode(pickle.dumps(transform)))
         info = self.executor.send(topic, content).get()
         assert info is not None
         ack = datamux.StreamAck(**info)
@@ -217,7 +217,7 @@ class RemoteAPI(datamux.IAPI):
     def attach(
         self,
         stream: dfds.Stream,
-        transform=None,
+        transform: Callable = datamux.identity,
     ) -> datamux.SourceTask:
         mode = stream.attrs.get("mode")
         assert mode in ["proxy", "replay"]

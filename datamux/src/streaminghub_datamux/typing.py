@@ -9,6 +9,7 @@ import time
 from typing import Callable, Generic, TypeVar
 
 import streaminghub_pydfds as dfds
+from .util import identity
 from pydantic import BaseModel
 
 END_OF_STREAM = {}  # NOTE do not change
@@ -388,7 +389,12 @@ class IAPI(abc.ABC):
 
     @abc.abstractmethod
     def replay_collection_stream(
-        self, collection_id: str, stream_id: str, attrs: dict, sink: Queue, uid: bytes | None = None
+        self,
+        collection_id: str,
+        stream_id: str,
+        attrs: dict,
+        sink: Queue,
+        transform: Callable = identity,
     ) -> StreamAck:
         """
         Replay a collection-stream into a given queue.
@@ -398,6 +404,7 @@ class IAPI(abc.ABC):
             stream_id (str): name of stream in collection.
             attrs (dict): attributes specifying which recording to replay.
             sink (asyncio.Queue): destination to buffer replayed data.
+            transform (Callable): optional function to apply on each measurement.
 
         Returns:
             StreamAck: status and reference information.
@@ -440,7 +447,12 @@ class IAPI(abc.ABC):
 
     @abc.abstractmethod
     def proxy_live_stream(
-        self, node_id: str, stream_id: str, attrs: dict, sink: Queue, uid: bytes | None = None
+        self,
+        node_id: str,
+        stream_id: str,
+        attrs: dict,
+        sink: Queue,
+        transform: Callable = identity,
     ) -> StreamAck:
         """
         Proxy data from a live stream onto a given queue.
@@ -450,7 +462,7 @@ class IAPI(abc.ABC):
             stream_id (str): id of the live stream.
             attrs (dict): attributes specifying which live stream to read.
             sink (asyncio.Queue): destination to buffer replayed data.
-            uid (Callable): optional uid to append to each data point.
+            transform (Callable): optional function to apply on each measurement
 
         Returns:
             StreamAck: status and reference information.
@@ -475,7 +487,7 @@ class APIStreamer(SourceTask):
 
     task_id: str | None = None
 
-    def __init__(self, api: IAPI, mode: str, node_id: str, stream_id: str, attrs: dict, transform=None) -> None:
+    def __init__(self, api: IAPI, mode: str, node_id: str, stream_id: str, attrs: dict, transform: Callable) -> None:
         super().__init__()
         self.api = api
         self.mode = mode
@@ -487,11 +499,13 @@ class APIStreamer(SourceTask):
 
     def start(self, *args, **kwargs):
         if self.mode == "proxy":
-            ack = self.api.proxy_live_stream(self.node_id, self.stream_id, self.attrs, self.source)
+            ack = self.api.proxy_live_stream(self.node_id, self.stream_id, self.attrs, self.source, self.transform)
             assert ack.randseq is not None
             self.task_id = ack.randseq
         elif self.mode == "replay":
-            ack = self.api.replay_collection_stream(self.node_id, self.stream_id, self.attrs, self.source)
+            ack = self.api.replay_collection_stream(
+                self.node_id, self.stream_id, self.attrs, self.source, self.transform
+            )
             assert ack.randseq is not None
             self.task_id = ack.randseq
         else:

@@ -1,6 +1,8 @@
 import asyncio
 from threading import Thread
 
+import pickle
+import base64
 import streaminghub_datamux as datamux
 from streaminghub_datamux.api import API
 from streaminghub_datamux.rpc import create_rpc_server
@@ -57,7 +59,10 @@ class DataMuxServer:
                 node_id = content["node_id"]
                 stream_id = content["stream_id"]
                 attrs = content["attrs"]
-                ack = self.api.proxy_live_stream(node_id, stream_id, attrs, self.data_q, uid)
+                transform = content["transform"]
+                transform = pickle.loads(base64.b64decode(transform))
+                wrapped = datamux.Enveloper(transform=transform, suffix=uid)
+                ack = self.api.proxy_live_stream(node_id, stream_id, attrs, self.data_q, wrapped)
                 retval = ack.model_dump()
             # REPLAY MODE (File -> Queue) ==============================================================================================
             elif topic == TOPIC_LIST_COLLECTIONS:
@@ -71,7 +76,10 @@ class DataMuxServer:
                 collec_id = content["collection_id"]
                 stream_id = content["stream_id"]
                 attrs = content["attrs"]
-                ack = self.api.replay_collection_stream(collec_id, stream_id, attrs, self.data_q, uid)
+                transform = content["transform"]
+                transform = pickle.loads(base64.b64decode(transform))
+                wrapped = datamux.Enveloper(transform=transform, suffix=uid)
+                ack = self.api.replay_collection_stream(collec_id, stream_id, attrs, self.data_q, wrapped)
                 retval = ack.model_dump()
             # RESTREAM MODE (File -> LSL) ==============================================================================================
             elif topic == TOPIC_PUBLISH_COLLECTION_STREAM:

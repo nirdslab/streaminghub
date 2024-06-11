@@ -1,10 +1,9 @@
-from functools import partial
+from typing import Callable
 
 import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
 
 from .managers import CollectionManager, ProxyManager
-from .util import envelope, gen_randseq, identity, prefix
 
 
 class API(datamux.IAPI):
@@ -51,13 +50,11 @@ class API(datamux.IAPI):
         stream_id: str,
         attrs: dict,
         sink: datamux.Queue,
-        uid: bytes | None = None,
+        transform: Callable = datamux.identity,
     ) -> datamux.StreamAck:
-        randseq = prefix + gen_randseq()
-        if uid:
-            transform = partial(envelope, prefix=randseq.encode(), suffix=uid)
-        else:
-            transform = identity
+        randseq = datamux.prefix + datamux.gen_randseq()
+        if isinstance(transform, datamux.Enveloper):
+            transform.prefix = randseq.encode()
         self.context[randseq] = datamux.create_flag()
         self.reader_c.attach(
             source_id=collection_id,
@@ -98,15 +95,13 @@ class API(datamux.IAPI):
         stream_id: str,
         attrs: dict,
         sink: datamux.Queue,
-        uid: bytes | None = None,
+        transform: Callable = datamux.identity,
     ) -> datamux.StreamAck:
-        randseq = prefix + gen_randseq()
-        if uid:
-            transform = partial(envelope, prefix=randseq.encode(), suffix=uid)
-        else:
-            transform = identity
+        randseq = datamux.gen_randseq()
         self.context[randseq] = datamux.create_flag()
         self.proxy_n.setup(proxy_id=node_id)
+        if isinstance(transform, datamux.Enveloper):
+            transform.prefix = randseq.encode()
         self.proxy_n.attach(
             source_id=node_id,
             stream_id=stream_id,
@@ -129,7 +124,7 @@ class API(datamux.IAPI):
     def attach(
         self,
         stream: dfds.Stream,
-        transform=None,
+        transform: Callable = datamux.identity,
     ) -> datamux.SourceTask:
         mode = stream.attrs.get("mode")
         assert mode in ["proxy", "replay"]
