@@ -15,7 +15,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", type=str, default=default_dir)
     parser.add_argument("--dataset", type=str)
-    parser.add_argument("--timeout", type=int, default=15)
+    parser.add_argument("--timeout", type=int, default=10)
     args = parser.parse_args()
     path, dataset, timeout = args.path, args.dataset, args.timeout
 
@@ -33,6 +33,14 @@ if __name__ == "__main__":
         }
     )
 
+    screen_wh = (1920, 1080)
+    diag_dist = (21, 22)
+    freq = 60
+    vt = 10
+    # scale noise from [-std,+std] -> [-std*scale, +std*scale]
+    xy_scale = 1.0
+    d_scale = 0.001
+
     for stream in streams:
 
         # original data
@@ -45,8 +53,8 @@ if __name__ == "__main__":
         # original data -> fixation/saccade -> simulated white noise
         pipeline_B = datamux.Pipeline(
             api.attach(stream, transform=preprocessor),
-            IVT(width=1, height=1, hertz=60, dist=1, screen=1, vt=100, transform=None),
-            # WhiteNoiseSimulator(freq=60, xy_scale=0.1, d_scale=0.001, transform=None),
+            IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
+            WhiteNoiseSimulator(freq=freq, xy_scale=xy_scale, d_scale=d_scale, transform=None),
             LogStream(**stream.attrs, simulation="white_noise", log_dir=path),
         )
         pipeline_B.run(timeout)
@@ -54,8 +62,8 @@ if __name__ == "__main__":
         # original data -> fixation/saccade -> simulated pink noise
         pipeline_C = datamux.Pipeline(
             api.attach(stream, transform=preprocessor),
-            IVT(width=1, height=1, hertz=60, dist=1, screen=1, vt=100, transform=None),
-            # PinkNoiseSimulator(freq=60, xy_scale=0.1, d_scale=0.001, transform=None),
+            IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
+            PinkNoiseSimulator(freq=freq, xy_scale=xy_scale, d_scale=d_scale, transform=None),
             LogStream(**stream.attrs, simulation="pink_noise", log_dir=path),
         )
         pipeline_C.run(timeout)

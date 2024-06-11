@@ -217,7 +217,10 @@ class ITask(abc.ABC):
         signal.signal(signal.SIGINT, self.__signal__)
         signal.signal(signal.SIGTERM, self.__signal__)
         while not self.flag:
-            self(*args, **kwargs)
+            try:
+                self(*args, **kwargs)
+            except:
+                self.logger.warn(f"[{self.name}] has crashed")
 
     def start(self, *args, **kwargs):
         self.proc = multiprocessing.Process(

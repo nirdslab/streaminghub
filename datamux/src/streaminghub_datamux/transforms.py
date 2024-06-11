@@ -8,7 +8,7 @@ class ExpressionMapper:
 
     def __call__(self, msg: dict):
         if msg == datamux.END_OF_STREAM:
-            return None
+            return datamux.END_OF_STREAM
         index, value = msg["index"], msg["value"]
         target = {}
         for k, expr in self.mapping.items():

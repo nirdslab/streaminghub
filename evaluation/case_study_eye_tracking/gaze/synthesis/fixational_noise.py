@@ -29,14 +29,7 @@ class WhiteNoiseSimulator(datamux.PipeTask):
         x_sim = f.x_mean + self.generate_white_noise(num_samples) * self.xy_scale
         y_sim = f.y_mean + self.generate_white_noise(num_samples) * self.xy_scale
         d_sim = f.d_mean + self.generate_white_noise(num_samples) * self.d_scale
-        return pd.DataFrame(
-            dict(
-                t=t_sim,
-                x=x_sim.clip(min=0.0, max=1.0),
-                y=y_sim.clip(min=0.0, max=1.0),
-                d=d_sim.clip(min=0.0),
-            )
-        ).to_dict("records")
+        return pd.DataFrame(dict(t=t_sim, x=x_sim, y=y_sim, d=d_sim, event="fixation")).to_dict("records")
 
     def synthesize_saccade(self, s: SaccadeEvent) -> list[dict]:
         num_samples = int((s.t_exit - s.t_entry) * self.freq)
@@ -44,14 +37,7 @@ class WhiteNoiseSimulator(datamux.PipeTask):
         x_sim = np.linspace(s.x_entry, s.x_exit, num_samples) + self.generate_white_noise(num_samples) * self.xy_scale
         y_sim = np.linspace(s.y_entry, s.y_exit, num_samples) + self.generate_white_noise(num_samples) * self.xy_scale
         d_sim = s.d_mean + self.generate_white_noise(num_samples)
-        return pd.DataFrame(
-            dict(
-                t=t_sim,
-                x=x_sim.clip(min=0.0, max=1.0),
-                y=y_sim.clip(min=0.0, max=1.0),
-                d=d_sim.clip(min=0.0),
-            )
-        ).to_dict("records")
+        return pd.DataFrame(dict(t=t_sim, x=x_sim, y=y_sim, d=d_sim, event="saccade")).to_dict("records")
 
     def __call__(self, *args, **kwargs) -> None:
         item = self.source.get()
@@ -96,14 +82,7 @@ class PinkNoiseSimulator(datamux.PipeTask):
         x_sim = f.x_mean + self.generate_pink_noise(num_samples) * self.xy_scale
         y_sim = f.y_mean + self.generate_pink_noise(num_samples) * self.xy_scale
         d_sim = f.d_mean + self.generate_pink_noise(num_samples) * self.d_scale
-        return pd.DataFrame(
-            dict(
-                t=t_sim,
-                x=x_sim.clip(min=0.0, max=1.0),
-                y=y_sim.clip(min=0.0, max=1.0),
-                d=d_sim.clip(min=0.0),
-            )
-        ).to_dict("records")
+        return pd.DataFrame(dict(t=t_sim, x=x_sim, y=y_sim, d=d_sim, event="fixation")).to_dict("records")
 
     def synthesize_saccade(self, s: SaccadeEvent) -> list[dict]:
         num_samples = int((s.t_exit - s.t_entry) * self.freq)
@@ -111,14 +90,7 @@ class PinkNoiseSimulator(datamux.PipeTask):
         x_sim = np.linspace(s.x_entry, s.x_exit, num_samples) + self.generate_pink_noise(num_samples) * self.xy_scale
         y_sim = np.linspace(s.y_entry, s.y_exit, num_samples) + self.generate_pink_noise(num_samples) * self.xy_scale
         d_sim = s.d_mean + self.generate_pink_noise(num_samples)
-        return pd.DataFrame(
-            dict(
-                t=t_sim,
-                x=x_sim.clip(min=0.0, max=1.0),
-                y=y_sim.clip(min=0.0, max=1.0),
-                d=d_sim.clip(min=0.0),
-            )
-        ).to_dict("records")
+        return pd.DataFrame(dict(t=t_sim, x=x_sim, y=y_sim, d=d_sim, event="saccade")).to_dict("records")
 
     def __call__(self, *args, **kwargs) -> None:
         item = self.source.get()

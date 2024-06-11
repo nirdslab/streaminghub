@@ -1,4 +1,5 @@
 from .typing import *
+from .util import *
 
 
 def init():
@@ -9,7 +10,6 @@ def init():
     logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
 
 
-from .util import *
 from .transforms import *
 from .api import API
 from .remote.api import RemoteAPI
