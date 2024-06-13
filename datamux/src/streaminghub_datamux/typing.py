@@ -329,44 +329,6 @@ class Pipeline(ITask):
         raise ValueError("should never be called")
 
 
-# class Parallel(PipeTask):
-
-#     def __init__(self, *pipelines: Pipeline, join: Literal["flat", "sync"] = "flat") -> None:
-#         super().__init__()
-#         self.pipelines = pipelines
-
-#     def step(self, *args, **kwargs) -> None:
-#         for pipeline in self.pipelines:
-#             pipeline.
-
-#         return super().step(*args, **kwargs)
-
-
-# class BatchingWindow(PipeTask):
-
-#     def step(self, *args, **kwargs) -> None:
-#         return super().step(*args, **kwargs)
-
-# class SlidingWindow(PipeTask):
-
-#     def step(self, *args, **kwargs) -> None:
-#         return super().step(*args, **kwargs)
-
-
-class Transform(PipeTask):
-
-    def __init__(self, fn: Callable) -> None:
-        super().__init__()
-        self.fn = fn
-
-    def step(self, *args, **kwargs) -> None:
-        item = self.source.get()
-        if item is None:
-            return
-        target = self.fn(item)
-        self.target.put(target)
-
-
 class IAPI(abc.ABC):
 
     @abc.abstractmethod

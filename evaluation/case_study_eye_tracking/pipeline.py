@@ -24,7 +24,7 @@ if __name__ == "__main__":
     api = datamux.API()
     streams = api.list_collection_streams(dataset)
 
-    preprocessor = datamux.ExpressionMapper(
+    preprocessor = datamux.ExpressionMap(
         {
             "t": "t",
             "x": "(lx + rx) / 2",
