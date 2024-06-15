@@ -9,13 +9,13 @@ dependencies:
   - conda-forge::seaborn
   - pip:
       # source packages
-      - "-e pydfds/"
-      - "-e datamux/"
-      - "-e curator/"
-      - "-e plugins/streaminghub_codec_avro"
-      - "-e plugins/streaminghub_codec_json"
-      - "-e plugins/streaminghub_codec_msgpack"
-      - "-e plugins/streaminghub_proxy_empatica_e4"
-      - "-e plugins/streaminghub_proxy_lsl"
-      - "-e plugins/streaminghub_proxy_pupil_core"
-      - "-e plugins/streaminghub_rpc_websocket"
+      - "-e streaminghub_pydfds/"
+      - "-e streaminghub_datamux/"
+      - "-e streaminghub_curator/"
+      - "-e streaminghub_plugins/streaminghub_codec_avro"
+      - "-e streaminghub_plugins/streaminghub_codec_json"
+      - "-e streaminghub_plugins/streaminghub_codec_msgpack"
+      - "-e streaminghub_plugins/streaminghub_proxy_empatica_e4"
+      - "-e streaminghub_plugins/streaminghub_proxy_lsl"
+      - "-e streaminghub_plugins/streaminghub_proxy_pupil_core"
+      - "-e streaminghub_plugins/streaminghub_rpc_websocket"
