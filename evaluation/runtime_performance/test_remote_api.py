@@ -1,26 +1,28 @@
 #!/usr/bin/env python3
 
+import argparse
 import logging
 import timeit
 from statistics import stdev
 
 import pandas as pd
 import streaminghub_datamux as datamux
-from rich.logging import RichHandler
-from test_configs import data_config, runs
+from evaluation.runtime_performance.test_configs import data_config, runs
 from tqdm import tqdm
 
 
-def connect():
-    api = datamux.API()
+def connect(codec: str, host: str, port: int):
+    api = datamux.RemoteAPI("websocket", codec)
+    api.connect(host, port)
     return api
 
 
 def timeit_replay(
-    api: datamux.API,
+    api: datamux.RemoteAPI,
     dataset_name: str,
     num_runs: int,
     num_points: int,
+    *args,
 ):
     t_replay = []
     j_replay = []
@@ -56,17 +58,22 @@ def timeit_replay(
 
 def main():
     df = pd.DataFrame()
-    api = connect()
+    parse = argparse.ArgumentParser()
+    parse.add_argument("--host", type=str, required=True)
+    parse.add_argument("--port", type=int, required=True)
+    parse.add_argument("--codec", type=str, required=True)
+    args = parse.parse_args()
+    api = connect(args.codec, args.host, args.port)
     for run in runs:
         rows = [[run.dataset_name, run.num_points] for _ in range(run.num_runs)]
         _df = pd.DataFrame(rows, columns=["dataset_name", "num_points"])
         time, jitter = timeit_replay(api, *run)
-        _df["runtime"] = f"ipc"
+        _df["runtime"] = f"rpc_{args.codec}"
         _df["time"] = time
         _df["jitter"] = jitter
         df = pd.concat([df, _df])
     df.index.rename("run", inplace=True)
-    df.to_csv("stats/run_ipc.csv")
+    df.to_csv(f"stats/run_rpc_{args.codec}.csv")
 
 
 if __name__ == "__main__":
