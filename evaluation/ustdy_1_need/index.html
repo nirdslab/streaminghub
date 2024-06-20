@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>index.md</title>
+<title>StreamingHub Questionnaire - Need Evaluation</title>
 <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
 
 <style>
@@ -365,10 +365,10 @@ code {
           : 'default'
     });
   </script>
-<form action="/survey/submit" method="POST">
+<form id="questionnaire">
 <h1 id="streaminghub-questionnaire---introduction">StreamingHub Questionnaire - Introduction</h1>
 <p>The text below describes the perspectives of three researchers; <strong>Alice</strong>, <strong>Bob</strong>, and <strong>Cindy</strong>.</p>
-<p><img src="https://raw.githubusercontent.com/nirdslab/streaminghub/master/evaluation/questionnaire_need/assets/personas.png" alt="Personas"></p>
+<p><img style="max-width: 50em; max-height: 50em;" src="https://raw.githubusercontent.com/nirdslab/streaminghub/master/evaluation/ustdy_1_need/assets/personas.png" alt="Personas"></p>
 <ol>
 <li><strong>Alice (Dataset Curation) -</strong> Collecting and organizing datasets for easy reuse</li>
 <li><strong>Bob (Algorithm Design) -</strong> Developing RT algorithms and validating them on existing data</li>
@@ -465,23 +465,23 @@ code {
 <tbody>
 <tr>
 <td>Documenting What Experimental Variables Exist</td>
-<td><input name="a1_1_d"></td>
-<td><input name="a1_1_t"></td>
+<td><input required type="number" min="1" max="5" name="a1_1_d"></td>
+<td><input required type="number" min="1" max="5" name="a1_1_t"></td>
 </tr>
 <tr>
 <td>Documenting What Variables Each File Represents</td>
-<td><input name="a1_2_d"></td>
-<td><input name="a1_2_t"></td>
+<td><input required type="number" min="1" max="5" name="a1_2_d"></td>
+<td><input required type="number" min="1" max="5" name="a1_2_t"></td>
 </tr>
 <tr>
 <td>Documenting What Measurements Each Column/Field Represents</td>
-<td><input name="a1_3_d"></td>
-<td><input name="a1_3_t"></td>
+<td><input required type="number" min="1" max="5" name="a1_3_d"></td>
+<td><input required type="number" min="1" max="5" name="a1_3_t"></td>
 </tr>
 <tr>
 <td>Documenting What Units / Scale Each Measurement is in</td>
-<td><input name="a1_4_d"></td>
-<td><input name="a1_4_t"></td>
+<td><input required type="number" min="1" max="5" name="a1_4_d"></td>
+<td><input required type="number" min="1" max="5" name="a1_4_t"></td>
 </tr>
 </tbody>
 </table>
@@ -516,26 +516,26 @@ code {
 <tr>
 <td>Good</td>
 <td>Open</td>
-<td><input name="a2_1_d"></td>
-<td><input name="a2_1_t"></td>
+<td><input required type="number" min="1" max="5" name="a2_1_d"></td>
+<td><input required type="number" min="1" max="5" name="a2_1_t"></td>
 </tr>
 <tr>
 <td>Good</td>
 <td>Closed</td>
-<td><input name="a2_2_d"></td>
-<td><input name="a2_2_t"></td>
+<td><input required type="number" min="1" max="5" name="a2_2_d"></td>
+<td><input required type="number" min="1" max="5" name="a2_2_t"></td>
 </tr>
 <tr>
 <td>Poor</td>
 <td>Open</td>
-<td><input name="a2_3_d"></td>
-<td><input name="a2_3_t"></td>
+<td><input required type="number" min="1" max="5" name="a2_3_d"></td>
+<td><input required type="number" min="1" max="5" name="a2_3_t"></td>
 </tr>
 <tr>
 <td>Poor</td>
 <td>Closed</td>
-<td><input name="a2_4_d"></td>
-<td><input name="a2_4_t"></td>
+<td><input required type="number" min="1" max="5" name="a2_4_d"></td>
+<td><input required type="number" min="1" max="5" name="a2_4_t"></td>
 </tr>
 </tbody>
 </table>
@@ -574,26 +574,26 @@ code {
 <tr>
 <td>Good</td>
 <td>Open</td>
-<td><input name="a3_1_d"></td>
-<td><input name="a3_1_t"></td>
+<td><input required type="number" min="1" max="5" name="a3_1_d"></td>
+<td><input required type="number" min="1" max="5" name="a3_1_t"></td>
 </tr>
 <tr>
 <td>Good</td>
 <td>Closed</td>
-<td><input name="a3_2_d"></td>
-<td><input name="a3_2_t"></td>
+<td><input required type="number" min="1" max="5" name="a3_2_d"></td>
+<td><input required type="number" min="1" max="5" name="a3_2_t"></td>
 </tr>
 <tr>
 <td>Poor</td>
 <td>Open</td>
-<td><input name="a3_3_d"></td>
-<td><input name="a3_3_t"></td>
+<td><input required type="number" min="1" max="5" name="a3_3_d"></td>
+<td><input required type="number" min="1" max="5" name="a3_3_t"></td>
 </tr>
 <tr>
 <td>Poor</td>
 <td>Closed</td>
-<td><input name="a3_4_d"></td>
-<td><input name="a3_4_t"></td>
+<td><input required type="number" min="1" max="5" name="a3_4_d"></td>
+<td><input required type="number" min="1" max="5" name="a3_4_t"></td>
 </tr>
 </tbody>
 </table>
@@ -633,13 +633,13 @@ dataset_dir = <span class="hljs-string">"/path/to/dataset"</span>
 <tbody>
 <tr>
 <td>Bob reusing existing data loading code</td>
-<td><input name="a4_1_d"></td>
-<td><input name="a4_1_t"></td>
+<td><input required type="number" min="1" max="5" name="a4_1_d"></td>
+<td><input required type="number" min="1" max="5" name="a4_1_t"></td>
 </tr>
 <tr>
 <td>Bob manually writing data loading code</td>
-<td><input name="a4_2_d"></td>
-<td><input name="a4_2_t"></td>
+<td><input required type="number" min="1" max="5" name="a4_2_d"></td>
+<td><input required type="number" min="1" max="5" name="a4_2_t"></td>
 </tr>
 </tbody>
 </table>
@@ -721,57 +721,57 @@ dataset_dir = <span class="hljs-string">"/path/to/dataset"</span>
 <td>Good</td>
 <td>Good</td>
 <td>Open</td>
-<td><input name="b1_1_d"></td>
-<td><input name="b1_1_t"></td>
+<td><input required type="number" min="1" max="5" name="b1_1_d"></td>
+<td><input required type="number" min="1" max="5" name="b1_1_t"></td>
 </tr>
 <tr>
 <td>Good</td>
 <td>Good</td>
 <td>Closed</td>
-<td><input name="b1_2_d"></td>
-<td><input name="b1_2_t"></td>
+<td><input required type="number" min="1" max="5" name="b1_2_d"></td>
+<td><input required type="number" min="1" max="5" name="b1_2_t"></td>
 </tr>
 <tr>
 <td>Good</td>
 <td>Poor</td>
 <td>Open</td>
-<td><input name="b1_3_d"></td>
-<td><input name="b1_3_t"></td>
+<td><input required type="number" min="1" max="5" name="b1_3_d"></td>
+<td><input required type="number" min="1" max="5" name="b1_3_t"></td>
 </tr>
 <tr>
 <td>Good</td>
 <td>Poor</td>
 <td>Closed</td>
-<td><input name="b1_4_d"></td>
-<td><input name="b1_4_t"></td>
+<td><input required type="number" min="1" max="5" name="b1_4_d"></td>
+<td><input required type="number" min="1" max="5" name="b1_4_t"></td>
 </tr>
 <tr>
 <td>Poor</td>
 <td>Good</td>
 <td>Open</td>
-<td><input name="b1_5_d"></td>
-<td><input name="b1_5_t"></td>
+<td><input required type="number" min="1" max="5" name="b1_5_d"></td>
+<td><input required type="number" min="1" max="5" name="b1_5_t"></td>
 </tr>
 <tr>
 <td>Poor</td>
 <td>Good</td>
 <td>Closed</td>
-<td><input name="b1_6_d"></td>
-<td><input name="b1_6_t"></td>
+<td><input required type="number" min="1" max="5" name="b1_6_d"></td>
+<td><input required type="number" min="1" max="5" name="b1_6_t"></td>
 </tr>
 <tr>
 <td>Poor</td>
 <td>Poor</td>
 <td>Open</td>
-<td><input name="b1_7_d"></td>
-<td><input name="b1_7_t"></td>
+<td><input required type="number" min="1" max="5" name="b1_7_d"></td>
+<td><input required type="number" min="1" max="5" name="b1_7_t"></td>
 </tr>
 <tr>
 <td>Poor</td>
 <td>Poor</td>
 <td>Closed</td>
-<td><input name="b1_8_d"></td>
-<td><input name="b1_8_t"></td>
+<td><input required type="number" min="1" max="5" name="b1_8_d"></td>
+<td><input required type="number" min="1" max="5" name="b1_8_t"></td>
 </tr>
 </tbody>
 </table>
@@ -817,57 +817,57 @@ dataset_dir = <span class="hljs-string">"/path/to/dataset"</span>
 <td>Good</td>
 <td>Good</td>
 <td>Open</td>
-<td><input name="b2_1_d"></td>
-<td><input name="b2_1_t"></td>
+<td><input required type="number" min="1" max="5" name="b2_1_d"></td>
+<td><input required type="number" min="1" max="5" name="b2_1_t"></td>
 </tr>
 <tr>
 <td>Good</td>
 <td>Good</td>
 <td>Closed</td>
-<td><input name="b2_2_d"></td>
-<td><input name="b2_2_t"></td>
+<td><input required type="number" min="1" max="5" name="b2_2_d"></td>
+<td><input required type="number" min="1" max="5" name="b2_2_t"></td>
 </tr>
 <tr>
 <td>Good</td>
 <td>Poor</td>
 <td>Open</td>
-<td><input name="b2_3_d"></td>
-<td><input name="b2_3_t"></td>
+<td><input required type="number" min="1" max="5" name="b2_3_d"></td>
+<td><input required type="number" min="1" max="5" name="b2_3_t"></td>
 </tr>
 <tr>
 <td>Good</td>
 <td>Poor</td>
 <td>Closed</td>
-<td><input name="b2_4_d"></td>
-<td><input name="b2_4_t"></td>
+<td><input required type="number" min="1" max="5" name="b2_4_d"></td>
+<td><input required type="number" min="1" max="5" name="b2_4_t"></td>
 </tr>
 <tr>
 <td>Poor</td>
 <td>Good</td>
 <td>Open</td>
-<td><input name="b2_5_d"></td>
-<td><input name="b2_5_t"></td>
+<td><input required type="number" min="1" max="5" name="b2_5_d"></td>
+<td><input required type="number" min="1" max="5" name="b2_5_t"></td>
 </tr>
 <tr>
 <td>Poor</td>
 <td>Good</td>
 <td>Closed</td>
-<td><input name="b2_6_d"></td>
-<td><input name="b2_6_t"></td>
+<td><input required type="number" min="1" max="5" name="b2_6_d"></td>
+<td><input required type="number" min="1" max="5" name="b2_6_t"></td>
 </tr>
 <tr>
 <td>Poor</td>
 <td>Poor</td>
 <td>Open</td>
-<td><input name="b2_7_d"></td>
-<td><input name="b2_7_t"></td>
+<td><input required type="number" min="1" max="5" name="b2_7_d"></td>
+<td><input required type="number" min="1" max="5" name="b2_7_t"></td>
 </tr>
 <tr>
 <td>Poor</td>
 <td>Poor</td>
 <td>Closed</td>
-<td><input name="b2_8_d"></td>
-<td><input name="b2_8_t"></td>
+<td><input required type="number" min="1" max="5" name="b2_8_d"></td>
+<td><input required type="number" min="1" max="5" name="b2_8_t"></td>
 </tr>
 </tbody>
 </table>
@@ -913,75 +913,75 @@ dataset_dir = <span class="hljs-string">"/path/to/dataset"</span>
 <td>Good</td>
 <td>Good</td>
 <td>Open</td>
-<td><input name="b3_1_d"></td>
-<td><input name="b3_1_t"></td>
+<td><input required type="number" min="1" max="5" name="b3_1_d"></td>
+<td><input required type="number" min="1" max="5" name="b3_1_t"></td>
 </tr>
 <tr>
 <td>Good</td>
 <td>Good</td>
 <td>Closed</td>
-<td><input name="b3_2_d"></td>
-<td><input name="b3_2_t"></td>
+<td><input required type="number" min="1" max="5" name="b3_2_d"></td>
+<td><input required type="number" min="1" max="5" name="b3_2_t"></td>
 </tr>
 <tr>
 <td>Good</td>
 <td>Poor</td>
 <td>Open</td>
-<td><input name="b3_3_d"></td>
-<td><input name="b3_3_t"></td>
+<td><input required type="number" min="1" max="5" name="b3_3_d"></td>
+<td><input required type="number" min="1" max="5" name="b3_3_t"></td>
 </tr>
 <tr>
 <td>Good</td>
 <td>Poor</td>
 <td>Closed</td>
-<td><input name="b3_4_d"></td>
-<td><input name="b3_4_t"></td>
+<td><input required type="number" min="1" max="5" name="b3_4_d"></td>
+<td><input required type="number" min="1" max="5" name="b3_4_t"></td>
 </tr>
 <tr>
 <td>Poor</td>
 <td>Good</td>
 <td>Open</td>
-<td><input name="b3_5_d"></td>
-<td><input name="b3_5_t"></td>
+<td><input required type="number" min="1" max="5" name="b3_5_d"></td>
+<td><input required type="number" min="1" max="5" name="b3_5_t"></td>
 </tr>
 <tr>
 <td>Poor</td>
 <td>Good</td>
 <td>Closed</td>
-<td><input name="b3_6_d"></td>
-<td><input name="b3_6_t"></td>
+<td><input required type="number" min="1" max="5" name="b3_6_d"></td>
+<td><input required type="number" min="1" max="5" name="b3_6_t"></td>
 </tr>
 <tr>
 <td>Poor</td>
 <td>Poor</td>
 <td>Open</td>
-<td><input name="b3_7_d"></td>
-<td><input name="b3_7_t"></td>
+<td><input required type="number" min="1" max="5" name="b3_7_d"></td>
+<td><input required type="number" min="1" max="5" name="b3_7_t"></td>
 </tr>
 <tr>
 <td>Poor</td>
 <td>Poor</td>
 <td>Closed</td>
-<td><input name="b3_8_d"></td>
-<td><input name="b3_8_t"></td>
+<td><input required type="number" min="1" max="5" name="b3_8_d"></td>
+<td><input required type="number" min="1" max="5" name="b3_8_t"></td>
 </tr>
 </tbody>
 </table>
 <hr>
 <h2 id="question-b4">Question B4</h2>
 <p>If you wish to find the peak data frequency that your algorithm can handle, would you rather have standard benchmark tests to compute them?</p>
-<input type="radio" name="b4" value="Y">
+<input type="radio" required name="b4" value="Y">
 <label>Yes</label>
 <br>
-<input type="radio" name="b4" value="N">
+<input type="radio" required name="b4" value="N">
 <label>No</label>
 <hr>
 <h2 id="question-b5">Question B5</h2>
 <p>If you wish to quantify the performance (e.g., throughput, latency) of your algorithm, would you rather have standard benchmark tests to compute them?</p>
-<input type="radio" name="b5" value="Y">
+<input type="radio" required name="b5" value="Y">
 <label>Yes</label>
 <br>
-<input type="radio" name="b5" value="N">
+<input type="radio" required name="b5" value="N">
 <label>No</label>
 <hr>
 <h1 id="scenario-c---improving-productivity">Scenario C - Improving Productivity</h1>
@@ -1004,21 +1004,21 @@ dataset_dir = <span class="hljs-string">"/path/to/dataset"</span>
 <tbody>
 <tr>
 <td>Difficulty of the job tasks</td>
-<td><input name="c1_1"></td>
+<td><input required type="number" min="1" max="5" name="c1_1"></td>
 </tr>
 <tr>
 <td>Time needed for the job tasks</td>
-<td><input name="c1_2"></td>
+<td><input required type="number" min="1" max="5" name="c1_2"></td>
 </tr>
 </tbody>
 </table>
 <hr>
 <h2 id="question-c2">Question C2</h2>
 <p>Would you agree that such integration must be automated whenever possible?</p>
-<input type="radio" name="c2" value="Y">
+<input type="radio" required name="c2" value="Y">
 <label>Yes</label>
 <br>
-<input type="radio" name="c2" value="N">
+<input type="radio" required name="c2" value="N">
 <label>No</label>
 <hr>
 <h2 id="question-c3">Question C3</h2>
@@ -1034,11 +1034,11 @@ dataset_dir = <span class="hljs-string">"/path/to/dataset"</span>
 <tbody>
 <tr>
 <td>Having a system to annotate datasets once, and reuse them on new algorithms</td>
-<td><input name="c3_1"></td>
+<td><input required type="number" min="1" max="5" name="c3_1"></td>
 </tr>
 <tr>
 <td>Having a Python API to read data from any annotated dataset</td>
-<td><input name="c3_2"></td>
+<td><input required type="number" min="1" max="5" name="c3_2"></td>
 </tr>
 </tbody>
 </table>
@@ -1047,4 +1047,32 @@ dataset_dir = <span class="hljs-string">"/path/to/dataset"</span>
 </form>
 
 </body>
+<script>
+	let form = document.getElementById("questionnaire");
+	form.onsubmit = async (e) => {
+		e.preventDefault();
+		let formData = new FormData(form);
+
+		let result = {};
+		formData.forEach((v, k) => {
+			result[k] = v;
+		});
+	
+		const blob = new Blob([JSON.stringify(result)], { type: "application/json" });
+		const link = document.createElement("a");
+
+		link.download = "answer.json";
+		link.href = window.URL.createObjectURL(blob);
+		link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
+
+		const evt = new MouseEvent("click", {
+			view: window,
+			bubbles: true,
+			cancelable: true,
+		});
+
+		link.dispatchEvent(evt);
+		link.remove()
+	}
+</script>
 </html>
