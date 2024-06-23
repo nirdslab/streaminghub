@@ -24,22 +24,20 @@ if __name__ == "__main__":
 
     # get the first stream
     stream = streams[0]
-    print(stream.attrs)
+    datamux.logging.info(stream.attrs)
 
-    # define a transform to map source data to the pipeline
-    preprocessor = datamux.ExpressionMap(
-        {
-            "t": "t",
-            "x": "(lx + rx) / 2",
-            "y": "(ly + ry) / 2",
-            "d": "(ld + rd) / 2",
-        }
-    )
+    # define a transform to map data into (t,x,y,d) format and handle missing values
+    preprocessor = datamux.ExpressionMap({
+        "t": "float(t)",
+        "x": "float(lx + rx) / 2",
+        "y": "float(ly + ry) / 2",
+        "d": "float(ld + rd) / 2",
+    })
 
     # define pipeline
     pipeline_A = datamux.Pipeline(
         api.attach(stream, transform=preprocessor),
-        IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
+        # IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
         LogStream(**stream.attrs, simulation="ivt"),
     )
 
