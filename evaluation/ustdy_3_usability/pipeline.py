@@ -19,8 +19,12 @@ if __name__ == "__main__":
     datamux.init()
     api = datamux.API()
 
-    # stream = api.list_live_streams("pupil_core")[0]  # for live data (pupil_core)
-    stream = api.list_collection_streams(dataset)[0]  # for recorded data (ADHD_SIN)
+    streams = api.list_collection_streams(dataset)  # for recorded data (ADHD_SIN)
+    # stream = api.list_live_streams("pupil_core")  # for live data (pupil_core)
+
+    # get the first stream
+    stream = streams[0]
+    print(stream.attrs)
 
     # define a transform to map source data to the pipeline
     preprocessor = datamux.ExpressionMap(
@@ -28,7 +32,7 @@ if __name__ == "__main__":
             "t": "t",
             "x": "(lx + rx) / 2",
             "y": "(ly + ry) / 2",
-            "d": "(lx + ly + rx + ry) / 4",
+            "d": "(ld + rd) / 2",
         }
     )
 
@@ -36,7 +40,7 @@ if __name__ == "__main__":
     pipeline_A = datamux.Pipeline(
         api.attach(stream, transform=preprocessor),
         IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
-        LogStream(**stream.attrs, simulation="original"),
+        LogStream(**stream.attrs, simulation="ivt"),
     )
 
     # run pipeline

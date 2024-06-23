@@ -49,7 +49,7 @@ class HDF5Reader(FileReader):
     def lsinfo(self) -> dict[str, dict[str, str]]:
         files: dict[str, dict[str, str]] = {}
         with h5py.File(self.fp, "r") as file:
-            for key, dataset in file.keys():
+            for key, dataset in file.items():
                 if not isinstance(dataset, h5py.Dataset):
                     continue
                 files[key] = dict(dataset.attrs.items())
@@ -114,7 +114,6 @@ class ParquetReader(FileReader):
     def read(self, rec_path: str) -> tuple[dict, pd.DataFrame]:
         # ignore rec_path
         data = pd.read_parquet(self.fp)
-        data.index.name = "t"  # TODO check and remove this
         meta: dict[str, str] = {}  # TODO get extra metadata from elsewhere
         return meta, data
 
