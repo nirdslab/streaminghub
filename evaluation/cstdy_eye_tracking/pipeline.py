@@ -29,7 +29,7 @@ if __name__ == "__main__":
             "t": "t",
             "x": "(lx + rx) / 2",
             "y": "(ly + ry) / 2",
-            "d": "(lx + ly + rx + ry) / 4",
+            "d": "(ld + rd) / 2",
         }
     )
 
@@ -46,7 +46,7 @@ if __name__ == "__main__":
         # original data
         pipeline_A = datamux.Pipeline(
             api.attach(stream, transform=preprocessor),
-            LogStream(**stream.attrs, simulation="original"),
+            LogStream(name="original", **stream.attrs),
         )
         pipeline_A.run(timeout)
 
@@ -55,7 +55,7 @@ if __name__ == "__main__":
             api.attach(stream, transform=preprocessor),
             IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
             WhiteNoiseSimulator(freq=freq, xy_scale=xy_scale, d_scale=d_scale, transform=None),
-            LogStream(**stream.attrs, simulation="white_noise", log_dir=path),
+            LogStream(name="original", **stream.attrs),
         )
         pipeline_B.run(timeout)
 
@@ -64,6 +64,6 @@ if __name__ == "__main__":
             api.attach(stream, transform=preprocessor),
             IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
             PinkNoiseSimulator(freq=freq, xy_scale=xy_scale, d_scale=d_scale, transform=None),
-            LogStream(**stream.attrs, simulation="pink_noise", log_dir=path),
+            LogStream(name="pink_noise", **stream.attrs),
         )
         pipeline_C.run(timeout)

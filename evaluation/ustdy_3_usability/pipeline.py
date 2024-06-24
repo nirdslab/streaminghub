@@ -7,7 +7,7 @@ if __name__ == "__main__":
 
     # constants
     dataset = "ADHD_SIN"
-    timeout = 30
+    timeout = 10
     screen_wh = (1920, 1080)
     diag_dist = (21, 22)
     freq = 60
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     pipeline_A = datamux.Pipeline(
         api.attach(stream, transform=preprocessor),
         # IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
-        LogStream(**stream.attrs, simulation="ivt"),
+        LogStream(name="ivt", **stream.attrs),
     )
 
     # run pipeline
