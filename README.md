@@ -13,17 +13,15 @@ When designing, testing, and deploying real-time bio-signal processing algorithm
 **Main Components**
 
 - **DFDS** (`dfds/`) - JSON schemas to describe data streams, data sets, and analytics.
-- **pyDFDS** (`pydfds/`) - A Python package to read DFDS-annotated datasets and their metadata.
-- **Curator** (`curator/`) - A WebApp to annotate files with DFDS metadata and rearrange them into a standard form.
-- **DataMux** (`datamux/`) - A Python package providing APIs to proxy live data, replay recordings, and simulate mock data.
-- **Plugins** (`plugins/`) - Plugins that provide device proxies, codecs, and RPC modes to datamux.
-- **NodeMux** (`nodemux/`) - Add-on to use DataMux streams in Node-RED workflows
-- **BeamMux** (`beammux/`) - Add-on to use DataMux streams in Apache Beam workflows
+- **pyDFDS** (`streaminghub_pydfds/`) - A Python package providing APIs to read DFDS-annotated metadata and data.
+- **Curator** (`streaminghub_curator/`) - A WebApp to annotate files with DFDS metadata and rearrange them into a standard form.
+- **DataMux** (`streaminghub_datamux/`) - A Python package providing APIs to proxy/replay/simulate live data, replay recordings, and simulate real-time environments,
+- **Plugins** (`streaminghub_plugins/`) - Plugins for providing new device proxies, codecs, and RPC modes to DataMux.
 
 **Extras**
 
-- **Repository** (`repository/`) - DFDS metadata for common bio-signal devices and datasets
-- **Examples** (`examples/`) - Some example to get started on using streaminghub
+- **Examples** (`examples/`) - Some examples and tutorials to get you started with streaminghub.
+- **Repository** (`evaluation/`) - Code and results of some performance tests, user studies, and case studies that we conducted.
 
 # Motivation
 
@@ -71,9 +69,6 @@ git clone git@github.com:nirdslab/streaminghub.git
 # install curator (from source)
 pip install -e streaminghub/curator
 
-# install pydfds (from source)
-pip install -e streaminghub/pydfds
-
 # install datamux (from source)
 pip install -e streaminghub/datamux
 
@@ -85,9 +80,6 @@ pip install -e streaminghub/datamux
 
 # install curator (from PyPI)
 pip install streaminghub_curator
-
-# install pydfds (from PyPI)
-pip install streaminghub_pydfds
 
 # install datamux (from PyPI)
 pip install streaminghub_datamux
