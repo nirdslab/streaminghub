@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>index.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="usability---packaging-and-pipelining">Usability - Packaging and Pipelining</h1>
+<p>This document provides step-by-step instructions on creating a streamable dataset using <code>Curator</code>, and running a <code>DataMux</code> pipeline on its data.</p>
+<h1 id="introduction">Introduction</h1>
+<p>You are given a Python script that (a) defines a real-time analysis pipeline, (b) assigns it one of two data sources, and (c) runs the pipeline. The two data sources are described below.</p>
+<ol>
+<li>Live data from a <code>pupil_core</code> device</li>
+<li>A recording from the <code>ADHD_SIN</code> collection</li>
+</ol>
+<p>The Python script looks as follows:</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> fixation_detection <span class="hljs-keyword">import</span> IVT
+<span class="hljs-keyword">from</span> reporting <span class="hljs-keyword">import</span> LogStream
+
+<span class="hljs-keyword">import</span> streaminghub_datamux <span class="hljs-keyword">as</span> datamux
+
+<span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">"__main__"</span>:
+
+    <span class="hljs-comment"># constants</span>
+    dataset = <span class="hljs-string">"ADHD_SIN"</span>
+    timeout = <span class="hljs-number">30</span>
+    screen_wh = (<span class="hljs-number">1920</span>, <span class="hljs-number">1080</span>)
+    diag_dist = (<span class="hljs-number">21</span>, <span class="hljs-number">22</span>)
+    freq = <span class="hljs-number">60</span>
+
+    <span class="hljs-comment"># hyperparameters</span>
+    vt = <span class="hljs-number">10</span>
+
+    <span class="hljs-comment"># setup datamux api</span>
+    datamux.init()
+    api = datamux.API()
+
+    streams = api.list_collection_streams(dataset)  <span class="hljs-comment"># for recorded data (ADHD_SIN)</span>
+    <span class="hljs-comment"># streams = api.list_live_streams("pupil_core")  # for live data (pupil_core)</span>
+
+    <span class="hljs-comment"># get the first stream</span>
+    stream = streams[<span class="hljs-number">0</span>]
+    datamux.logging.info(stream.attrs)
+
+    <span class="hljs-comment"># define a transform to map data into (t,x,y,d) format</span>
+    preprocessor = datamux.ExpressionMap({
+        <span class="hljs-string">"t"</span>: <span class="hljs-string">"float(t)"</span>,
+        <span class="hljs-string">"x"</span>: <span class="hljs-string">"float(lx + rx) / 2"</span>,
+        <span class="hljs-string">"y"</span>: <span class="hljs-string">"float(ly + ry) / 2"</span>,
+        <span class="hljs-string">"d"</span>: <span class="hljs-string">"float(ld + rd) / 2"</span>,
+    })
+
+    <span class="hljs-comment"># define pipeline</span>
+    pipeline_A = datamux.Pipeline(
+        api.attach(stream, transform=preprocessor),
+        <span class="hljs-comment"># IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),</span>
+        LogStream(**stream.attrs, simulation=<span class="hljs-string">"ivt"</span>),
+    )
+
+    <span class="hljs-comment"># run pipeline</span>
+    pipeline_A.run(timeout)
+</div></code></pre>
+<p>This script is configured to read a dataset <code>ADHD_SIN</code>. However, this dataset hasn’t been generated yet. In this tutorial, we will first try to generate this dataset using our dataset packaging tool, <strong>Curator,</strong> and then run the above script on the generated dataset.</p>
+<h1 id="task-1---creating-a-dfds-dataset">Task 1 - Creating a DFDS Dataset</h1>
+<p>First, open the running instance of Curator (<a href="http://localhost:8000"><code>localhost:8000</code></a>) from your web browser.</p>
+<p><img src="assets/1.png" alt="1"></p>
+<p>Curator lets you create <em>streamable</em> datasets. Through its UI, you can browse the filesystem, where curator is running on, pick files, define a target format, and generate a streamable dataset. This is particularly useful in lab settings, where raw data is stored in a shared folder, and you want to get transformed data to run some analysis scripts on.</p>
+<h2 id="selecting-data-files">Selecting Data Files</h2>
+<p>Let’s first open the <code>Eye Tracking/ADHD-Audio-Visual-Speech-In-Noise/data</code> folder from Curator UI. Next, let’s select all files using the checkbox, and click <code>Add to Dataset</code> button to add them to a new dataset.</p>
+<p><img src="assets/2.gif" alt="2"></p>
+<h2 id="setting-the-dataset-root">Setting the Dataset Root</h2>
+<p>Now, lets pick the current folder as the dataset’s root by clicking the <code>Use as Root</code> button at the top. This will get rid of long file paths.</p>
+<p><img src="assets/3.png" alt="3"></p>
+<h2 id="setting-the-dataset-name">Setting the Dataset Name</h2>
+<p>Nice! Let’s specify a name for the dataset. In the <strong>Dataset Name</strong> box, type in <code>ADHD_SIN</code> and click on the <code>save</code> icon on the right.</p>
+<h2 id="extracting-metadata-from-file-namespaths">Extracting Metadata from File Names/Paths</h2>
+<p>Notice that each file is named according to the pattern <code>&lt;subject&gt;ADHD_AV_&lt;noise&gt;&lt;task&gt;.csv</code>. Their value constraints are given below.</p>
+<ul>
+<li>The <strong>Subject ID</strong> is a three-digit code (e.g., <code>003</code>, <code>004</code>)</li>
+<li>The <strong>Noise Level</strong> belongs to one of (<code>0</code>, <code>5</code>, <code>10</code>, <code>15</code>, <code>20</code>, or <code>25</code>) dB.</li>
+<li>The <strong>Task Number</strong> is between <code>1</code> and <code>20</code> (inclusive)</li>
+</ul>
+<p><strong>This information can be easily captured by the regular expression given below.</strong></p>
+<pre class="hljs"><code><div>(?P&lt;subject&gt;\d+)ADHD_AV_(?P&lt;noise&gt;0|5|10|15|20|25)(?P&lt;task&gt;\d+)\.csv
+</div></code></pre>
+<p><strong>Now, let’s use this pattern to extract metadata from file names.</strong> Begin by selecting all files from the table in <strong>Step 1</strong> block.  Now copy-paste the above regular expression into the <strong>Name Pattern</strong> box under <strong>Extract Metadata</strong>, and click on <code>Extract</code>. Upon doing so, you will see that Curator has extracted metadata from each file name.</p>
+<p><img src="assets/6.png" alt="6"></p>
+<h2 id="identifying-relevant-columns-in-data">Identifying Relevant Columns in Data</h2>
+<p>Now let’s open some files and view their content. For this, you can simply <strong>click on the file names</strong> on either of the tables. This will download the selected file(s) to your computer, where you can view their content. Depending on your web browser, you may either get a download prompt, or the file may download/open immediately.</p>
+<p><img src="assets/4.png" alt="4"></p>
+<p><img src="assets/5.png" alt="5"></p>
+<p>That’s one messy file! Let’s find which columns represent the <strong>gaze positions</strong> and <strong>pupil diameters</strong> of each eye. Take a look at these columns from the file.</p>
+<ol>
+<li>GazePointLeftX (ADCSpx)</li>
+<li>GazePointLeftY (ADCSpx)</li>
+<li>GazePointRightX (ADCSpx)</li>
+<li>GazePointRightY (ADCSpx)</li>
+<li>PupilLeft</li>
+<li>PupilRight</li>
+<li>EyeTrackerTimestamp</li>
+</ol>
+<p>The <code>GazePointLeftX (ADCSpx)</code>, <code>GazePointLeftY (ADCSpx)</code>, <code>GazePointRightX (ADCSpx)</code>, and <code>GazePointRightY (ADCSpx)</code> columns indicate which eye (left or right) and axis (x or y) it represents, and that its values are in pixels (<code>px</code>). However, the <code>PupilLeft</code> and <code>PupilRight</code> column names lack the unit information. If you observe the <code>PupilLeft</code> and <code>PupilRight</code> column values, you will find their values to be in range of <code>3.0</code> — <code>5.0</code> , which matches human pupil diameter range in <code>mm</code> (<code>2.0</code> to <code>8.0</code>). Hence we can safely assume their values are in <code>mm</code>. The <code>EyeTrackerTimestamp</code> column gives time information. All data appears to be in 60 Hz (i.e., each file has 60 rows per second).</p>
+<p>With this information, let’s move onto the next step by clicking <strong>Step 2 - Define Streams</strong>.</p>
+<h2 id="defining-data-streams">Defining Data Streams</h2>
+<p>Now, you’re in the page where you can specify what structure you want the data to be in. Lets first define a stream with the following attributes.</p>
+<ul>
+<li><strong>ID -</strong> “eye”</li>
+<li><strong>Name -</strong> “eye movement data”</li>
+<li><strong>Description -</strong> leave blank</li>
+<li><strong>Unit</strong> - “pixel, mm”</li>
+<li><strong>Frequency (Hz)</strong> - “60”</li>
+</ul>
+<p><img src="assets/7.png" alt="7"></p>
+<p>Next, let’s assign a set of <strong>field</strong> values to the <strong>gaze</strong> stream. Use the <code>+</code> button to add new fields, and the <code>trash</code> button to remove added fields.</p>
+<ul>
+<li><code>lx</code>: <strong>Name</strong> - left gaze point x</li>
+<li><code>ly</code>: <strong>Name</strong> - left gaze point y</li>
+<li><code>ld</code>: <strong>Name</strong> - left pupil diameter</li>
+<li><code>rx</code>: <strong>Name</strong> - right gaze point x</li>
+<li><code>ry</code>: <strong>Name</strong> - right gaze point y</li>
+<li><code>rd</code>: <strong>Name</strong> - right pupil diameter</li>
+</ul>
+<p>Next, let’s assign an <strong>index</strong> value to the <strong>eye</strong> stream.</p>
+<ul>
+<li><code>t</code> - <strong>Name</strong> - timestamp</li>
+</ul>
+<p>Leave all <strong>description</strong> fields blank. Use float32 for all <strong>type</strong> fields. The final UI will look like follows.</p>
+<p><img src="assets/8.png" alt="8"></p>
+<p>Once done, click the <strong>Save Streams</strong> button to save what you just defined.</p>
+<aside>
+Note that here, we put both x, y positions (which have `pixel` units) and pupil diameters (which have `mm` units) into the same stream, and set its unit as `pixel, mm`. Alternatively, you could define two separate streams, `gaze` and `pupil`, with `gaze` having `pixel` as unit, and `pupil` having `mm` as unit. Depending on your need, you can pick one format over the other. For the scope of this tutorial, let’s stick to having one `eye` stream.
+</aside>
+<p>Now, proceed to the next step by clicking on <strong>Step 3 - Assign Attributes to Streams.</strong></p>
+<h2 id="assigning-attributes-to-streams">Assigning Attributes to Streams</h2>
+<p>Now, you’re in the page where you can pick which columns to assign to the <code>lx</code>, <code>ly</code>, <code>ld</code>, <code>rx</code>, <code>ry</code>, <code>rd</code>, and <code>t</code> fields you defined on the last step.</p>
+<p><img src="assets/9.png" alt="9"></p>
+<p>When you click on any <code>(Not Selected)</code> box on the right, you are shown a dropdown with the list of columns present in each file.</p>
+<p><img src="assets/10.png" alt="10"></p>
+<p>Let’s assign the right columns to each field.</p>
+<ul>
+<li><code>lx</code> - GazePointLeftX (ADCSpx)</li>
+<li><code>ly</code> - GazePointLeftY (ADCSpx)</li>
+<li><code>ld</code> - PupilLeft</li>
+<li><code>rx</code> - GazePointRightX (ADCSpx)</li>
+<li><code>ry</code> - GazePointRightY (ADCSpx)</li>
+<li><code>rd</code> - PupilRight</li>
+<li><code>t</code> - EyeTrackerTimestamp</li>
+</ul>
+<p>Once assigned, the UI should look as follows.</p>
+<p><img src="assets/11.png" alt="11"></p>
+<p>Now, click on the <code>Save Mapping</code> button and click on <code>Step 4 - Review and Export</code> to proceed to the next step.</p>
+<h2 id="exporting-the-dataset">Exporting the Dataset</h2>
+<p>Now, you’re in the page where you can download the dataset with a file format and indexing pattern of your choice.</p>
+<p><img src="assets/12.png" alt="12"></p>
+<p>Let’s pick <strong>Parquet</strong> as our file format, and keep the suggested indexing pattern as-is. Now, click on <code>Export</code> to download the dataset. Once clicked, allow Curator a minute to generate the dataset and prompt you to download it.</p>
+<p>Save this file a folder of your choice. <strong>Do not delete the downloaded tar.gz file yet</strong>, as we will later use that file to stream data.</p>
+<p><img src="assets/13.png" alt="13"></p>
+<aside>
+<img src="https://www.notion.so/icons/confetti-party-popper_blue.svg" alt="https://www.notion.so/icons/confetti-party-popper_blue.svg" width="40px" /> Congratulations! You just created a streamable dataset using Curator.
+</aside>
+<h1 id="task-2---running-pipelines-on-the-dfds-dataset">Task 2 - Running Pipelines on the DFDS Dataset</h1>
+<h2 id="setup">Setup</h2>
+<p><strong>Step 1: Install Python 3.10,</strong> if you haven’t already.</p>
+<p><strong>Step 2:</strong> Download the starter project from the link below and open it from your Python IDE.</p>
+<p><a href="https://drive.google.com/file/d/1s8t5fbDCUxDI9wBvJeD3uMiXv9RPs2Dn/view?usp=sharing">https://drive.google.com/file/d/1s8t5fbDCUxDI9wBvJeD3uMiXv9RPs2Dn/view?usp=sharing</a></p>
+<p><strong>Step 3:</strong> Create a virtual environment, activate it, and install project dependencies.</p>
+<pre class="hljs"><code><div>python -m venv ./venv
+source ./venv/bin/activate
+python -m pip install -r requirements.txt
+</div></code></pre>
+<p>This will install four packages: <code>streaminghub-datamux</code> , <code>streaminghub-pydfds</code>, <code>streaminghub-proxy-pupil-core</code>, and their required dependencies.</p>
+<p><strong>Step 4:</strong> Create a new directory named <code>$HOME/streaminghub</code> and configure the <code>streaminghub-datamux</code> package to use that directory.</p>
+<pre class="hljs"><code><div>mkdir -p $HOME/streaminghub
+python -m streaminghub_datamux init --data_dir="$HOME/streaminghub" --meta_dir="$HOME/streaminghub"
+</div></code></pre>
+<p><strong>Step 5:</strong> Now, lets extract the <code>tar.gz</code> file you downloaded earlier into the <code>$HOME/streaminghub</code> directory. For this, let’s open a terminal in the folder where you downloaded the <code>tar.gz</code> file, and run the following command.</p>
+<pre class="hljs"><code><div>$ tar -zxvf ADHD_SIN.tar.gz -C <span class="hljs-variable">$HOME</span>/streaminghub
+</div></code></pre>
+<p>Once extracted, your <code>$HOME/streaminghub</code> directory should look as follows.</p>
+<pre class="hljs"><code><div>$ ls -l <span class="hljs-variable">$HOME</span>/streaminghub
+
+total 8
+drwxr-xr-x@ 850 ......  .....  27200 Jun 24 13:30 ADHD_SIN
+-rw-r--r--    1 ......  .....   1930 Jun 24 13:30 ADHD_SIN.collection.json
+</div></code></pre>
+<h2 id="executing-the-pipeline-script">Executing the Pipeline Script</h2>
+<p>Now, let’s try to stream data from the dataset we just generated. For this, let’s run the previously opened python script (<code>pipeline.py</code>) from the terminal.</p>
+<p><strong>Python Script</strong></p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> fixation_detection <span class="hljs-keyword">import</span> IVT
+<span class="hljs-keyword">from</span> reporting <span class="hljs-keyword">import</span> LogStream
+
+<span class="hljs-keyword">import</span> streaminghub_datamux <span class="hljs-keyword">as</span> datamux
+
+<span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">"__main__"</span>:
+
+    <span class="hljs-comment"># constants</span>
+    dataset = <span class="hljs-string">"ADHD_SIN"</span>
+    timeout = <span class="hljs-number">30</span>
+    screen_wh = (<span class="hljs-number">1920</span>, <span class="hljs-number">1080</span>)
+    diag_dist = (<span class="hljs-number">21</span>, <span class="hljs-number">22</span>)
+    freq = <span class="hljs-number">60</span>
+
+    <span class="hljs-comment"># hyperparameters</span>
+    vt = <span class="hljs-number">10</span>
+
+    <span class="hljs-comment"># setup datamux api</span>
+    datamux.init()
+    api = datamux.API()
+
+    streams = api.list_collection_streams(dataset)  <span class="hljs-comment"># for recorded data (ADHD_SIN)</span>
+    <span class="hljs-comment"># stream = api.list_live_streams("pupil_core")  # for live data (pupil_core)</span>
+
+    <span class="hljs-comment"># get the first stream</span>
+    stream = streams[<span class="hljs-number">0</span>]
+    datamux.logging.info(stream.attrs)
+
+    <span class="hljs-comment"># define a transform to map data into (t,x,y,d) format and handle missing values</span>
+    preprocessor = datamux.ExpressionMap({
+        <span class="hljs-string">"t"</span>: <span class="hljs-string">"float(t)"</span>,
+        <span class="hljs-string">"x"</span>: <span class="hljs-string">"float(lx + rx) / 2"</span>,
+        <span class="hljs-string">"y"</span>: <span class="hljs-string">"float(ly + ry) / 2"</span>,
+        <span class="hljs-string">"d"</span>: <span class="hljs-string">"float(ld + rd) / 2"</span>,
+    })
+
+    <span class="hljs-comment"># define pipeline</span>
+    pipeline_A = datamux.Pipeline(
+        api.attach(stream, transform=preprocessor),
+        <span class="hljs-comment"># IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),</span>
+        LogStream(**stream.attrs, simulation=<span class="hljs-string">"ivt"</span>),
+    )
+
+    <span class="hljs-comment"># run pipeline</span>
+    pipeline_A.run(timeout)
+</div></code></pre>
+<p><strong>Terminal Command</strong></p>
+<pre class="hljs"><code><div>$ python pipeline.py
+</div></code></pre>
+<p>Now, you should see a recording from the <code>ADHD_SIN</code> dataset being logged on the terminal in a realtime-ish manner, <strong>without having to write any dataset-specific data reading code.</strong></p>
+<p><img src="assets/14.png" alt="14"></p>
+<p>Moreover, the line <code>datamux.logging.info(stream.attrs)</code> in our Python script logs any metadata in the selected recording (i.e., <code>stream</code>).</p>
+<pre class="hljs"><code><div>{
+	<span class="hljs-attr">"collection"</span>: <span class="hljs-string">"ADHD_SIN"</span>,
+	<span class="hljs-attr">"subject"</span>: <span class="hljs-string">"024"</span>,
+	<span class="hljs-attr">"noise"</span>: <span class="hljs-string">"10"</span>,
+	<span class="hljs-attr">"task"</span>: <span class="hljs-string">"11"</span>,
+	<span class="hljs-attr">"id"</span>: <span class="hljs-string">"eye"</span>,
+	<span class="hljs-attr">"mode"</span>: <span class="hljs-string">"replay"</span>
+}
+</div></code></pre>
+<aside>
+<img src="https://www.notion.so/icons/help-alternate_green.svg" alt="https://www.notion.so/icons/help-alternate_green.svg" width="40px" /> What is the transform=preprocessor doing here?
+</aside>
+<pre class="hljs"><code><div>preprocessor = datamux.ExpressionMap({
+    <span class="hljs-string">"t"</span>: <span class="hljs-string">"float(t)"</span>,
+    <span class="hljs-string">"x"</span>: <span class="hljs-string">"float(lx + rx) / 2"</span>,
+    <span class="hljs-string">"y"</span>: <span class="hljs-string">"float(ly + ry) / 2"</span>,
+    <span class="hljs-string">"d"</span>: <span class="hljs-string">"float(ld + rd) / 2"</span>,
+})
+</div></code></pre>
+<p>By default, stream outputs will be passed on as-is. However, if you set the transform to an <code>ExpressionMap</code>, this tells <code>DataMux</code> to transform data before passing on, and specifies how to. The <code>ExpressionMap</code> constructor takes a dictionary as argument, whose keys tell <code>DataMux</code> what fields should be generated, and whose values provide <code>DataMux</code> an expression to generate them. Each expression is evaluated with all input variables in global scope, and hence, it will output the correct value.</p>
+<aside>
+<img src="https://www.notion.so/icons/help-alternate_green.svg" alt="https://www.notion.so/icons/help-alternate_green.svg" width="40px" /> If a `datamux.ExpressionMap` is specified, the next pipeline node will only receive the keys/values specified in it.
+</aside>
+<h2 id="extending-the-pipeline-script">Extending the Pipeline Script</h2>
+<p>Now, let’s uncomment the 2nd step of the pipeline. This turns our script from, a <strong>two-step pipeline</strong> (source → logger), into a <strong>three-step pipeline</strong> (source → algorithm → logger).</p>
+<p><strong>Before</strong></p>
+<pre class="hljs"><code><div><span class="hljs-comment"># define pipeline</span>
+pipeline_A = datamux.Pipeline(
+    api.attach(stream, transform=preprocessor),
+    <span class="hljs-comment"># IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),</span>
+    LogStream(**stream.attrs, simulation=<span class="hljs-string">"ivt"</span>),
+)
+</div></code></pre>
+<p><strong>After</strong></p>
+<pre class="hljs"><code><div><span class="hljs-comment"># define pipeline</span>
+pipeline_A = datamux.Pipeline(
+    api.attach(stream, transform=preprocessor),
+    IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=<span class="hljs-literal">None</span>),
+    LogStream(**stream.attrs, simulation=<span class="hljs-string">"ivt"</span>),
+)
+</div></code></pre>
+<p>Now, let’s run the pipeline again.</p>
+<p><img src="assets/15.png" alt="15"></p>
+<p>This time, the program logs a different set of values. Compared to the two-step pipeline, the three-step pipeline generates much less values. This is because fixations and saccades are <strong>lossy representations</strong> of eye movement data. However lossy fixation/saccade events may be, they closely resemble a person’s viewing pattern (i.e., process, refocus, process, refocus, … ).</p>
+<h1 id="bonus-task---running-the-pipeline-on-live-data">Bonus Task - Running the Pipeline on Live Data</h1>
+<blockquote>
+<p><strong>To perform this task, you must connect a pupil core device to your machine.</strong></p>
+</blockquote>
+<p>To use a live data stream, the code requires only <strong>one</strong> change of variable (<code>stream</code>). Doing so switches the pipeline from using recorded data to using live pupil core data.</p>
+<pre class="hljs"><code><div>stream = api.list_live_streams(<span class="hljs-string">"pupil_core"</span>)  <span class="hljs-comment"># for live data (pupil_core)</span>
+<span class="hljs-comment"># stream = api.list_collection_streams(dataset)  # for recorded data (ADHD_SIN)</span>
+</div></code></pre>
+<p>When switching data sources, beware that the names of measurements may be different from your previous data source. You may need to update the <code>datamux.ExpressionMap</code> dictionary <strong>values</strong> (not keys)  to reflect the change in variable names.</p>
+<p>The updated <code>ExpressionMap</code> for the live data source is provided below.</p>
+<pre class="hljs"><code><div>preprocessor = datamux.ExpressionMap({
+    <span class="hljs-string">"t"</span>: <span class="hljs-string">"float(t)"</span>,
+    <span class="hljs-string">"x"</span>: <span class="hljs-string">"float(eye_l.x + eye_r.x) / 2"</span>,
+    <span class="hljs-string">"y"</span>: <span class="hljs-string">"float(eye_l.y + eye_r.y) / 2"</span>,
+    <span class="hljs-string">"d"</span>: <span class="hljs-string">"float(pupil_l.d + pupil_r.d) / 2"</span>,
+})
+</div></code></pre>
+<p>Now, let’s run the pipeline again. The pipeline can now be run on <strong>actual live data,</strong> simply by making small, straightforward changes to the Python script.</p>
+<aside>
+<img src="https://www.notion.so/icons/sun_yellow.svg" alt="https://www.notion.so/icons/sun_yellow.svg" width="40px" /> That brings us to the end of this tutorial. Hope you enjoyed using our framework!
+</aside>
+<h1 id="post-questionnaire">Post-Questionnaire</h1>
+<p>Please complete the user experience questionnaire provided on the link below.
+<a href="https://forms.gle/vBx74dV3tTpSo6c8A">https://forms.gle/vBx74dV3tTpSo6c8A</a></p>
+
+</body>
+</html>

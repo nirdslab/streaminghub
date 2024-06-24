@@ -1,4 +1,3 @@
 streaminghub-pydfds @ git+https://github.com/nirdslab/streaminghub.git#subdirectory=streaminghub_pydfds
 streaminghub-datamux @ git+https://github.com/nirdslab/streaminghub.git#subdirectory=streaminghub_datamux
 streaminghub-proxy-pupil-core @ git+https://github.com/nirdslab/streaminghub.git#subdirectory=streaminghub_plugins/streaminghub_proxy_pupil_core
-pylsl
