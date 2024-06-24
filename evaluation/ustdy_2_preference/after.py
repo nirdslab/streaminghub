@@ -1,10 +1,12 @@
 import streaminghub_datamux as datamux
 
+FREQ = 60
+
 
 class SimulateStream(datamux.SourceTask):
 
     t = 0.0
-    dt = 1.0 / 60.0
+    dt = 1.0 / FREQ
 
     def __call__(self, *args, **kwargs) -> None:
         item = dict(t=self.t, x=0, y=0, d=0)
@@ -16,11 +18,9 @@ class SimulateStream(datamux.SourceTask):
 class LogDataStream(datamux.SinkTask):
 
     def __call__(self, *args, **kwargs) -> None:
-        try:
-            item = self.source.get(timeout=1.0)
+        item = self.source.get()
+        if item is not None:
             print(f"[{type(item).__name__}]", item)
-        except:
-            pass
 
 
 if __name__ == "__main__":

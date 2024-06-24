@@ -7,6 +7,10 @@ dependencies:
   - conda-forge::ipykernel
   - conda-forge::tqdm
   - conda-forge::seaborn
+  - conda-forge::pytorch-lightning
+  - conda-forge::torchmetrics
+  - conda-forge::pytorch
+
   - pip:
       # source packages
       - "-e streaminghub_pydfds/"

@@ -19,9 +19,9 @@ Chunk = tuple[bytes, int, int, int]
 logger = logging.getLogger(__name__)
 
 
-def make_tarfile(output_filename, source_dir, dest_dir):
+def make_tarfile(output_filename: Path, source_dir: Path, dest_dir: str):
     with tarfile.open(output_filename, "w:gz") as tar:
-        tar.add(source_dir, arcname=dest_dir, recursive=True)
+        tar.add(source_dir, arcname='.', recursive=True)
 
 
 def get_chunk(full_path: Path, start_byte: int, end_byte: int | None = None) -> Chunk:

@@ -2,6 +2,8 @@ import multiprocessing
 import signal
 import time
 
+FREQ = 60
+
 
 class Runner:
 
@@ -28,14 +30,11 @@ class Runner:
 
 
 def simulate_data_stream(
-    source_id: str,
-    stream_id: str,
     queue: multiprocessing.Queue,
 ):
-    print(source_id, stream_id)
     flag = False
     t = 0.0
-    dt = 1.0 / 60.0
+    dt = 1 / FREQ
 
     def handle_signal(signum, frame):
         nonlocal flag

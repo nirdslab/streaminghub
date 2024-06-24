@@ -3,6 +3,8 @@ import multiprocessing
 import signal
 import time
 
+FREQ = 60
+
 
 class Runner:
 
@@ -44,7 +46,7 @@ class Runner:
 class SimulateStream(Runner):
 
     t = 0.0
-    dt = 0.1
+    dt = 1 / FREQ
 
     def step(self, *args, **kwargs):
         item = dict(t=self.t, x=0, y=0, d=0)
