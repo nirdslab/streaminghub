@@ -20,7 +20,7 @@ if __name__ == "__main__":
     api = datamux.API()
 
     streams = api.list_collection_streams(dataset)  # for recorded data (ADHD_SIN)
-    # stream = api.list_live_streams("pupil_core")  # for live data (pupil_core)
+    # streams = api.list_live_streams("pupil_core")  # for live data (pupil_core)
 
     # get the first stream
     stream = streams[0]
