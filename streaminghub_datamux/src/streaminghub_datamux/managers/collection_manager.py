@@ -4,12 +4,10 @@ import time
 from typing import Callable
 
 import numpy as np
-import pylsl
+
 import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
 from streaminghub_datamux.typing import Queue
-
-from .util import stream_to_stream_info
 
 
 class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
@@ -194,6 +192,10 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         *,
         attrs: dict,
     ):
+        import pylsl
+
+        from .util import stream_to_stream_info
+
         collection = self.__collections[source_id]
         stream = collection.streams[stream_id]
         stream.attrs.update(attrs, dfds_mode="restream")

@@ -1,10 +1,10 @@
-import pylsl
 import streaminghub_pydfds as dfds
 
 
 def stream_to_stream_info(
     stream: dfds.Stream,
-) -> pylsl.StreamInfo:
+):
+    import pylsl
     stream_info = pylsl.StreamInfo(
         name=stream.name,
         type=stream.unit,
