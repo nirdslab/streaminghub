@@ -73,10 +73,10 @@ class Parser:
             schema_ptr_obj = PathOrURL(schema_ptr)
 
             self.logger.debug(f"schema url object: {schema_ptr_obj}")
-            schema_url = meta_ptr_obj.join(schema_ptr_obj).to_url()
-            self.logger.debug(f"resolved url (schema): {schema_url}")
-
-            schema = self.loader.get(schema_url)
+            # TODO uncomment after fixing SSL issues in validation
+            # schema_url = meta_ptr_obj.join(schema_ptr_obj).to_url()
+            # self.logger.debug(f"resolved url (schema): {schema_url}")
+            # schema = self.loader.get(schema_url)
             # self.validate(metadata, schema, schema_url)
 
         # recursively update uri-references with actual values
