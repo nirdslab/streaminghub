@@ -63,7 +63,7 @@ This script is configured to read a dataset `ADHD_SIN`. However, this dataset ha
 
 # Task 1 - Creating a DFDS Dataset
 
-First, open the running instance of Curator ([`localhost:8000`](http://localhost:8000)) from your web browser.
+First, open the running instance of Curator ([`https://userstudy.yasith.dev`](https://userstudy.yasith.dev)) from your web browser.
 
 ![1](assets/1.png)
 
