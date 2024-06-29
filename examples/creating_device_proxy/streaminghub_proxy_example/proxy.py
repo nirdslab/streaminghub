@@ -96,19 +96,19 @@ class ExampleProxy(datamux.Reader[dfds.Node]):
         # left pupil diam
         if topic.startswith("pupil.1"):
             pupil_d = random()
-            queue.put_nowait(transform({"pupil_l": dict(d=pupil_d, c=c, t=t)}))
+            queue.put(transform({"pupil_l": dict(d=pupil_d, c=c, t=t)}))
         # right pupil diam
         if topic.startswith("pupil.0"):
             pupil_d = random()
-            queue.put_nowait(transform({"pupil_r": dict(d=pupil_d, c=c, t=t)}))
+            queue.put(transform({"pupil_r": dict(d=pupil_d, c=c, t=t)}))
         # left gaze pos
         if topic.startswith("gaze.3d.1"):
             gaze_x, gaze_y, gaze_z = random(), random(), random()
-            queue.put_nowait(transform({"gaze_l": dict(x=gaze_x, y=gaze_y, z=gaze_z, c=c, t=t)}))
+            queue.put(transform({"gaze_l": dict(x=gaze_x, y=gaze_y, z=gaze_z, c=c, t=t)}))
         # right gaze pos
         if topic.startswith("gaze.3d.0"):
             gaze_x, gaze_y, gaze_z = random(), random(), random()
-            queue.put_nowait(transform({"gaze_r": dict(x=gaze_x, y=gaze_y, z=gaze_z, c=c, t=t)}))
+            queue.put(transform({"gaze_r": dict(x=gaze_x, y=gaze_y, z=gaze_z, c=c, t=t)}))
 
     def list_sources(self) -> list[dfds.Node]:
         source_ids = ["1"]  # TODO fix this

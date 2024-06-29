@@ -37,12 +37,14 @@ class WhiteNoiseSimulator(datamux.PipeTask):
 
     def __call__(self, *args, **kwargs) -> int | None:
         item = self.source.get()
+        if item == datamux.END_OF_STREAM:
+            self.logger.debug("got EOF token")
+            self.target.put(item)
+            self.logger.debug("passed EOF token")
+            return 0
         if item is None or not isinstance(item, (Fixation, Saccade)):
             return
-        if item == datamux.END_OF_STREAM:
-            self.logger.warning(f"reached end of stream")
-            self.target.put_nowait(item)
-            return 0
+        
         if isinstance(item, Saccade):
             data = self.synthesize_saccade(item)
         if isinstance(item, Fixation):
@@ -93,9 +95,11 @@ class PinkNoiseSimulator(datamux.PipeTask):
         if item is None or not isinstance(item, (Fixation, Saccade)):
             return
         if item == datamux.END_OF_STREAM:
-            self.logger.warning(f"reached end of stream")
-            self.target.put_nowait(item)
+            self.logger.debug("got EOF token")
+            self.target.put(item)
+            self.logger.debug("passed EOF token")
             return 0
+        
         if isinstance(item, Saccade):
             data = self.synthesize_saccade(item)
         if isinstance(item, Fixation):

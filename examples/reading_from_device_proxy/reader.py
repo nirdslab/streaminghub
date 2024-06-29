@@ -32,7 +32,7 @@ def main():
         item = sink.get()
         logger.info(f"received item: {item}")
         if item == datamux.END_OF_STREAM:
-            logger.warning(f"reached end of stream")
+            logger.debug("got EOF token")
             break
     api.stop_task(ack.randseq)
 

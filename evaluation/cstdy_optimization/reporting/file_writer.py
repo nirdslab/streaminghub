@@ -22,12 +22,14 @@ class FileWriter(datamux.SinkTask):
 
     def __call__(self, *args, **kwargs) -> int | None:
         item = self.source.get()
+        if item == datamux.END_OF_STREAM:
+            self.logger.debug("got EOF token")
+            self.completed.set()
+            self.logger.debug("set EOF flag")
+            return 0
         if item is None:
             return
-        if item == datamux.END_OF_STREAM:
-            self.logger.warning(f"reached end of stream")
-            self.completed.set()
-            return 0
+        
         with open(self.fp, "a") as f:
             if isinstance(item, dict):
                 json.dump(item, f)

@@ -157,32 +157,32 @@ class PupilCoreProxy(datamux.Reader[dfds.Node]):
             # left pupil diam
             if topic.startswith("pupil.1"):
                 pupil_d = message["diameter"]
-                queue.put_nowait({"pupil_l": transform(dict(d=pupil_d, c=c, t=t))})
+                queue.put({"pupil_l": transform(dict(d=pupil_d, c=c, t=t))})
             # right pupil diam
             if topic.startswith("pupil.0"):
                 pupil_d = message["diameter"]
-                queue.put_nowait({"pupil_r": transform(dict(d=pupil_d, c=c, t=t))})
+                queue.put({"pupil_r": transform(dict(d=pupil_d, c=c, t=t))})
             # left gaze pos
             if topic.startswith("gaze.3d.1"):
                 gaze_x, gaze_y, gaze_z = message["gaze_point_3d"]
-                queue.put_nowait({"gaze_l": transform(dict(x=gaze_x, y=gaze_y, z=gaze_z, c=c, t=t))})
+                queue.put({"gaze_l": transform(dict(x=gaze_x, y=gaze_y, z=gaze_z, c=c, t=t))})
             # right gaze pos
             if topic.startswith("gaze.3d.0"):
                 gaze_x, gaze_y, gaze_z = message["gaze_point_3d"]
-                queue.put_nowait({"gaze_r": transform(dict(x=gaze_x, y=gaze_y, z=gaze_z, c=c, t=t))})
+                queue.put({"gaze_r": transform(dict(x=gaze_x, y=gaze_y, z=gaze_z, c=c, t=t))})
         if frame is not None:
             # world frame
             if topic.startswith("frame.world"):
                 assert frame is not None
-                queue.put_nowait({"world": transform(dict(frame=frame, t=t))})
+                queue.put({"world": transform(dict(frame=frame, t=t))})
             # left eye frame
             if topic.startswith("frame.eye.1"):
                 assert frame is not None
-                queue.put_nowait({"eye_l": transform(dict(frame=frame, t=t))})
+                queue.put({"eye_l": transform(dict(frame=frame, t=t))})
             # right eye frame
             if topic.startswith("frame.eye.0"):
                 assert frame is not None
-                queue.put_nowait({"eye_r": transform(dict(frame=frame, t=t))})
+                queue.put({"eye_r": transform(dict(frame=frame, t=t))})
 
     def list_sources(self) -> list[dfds.Node]:
         source_ids = ["1"]  # TODO fix this

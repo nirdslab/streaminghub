@@ -124,7 +124,7 @@ class LSLProxy(datamux.Reader[dfds.Node]):
                 index_dict = {index_cols[0]: index}
                 value_dict = dict(zip(value_cols, value))
                 msg = dict(index=index_dict, value=value_dict)
-                q.put_nowait(transform(msg))
+                q.put(transform(msg))
 
     def on_detach(
         self,
@@ -139,5 +139,5 @@ class LSLProxy(datamux.Reader[dfds.Node]):
         # termination indicator
         eof = datamux.END_OF_STREAM
         inlet.close_stream()
-        q.put_nowait(transform(eof))
+        q.put(transform(eof))
         self.logger.info("relay ended")

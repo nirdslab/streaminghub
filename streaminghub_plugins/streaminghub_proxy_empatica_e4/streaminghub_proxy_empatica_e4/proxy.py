@@ -104,7 +104,7 @@ class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
             if typ == "" and self.server_state == E4ServerState.STREAMING:
                 vals = [float(arg)] + list(map(float, data.split()))
                 keys = ["t"] + list(range(len(vals) - 1))
-                q.put_nowait(transform(dict(zip(keys, vals))))
+                q.put(transform(dict(zip(keys, vals))))
 
             # DEVICE_CONNECT response
             elif cmd == E4SSCommand.DEVICE_CONNECT:

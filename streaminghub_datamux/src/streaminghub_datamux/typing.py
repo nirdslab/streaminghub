@@ -46,7 +46,7 @@ class Queue(Generic[D]):
         return self.q.put(obj, block, timeout)
 
     def put_nowait(self, obj: D) -> None:
-        return self.q.put_nowait(obj)
+        return self.q.put(obj)
 
 
 def create_flag() -> Flag:
@@ -114,7 +114,8 @@ class IAttach(abc.ABC):
         while not flag.is_set():
             retval = self.on_pull(source_id, stream_id, attrs, q, transform, state, rate_limit, **kwargs)
             if retval is not None:
-                break
+                self.logger.info(f"[{self.__class__.__name__}] stream exited with code: {retval}")
+                flag.set()
         self.on_detach(source_id, stream_id, attrs, q, transform, state, **kwargs)
         self.logger.debug("detached from stream")
 
@@ -234,8 +235,8 @@ class ITask(abc.ABC):
             try:
                 retval = self(*args, **kwargs)
                 if retval is not None:
-                    self.logger.info(f"[{self.name}] returned with code: {retval}")
-                    break
+                    self.logger.info(f"[{self.name}] task exited with code: {retval}")
+                    self.flag = True
             except BaseException as e:
                 self.logger.warn(f"[{self.name}] has crashed: {e}")
 
@@ -286,11 +287,12 @@ class PipeTask(ITaskWithSource):
 
 class SinkTask(ITaskWithSource):
 
-    completed = create_flag()
+    completed: Flag
 
     def __init__(self) -> None:
         super().__init__()
         self.source = Queue(timeout=0.001, empty=True)
+        self.completed = create_flag()
 
 
 class Pipeline(ITask):
@@ -347,8 +349,8 @@ class Pipeline(ITask):
         try:
             self.completed.wait(duration)
             self.logger.info("pipeline completed")
-        except:
-            self.logger.info("pipeline timed out")
+        except BaseException as e:
+            self.logger.info(f"pipeline raised an exception: {e}")
         self.stop()
 
     def __call__(self, *args, **kwargs) -> None:

@@ -142,26 +142,26 @@ class IVT(datamux.PipeTask):
         y: float
 
         item = self.source.get()
-        if item is None:
-            return
-
         if item == datamux.END_OF_STREAM:
-            self.logger.warning(f"reached end of stream")
+            self.logger.debug(f"got EOF token")
             # release accumulated points
             if self.state == SACCADE_STATE:
                 sacc = self.make_saccade(None)
                 if sacc is not None:
-                    self.target.put_nowait(sacc)
+                    self.target.put(sacc)
             if self.state == FIXATION_STATE:
                 fxtn = self.make_fixation(None, check_duration=False)
                 if fxtn is not None:
-                    self.target.put_nowait(fxtn)
-            self.target.put_nowait(item)
+                    self.target.put(fxtn)
+            self.target.put(item)
+            self.logger.debug(f"passed EOF token")
             return 0
+        if item is None:
+            return
 
         t, x, y = item["t"], item["x"], item["y"]
         if np.isnan(x) or np.isnan(y):
-            self.logger.warning(f"ignoring nan at t={t}")
+            self.logger.debug(f"ignoring nan at t={t}")
             return
         # nan-safety and scaling
         x, y = self.clamp_and_rescale(x, y)
@@ -181,7 +181,7 @@ class IVT(datamux.PipeTask):
                     # fixation -> saccade (fixation ends)
                     fxtn = self.make_fixation(p)
                     if fxtn is not None:
-                        self.target.put_nowait(fxtn)
+                        self.target.put(fxtn)
                         self.cache.clear()
                 # state -> saccade
                 self.state = SACCADE_STATE
@@ -190,7 +190,7 @@ class IVT(datamux.PipeTask):
                     # saccade -> fixation (fixation starts)
                     sacc = self.make_saccade(p)
                     if sacc is not None:
-                        self.target.put_nowait(sacc)
+                        self.target.put(sacc)
                         self.cache.clear()
                 # state -> fixation
                 self.state = FIXATION_STATE

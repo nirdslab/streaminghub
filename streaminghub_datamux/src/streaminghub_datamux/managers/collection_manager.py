@@ -167,7 +167,7 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
 
         # send record
         msg = dict(index=index, value=value)
-        q.put_nowait(transform(msg))
+        q.put(transform(msg))
 
         # increment pointer
         state["idx"] = idx + 1
@@ -183,7 +183,7 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
     ) -> None:
         # termination indicator
         eof = datamux.END_OF_STREAM
-        q.put_nowait(transform(eof))
+        q.put(transform(eof))
         self.logger.info(f"replay ended")
 
     def _serve_coro(

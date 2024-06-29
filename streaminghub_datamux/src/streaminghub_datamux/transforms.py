@@ -29,7 +29,7 @@ class Broadcast(dm.ITaskWithSource):
         if item is None:
             return
         for target in self.targets:
-            target.source.put_nowait(item)
+            target.source.put(item)
 
 
 class Sync(dm.PipeTask):
@@ -44,4 +44,4 @@ class Sync(dm.PipeTask):
         for task in self.tasks:
             item = task.target.get()
             if item is not None:
-                self.target.put_nowait(item)
+                self.target.put(item)
