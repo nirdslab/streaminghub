@@ -1,5 +1,5 @@
 from fixation_detection import IVT
-from reporting import LogStream
+from reporting import LogWriter
 
 import streaminghub_datamux as datamux
 
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     pipeline_A = datamux.Pipeline(
         api.attach(stream, transform=preprocessor),
         # IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
-        LogStream(name="ivt", **stream.attrs),
+        LogWriter(name="ivt", **stream.attrs),
     )
 
     # run pipeline

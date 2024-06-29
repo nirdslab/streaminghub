@@ -32,7 +32,7 @@ class Field(p.BaseModel):
     def parse_dtype(cls, v):
         return dtype_map_fwd[v]
 
-    @p.field_serializer("dtype", return_type=str, when_used='always')
+    @p.field_serializer("dtype", return_type=str, when_used="always")
     def serialize_dtype(self, v):
         return dtype_map_inv[v]
 
@@ -135,26 +135,28 @@ class DataLoader:
             for key, attrs in create_reader(fp).lsinfo().items():
                 result = self.__parser.parse(key)
                 assert isinstance(result, parse.Result)
+                attrs.update(result.named)
                 available.append(attrs)
         elif self.__protocol == "parquet":
             fp = self.__fpath
             for key in fp.glob("*.parquet"):
                 result = self.__parser.parse(key.with_suffix("").name)
                 assert isinstance(result, parse.Result)
-                available.append({})
+                attrs = result.named
+                available.append(attrs)
         elif self.__protocol == "csv":
             fp = self.__fpath
             for key in fp.glob("*.csv"):
                 result = self.__parser.parse(key.with_suffix("").name)
                 assert isinstance(result, parse.Result)
-                available.append({})
+                attrs = result.named
+                available.append(attrs)
         else:
             raise ValueError(f"Unsupported protocol: {self.__protocol}")
 
         # patch metadata with collection / path information
         for attrs in available:
-            attrs.update({"collection": self.__collection.name, **result.named})
-
+            attrs.update({"collection": self.__collection.name})
         return available
 
     def read(

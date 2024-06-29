@@ -1,2 +1,2 @@
-from .log_stream import LogStream
-from .file_stream import FileStream
+from .log_writer import LogWriter
+from .file_writer import FileWriter

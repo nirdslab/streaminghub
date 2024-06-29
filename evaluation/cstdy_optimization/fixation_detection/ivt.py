@@ -146,6 +146,7 @@ class IVT(datamux.PipeTask):
             return
 
         if item == datamux.END_OF_STREAM:
+            self.logger.warning(f"reached end of stream")
             # release accumulated points
             if self.state == SACCADE_STATE:
                 sacc = self.make_saccade(None)
@@ -159,7 +160,7 @@ class IVT(datamux.PipeTask):
 
         t, x, y = item["t"], item["x"], item["y"]
         if np.isnan(x) or np.isnan(y):
-            self.logger.warning("encountered nan, ignoring data point")
+            self.logger.warning(f"ignoring nan at t={t}")
             return
         # nan-safety and scaling
         x, y = self.clamp_and_rescale(x, y)

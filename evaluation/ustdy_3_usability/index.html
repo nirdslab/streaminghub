@@ -375,7 +375,7 @@ code {
 </ol>
 <p>The Python script looks as follows:</p>
 <pre class="hljs"><code><div><span class="hljs-keyword">from</span> fixation_detection <span class="hljs-keyword">import</span> IVT
-<span class="hljs-keyword">from</span> reporting <span class="hljs-keyword">import</span> LogStream
+<span class="hljs-keyword">from</span> reporting <span class="hljs-keyword">import</span> LogWriter
 
 <span class="hljs-keyword">import</span> streaminghub_datamux <span class="hljs-keyword">as</span> datamux
 
@@ -414,7 +414,7 @@ code {
     pipeline_A = datamux.Pipeline(
         api.attach(stream, transform=preprocessor),
         <span class="hljs-comment"># IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),</span>
-        LogStream(**stream.attrs, simulation=<span class="hljs-string">"ivt"</span>),
+        LogWriter(**stream.attrs, simulation=<span class="hljs-string">"ivt"</span>),
     )
 
     <span class="hljs-comment"># run pipeline</span>
@@ -547,7 +547,7 @@ drwxr-xr-x@ 850 ......  .....  27200 Jun 24 13:30 ADHD_SIN
 <p>Now, let’s try to stream data from the dataset we just generated. For this, let’s run the previously opened python script (<code>pipeline.py</code>) from the terminal.</p>
 <p><strong>Python Script</strong></p>
 <pre class="hljs"><code><div><span class="hljs-keyword">from</span> fixation_detection <span class="hljs-keyword">import</span> IVT
-<span class="hljs-keyword">from</span> reporting <span class="hljs-keyword">import</span> LogStream
+<span class="hljs-keyword">from</span> reporting <span class="hljs-keyword">import</span> LogWriter
 
 <span class="hljs-keyword">import</span> streaminghub_datamux <span class="hljs-keyword">as</span> datamux
 
@@ -586,7 +586,7 @@ drwxr-xr-x@ 850 ......  .....  27200 Jun 24 13:30 ADHD_SIN
     pipeline_A = datamux.Pipeline(
         api.attach(stream, transform=preprocessor),
         <span class="hljs-comment"># IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),</span>
-        LogStream(**stream.attrs, simulation=<span class="hljs-string">"ivt"</span>),
+        LogWriter(**stream.attrs, simulation=<span class="hljs-string">"ivt"</span>),
     )
 
     <span class="hljs-comment"># run pipeline</span>
@@ -628,7 +628,7 @@ drwxr-xr-x@ 850 ......  .....  27200 Jun 24 13:30 ADHD_SIN
 pipeline_A = datamux.Pipeline(
     api.attach(stream, transform=preprocessor),
     <span class="hljs-comment"># IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),</span>
-    LogStream(**stream.attrs, simulation=<span class="hljs-string">"ivt"</span>),
+    LogWriter(**stream.attrs, simulation=<span class="hljs-string">"ivt"</span>),
 )
 </div></code></pre>
 <p><strong>After</strong></p>
@@ -636,7 +636,7 @@ pipeline_A = datamux.Pipeline(
 pipeline_A = datamux.Pipeline(
     api.attach(stream, transform=preprocessor),
     IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=<span class="hljs-literal">None</span>),
-    LogStream(**stream.attrs, simulation=<span class="hljs-string">"ivt"</span>),
+    LogWriter(**stream.attrs, simulation=<span class="hljs-string">"ivt"</span>),
 )
 </div></code></pre>
 <p>Now, let’s run the pipeline again.</p>

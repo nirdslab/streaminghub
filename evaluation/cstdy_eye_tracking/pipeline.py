@@ -3,7 +3,7 @@ import os.path
 
 import streaminghub_datamux as datamux
 from gaze.fixation_detection import IVT
-from gaze.reporting import LogStream
+from gaze.reporting import LogWriter
 from gaze.synthesis import PinkNoiseSimulator, WhiteNoiseSimulator
 
 if __name__ == "__main__":
@@ -46,7 +46,7 @@ if __name__ == "__main__":
         # original data
         pipeline_A = datamux.Pipeline(
             api.attach(stream, transform=preprocessor),
-            LogStream(name="original", **stream.attrs),
+            LogWriter(name="original", **stream.attrs),
         )
         pipeline_A.run(timeout)
 
@@ -55,7 +55,7 @@ if __name__ == "__main__":
             api.attach(stream, transform=preprocessor),
             IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
             WhiteNoiseSimulator(freq=freq, xy_scale=xy_scale, d_scale=d_scale, transform=None),
-            LogStream(name="original", **stream.attrs),
+            LogWriter(name="original", **stream.attrs),
         )
         pipeline_B.run(timeout)
 
@@ -64,6 +64,6 @@ if __name__ == "__main__":
             api.attach(stream, transform=preprocessor),
             IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
             PinkNoiseSimulator(freq=freq, xy_scale=xy_scale, d_scale=d_scale, transform=None),
-            LogStream(name="pink_noise", **stream.attrs),
+            LogWriter(name="pink_noise", **stream.attrs),
         )
         pipeline_C.run(timeout)

@@ -1,1 +1,1 @@
-from .log_stream import LogStream
+from .log_writer import LogWriter
