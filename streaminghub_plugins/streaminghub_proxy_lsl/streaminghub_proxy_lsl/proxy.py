@@ -105,7 +105,9 @@ class LSLProxy(datamux.Reader[dfds.Node]):
         q: datamux.Queue,
         transform: Callable,
         state: dict,
+        rate_limit: bool = True,
     ) -> int | None:
+        _ = rate_limit # nothing to rate-limit in proxies
         inlet = state["inlet"]
         index_cols = state["index_cols"]
         value_cols = state["value_cols"]
@@ -113,9 +115,9 @@ class LSLProxy(datamux.Reader[dfds.Node]):
             (values, indices) = inlet.pull_chunk()
         except pylsl.LostError as e:
             self.logger.info(f"LSL connection lost: {e}")
-            return 0
+            return 1
         if values is None or len(values) == 0:
-            return 0
+            return
         else:
             for index, value in zip(indices, values):
                 # FIXME currently only supports 1D index

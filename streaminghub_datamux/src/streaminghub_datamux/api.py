@@ -24,6 +24,7 @@ class API(datamux.IAPI):
 
         """
         super().__init__()
+        datamux.init_logging()
         self.config = dfds.load_config()
         self.reader_c = CollectionManager(self.config)
         self.proxy_n = ProxyManager()
@@ -52,6 +53,7 @@ class API(datamux.IAPI):
         attrs: dict,
         sink: datamux.Queue,
         transform: Callable = datamux.identity,
+        rate_limit: bool = True,
     ) -> datamux.StreamAck:
         randseq = datamux.prefix + datamux.gen_randseq()
         if isinstance(transform, datamux.Enveloper):
@@ -64,6 +66,7 @@ class API(datamux.IAPI):
             q=sink,
             transform=transform,
             flag=self.context[randseq],
+            rate_limit=rate_limit,
         )
         return datamux.StreamAck(status=True, randseq=randseq)
 
@@ -97,6 +100,7 @@ class API(datamux.IAPI):
         attrs: dict,
         sink: datamux.Queue,
         transform: Callable = datamux.identity,
+        rate_limit: bool = True,
     ) -> datamux.StreamAck:
         randseq = datamux.gen_randseq()
         self.context[randseq] = datamux.create_flag()
@@ -110,6 +114,7 @@ class API(datamux.IAPI):
             q=sink,
             transform=transform,
             flag=self.context[randseq],
+            rate_limit=rate_limit,
         )
         return datamux.StreamAck(status=True, randseq=randseq)
 
@@ -126,6 +131,8 @@ class API(datamux.IAPI):
         self,
         stream: dfds.Stream,
         transform: Callable = datamux.identity,
+        rate_limit: bool = True,
+
     ) -> datamux.SourceTask:
         mode = stream.attrs.get("mode")
         assert mode in ["proxy", "replay"]
@@ -134,4 +141,4 @@ class API(datamux.IAPI):
         node_id = node.id
         stream_id = stream.attrs.get("id")
         assert stream_id is not None
-        return datamux.APIStreamer(self, mode, node_id, stream_id, stream.attrs, transform)
+        return datamux.APIStreamer(self, mode, node_id, stream_id, stream.attrs, transform, rate_limit=rate_limit)

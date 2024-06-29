@@ -127,6 +127,7 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         q: Queue,
         transform: Callable,
         state: dict,
+        rate_limit: bool = True,
     ) -> int | None:
 
         t0 = state["t0"]
@@ -155,9 +156,9 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
             else:
                 ti, Ti = time.perf_counter(), index[index_cols[0]]
                 dt = (Ti - T0) - (ti - t0)
-                if dt > 0:
+                if rate_limit and (dt > 0):
                     time.sleep(dt)
-        else:
+        elif rate_limit:
             time.sleep(dt)
 
         # postprocessing

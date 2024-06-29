@@ -20,6 +20,14 @@ def gen_randseq(length: int = 5) -> str:
     return "".join(random.choice(options) for x in range(length))
 
 
+def init_logging():
+    import logging
+
+    from rich.logging import RichHandler
+
+    logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
+
+
 def identity(x):
     return x
 

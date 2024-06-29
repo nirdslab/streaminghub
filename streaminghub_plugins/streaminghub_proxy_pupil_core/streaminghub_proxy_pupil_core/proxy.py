@@ -105,7 +105,9 @@ class PupilCoreProxy(datamux.Reader[dfds.Node]):
         q: datamux.Queue,
         transform: Callable,
         state: dict,
+        rate_limit: bool = True,
     ) -> int | None:
+        _ = rate_limit # nothing to rate-limit in proxies
         sock = state["sock"]
         # receive raw data (bytes)
         [topic, msg, *extra] = sock.recv_multipart()

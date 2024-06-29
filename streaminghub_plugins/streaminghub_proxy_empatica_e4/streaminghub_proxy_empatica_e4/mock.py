@@ -54,7 +54,7 @@ class SubscriptionContext:
         self.keepalive = True
         self.subscriptions = []
         self.paused = False
-        self.ctx_thread = multiprocessing.Process(target=self.create_streaming_loop)
+        self.ctx_thread = multiprocessing.Process(target=self.create_streaming_loop, daemon=True)
         self.ctx_thread.start()
 
     def subscribe(self, name: str):

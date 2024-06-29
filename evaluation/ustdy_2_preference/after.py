@@ -17,10 +17,14 @@ class SimulateStream(datamux.SourceTask):
 
 class LogDataStream(datamux.SinkTask):
 
-    def __call__(self, *args, **kwargs) -> None:
+    def __call__(self, *args, **kwargs) -> int | None:
         item = self.source.get()
         if item is not None:
             print(f"[{type(item).__name__}]", item)
+        if item == datamux.END_OF_STREAM:
+            self.logger.warning(f"reached end of stream")
+            self.completed.set()
+            return 0
 
 
 if __name__ == "__main__":

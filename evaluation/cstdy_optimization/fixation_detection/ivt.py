@@ -156,6 +156,7 @@ class IVT(datamux.PipeTask):
                 fxtn = self.make_fixation(None, check_duration=False)
                 if fxtn is not None:
                     self.target.put_nowait(fxtn)
+            self.target.put_nowait(item)
             return 0
 
         t, x, y = item["t"], item["x"], item["y"]

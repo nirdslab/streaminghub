@@ -16,7 +16,6 @@ async def serve(
 
 
 if __name__ == "__main__":
-    datamux.init()
     logger = logging.getLogger(__name__)
 
     parser = argparse.ArgumentParser(prog="DataMux", description="CLI for StreamingHub DataMux")

@@ -5,12 +5,13 @@ import logging
 import multiprocessing
 import multiprocessing.synchronize
 import signal
-import time
 from typing import Callable, Generic, TypeVar
 
-import streaminghub_pydfds as dfds
-from .util import identity
 from pydantic import BaseModel
+
+import streaminghub_pydfds as dfds
+
+from . import util as datamux
 
 END_OF_STREAM = {}  # NOTE do not change
 Q = multiprocessing.Queue
@@ -63,7 +64,7 @@ class IAttach(abc.ABC):
 
     Abstract Function(s):
     * on_attach(source_id, stream_id, attrs, q, transform, **kwargs)
-    * on_pull(source_id, stream_id, attrs, q, transform, state, **kwargs)
+    * on_pull(source_id, stream_id, attrs, q, transform, state, rate_limit, **kwargs)
     * on_detach(source_id, stream_id, attrs, q, transform, state, **kwargs)
 
     Implemented Function(s):
@@ -81,13 +82,14 @@ class IAttach(abc.ABC):
         q: Queue,
         transform: Callable,
         flag: Flag,
+        rate_limit: bool = True,
         **kwargs,
     ):
         proc = multiprocessing.Process(
             None,
             self._attach_coro,
             f"{source_id}_{stream_id}",
-            (source_id, stream_id, attrs, q, transform, flag),
+            (source_id, stream_id, attrs, q, transform, flag, rate_limit),
             kwargs,
             daemon=True,
         )
@@ -101,14 +103,16 @@ class IAttach(abc.ABC):
         q: Queue,
         transform: Callable,
         flag: Flag,
+        rate_limit: bool = True,
         **kwargs,
     ):
         signal.signal(signal.SIGINT, lambda *_: flag.set())
         signal.signal(signal.SIGTERM, lambda *_: flag.set())
+        datamux.init_logging()
         state = self.on_attach(source_id, stream_id, attrs, q, transform, **kwargs)
         self.logger.debug("attached to stream")
         while not flag.is_set():
-            retval = self.on_pull(source_id, stream_id, attrs, q, transform, state, **kwargs)
+            retval = self.on_pull(source_id, stream_id, attrs, q, transform, state, rate_limit, **kwargs)
             if retval is not None:
                 break
         self.on_detach(source_id, stream_id, attrs, q, transform, state, **kwargs)
@@ -121,7 +125,15 @@ class IAttach(abc.ABC):
 
     @abc.abstractmethod
     def on_pull(
-        self, source_id: str, stream_id: str, attrs: dict, q: Queue, transform: Callable, state: dict, **kwargs
+        self,
+        source_id: str,
+        stream_id: str,
+        attrs: dict,
+        q: Queue,
+        transform: Callable,
+        state: dict,
+        rate_limit: bool,
+        **kwargs,
     ) -> int | None: ...
 
     @abc.abstractmethod
@@ -176,7 +188,7 @@ class Reader(Generic[T], IAttach, abc.ABC):
     * list_sources()
     * list_streams(source_id)
     * on_attach(source_id, stream_id, attrs, q, transform, **kwargs)
-    * on_pull(source_id, stream_id, attrs, q, transform, state, **kwargs)
+    * on_pull(source_id, stream_id, attrs, q, transform, state, rate_limit, **kwargs)
     * on_detach(source_id, stream_id, attrs, q, transform, state, **kwargs)
 
     Implemented Function(s):
@@ -217,6 +229,7 @@ class ITask(abc.ABC):
     def __run__(self, *args, **kwargs) -> None:
         signal.signal(signal.SIGINT, self.__signal__)
         signal.signal(signal.SIGTERM, self.__signal__)
+        datamux.init_logging()
         while not self.flag:
             try:
                 retval = self(*args, **kwargs)
@@ -233,7 +246,7 @@ class ITask(abc.ABC):
             args=args,
             kwargs=kwargs,
             name=self.name,
-            daemon=False,
+            daemon=True,
         )
         self.proc.start()
         self.logger.info(f"Started {self.name}")
@@ -273,6 +286,8 @@ class PipeTask(ITaskWithSource):
 
 class SinkTask(ITaskWithSource):
 
+    completed = create_flag()
+
     def __init__(self) -> None:
         super().__init__()
         self.source = Queue(timeout=0.001, empty=True)
@@ -297,6 +312,7 @@ class Pipeline(ITask):
             elif isinstance(task, SinkTask):
                 assert i == len(self.tasks) - 1
                 task.source = q
+                self.completed = task.completed
                 self.logger.debug(f"task={task.name}, source={task.source}")
             elif isinstance(task, PipeTask):
                 if i == 0:
@@ -328,8 +344,11 @@ class Pipeline(ITask):
 
     def run(self, duration: float | None = None):
         self.start()
-        if duration is not None:
-            time.sleep(duration)
+        try:
+            self.completed.wait(duration)
+            self.logger.info("pipeline completed")
+        except:
+            self.logger.info("pipeline timed out")
         self.stop()
 
     def __call__(self, *args, **kwargs) -> None:
@@ -366,7 +385,8 @@ class IAPI(abc.ABC):
         stream_id: str,
         attrs: dict,
         sink: Queue,
-        transform: Callable = identity,
+        transform: Callable = datamux.identity,
+        rate_limit: bool = True,
     ) -> StreamAck:
         """
         Replay a collection-stream into a given queue.
@@ -377,6 +397,7 @@ class IAPI(abc.ABC):
             attrs (dict): attributes specifying which recording to replay.
             sink (asyncio.Queue): destination to buffer replayed data.
             transform (Callable): optional function to apply on each measurement.
+            rate_limit (bool): optional switch to turn rate limiting on/off.
 
         Returns:
             StreamAck: status and reference information.
@@ -424,7 +445,8 @@ class IAPI(abc.ABC):
         stream_id: str,
         attrs: dict,
         sink: Queue,
-        transform: Callable = identity,
+        transform: Callable = datamux.identity,
+        rate_limit: bool = True,
     ) -> StreamAck:
         """
         Proxy data from a live stream onto a given queue.
@@ -434,7 +456,8 @@ class IAPI(abc.ABC):
             stream_id (str): id of the live stream.
             attrs (dict): attributes specifying which live stream to read.
             sink (asyncio.Queue): destination to buffer replayed data.
-            transform (Callable): optional function to apply on each measurement
+            transform (Callable): optional function to apply on each measurement.
+            rate_limit (bool): optional switch to turn rate limiting on/off.
 
         Returns:
             StreamAck: status and reference information.
@@ -459,7 +482,9 @@ class APIStreamer(SourceTask):
 
     task_id: str | None = None
 
-    def __init__(self, api: IAPI, mode: str, node_id: str, stream_id: str, attrs: dict, transform: Callable) -> None:
+    def __init__(
+        self, api: IAPI, mode: str, node_id: str, stream_id: str, attrs: dict, transform: Callable, rate_limit: bool
+    ) -> None:
         super().__init__()
         self.api = api
         self.mode = mode
@@ -468,15 +493,23 @@ class APIStreamer(SourceTask):
         self.attrs = attrs
         self.source = Queue(timeout=0.001)
         self.transform = transform
+        self.rate_limit = rate_limit
 
     def start(self, *args, **kwargs):
         if self.mode == "proxy":
-            ack = self.api.proxy_live_stream(self.node_id, self.stream_id, self.attrs, self.source, self.transform)
+            ack = self.api.proxy_live_stream(
+                self.node_id, self.stream_id, self.attrs, self.source, self.transform, self.rate_limit
+            )
             assert ack.randseq is not None
             self.task_id = ack.randseq
         elif self.mode == "replay":
             ack = self.api.replay_collection_stream(
-                self.node_id, self.stream_id, self.attrs, self.source, self.transform
+                self.node_id,
+                self.stream_id,
+                self.attrs,
+                self.source,
+                self.transform,
+                self.rate_limit,
             )
             assert ack.randseq is not None
             self.task_id = ack.randseq

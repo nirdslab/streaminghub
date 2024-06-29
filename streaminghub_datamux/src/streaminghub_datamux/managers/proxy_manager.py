@@ -98,10 +98,11 @@ class ProxyManager(datamux.Reader[dfds.Node]):
         q: Queue,
         transform: Callable,
         state: dict,
+        rate_limit: bool = True,
         **kwargs,
     ) -> int | None:
         prox = self._resolve_prox_by_source_id(source_id)
-        return prox.on_pull(source_id, stream_id, attrs, q, transform, state, **kwargs)
+        return prox.on_pull(source_id, stream_id, attrs, q, transform, state, rate_limit, **kwargs)
 
     def on_detach(
         self,

@@ -7,15 +7,12 @@ from reporting import FileWriter
 from synthesis import PinkNoiseSimulator
 
 if __name__ == "__main__":
-
-    datamux.init()
-
     # get path and dataset from CLI
     default_dir = os.path.dirname(__file__) + "/generated"
     parser = argparse.ArgumentParser()
     parser.add_argument("--basepath", type=str, default=default_dir)
     parser.add_argument("--dataset", type=str, required=True)
-    parser.add_argument("--timeout", type=int, default=8)
+    parser.add_argument("--timeout", type=int, default=None)
     args = parser.parse_args()
     basepath, dataset, timeout = args.basepath, args.dataset, args.timeout
 
@@ -46,10 +43,10 @@ if __name__ == "__main__":
             attrs = stream.attrs
             subject, noise, task = attrs["subject"], attrs["noise"], attrs["task"]
             path = f"{basepath}/{subject}_{noise}_{task}"
-            print(f"stream_id={attrs['id']}, stream_attrs={attrs}, vt={vt}")
+            datamux.logging.info(f"stream_id={attrs['id']}, stream_attrs={attrs}, vt={vt}")
             # original data -> fixation/saccade -> simulated pink noise
             pipeline_C = datamux.Pipeline(
-                api.attach(stream, transform=preprocessor),
+                api.attach(stream, transform=preprocessor, rate_limit=False),
                 IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
                 PinkNoiseSimulator(freq=freq, xy_scale=xy_scale, d_scale=d_scale, transform=None),
                 FileWriter(name=f"pink_{vt}", log_dir=path, **attrs),

@@ -16,7 +16,6 @@ if __name__ == "__main__":
     vt = 10
 
     # setup datamux api
-    datamux.init()
     api = datamux.API()
 
     streams = api.list_collection_streams(dataset)  # for recorded data (ADHD_SIN)

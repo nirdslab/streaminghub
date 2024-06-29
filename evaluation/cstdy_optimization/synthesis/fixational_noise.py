@@ -35,16 +35,18 @@ class WhiteNoiseSimulator(datamux.PipeTask):
         y_sim = np.linspace(s.y_entry, s.y_exit, num_samples) + self.generate_white_noise(num_samples) * self.xy_scale
         return pd.DataFrame(dict(t=t_sim, x=x_sim, y=y_sim, event="saccade")).to_dict("records")
 
-    def __call__(self, *args, **kwargs) -> None:
+    def __call__(self, *args, **kwargs) -> int | None:
         item = self.source.get()
-        if item is None:
+        if item is None or not isinstance(item, (Fixation, Saccade)):
             return
+        if item == datamux.END_OF_STREAM:
+            self.logger.warning(f"reached end of stream")
+            self.target.put_nowait(item)
+            return 0
         if isinstance(item, Saccade):
             data = self.synthesize_saccade(item)
-        elif isinstance(item, Fixation):
+        if isinstance(item, Fixation):
             data = self.synthesize_fixation(item)
-        else:
-            return
         for row in data[:-1]:
             self.target.put(dict(row))
 
@@ -86,15 +88,17 @@ class PinkNoiseSimulator(datamux.PipeTask):
         y_sim = np.linspace(s.y_entry, s.y_exit, num_samples) + self.generate_pink_noise(num_samples) * self.xy_scale
         return pd.DataFrame(dict(t=t_sim, x=x_sim, y=y_sim, event="saccade")).to_dict("records")
 
-    def __call__(self, *args, **kwargs) -> None:
+    def __call__(self, *args, **kwargs) -> int | None:
         item = self.source.get()
-        if item is None:
+        if item is None or not isinstance(item, (Fixation, Saccade)):
             return
+        if item == datamux.END_OF_STREAM:
+            self.logger.warning(f"reached end of stream")
+            self.target.put_nowait(item)
+            return 0
         if isinstance(item, Saccade):
             data = self.synthesize_saccade(item)
-        elif isinstance(item, Fixation):
+        if isinstance(item, Fixation):
             data = self.synthesize_fixation(item)
-        else:
-            return
         for row in data[:-1]:
             self.target.put(dict(row))

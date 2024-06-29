@@ -7,9 +7,6 @@ from gaze.reporting import LogWriter
 from gaze.synthesis import PinkNoiseSimulator, WhiteNoiseSimulator
 
 if __name__ == "__main__":
-
-    datamux.init()
-
     # get path and dataset from CLI
     default_dir = os.path.dirname(__file__) + "/generated"
     parser = argparse.ArgumentParser()

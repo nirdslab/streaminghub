@@ -75,7 +75,6 @@ def main():
 
 
 if __name__ == "__main__":
-    datamux.init()
     try:
         main()
     except AssertionError as e:

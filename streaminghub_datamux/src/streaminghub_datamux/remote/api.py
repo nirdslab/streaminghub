@@ -136,9 +136,16 @@ class RemoteAPI(datamux.IAPI):
         attrs: dict[str, str],
         sink: datamux.Queue,
         transform: Callable = datamux.identity,
+        rate_limit: bool = True,
     ) -> datamux.StreamAck:
         topic = TOPIC_REPLAY_COLLECTION_STREAM
-        content = dict(collection_id=collection_id, stream_id=stream_id, attrs=attrs, transform=base64.b64encode(pickle.dumps(transform)))
+        content = dict(
+            collection_id=collection_id,
+            stream_id=stream_id,
+            attrs=attrs,
+            transform=base64.b64encode(pickle.dumps(transform)),
+            rate_limit=rate_limit,
+        )
         info = self.executor.send(topic, content).get()
         assert info is not None
         ack = datamux.StreamAck(**info)
@@ -192,9 +199,16 @@ class RemoteAPI(datamux.IAPI):
         attrs: dict,
         sink: datamux.Queue,
         transform: Callable = datamux.identity,
+        rate_limit: bool = True,
     ) -> datamux.StreamAck:
         topic = TOPIC_READ_LIVE_STREAM
-        content = dict(node_id=node_id, stream_id=stream_id, attrs=attrs, transform=base64.b64encode(pickle.dumps(transform)))
+        content = dict(
+            node_id=node_id,
+            stream_id=stream_id,
+            attrs=attrs,
+            transform=base64.b64encode(pickle.dumps(transform)),
+            rate_limit=rate_limit,
+        )
         info = self.executor.send(topic, content).get()
         assert info is not None
         ack = datamux.StreamAck(**info)
@@ -218,9 +232,10 @@ class RemoteAPI(datamux.IAPI):
         self,
         stream: dfds.Stream,
         transform: Callable = datamux.identity,
+        rate_limit: bool = True,
     ) -> datamux.SourceTask:
         mode = stream.attrs.get("mode")
         assert mode in ["proxy", "replay"]
         node = stream.node
         assert node is not None
-        return datamux.APIStreamer(self, mode, node.id, stream.name, stream.attrs, transform)
+        return datamux.APIStreamer(self, mode, node.id, stream.name, stream.attrs, transform, rate_limit)

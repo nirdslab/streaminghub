@@ -36,6 +36,7 @@ def timeit_replay(
         for i in range(num_points + 1):
             item = sink.get()
             if item == datamux.END_OF_STREAM:
+                logger.warning(f"reached end of stream")
                 break
             if i == 0:
                 start_time = int_time = timeit.default_timer()
@@ -69,7 +70,6 @@ def main():
 
 
 if __name__ == "__main__":
-    datamux.init()
     logger = logging.getLogger(__name__)
     try:
         main()

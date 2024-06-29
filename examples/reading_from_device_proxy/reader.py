@@ -32,12 +32,12 @@ def main():
         item = sink.get()
         logger.info(f"received item: {item}")
         if item == datamux.END_OF_STREAM:
+            logger.warning(f"reached end of stream")
             break
     api.stop_task(ack.randseq)
 
 
 if __name__ == "__main__":
-    datamux.init()
     logger = logging.getLogger(__name__)
     try:
         main()

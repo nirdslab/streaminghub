@@ -8,7 +8,6 @@ from typing import Callable
 
 import streaminghub_datamux as datamux
 import streaminghub_pydfds as dfds
-from streaminghub_datamux.typing import Queue
 
 from .util import E4ServerState, E4SSCommand
 
@@ -191,7 +190,7 @@ class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: Queue,
+        q: datamux.Queue,
         transform: Callable,
     ) -> dict:
         self.logger.debug(f"Started task for source={source_id}, stream: {stream_id}...")
@@ -202,10 +201,12 @@ class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: Queue,
+        q: datamux.Queue,
         transform: Callable,
         state: dict,
+        rate_limit: bool = True,
     ) -> int | None:
+        _ = rate_limit # nothing to rate-limit in proxies
         try:
             self.handle_outgoing_msgs(source_id, stream_id, q, transform)
             self.handle_incoming_msgs(source_id, stream_id, q, transform)
@@ -218,7 +219,7 @@ class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: Queue,
+        q: datamux.Queue,
         transform: Callable,
         state: dict,
     ) -> None:
