@@ -207,6 +207,7 @@ class ITask(abc.ABC):
     proc: multiprocessing.Process
 
     def __init__(self) -> None:
+        super().__init__()
         self.name = self.__class__.__name__
         self.flag = False
 
@@ -218,7 +219,10 @@ class ITask(abc.ABC):
         signal.signal(signal.SIGTERM, self.__signal__)
         while not self.flag:
             try:
-                self(*args, **kwargs)
+                retval = self(*args, **kwargs)
+                if retval is not None:
+                    self.logger.info(f"[{self.name}] returned with code: {retval}")
+                    break
             except BaseException as e:
                 self.logger.warn(f"[{self.name}] has crashed: {e}")
 
@@ -240,11 +244,14 @@ class ITask(abc.ABC):
         self.logger.info(f"Stopped {self.name}")
 
     @abc.abstractmethod
-    def __call__(self, *args, **kwargs) -> None: ...
+    def __call__(self, *args, **kwargs) -> int | None: ...
 
 
 class ITaskWithSource(ITask):
     source: Queue
+
+    def __init__(self) -> None:
+        super().__init__()
 
 
 class SourceTask(ITaskWithSource):

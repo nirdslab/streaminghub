@@ -23,6 +23,7 @@ class API(datamux.IAPI):
         Create API instance.
 
         """
+        super().__init__()
         self.config = dfds.load_config()
         self.reader_c = CollectionManager(self.config)
         self.proxy_n = ProxyManager()

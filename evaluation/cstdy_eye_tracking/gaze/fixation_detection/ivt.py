@@ -128,7 +128,7 @@ class IVT(datamux.PipeTask):
                 vel_peak=vel_peak,
             )
 
-    def __call__(self, *args, **kwargs) -> None:
+    def __call__(self, *args, **kwargs) -> int | None:
         """
         compress gaze stream (t, x, y, d) into a fixation/saccade event stream
         v_threshold = 600 #px/s -> normal threshold is 0.5 o5 0.6 px/ms
@@ -155,7 +155,7 @@ class IVT(datamux.PipeTask):
                 fxtn = self.make_fixation(None, check_duration=False)
                 if fxtn is not None:
                     self.target.put_nowait(fxtn)
-            return
+            return 0
 
         t, x, y, d = item["t"], item["x"], item["y"], item["d"]
         if np.isnan(x) or np.isnan(y):

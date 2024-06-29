@@ -50,6 +50,7 @@ class RpcCodec(ABC):
     def __init__(
         self,
     ):
+        super().__init__()
         self.logger = logging.getLogger(__name__)
         self.active = False
 

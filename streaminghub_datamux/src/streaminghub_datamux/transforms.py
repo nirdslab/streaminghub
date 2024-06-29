@@ -37,6 +37,7 @@ class Sync(dm.PipeTask):
     target: dm.Queue
 
     def __init__(self, *tasks: dm.PipeTask) -> None:
+        super().__init__()
         self.tasks = tasks
 
     def __call__(self, *args, **kwargs) -> None:
