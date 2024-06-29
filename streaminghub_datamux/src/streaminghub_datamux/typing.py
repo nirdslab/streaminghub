@@ -219,8 +219,8 @@ class ITask(abc.ABC):
         while not self.flag:
             try:
                 self(*args, **kwargs)
-            except:
-                self.logger.warn(f"[{self.name}] has crashed")
+            except BaseException as e:
+                self.logger.warn(f"[{self.name}] has crashed: {e}")
 
     def start(self, *args, **kwargs):
         self.proc = multiprocessing.Process(

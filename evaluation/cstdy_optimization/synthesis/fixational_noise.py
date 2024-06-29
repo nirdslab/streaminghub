@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import streaminghub_datamux as datamux
 
-from ..fixation_detection.typing import Fixation, Saccade
+from fixation_detection.typing import Fixation, Saccade
 
 
 class WhiteNoiseSimulator(datamux.PipeTask):

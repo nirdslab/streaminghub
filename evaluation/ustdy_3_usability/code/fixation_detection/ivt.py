@@ -3,10 +3,11 @@ from collections import deque
 from typing import Literal
 
 import numpy as np
+
 import streaminghub_datamux as datamux
 
 from .sg import SG
-from .typing import FixationEvent, Point, SaccadeEvent
+from .typing import Fixation, Point, PointX, Saccade
 
 SACCADE_STATE = 0
 FIXATION_STATE = 1
@@ -18,11 +19,6 @@ BLANK_POINT = Point(t=0, x=0, y=0, d=0)
 
 class IVT(datamux.PipeTask):
 
-    sg_window_len_k = 5  # dfwidth: savitzky-golay filter width 2k+1 = 2(5)+1 =11
-    sg_window_len_k = 25  # dfwidth: savitzky-golay filter width 2k+1 = 2(5)+1 =11
-    sg_polynomial_degree = 9  # dfdegree: savitzky-golay filter degree
-    differentiate_order = 1
-
     def __init__(
         self,
         screen_wh: tuple[float, float],
@@ -31,6 +27,8 @@ class IVT(datamux.PipeTask):
         vt: float,  # deg/s
         transform=None,
         origin: Literal["corner", "center"] = "corner",
+        sg_window_hwidth: int = 5,
+        sg_poly_deg: int = 7,
     ) -> None:
         super().__init__(transform)
         self.w, self.h = screen_wh
@@ -40,20 +38,18 @@ class IVT(datamux.PipeTask):
         self.period = 1.0 / self.freq  # sampling period: sec
         self.vt = vt
         self.origin = origin
+        self.sg_hwidth = sg_window_hwidth
+        self.sg_poly_deg = sg_poly_deg
 
-        self.window_len = (self.sg_window_len_k * 2) + 1
-        self.sg_x = SG(self.sg_window_len_k, self.sg_polynomial_degree, 0)
-        self.sg_y = SG(self.sg_window_len_k, self.sg_polynomial_degree, 0)
-        self.sg_dx = SG(self.sg_window_len_k, self.sg_polynomial_degree, 1)
-        self.sg_dy = SG(self.sg_window_len_k, self.sg_polynomial_degree, 1)
+        self.window_len = (self.sg_hwidth * 2) + 1
+        self.sg_x = SG(self.sg_hwidth, self.sg_poly_deg, 0)
+        self.sg_y = SG(self.sg_hwidth, self.sg_poly_deg, 0)
+        self.sg_dx = SG(self.sg_hwidth, self.sg_poly_deg, 1)
+        self.sg_dy = SG(self.sg_hwidth, self.sg_poly_deg, 1)
 
         self.state = FIXATION_STATE  # initial state: fixation
-        self.data_n = 0
-        self.gazepoints = deque([BLANK_POINT] * self.window_len, self.window_len)
-        self.smthpoints = deque([BLANK_POINT] * self.window_len, self.window_len)
-        self.temp_fixpoints: list[Point] = []
-        self.temp_sacpoints: list[Point] = []
-        self.velocities: list[float] = []
+        self.buf = deque([BLANK_POINT] * self.window_len, self.window_len)
+        self.cache: list[PointX] = []
 
     def clamp_and_rescale(self, x: float, y: float) -> tuple[float, float]:
         if self.origin == "corner":
@@ -75,46 +71,53 @@ class IVT(datamux.PipeTask):
             f_x, f_y = self.sg_dx, self.sg_dy
         else:
             raise ValueError()
-        mid_p = self.gazepoints[self.sg_window_len_k]
-        x = f_x.apply([p.x for p in self.gazepoints])
-        y = f_y.apply([p.y for p in self.gazepoints])
+        mid_p = self.buf[self.sg_hwidth]
+        x = f_x.apply([p.x for p in self.buf])
+        y = f_y.apply([p.y for p in self.buf])
         return Point(t=mid_p.t, x=x, y=y, d=mid_p.d)
 
-    def make_fixation(self, pT: Point | None) -> FixationEvent | None:
+    def get_filtered_point(self) -> PointX:
+        # get smoothed point
+        p = self.sg_filter(mode=SG_SMOOTH)
+        # get smoothed derivative
+        dp = self.sg_filter(mode=SG_DERIV1)
+        # convert to degrees
+        dp_θx = math.degrees(math.atan2(dp.x, self.d))
+        dp_θy = math.degrees(math.atan2(dp.y, self.d))
+        # velocity (deg/second)
+        v = math.fabs(math.sqrt(dp_θx**2 + dp_θy**2) / self.period)
+        return PointX(t=p.t, x=p.x, y=p.y, d=p.d, v=v)
 
-        pts = self.temp_fixpoints
-
+    def make_fixation(self, pT: PointX | None, check_duration: bool = True) -> Fixation | None:
+        # if pT is given, its a saccade point
+        pts = self.cache
         if len(pts) > 1:
             t_entry = pts[0].t
             pT = pT or pts[-1]
             t_exit = pT.t
             x_mean = np.mean([p.x for p in pts]).item()
             y_mean = np.mean([p.y for p in pts]).item()
-            d_mean = np.mean([p.d for p in pts]).item()
 
-            return FixationEvent(
-                t_entry=t_entry,
-                t_exit=t_exit,
-                x_mean=x_mean,
-                y_mean=y_mean,
-                d_mean=d_mean,
-            )
+            proceed = ((t_exit - t_entry) >= 0.06) or (not check_duration)
+            if proceed:
+                return Fixation(
+                    t_entry=t_entry,
+                    t_exit=t_exit,
+                    x_mean=x_mean,
+                    y_mean=y_mean,
+                )
 
-    def make_saccade(self, pT: Point | None) -> SaccadeEvent | None:
-
-        pts = self.temp_sacpoints
-        vel = self.velocities
-        assert len(pts) == len(vel)
-
-        if len(pts) > 1 and len(vel) > 1:
+    def make_saccade(self, pT: PointX | None) -> Saccade | None:
+        # if pT is given, its a fixation point
+        pts = self.cache
+        if len(pts) > 1:
             t_entry, x_entry, y_entry = pts[0].t, pts[0].x, pts[0].y
             pT = pT or pts[-1]
             t_exit, x_exit, y_exit = pT.t, pT.x, pT.y
+            vel = [p.v for p in pts]
             vel_mean = np.mean(vel).item()
             vel_peak = np.max(vel).item()
-            d_mean = np.mean([s.d for s in pts]).item()
-
-            return SaccadeEvent(
+            return Saccade(
                 t_entry=t_entry,
                 t_exit=t_exit,
                 x_entry=x_entry,
@@ -123,7 +126,6 @@ class IVT(datamux.PipeTask):
                 y_exit=y_exit,
                 vel_mean=vel_mean,
                 vel_peak=vel_peak,
-                d_mean=d_mean,
             )
 
     def __call__(self, *args, **kwargs) -> None:
@@ -138,7 +140,6 @@ class IVT(datamux.PipeTask):
         t: float
         x: float
         y: float
-        d: float
 
         item = self.source.get()
         if item is None:
@@ -146,85 +147,51 @@ class IVT(datamux.PipeTask):
 
         if item == datamux.END_OF_STREAM:
             # release accumulated points
-            if len(self.gazepoints) > 0:
-                if self.state == SACCADE_STATE:
-                    sacc = self.make_saccade(None)
-                    if sacc is not None:
-                        self.target.put_nowait(sacc)
-                if self.state == FIXATION_STATE:
-                    fxtn = self.make_fixation(None)
-                    if fxtn is not None:
-                        self.target.put_nowait(fxtn)
+            if self.state == SACCADE_STATE:
+                sacc = self.make_saccade(None)
+                if sacc is not None:
+                    self.target.put_nowait(sacc)
+            if self.state == FIXATION_STATE:
+                fxtn = self.make_fixation(None, check_duration=False)
+                if fxtn is not None:
+                    self.target.put_nowait(fxtn)
             return
 
         t, x, y, d = item["t"], item["x"], item["y"], item["d"]
+        if np.isnan(x) or np.isnan(y):
+            self.logger.warning("encountered nan, ignoring data point")
+            return
         # nan-safety and scaling
-        x, y = self.clamp_and_rescale(x or 0.0, y or 0.0)
-        self.data_n += 1
+        x, y = self.clamp_and_rescale(x, y)
 
-        # append data
-        if self.data_n < self.window_len:
-            gazePoint = Point(t=t, x=x, y=y, d=d)
-            self.gazepoints.append(gazePoint)
+        # append data point to buffer
+        p = Point(t=t, x=x, y=y, d=d)
+        self.buf.append(p)
 
-        # otherwise re-compute fixations and append incoming data
-        else:
-            if self.data_n >= self.window_len:
-                gazePoint = Point(t=t, x=x, y=y, d=d)
-                self.gazepoints.append(gazePoint)
+        # run once all blank spots are filled (NOTE adds lag)
+        if BLANK_POINT not in self.buf:
+            # get filtered point (with velocity)
+            p = self.get_filtered_point()
 
-                # get smoothed point
-                p = self.sg_filter(mode=SG_SMOOTH)
-                self.smthpoints.append(p)
+            # velocity thresholding
+            if p.v > self.vt:
+                if self.state == FIXATION_STATE:
+                    # fixation -> saccade (fixation ends)
+                    fxtn = self.make_fixation(p)
+                    if fxtn is not None:
+                        self.target.put_nowait(fxtn)
+                        self.cache.clear()
+                # state -> saccade
+                self.state = SACCADE_STATE
+            else:
+                if self.state == SACCADE_STATE:
+                    # saccade -> fixation (fixation starts)
+                    sacc = self.make_saccade(p)
+                    if sacc is not None:
+                        self.target.put_nowait(sacc)
+                        self.cache.clear()
+                # state -> fixation
+                self.state = FIXATION_STATE
 
-                # differentiate smoothed points with SG filter
-                dp = self.sg_filter(mode=SG_DERIV1)
-                # convert to degrees
-                dp_θx = math.degrees(math.atan2(dp.x, self.d))
-                dp_θy = math.degrees(math.atan2(dp.y, self.d))
-                # velocity (deg/second)
-                velocity = math.fabs(math.sqrt(dp_θx**2 + dp_θy**2) / self.period)
-
-                if velocity > self.vt:
-                    # velocity > T
-                    if self.state == FIXATION_STATE and len(self.temp_fixpoints) > 0:
-                        assert len(self.temp_sacpoints) == 0
-                        # fixation -> saccade (fixation ends)
-                        fxn_duration = self.temp_fixpoints[-1].t - self.temp_fixpoints[0].t
-                        # min fix duration 60 ms
-                        if fxn_duration >= 0.06:
-                            fxtn = self.make_fixation(p)
-                            assert fxtn is not None
-                            self.target.put_nowait(fxtn)
-                        else:
-                            # does not qualify as fixation - move to temp saccades
-                            self.temp_sacpoints.extend(self.temp_fixpoints)
-                        self.temp_fixpoints.clear()
-                        while len(self.velocities) > len(self.temp_sacpoints):
-                            self.velocities.pop(0)
-
-                    # state -> saccade
-                    self.state = SACCADE_STATE
-                    self.temp_sacpoints.append(p)
-                    self.velocities.append(velocity)
-
-                else:
-                    # "velocity < T"
-                    #  saccade -> fixation
-                    if self.state == SACCADE_STATE and len(self.temp_sacpoints) > 0:
-                        assert len(self.temp_fixpoints) == 0
-                        # saccade -> fixation (fixation starts)
-                        sacc = self.make_saccade(p)
-                        if sacc is not None:
-                            self.target.put_nowait(sacc)
-                        else:
-                            # does not qualify as saccade - move to temp fixations
-                            self.temp_fixpoints.extend(self.temp_sacpoints)
-                        self.temp_sacpoints.clear()
-                        while len(self.velocities) > len(self.temp_fixpoints):
-                            self.velocities.pop(0)
-
-                    # state -> fixation
-                    self.state = FIXATION_STATE
-                    self.temp_fixpoints.append(p)
-                    self.velocities.append(velocity)
+            # add p to cache
+            self.cache.append(p)

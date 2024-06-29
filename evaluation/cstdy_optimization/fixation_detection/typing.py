@@ -6,6 +6,9 @@ class Point(pydantic.BaseModel):
     x: float
     y: float
 
+class PointX(Point):
+    v: float
+
 
 class Event(pydantic.BaseModel):
     t_entry: float
