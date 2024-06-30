@@ -137,6 +137,8 @@ class RemoteAPI(datamux.IAPI):
         sink: datamux.Queue,
         transform: Callable = datamux.identity,
         rate_limit: bool = True,
+        strict_time: bool = True,
+        use_relative_ts: bool = True,
     ) -> datamux.StreamAck:
         topic = TOPIC_REPLAY_COLLECTION_STREAM
         content = dict(
@@ -145,6 +147,8 @@ class RemoteAPI(datamux.IAPI):
             attrs=attrs,
             transform=base64.b64encode(pickle.dumps(transform)),
             rate_limit=rate_limit,
+            strict_time=strict_time,
+            use_relative_ts=use_relative_ts,
         )
         info = self.executor.send(topic, content).get()
         assert info is not None
@@ -200,6 +204,8 @@ class RemoteAPI(datamux.IAPI):
         sink: datamux.Queue,
         transform: Callable = datamux.identity,
         rate_limit: bool = True,
+        strict_time: bool = True,
+        use_relative_ts: bool = True,
     ) -> datamux.StreamAck:
         topic = TOPIC_READ_LIVE_STREAM
         content = dict(
@@ -208,6 +214,8 @@ class RemoteAPI(datamux.IAPI):
             attrs=attrs,
             transform=base64.b64encode(pickle.dumps(transform)),
             rate_limit=rate_limit,
+            strict_time=strict_time,
+            use_relative_ts=use_relative_ts,
         )
         info = self.executor.send(topic, content).get()
         assert info is not None
@@ -233,9 +241,21 @@ class RemoteAPI(datamux.IAPI):
         stream: dfds.Stream,
         transform: Callable = datamux.identity,
         rate_limit: bool = True,
+        strict_time: bool = True,
+        use_relative_ts: bool = True,
     ) -> datamux.SourceTask:
         mode = stream.attrs.get("mode")
         assert mode in ["proxy", "replay"]
         node = stream.node
         assert node is not None
-        return datamux.APIStreamer(self, mode, node.id, stream.name, stream.attrs, transform, rate_limit)
+        return datamux.APIStreamer(
+            self,
+            mode,
+            node.id,
+            stream.name,
+            stream.attrs,
+            transform,
+            rate_limit,
+            strict_time,
+            use_relative_ts,
+        )

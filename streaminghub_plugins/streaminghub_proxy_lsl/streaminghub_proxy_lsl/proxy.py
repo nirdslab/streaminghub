@@ -106,8 +106,10 @@ class LSLProxy(datamux.Reader[dfds.Node]):
         transform: Callable,
         state: dict,
         rate_limit: bool = True,
+        strict_time: bool = True,
+        use_relative_ts: bool = True,
     ) -> int | None:
-        _ = rate_limit # nothing to rate-limit in proxies
+        _ = rate_limit, strict_time, use_relative_ts # nothing to rate-limit in proxies
         inlet = state["inlet"]
         index_cols = state["index_cols"]
         value_cols = state["value_cols"]

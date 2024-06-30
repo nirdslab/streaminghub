@@ -11,7 +11,7 @@ class SimulationManager(datamux.Reader[dfds.Node]):
     * list_sources()
     * list_streams(source_id)
     * on_attach(source_id, stream_id, attrs, q, transform, **kwargs)
-    * on_pull(source_id, stream_id, attrs, q, transform, state, rate_limit, **kwargs)
+    * on_pull(source_id, stream_id, attrs, q, transform, state, rate_limit, strict_time, use_relative_ts, **kwargs)
     * on_detach(source_id, stream_id, attrs, q, transform, state, **kwargs)
     * attach(source_id, stream_id, attrs, q, transform, flag, **kwargs)
 

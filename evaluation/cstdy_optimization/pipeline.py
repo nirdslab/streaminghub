@@ -46,7 +46,7 @@ if __name__ == "__main__":
         datamux.logging.info(f"stream_id={attrs['id']}, stream_attrs={attrs}, vt={vt}")
         # original data -> fixation/saccade -> simulated pink noise
         pipeline_C = datamux.Pipeline(
-            api.attach(stream, transform=preprocessor, rate_limit=False),
+            api.attach(stream, transform=preprocessor, rate_limit=False, strict_time=True, use_relative_ts=True),
             IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
             PinkNoiseSimulator(freq=freq, xy_scale=xy_scale, d_scale=d_scale, transform=None),
             FileWriter(name=f"pink_{vt}", log_dir=path, **attrs),

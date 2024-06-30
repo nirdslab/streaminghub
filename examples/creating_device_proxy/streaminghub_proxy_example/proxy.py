@@ -64,8 +64,10 @@ class ExampleProxy(datamux.Reader[dfds.Node]):
         transform: Callable,
         state: dict,
         rate_limit: bool,
+        strict_time: bool = True,
+        use_relative_ts: bool = True,
     ) -> int | None:
-        _ = rate_limit # nothing to rate-limit in proxies
+        _ = rate_limit, strict_time, use_relative_ts # nothing to rate-limit in proxies
         topic = self.stream_ids[stream_id]
         try:
             # message content

@@ -205,8 +205,10 @@ class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
         transform: Callable,
         state: dict,
         rate_limit: bool = True,
+        strict_time: bool = True,
+        use_relative_ts: bool = True,
     ) -> int | None:
-        _ = rate_limit # nothing to rate-limit in proxies
+        _ = rate_limit, strict_time, use_relative_ts # nothing to rate-limit in proxies
         try:
             self.handle_outgoing_msgs(source_id, stream_id, q, transform)
             self.handle_incoming_msgs(source_id, stream_id, q, transform)

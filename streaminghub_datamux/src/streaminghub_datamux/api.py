@@ -54,6 +54,8 @@ class API(datamux.IAPI):
         sink: datamux.Queue,
         transform: Callable = datamux.identity,
         rate_limit: bool = True,
+        strict_time: bool = True,
+        use_relative_ts: bool = True,
     ) -> datamux.StreamAck:
         randseq = datamux.prefix + datamux.gen_randseq()
         if isinstance(transform, datamux.Enveloper):
@@ -67,6 +69,8 @@ class API(datamux.IAPI):
             transform=transform,
             flag=self.context[randseq],
             rate_limit=rate_limit,
+            strict_time=strict_time,
+            use_relative_ts=use_relative_ts,
         )
         return datamux.StreamAck(status=True, randseq=randseq)
 
@@ -101,6 +105,8 @@ class API(datamux.IAPI):
         sink: datamux.Queue,
         transform: Callable = datamux.identity,
         rate_limit: bool = True,
+        strict_time: bool = True,
+        use_relative_ts: bool = True,
     ) -> datamux.StreamAck:
         randseq = datamux.gen_randseq()
         self.context[randseq] = datamux.create_flag()
@@ -115,6 +121,8 @@ class API(datamux.IAPI):
             transform=transform,
             flag=self.context[randseq],
             rate_limit=rate_limit,
+            strict_time=strict_time,
+            use_relative_ts=use_relative_ts,
         )
         return datamux.StreamAck(status=True, randseq=randseq)
 
@@ -132,7 +140,8 @@ class API(datamux.IAPI):
         stream: dfds.Stream,
         transform: Callable = datamux.identity,
         rate_limit: bool = True,
-
+        strict_time: bool = True,
+        use_relative_ts: bool = True,
     ) -> datamux.SourceTask:
         mode = stream.attrs.get("mode")
         assert mode in ["proxy", "replay"]
@@ -141,4 +150,14 @@ class API(datamux.IAPI):
         node_id = node.id
         stream_id = stream.attrs.get("id")
         assert stream_id is not None
-        return datamux.APIStreamer(self, mode, node_id, stream_id, stream.attrs, transform, rate_limit=rate_limit)
+        return datamux.APIStreamer(
+            self,
+            mode,
+            node_id,
+            stream_id,
+            stream.attrs,
+            transform,
+            rate_limit=rate_limit,
+            strict_time=strict_time,
+            use_relative_ts=use_relative_ts,
+        )

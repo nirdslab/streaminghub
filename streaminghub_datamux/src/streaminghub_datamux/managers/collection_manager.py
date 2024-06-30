@@ -127,7 +127,7 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         state: dict,
         rate_limit: bool = True,
         strict_time: bool = True,
-        use_relative_timestamps: bool = False,
+        use_relative_ts: bool = True,
     ) -> int | None:
 
         t0 = state["t0"]
@@ -162,7 +162,7 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
             time.sleep(dt)
 
         # postprocessing
-        if use_relative_timestamps:
+        if use_relative_ts:
             index[index_cols[0]] -= T0
 
         # send record

@@ -64,7 +64,7 @@ class ISource(abc.ABC):
 
     Abstract Function(s):
     * on_attach(source_id, stream_id, attrs, q, transform, **kwargs)
-    * on_pull(source_id, stream_id, attrs, q, transform, state, rate_limit, **kwargs)
+    * on_pull(source_id, stream_id, attrs, q, transform, state, rate_limit, strict_time, use_relative_ts, **kwargs)
     * on_detach(source_id, stream_id, attrs, q, transform, state, **kwargs)
 
     Implemented Function(s):
@@ -83,13 +83,15 @@ class ISource(abc.ABC):
         transform: Callable,
         flag: Flag,
         rate_limit: bool = True,
+        strict_time: bool = True,
+        use_relative_ts: bool = True,
         **kwargs,
     ):
         proc = multiprocessing.Process(
             None,
             self._attach_coro,
             f"{source_id}_{stream_id}",
-            (source_id, stream_id, attrs, q, transform, flag, rate_limit),
+            (source_id, stream_id, attrs, q, transform, flag, rate_limit, strict_time, use_relative_ts),
             kwargs,
             daemon=True,
         )
@@ -108,6 +110,8 @@ class ISource(abc.ABC):
         transform: Callable,
         flag: Flag,
         rate_limit: bool = True,
+        strict_time: bool = True,
+        use_relative_ts: bool = True,
         **kwargs,
     ):
         signal.signal(signal.SIGINT, lambda *args: self.__signal__(flag, *args))
@@ -115,7 +119,9 @@ class ISource(abc.ABC):
         state = self.on_attach(source_id, stream_id, attrs, q, transform, **kwargs)
         self.logger.debug("attached to stream")
         while not flag.is_set():
-            retval = self.on_pull(source_id, stream_id, attrs, q, transform, state, rate_limit, **kwargs)
+            retval = self.on_pull(
+                source_id, stream_id, attrs, q, transform, state, rate_limit, strict_time, use_relative_ts, **kwargs
+            )
             if retval is not None:
                 self.logger.debug(f"[{self.__class__.__name__}] stream exited with code: {retval}")
                 flag.set()
@@ -137,6 +143,8 @@ class ISource(abc.ABC):
         transform: Callable,
         state: dict,
         rate_limit: bool,
+        strict_time: bool = True,
+        use_relative_ts: bool = True,
         **kwargs,
     ) -> int | None: ...
 
@@ -192,7 +200,7 @@ class Reader(Generic[T], ISource, abc.ABC):
     * list_sources()
     * list_streams(source_id)
     * on_attach(source_id, stream_id, attrs, q, transform, **kwargs)
-    * on_pull(source_id, stream_id, attrs, q, transform, state, rate_limit, **kwargs)
+    * on_pull(source_id, stream_id, attrs, q, transform, state, rate_limit, strict_time, use_relative_ts, **kwargs)
     * on_detach(source_id, stream_id, attrs, q, transform, state, **kwargs)
 
     Implemented Function(s):
@@ -398,6 +406,8 @@ class IAPI(abc.ABC):
         sink: Queue,
         transform: Callable = datamux.identity,
         rate_limit: bool = True,
+        strict_time: bool = True,
+        use_relative_ts: bool = True,
     ) -> StreamAck:
         """
         Replay a collection-stream into a given queue.
@@ -458,6 +468,8 @@ class IAPI(abc.ABC):
         sink: Queue,
         transform: Callable = datamux.identity,
         rate_limit: bool = True,
+        strict_time: bool = True,
+        use_relative_ts: bool = True,
     ) -> StreamAck:
         """
         Proxy data from a live stream onto a given queue.
@@ -494,7 +506,16 @@ class APIStreamer(SourceTask):
     task_id: str | None = None
 
     def __init__(
-        self, api: IAPI, mode: str, node_id: str, stream_id: str, attrs: dict, transform: Callable, rate_limit: bool
+        self,
+        api: IAPI,
+        mode: str,
+        node_id: str,
+        stream_id: str,
+        attrs: dict,
+        transform: Callable,
+        rate_limit: bool,
+        strict_time: bool = True,
+        use_relative_ts: bool = True,
     ) -> None:
         super().__init__()
         self.api = api
@@ -505,11 +526,20 @@ class APIStreamer(SourceTask):
         self.source = Queue(timeout=0.001)
         self.transform = transform
         self.rate_limit = rate_limit
+        self.strict_time = strict_time
+        self.use_relative_ts = use_relative_ts
 
     def start(self, *args, **kwargs):
         if self.mode == "proxy":
             ack = self.api.proxy_live_stream(
-                self.node_id, self.stream_id, self.attrs, self.source, self.transform, self.rate_limit
+                self.node_id,
+                self.stream_id,
+                self.attrs,
+                self.source,
+                self.transform,
+                self.rate_limit,
+                self.strict_time,
+                self.use_relative_ts,
             )
             assert ack.randseq is not None
             self.task_id = ack.randseq
@@ -521,6 +551,8 @@ class APIStreamer(SourceTask):
                 self.source,
                 self.transform,
                 self.rate_limit,
+                self.strict_time,
+                self.use_relative_ts,
             )
             assert ack.randseq is not None
             self.task_id = ack.randseq
