@@ -17,7 +17,7 @@ class Runner:
         self.flag = True
 
     def __run__(self, *args, **kwargs):
-        signal.signal(signal.SIGTERM, self.__signal__)
+        signal.signal(signal.SIGINT, self.__signal__)
         while not self.flag:
             self.step(*args, **kwargs)
 
@@ -28,7 +28,7 @@ class Runner:
             name=self.name,
             args=args,
             kwargs=kwargs,
-            daemon=False,
+            daemon=True,
         )
         self.proc.start()
         print(f"Started {self.name}")

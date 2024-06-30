@@ -48,7 +48,7 @@ async def begin_streaming(collection_name: str, streams: list[dfds.Stream]):
         logger.info(f"Source [{source_id}]: {device.model}, {device.manufacturer} ({device.category})")
         sink = datamux.Queue()
         api.replay_collection_stream(collection_name, stream.name, stream.attrs, sink)
-        procs.append(multiprocessing.Process(target=log_sink, args=(sink,)))
+        procs.append(multiprocessing.Process(target=log_sink, args=(sink,), daemon=True))
         logger.info(f"Source [{source_id}]: started")
 
     for proc in procs:

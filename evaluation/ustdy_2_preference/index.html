@@ -386,7 +386,7 @@ FREQ = <span class="hljs-number">60</span>
             name=self.func.__name__,
             args=args,
             kwargs=dict(**kwargs, queue=queue),
-            daemon=<span class="hljs-literal">False</span>,
+            daemon=<span class="hljs-literal">True</span>,
         )
         self.proc.start()
         print(<span class="hljs-string">f"Started <span class="hljs-subst">{self.proc.name}</span>"</span>)
@@ -411,7 +411,7 @@ FREQ = <span class="hljs-number">60</span>
         queue.put(item)
         time.sleep(dt)
         t += dt
-    signal.signal(signal.SIGTERM, handle_signal)
+    signal.signal(signal.SIGINT, handle_signal)
     <span class="hljs-keyword">while</span> <span class="hljs-keyword">not</span> flag:
         step()
 
@@ -428,7 +428,7 @@ FREQ = <span class="hljs-number">60</span>
             print(item)
         <span class="hljs-keyword">except</span>:
             <span class="hljs-keyword">pass</span>
-    signal.signal(signal.SIGTERM, handle_signal)
+    signal.signal(signal.SIGINT, handle_signal)
     <span class="hljs-keyword">while</span> <span class="hljs-keyword">not</span> flag:
         step()
 
@@ -458,7 +458,7 @@ FREQ = <span class="hljs-number">60</span>
     <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__signal__</span><span class="hljs-params">(self, *args)</span>:</span>
         self.flag = <span class="hljs-literal">True</span>
     <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__run__</span><span class="hljs-params">(self, *args, **kwargs)</span>:</span>
-        signal.signal(signal.SIGTERM, self.__signal__)
+        signal.signal(signal.SIGINT, self.__signal__)
         <span class="hljs-keyword">while</span> <span class="hljs-keyword">not</span> self.flag:
             self.step(*args, **kwargs)
     <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">start</span><span class="hljs-params">(self, *args, **kwargs)</span>:</span>
@@ -468,7 +468,7 @@ FREQ = <span class="hljs-number">60</span>
             name=self.name,
             args=args,
             kwargs=kwargs,
-            daemon=<span class="hljs-literal">False</span>,
+            daemon=<span class="hljs-literal">True</span>,
         )
         self.proc.start()
         print(<span class="hljs-string">f"Started <span class="hljs-subst">{self.name}</span>"</span>)

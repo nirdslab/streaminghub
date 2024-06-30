@@ -1,5 +1,6 @@
 import argparse
 import os.path
+import signal
 
 from fixation_detection import IVT
 from reporting import FileWriter

@@ -18,7 +18,7 @@ class Runner:
             name=self.func.__name__,
             args=args,
             kwargs=dict(**kwargs, queue=queue),
-            daemon=False,
+            daemon=True,
         )
         self.proc.start()
         print(f"Started {self.proc.name}")
@@ -48,7 +48,7 @@ def simulate_data_stream(
         time.sleep(dt)
         t += dt
 
-    signal.signal(signal.SIGTERM, handle_signal)
+    signal.signal(signal.SIGINT, handle_signal)
     while not flag:
         step()
 
@@ -69,7 +69,7 @@ def log_data_stream(
         except:
             pass
 
-    signal.signal(signal.SIGTERM, handle_signal)
+    signal.signal(signal.SIGINT, handle_signal)
     while not flag:
         step()
 

@@ -58,7 +58,7 @@ class StreamAck(BaseModel):
     randseq: str | None = None
 
 
-class IAttach(abc.ABC):
+class ISource(abc.ABC):
     """
     Base class with functions to listen to data streams via DataMux APIs
 
@@ -95,6 +95,10 @@ class IAttach(abc.ABC):
         )
         proc.start()
 
+    def __signal__(self, flag, *args):
+        flag.set()
+        signal.default_int_handler(*args)
+
     def _attach_coro(
         self,
         source_id: str,
@@ -106,15 +110,14 @@ class IAttach(abc.ABC):
         rate_limit: bool = True,
         **kwargs,
     ):
-        signal.signal(signal.SIGINT, lambda *_: flag.set())
-        signal.signal(signal.SIGTERM, lambda *_: flag.set())
+        signal.signal(signal.SIGINT, lambda *args: self.__signal__(flag, *args))
         datamux.init_logging()
         state = self.on_attach(source_id, stream_id, attrs, q, transform, **kwargs)
         self.logger.debug("attached to stream")
         while not flag.is_set():
             retval = self.on_pull(source_id, stream_id, attrs, q, transform, state, rate_limit, **kwargs)
             if retval is not None:
-                self.logger.info(f"[{self.__class__.__name__}] stream exited with code: {retval}")
+                self.logger.debug(f"[{self.__class__.__name__}] stream exited with code: {retval}")
                 flag.set()
         self.on_detach(source_id, stream_id, attrs, q, transform, state, **kwargs)
         self.logger.debug("detached from stream")
@@ -180,7 +183,7 @@ class IServe(abc.ABC):
 T = TypeVar("T", dfds.Node, dfds.Collection)
 
 
-class Reader(Generic[T], IAttach, abc.ABC):
+class Reader(Generic[T], ISource, abc.ABC):
     """
     Base class with functions to listen data from both live and stored sources
 
@@ -226,16 +229,16 @@ class ITask(abc.ABC):
 
     def __signal__(self, *args) -> None:
         self.flag = True
+        signal.default_int_handler(*args)
 
     def __run__(self, *args, **kwargs) -> None:
         signal.signal(signal.SIGINT, self.__signal__)
-        signal.signal(signal.SIGTERM, self.__signal__)
         datamux.init_logging()
         while not self.flag:
             try:
                 retval = self(*args, **kwargs)
                 if retval is not None:
-                    self.logger.info(f"[{self.name}] task exited with code: {retval}")
+                    self.logger.debug(f"[{self.name}] task exited with code: {retval}")
                     self.flag = True
             except BaseException as e:
                 self.logger.warn(f"[{self.name}] has crashed: {e}")
@@ -250,12 +253,12 @@ class ITask(abc.ABC):
             daemon=True,
         )
         self.proc.start()
-        self.logger.info(f"Started {self.name}")
+        self.logger.debug(f"Started {self.name}")
 
     def stop(self):
         self.proc.terminate()
         self.proc.join()
-        self.logger.info(f"Stopped {self.name}")
+        self.logger.debug(f"Stopped {self.name}")
 
     @abc.abstractmethod
     def __call__(self, *args, **kwargs) -> int | None: ...
@@ -344,13 +347,19 @@ class Pipeline(ITask):
         for task in self.tasks:
             task.stop()
 
+    def __signal__(self, *args):
+        self.stop()
+        signal.default_int_handler(*args)
+
     def run(self, duration: float | None = None):
+        signal.signal(signal.SIGINT, self.__signal__)
         self.start()
         try:
             self.completed.wait(duration)
             self.logger.info("pipeline completed")
         except BaseException as e:
-            self.logger.info(f"pipeline raised an exception: {e}")
+            self.logger.warning(f"pipeline raised an exception: {e}")
+            raise e
         self.stop()
 
     def __call__(self, *args, **kwargs) -> None:
