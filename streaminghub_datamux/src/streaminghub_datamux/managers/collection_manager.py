@@ -24,8 +24,6 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
 
     __parser: dfds.Parser
     __collections: dict[str, dfds.Collection]
-    strict_time = True
-    use_relative_timestamps = True
 
     def __init__(
         self,
@@ -128,6 +126,8 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         transform: Callable,
         state: dict,
         rate_limit: bool = True,
+        strict_time: bool = True,
+        use_relative_timestamps: bool = False,
     ) -> int | None:
 
         t0 = state["t0"]
@@ -148,7 +148,7 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         value = {k: record[k] for k in value_cols}
 
         # wait until time requirements are met
-        if self.strict_time:
+        if strict_time:
             if t0 is None or T0 is None:
                 t0, T0 = time.perf_counter(), index[index_cols[0]]
                 state["t0"] = t0
@@ -162,7 +162,7 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
             time.sleep(dt)
 
         # postprocessing
-        if self.use_relative_timestamps:
+        if use_relative_timestamps:
             index[index_cols[0]] -= T0
 
         # send record

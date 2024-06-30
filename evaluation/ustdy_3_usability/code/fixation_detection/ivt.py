@@ -158,7 +158,7 @@ class IVT(datamux.PipeTask):
             return 0
         if item is None:
             return
-
+        
         t, x, y, d = item["t"], item["x"], item["y"], item["d"]
         if np.isnan(x) or np.isnan(y):
             self.logger.debug(f"ignoring nan at t={t}")
