@@ -17,6 +17,9 @@ body {
 	padding: 0 26px;
 	line-height: var(--vscode-markdown-line-height, 22px);
 	word-wrap: break-word;
+	max-width: min(50em, 100%);
+	margin-left: auto;
+	margin-right: auto;
 }
 
 #code-csp-warning {
@@ -413,7 +416,7 @@ code {
     pipeline_A = datamux.Pipeline(
         api.attach(stream, transform=preprocessor),
         <span class="hljs-comment"># IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),</span>
-        LogWriter(**stream.attrs, simulation=<span class="hljs-string">"ivt"</span>),
+        LogWriter(name=<span class="hljs-string">"ivt"</span>, **stream.attrs),
     )
 
     <span class="hljs-comment"># run pipeline</span>
@@ -429,7 +432,7 @@ code {
 <p><img src="assets/2.gif" alt="2"></p>
 <h2 id="setting-the-dataset-root">Setting the Dataset Root</h2>
 <p>Now, lets pick the current folder as the dataset’s root by clicking the <code>Use as Root</code> button at the top. This will get rid of long file paths.</p>
-<p><img src="assets/3.png" alt="3"></p>
+<p><img src="assets/3.gif" alt="3"></p>
 <h2 id="setting-the-dataset-name">Setting the Dataset Name</h2>
 <p>Nice! Let’s specify a name for the dataset. In the <strong>Dataset Name</strong> box, type in <code>ADHD_SIN</code> and click on the <code>save</code> icon on the right.</p>
 <h2 id="extracting-metadata-from-file-namespaths">Extracting Metadata from File Names/Paths</h2>
@@ -443,7 +446,7 @@ code {
 <pre class="hljs"><code><div>(?P&lt;subject&gt;\d+)ADHD_AV_(?P&lt;noise&gt;0|5|10|15|20|25)(?P&lt;task&gt;\d+)\.csv
 </div></code></pre>
 <p><strong>Now, let’s use this pattern to extract metadata from file names.</strong> Begin by selecting all files from the table in <strong>Step 1</strong> block.  Now copy-paste the above regular expression into the <strong>Name Pattern</strong> box under <strong>Extract Metadata</strong>, and click on <code>Extract</code>. Upon doing so, you will see that Curator has extracted metadata from each file name.</p>
-<p><img src="assets/6.png" alt="6"></p>
+<p><img src="assets/6.gif" alt="6"></p>
 <h2 id="identifying-relevant-columns-in-data">Identifying Relevant Columns in Data</h2>
 <p>Now let’s open some files and view their content. For this, you can simply <strong>click on the file names</strong> on either of the tables. This will download the selected file(s) to your computer, where you can view their content. Depending on your web browser, you may either get a download prompt, or the file may download/open immediately.</p>
 <p><img src="assets/4.png" alt="4"></p>
@@ -456,9 +459,9 @@ code {
 <li>GazePointRightY (ADCSpx)</li>
 <li>PupilLeft</li>
 <li>PupilRight</li>
-<li>EyeTrackerTimestamp</li>
+<li>RecordingTimestamp</li>
 </ol>
-<p>The <code>GazePointLeftX (ADCSpx)</code>, <code>GazePointLeftY (ADCSpx)</code>, <code>GazePointRightX (ADCSpx)</code>, and <code>GazePointRightY (ADCSpx)</code> columns indicate which eye (left or right) and axis (x or y) it represents, and that its values are in pixels (<code>px</code>). However, the <code>PupilLeft</code> and <code>PupilRight</code> column names lack the unit information. If you observe the <code>PupilLeft</code> and <code>PupilRight</code> column values, you will find their values to be in range of <code>3.0</code> — <code>5.0</code> , which matches human pupil diameter range in <code>mm</code> (<code>2.0</code> to <code>8.0</code>). Hence we can safely assume their values are in <code>mm</code>. The <code>EyeTrackerTimestamp</code> column gives time information. All data appears to be in 60 Hz (i.e., each file has 60 rows per second).</p>
+<p>The <code>GazePointLeftX (ADCSpx)</code>, <code>GazePointLeftY (ADCSpx)</code>, <code>GazePointRightX (ADCSpx)</code>, and <code>GazePointRightY (ADCSpx)</code> columns indicate which eye (left or right) and axis (x or y) it represents, and that its values are in pixels (<code>px</code>). However, the <code>PupilLeft</code> and <code>PupilRight</code> column names lack the unit information. If you observe the <code>PupilLeft</code> and <code>PupilRight</code> column values, you will find their values to be in range of <code>3.0</code> — <code>5.0</code> , which matches human pupil diameter range in <code>mm</code> (<code>2.0</code> to <code>8.0</code>). Hence we can safely assume their values are in <code>mm</code>. The <code>RecordingTimestamp</code> column gives time information. All data appears to be in 60 Hz (i.e., each file has 60 rows per second).</p>
 <p>With this information, let’s move onto the next step by clicking <strong>Step 2 - Define Streams</strong>.</p>
 <h2 id="defining-data-streams">Defining Data Streams</h2>
 <p>Now, you’re in the page where you can specify what structure you want the data to be in. Lets first define a stream with the following attributes.</p>
@@ -485,7 +488,7 @@ code {
 </ul>
 <p>Leave all <strong>description</strong> fields blank. Use float32 for all <strong>type</strong> fields. The final UI will look like follows.</p>
 <p><img src="assets/8.png" alt="8"></p>
-<p>Once done, click the <strong>Save Streams</strong> button to save what you just defined.</p>
+<p>Once done, <span style="background-color: yellow;">click the <strong>Save Streams</strong> button</span> to save what you just defined.</p>
 <aside>
 Note that here, we put both x, y positions (which have `pixel` units) and pupil diameters (which have `mm` units) into the same stream, and set its unit as `pixel, mm`. Alternatively, you could define two separate streams, `gaze` and `pupil`, with `gaze` having `pixel` as unit, and `pupil` having `mm` as unit. Depending on your need, you can pick one format over the other. For the scope of this tutorial, let’s stick to having one `eye` stream.
 </aside>
@@ -503,11 +506,11 @@ Note that here, we put both x, y positions (which have `pixel` units) and pupil 
 <li><code>rx</code> - GazePointRightX (ADCSpx)</li>
 <li><code>ry</code> - GazePointRightY (ADCSpx)</li>
 <li><code>rd</code> - PupilRight</li>
-<li><code>t</code> - EyeTrackerTimestamp</li>
+<li><code>t</code> - RecordingTimestamp</li>
 </ul>
 <p>Once assigned, the UI should look as follows.</p>
 <p><img src="assets/11.png" alt="11"></p>
-<p>Now, click on the <code>Save Mapping</code> button and click on <code>Step 4 - Review and Export</code> to proceed to the next step.</p>
+<p>Now, <span style="background-color: yellow;">click on the <code>Save Mapping</code> button</span> and click on <code>Step 4 - Review and Export</code> to proceed to the next step.</p>
 <h2 id="exporting-the-dataset">Exporting the Dataset</h2>
 <p>Now, you’re in the page where you can download the dataset with a file format and indexing pattern of your choice.</p>
 <p><img src="assets/12.png" alt="12"></p>
@@ -527,7 +530,7 @@ Note that here, we put both x, y positions (which have `pixel` units) and pupil 
 source ./venv/bin/activate
 python -m pip install -r requirements.txt
 </div></code></pre>
-<p>This will install four packages: <code>streaminghub-datamux</code> , <code>streaminghub-pydfds</code>, <code>streaminghub-proxy-pupil-core</code>, and their required dependencies.</p>
+<p>This will install three packages: <code>streaminghub-datamux</code> , <code>streaminghub-pydfds</code>, <code>streaminghub-proxy-pupil-core</code>, and their required dependencies.</p>
 <p><strong>Step 4:</strong> Create a new directory named <code>$HOME/streaminghub</code> and configure the <code>streaminghub-datamux</code> package to use that directory.</p>
 <pre class="hljs"><code><div>mkdir -p $HOME/streaminghub
 python -m streaminghub_datamux init --data_dir="$HOME/streaminghub" --meta_dir="$HOME/streaminghub"
@@ -584,7 +587,7 @@ drwxr-xr-x@ 850 ......  .....  27200 Jun 24 13:30 ADHD_SIN
     pipeline_A = datamux.Pipeline(
         api.attach(stream, transform=preprocessor),
         <span class="hljs-comment"># IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),</span>
-        LogWriter(**stream.attrs, simulation=<span class="hljs-string">"ivt"</span>),
+        LogWriter(name=<span class="hljs-string">"ivt"</span>, **stream.attrs),
     )
 
     <span class="hljs-comment"># run pipeline</span>
@@ -626,7 +629,7 @@ drwxr-xr-x@ 850 ......  .....  27200 Jun 24 13:30 ADHD_SIN
 pipeline_A = datamux.Pipeline(
     api.attach(stream, transform=preprocessor),
     <span class="hljs-comment"># IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),</span>
-    LogWriter(**stream.attrs, simulation=<span class="hljs-string">"ivt"</span>),
+    LogWriter(name=<span class="hljs-string">"ivt"</span>, **stream.attrs),
 )
 </div></code></pre>
 <p><strong>After</strong></p>
@@ -634,7 +637,7 @@ pipeline_A = datamux.Pipeline(
 pipeline_A = datamux.Pipeline(
     api.attach(stream, transform=preprocessor),
     IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=<span class="hljs-literal">None</span>),
-    LogWriter(**stream.attrs, simulation=<span class="hljs-string">"ivt"</span>),
+    LogWriter(name=<span class="hljs-string">"ivt"</span>, **stream.attrs),
 )
 </div></code></pre>
 <p>Now, let’s run the pipeline again.</p>

@@ -51,7 +51,7 @@ if __name__ == "__main__":
     pipeline_A = datamux.Pipeline(
         api.attach(stream, transform=preprocessor),
         # IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
-        LogWriter(**stream.attrs, simulation="ivt"),
+        LogWriter(name="ivt", **stream.attrs),
     )
 
     # run pipeline
@@ -78,7 +78,7 @@ Let’s first open the `Eye Tracking/ADHD-Audio-Visual-Speech-In-Noise/data` fol
 
 Now, lets pick the current folder as the dataset’s root by clicking the `Use as Root` button at the top. This will get rid of long file paths.
 
-![3](assets/3.png)
+![3](assets/3.gif)
 
 ## Setting the Dataset Name
 
@@ -100,7 +100,7 @@ Notice that each file is named according to the pattern `<subject>ADHD_AV_<noise
 
 **Now, let’s use this pattern to extract metadata from file names.** Begin by selecting all files from the table in **Step 1** block.  Now copy-paste the above regular expression into the **Name Pattern** box under **Extract Metadata**, and click on `Extract`. Upon doing so, you will see that Curator has extracted metadata from each file name.
 
-![6](assets/6.png)
+![6](assets/6.gif)
 
 ## Identifying Relevant Columns in Data
 
@@ -118,9 +118,9 @@ That’s one messy file! Let’s find which columns represent the **gaze positio
 4. GazePointRightY (ADCSpx)
 5. PupilLeft
 6. PupilRight
-7. EyeTrackerTimestamp
+7. RecordingTimestamp
 
-The `GazePointLeftX (ADCSpx)`, `GazePointLeftY (ADCSpx)`, `GazePointRightX (ADCSpx)`, and `GazePointRightY (ADCSpx)` columns indicate which eye (left or right) and axis (x or y) it represents, and that its values are in pixels (`px`). However, the `PupilLeft` and `PupilRight` column names lack the unit information. If you observe the `PupilLeft` and `PupilRight` column values, you will find their values to be in range of `3.0` — `5.0` , which matches human pupil diameter range in `mm` (`2.0` to `8.0`). Hence we can safely assume their values are in `mm`. The `EyeTrackerTimestamp` column gives time information. All data appears to be in 60 Hz (i.e., each file has 60 rows per second).
+The `GazePointLeftX (ADCSpx)`, `GazePointLeftY (ADCSpx)`, `GazePointRightX (ADCSpx)`, and `GazePointRightY (ADCSpx)` columns indicate which eye (left or right) and axis (x or y) it represents, and that its values are in pixels (`px`). However, the `PupilLeft` and `PupilRight` column names lack the unit information. If you observe the `PupilLeft` and `PupilRight` column values, you will find their values to be in range of `3.0` — `5.0` , which matches human pupil diameter range in `mm` (`2.0` to `8.0`). Hence we can safely assume their values are in `mm`. The `RecordingTimestamp` column gives time information. All data appears to be in 60 Hz (i.e., each file has 60 rows per second).
 
 With this information, let’s move onto the next step by clicking **Step 2 - Define Streams**.
 
@@ -179,7 +179,7 @@ Let’s assign the right columns to each field.
 - `rx` - GazePointRightX (ADCSpx)
 - `ry` - GazePointRightY (ADCSpx)
 - `rd` - PupilRight
-- `t` - EyeTrackerTimestamp
+- `t` - RecordingTimestamp
 
 Once assigned, the UI should look as follows.
 
@@ -222,7 +222,7 @@ source ./venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-This will install four packages: `streaminghub-datamux` , `streaminghub-pydfds`, `streaminghub-proxy-pupil-core`, and their required dependencies.
+This will install three packages: `streaminghub-datamux` , `streaminghub-pydfds`, `streaminghub-proxy-pupil-core`, and their required dependencies.
 
 **Step 4:** Create a new directory named `$HOME/streaminghub` and configure the `streaminghub-datamux` package to use that directory.
 
@@ -293,7 +293,7 @@ if __name__ == "__main__":
     pipeline_A = datamux.Pipeline(
         api.attach(stream, transform=preprocessor),
         # IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
-        LogWriter(**stream.attrs, simulation="ivt"),
+        LogWriter(name="ivt", **stream.attrs),
     )
 
     # run pipeline
@@ -355,7 +355,7 @@ Now, let’s uncomment the 2nd step of the pipeline. This turns our script from,
 pipeline_A = datamux.Pipeline(
     api.attach(stream, transform=preprocessor),
     # IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
-    LogWriter(**stream.attrs, simulation="ivt"),
+    LogWriter(name="ivt", **stream.attrs),
 )
 ```
 
@@ -366,7 +366,7 @@ pipeline_A = datamux.Pipeline(
 pipeline_A = datamux.Pipeline(
     api.attach(stream, transform=preprocessor),
     IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
-    LogWriter(**stream.attrs, simulation="ivt"),
+    LogWriter(name="ivt", **stream.attrs),
 )
 ```
 
