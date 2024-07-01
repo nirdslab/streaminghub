@@ -17,7 +17,7 @@ body {
 	padding: 0 26px;
 	line-height: var(--vscode-markdown-line-height, 22px);
 	word-wrap: break-word;
-	max-width: min(50em, 100%);
+	max-width: min(55em, 100%);
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -489,9 +489,9 @@ code {
 <p>Leave all <strong>description</strong> fields blank. Use float32 for all <strong>type</strong> fields. The final UI will look like follows.</p>
 <p><img src="assets/8.png" alt="8"></p>
 <p>Once done, <span style="background-color: yellow;">click the <strong>Save Streams</strong> button</span> to save what you just defined.</p>
-<aside>
+<pre>
 Note that here, we put both x, y positions (which have `pixel` units) and pupil diameters (which have `mm` units) into the same stream, and set its unit as `pixel, mm`. Alternatively, you could define two separate streams, `gaze` and `pupil`, with `gaze` having `pixel` as unit, and `pupil` having `mm` as unit. Depending on your need, you can pick one format over the other. For the scope of this tutorial, let’s stick to having one `eye` stream.
-</aside>
+</pre>
 <p>Now, proceed to the next step by clicking on <strong>Step 3 - Assign Attributes to Streams.</strong></p>
 <h2 id="assigning-attributes-to-streams">Assigning Attributes to Streams</h2>
 <p>Now, you’re in the page where you can pick which columns to assign to the <code>lx</code>, <code>ly</code>, <code>ld</code>, <code>rx</code>, <code>ry</code>, <code>rd</code>, and <code>t</code> fields you defined on the last step.</p>
@@ -517,9 +517,9 @@ Note that here, we put both x, y positions (which have `pixel` units) and pupil 
 <p>Let’s pick <strong>Parquet</strong> as our file format, and keep the suggested indexing pattern as-is. Now, click on <code>Export</code> to download the dataset. Once clicked, allow Curator a minute to generate the dataset and prompt you to download it.</p>
 <p>Save this file a folder of your choice. <strong>Do not delete the downloaded tar.gz file yet</strong>, as we will later use that file to stream data.</p>
 <p><img src="assets/13.png" alt="13"></p>
-<aside>
+<pre>
 <img src="https://www.notion.so/icons/confetti-party-popper_blue.svg" alt="https://www.notion.so/icons/confetti-party-popper_blue.svg" width="40px" /> Congratulations! You just created a streamable dataset using Curator.
-</aside>
+</pre>
 <h1 id="task-2---running-pipelines-on-the-dfds-dataset">Task 2 - Running Pipelines on the DFDS Dataset</h1>
 <h2 id="setup">Setup</h2>
 <p><strong>Step 1: Install Python 3.10,</strong> if you haven’t already.</p>
@@ -608,9 +608,9 @@ drwxr-xr-x@ 850 ......  .....  27200 Jun 24 13:30 ADHD_SIN
 	<span class="hljs-attr">"mode"</span>: <span class="hljs-string">"replay"</span>
 }
 </div></code></pre>
-<aside>
+<pre>
 <img src="https://www.notion.so/icons/help-alternate_green.svg" alt="https://www.notion.so/icons/help-alternate_green.svg" width="40px" /> What is the transform=preprocessor doing here?
-</aside>
+</pre>
 <pre class="hljs"><code><div>preprocessor = datamux.ExpressionMap({
     <span class="hljs-string">"t"</span>: <span class="hljs-string">"float(t)"</span>,
     <span class="hljs-string">"x"</span>: <span class="hljs-string">"float(lx + rx) / 2"</span>,
@@ -619,9 +619,9 @@ drwxr-xr-x@ 850 ......  .....  27200 Jun 24 13:30 ADHD_SIN
 })
 </div></code></pre>
 <p>By default, stream outputs will be passed on as-is. However, if you set the transform to an <code>ExpressionMap</code>, this tells <code>DataMux</code> to transform data before passing on, and specifies how to. The <code>ExpressionMap</code> constructor takes a dictionary as argument, whose keys tell <code>DataMux</code> what fields should be generated, and whose values provide <code>DataMux</code> an expression to generate them. Each expression is evaluated with all input variables in global scope, and hence, it will output the correct value.</p>
-<aside>
+<pre>
 <img src="https://www.notion.so/icons/help-alternate_green.svg" alt="https://www.notion.so/icons/help-alternate_green.svg" width="40px" /> If a `datamux.ExpressionMap` is specified, the next pipeline node will only receive the keys/values specified in it.
-</aside>
+</pre>
 <h2 id="extending-the-pipeline-script">Extending the Pipeline Script</h2>
 <p>Now, let’s uncomment the 2nd step of the pipeline. This turns our script from, a <strong>two-step pipeline</strong> (source → logger), into a <strong>three-step pipeline</strong> (source → algorithm → logger).</p>
 <p><strong>Before</strong></p>
@@ -661,9 +661,9 @@ pipeline_A = datamux.Pipeline(
 })
 </div></code></pre>
 <p>Now, let’s run the pipeline again. The pipeline can now be run on <strong>actual live data,</strong> simply by making small, straightforward changes to the Python script.</p>
-<aside>
+<pre>
 <img src="https://www.notion.so/icons/sun_yellow.svg" alt="https://www.notion.so/icons/sun_yellow.svg" width="40px" /> That brings us to the end of this tutorial. Hope you enjoyed using our framework!
-</aside>
+</pre>
 <h1 id="post-questionnaire">Post-Questionnaire</h1>
 <p>Please complete the user experience questionnaire provided on the link below.
 <a href="https://forms.gle/vBx74dV3tTpSo6c8A" target="_blank">https://forms.gle/vBx74dV3tTpSo6c8A</a></p>
