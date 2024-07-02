@@ -520,7 +520,7 @@ FREQ = <span class="hljs-number">60</span>
     dt = <span class="hljs-number">1.0</span> / FREQ
     <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__call__</span><span class="hljs-params">(self, *args, **kwargs)</span> -&gt; <span class="hljs-keyword">None</span>:</span>
         item = dict(t=self.t, x=<span class="hljs-number">0</span>, y=<span class="hljs-number">0</span>, d=<span class="hljs-number">0</span>)
-        self.source.put(item)
+        self.target.put(item)
         datamux.sleep(self.dt)
         self.t += self.dt
 
