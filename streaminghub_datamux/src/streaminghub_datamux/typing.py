@@ -272,22 +272,22 @@ class ITask(abc.ABC):
     def __call__(self, *args, **kwargs) -> int | None: ...
 
 
-class ITaskWithSource(ITask):
-    source: Queue
+class ITaskWithOutput(ITask):
+    target: Queue
 
     def __init__(self) -> None:
         super().__init__()
 
 
-class SourceTask(ITaskWithSource):
+class SourceTask(ITaskWithOutput):
     def __init__(self, transform=None) -> None:
         super().__init__()
-        self.source = Queue(timeout=0.001)
+        self.target = Queue(timeout=0.001)
         self.transform = transform
 
 
-class PipeTask(ITaskWithSource):
-    target: Queue
+class PipeTask(ITaskWithOutput):
+    source: Queue
 
     def __init__(self, transform=None) -> None:
         super().__init__()
@@ -296,7 +296,7 @@ class PipeTask(ITaskWithSource):
         self.transform = transform
 
 
-class SinkTask(ITaskWithSource):
+class SinkTask(ITask):
 
     completed: Flag
 
@@ -304,74 +304,6 @@ class SinkTask(ITaskWithSource):
         super().__init__()
         self.source = Queue(timeout=0.001, empty=True)
         self.completed = create_flag()
-
-
-class Pipeline(ITask):
-
-    target: Queue
-
-    @property
-    def source(self) -> Queue:
-        return self.tasks[0].source
-
-    def __init__(self, *tasks: SourceTask | SinkTask | PipeTask | Pipeline) -> None:
-        super().__init__()
-        self.tasks = tasks
-        for i, task in enumerate(self.tasks):
-            if isinstance(task, SourceTask):
-                assert i == 0
-                q = task.source
-                self.logger.debug(f"task={task.name}, source={task.source}")
-            elif isinstance(task, SinkTask):
-                assert i == len(self.tasks) - 1
-                task.source = q
-                self.completed = task.completed
-                self.logger.debug(f"task={task.name}, source={task.source}")
-            elif isinstance(task, PipeTask):
-                if i == 0:
-                    # source is empty
-                    task.source = Queue(empty=True)
-                    q = task.target
-                    self.logger.debug(f"task={task.name}, source={task.source}, target={task.target}")
-                else:
-                    # source is non-empty
-                    task.source = q
-                    q = task.target
-                    self.logger.debug(f"task={task.name}, source={task.source}, target={task.target}")
-            elif isinstance(task, Pipeline):
-                assert i > 0
-                # source is non-empty
-                assert q is not None
-                task.source.assign(q)
-                q = task.target
-                self.logger.info(f"task={task.name}, source={task.source}, target={task.target}")
-        self.target = q
-
-    def start(self):
-        for task in self.tasks:
-            task.start()
-
-    def stop(self):
-        for task in self.tasks:
-            task.stop()
-
-    def __signal__(self, *args):
-        self.stop()
-        signal.default_int_handler(*args)
-
-    def run(self, duration: float | None = None):
-        signal.signal(signal.SIGINT, self.__signal__)
-        self.start()
-        try:
-            self.completed.wait(duration)
-            self.logger.info("pipeline completed")
-        except BaseException as e:
-            self.logger.warning(f"pipeline raised an exception: {e}")
-            raise e
-        self.stop()
-
-    def __call__(self, *args, **kwargs) -> None:
-        raise ValueError("should never be called")
 
 
 class IAPI(abc.ABC):
@@ -523,7 +455,7 @@ class APIStreamer(SourceTask):
         self.node_id = node_id
         self.stream_id = stream_id
         self.attrs = attrs
-        self.source = Queue(timeout=0.001)
+        self.target = Queue(timeout=0.001)
         self.transform = transform
         self.rate_limit = rate_limit
         self.strict_time = strict_time
@@ -535,7 +467,7 @@ class APIStreamer(SourceTask):
                 self.node_id,
                 self.stream_id,
                 self.attrs,
-                self.source,
+                self.target,
                 self.transform,
                 self.rate_limit,
                 self.strict_time,
@@ -548,7 +480,7 @@ class APIStreamer(SourceTask):
                 self.node_id,
                 self.stream_id,
                 self.attrs,
-                self.source,
+                self.target,
                 self.transform,
                 self.rate_limit,
                 self.strict_time,

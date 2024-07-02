@@ -10,7 +10,7 @@ class SimulateStream(datamux.SourceTask):
 
     def __call__(self, *args, **kwargs) -> None:
         item = dict(t=self.t, x=0, y=0, d=0)
-        self.source.put(item)
+        self.target.put(item)
         datamux.sleep(self.dt)
         self.t += self.dt
 
