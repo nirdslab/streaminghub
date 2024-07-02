@@ -5,7 +5,8 @@ import logging
 import multiprocessing
 import multiprocessing.synchronize
 import signal
-from typing import Callable, Generic, TypeVar
+import threading
+from typing import Callable, Generic, Literal, TypeVar
 
 from pydantic import BaseModel
 
@@ -228,19 +229,21 @@ class Reader(Generic[T], ISource, abc.ABC):
 class ITask(abc.ABC):
 
     logger = logging.getLogger(__name__)
-    proc: multiprocessing.Process
+    proc: multiprocessing.Process | threading.Thread
 
-    def __init__(self) -> None:
+    def __init__(self, mode: Literal["process", "thread"] = "process") -> None:
         super().__init__()
         self.name = self.__class__.__name__
         self.flag = False
+        self.mode = mode
 
     def __signal__(self, *args) -> None:
         self.flag = True
         signal.default_int_handler(*args)
 
     def __run__(self, *args, **kwargs) -> None:
-        signal.signal(signal.SIGINT, self.__signal__)
+        if self.mode == "process":
+            signal.signal(signal.SIGINT, self.__signal__)
         datamux.init_logging()
         while not self.flag:
             try:
@@ -252,7 +255,13 @@ class ITask(abc.ABC):
                 self.logger.warn(f"[{self.name}] has crashed: {e}")
 
     def start(self, *args, **kwargs):
-        self.proc = multiprocessing.Process(
+        if self.mode == "process":
+            fn = multiprocessing.Process
+        elif self.mode == "thread":
+            fn = threading.Thread
+        else:
+            raise ValueError(self.mode)
+        self.proc = fn(
             group=None,
             target=self.__run__,
             args=args,
@@ -264,7 +273,10 @@ class ITask(abc.ABC):
         self.logger.debug(f"Started {self.name}")
 
     def stop(self):
-        self.proc.terminate()
+        if isinstance(self.proc, threading.Thread):
+            self.flag = True
+        if isinstance(self.proc, multiprocessing.Process):
+            self.proc.terminate()
         self.proc.join()
         self.logger.debug(f"Stopped {self.name}")
 

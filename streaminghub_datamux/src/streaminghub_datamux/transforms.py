@@ -9,16 +9,22 @@ class CompositeTask(dm.ITask):
 
     tasks: tuple[dm.ITask, ...]
 
-    def __init__(self, *tasks: dm.ITask) -> None:
-        super().__init__()
+    def __init__(self, *tasks: dm.ITask, run_self=False) -> None:
+        super().__init__(mode="thread")
+        self.run_self = run_self
         self.tasks = tasks
 
     def start(self):
         signal.signal(signal.SIGINT, self.__signal__)
+        if self.run_self:
+            # don't start new process for composition constructs
+            super().start()
         for task in self.tasks:
             task.start()
 
     def stop(self):
+        if self.run_self:
+            super().stop()
         for task in self.tasks:
             task.stop()
 
@@ -27,20 +33,56 @@ class CompositeTask(dm.ITask):
         signal.default_int_handler(*args)
 
 
-class Pipeline(CompositeTask):
+class Broadcast(CompositeTask):
+
+    source: dm.Queue
+
+    def __init__(self, *tasks: dm.PipeTask | dm.SinkTask) -> None:
+        super().__init__(*tasks, run_self=True)
+        self.source = dm.Queue(timeout=0.001, empty=True)
+
+    def __call__(self, *args, **kwargs) -> None:
+        item = self.source.get()
+        if item is None:
+            return
+        # broadcast source item to all task queues
+        for task in self.tasks:
+            assert isinstance(task, (dm.PipeTask, dm.SinkTask, dm.Pipeline))
+            task.source.put(item)
+
+
+class SyncSource(CompositeTask):
 
     target: dm.Queue
 
-    @property
-    def source(self) -> dm.Queue:
-        # ensure the first task has a source
-        assert isinstance(self.tasks[0], dm.ITaskWithOutput)
-        return self.tasks[0].target
+    def __init__(self, *tasks: dm.SourceTask) -> None:
+        super().__init__(*tasks, run_self=True)
+        self.target = dm.Queue(timeout=0.001)
+        self.last_task_states = [None] * len(self.tasks)
+
+    def __call__(self, *args, **kwargs) -> None:
+        received_any = False
+        for i, task in enumerate(self.tasks):
+            assert isinstance(task, dm.ITaskWithOutput)
+            item = task.target.get()
+            if item is not None:
+                self.last_task_states[i] = item
+                received_any = True
+        # put combined output into target queue
+        if received_any:
+            self.target.put(self.last_task_states)
+
+
+class Pipeline(CompositeTask):
+
+    source: dm.Queue
+    target: dm.Queue
+    completed: dm.Flag
 
     def __init__(self, *tasks: dm.ITask) -> None:
-        super().__init__(*tasks)
+        super().__init__(*tasks, run_self=False)
         for i, task in enumerate(self.tasks):
-            if isinstance(task, dm.SourceTask):
+            if isinstance(task, (dm.SourceTask, SyncSource)):
                 assert i == 0
                 q = task.target
                 self.logger.debug(f"task={task.name}, source=None, target={task.target}")
@@ -82,41 +124,6 @@ class Pipeline(CompositeTask):
 
     def __call__(self, *args, **kwargs) -> None:
         raise ValueError("should never be called")
-
-
-class Broadcast(CompositeTask):
-    targets: list[dm.ITaskWithOutput]
-
-    def __init__(self, *tasks: dm.PipeTask) -> None:
-        super().__init__()
-        self.source = dm.Queue(timeout=0.001, empty=True)
-        self.tasks = tasks
-
-    def __call__(self, *args, **kwargs) -> None:
-        item = self.source.get()
-        if item is None:
-            return
-        for target in self.targets:
-            target.target.put(item)
-
-
-class Sync(CompositeTask):
-
-    target: dm.Queue
-
-    def __init__(self, *tasks: dm.ITaskWithOutput) -> None:
-        super().__init__()
-        self.tasks = tasks
-        self.last_task_states = [None] * len(self.tasks)
-
-    def __call__(self, *args, **kwargs) -> None:
-        for i, task in enumerate(self.tasks):
-            assert isinstance(task, dm.ITaskWithOutput)
-            item = task.target.get()
-            if item is not None:
-                self.last_task_states[i] = item
-        # return combined output
-        self.target.put(self.last_task_states)
 
 
 class ExpressionMap:
