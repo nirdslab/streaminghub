@@ -237,6 +237,10 @@ class ITask(abc.ABC):
         self.flag = False
         self.mode = mode
 
+    def with_name(self, name: str):
+        self.name = name
+        return self
+
     def __signal__(self, *args) -> None:
         self.flag = True
         signal.default_int_handler(*args)

@@ -22,8 +22,10 @@ if __name__ == "__main__":
     # streams = api.list_live_streams("pupil_core")  # for live data (pupil_core)
 
     # get the first stream
-    stream = streams[0]
-    datamux.logging.info(stream.attrs)
+    stream_1 = streams[-2]
+    stream_2 = streams[-1]
+    datamux.logging.info(stream_1.attrs)
+    datamux.logging.info(stream_2.attrs)
 
     # define a transform to map data into (t,x,y,d) format and handle missing values
     preprocessor = datamux.ExpressionMap({
@@ -33,11 +35,23 @@ if __name__ == "__main__":
         "d": "float(ld + rd) / 2",
     })
 
+    postprocessor = datamux.ExpressionMap({
+        "t": "(s1.get('t', float('NaN')) + s2.get('t', float('NaN'))) / 2",
+        "x": "(s1.get('x', float('NaN')) + s2.get('x', float('NaN'))) / 2",
+        "y": "(s1.get('y', float('NaN')) + s2.get('y', float('NaN'))) / 2",
+        "d": "(s1.get('d', float('NaN')) + s2.get('d', float('NaN'))) / 2",
+    })
+
     # define pipeline
     pipeline_A = datamux.Pipeline(
-        api.attach(stream, transform=preprocessor),
-        # IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
-        LogWriter(name="ivt", **stream.attrs),
+        datamux.MergedSource(
+            api.attach(stream_1, transform=preprocessor).with_name("s1"),
+            api.attach(stream_2, transform=preprocessor).with_name("s2"),
+            dtype="dict",
+            transform=postprocessor,
+        ),
+        IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
+        LogWriter(name="ivt", **stream_1.attrs),
     )
 
     # run pipeline
