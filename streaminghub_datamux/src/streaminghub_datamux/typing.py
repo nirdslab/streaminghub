@@ -296,6 +296,7 @@ class ITaskWithOutput(ITask):
 
 
 class SourceTask(ITaskWithOutput):
+
     def __init__(self, transform=None) -> None:
         super().__init__()
         self.target = Queue(timeout=0.001)
@@ -311,6 +312,24 @@ class PipeTask(ITaskWithOutput):
         self.target = Queue(timeout=0.001)
         self.transform = transform
 
+    @abc.abstractmethod
+    def step(self, input) -> int | None: ...
+
+    @abc.abstractmethod
+    def close(self) -> None: ...
+
+    def __call__(self, *args, **kwargs) -> int | None:
+        item = self.source.get()
+        if item == END_OF_STREAM:
+            self.logger.debug("got EOF token")
+            self.close()
+            self.target.put(item)
+            self.logger.debug("passed EOF token")
+            return 0
+        if item is None:
+            return
+        return self.step(item)
+
 
 class SinkTask(ITask):
 
@@ -320,6 +339,23 @@ class SinkTask(ITask):
         super().__init__()
         self.source = Queue(timeout=0.001, empty=True)
         self.completed = create_flag()
+
+    @abc.abstractmethod
+    def step(self, input) -> int | None: ...
+
+    def close(self) -> None:
+        self.completed.set()
+
+    def __call__(self, *args, **kwargs) -> int | None:
+        item = self.source.get()
+        if item == END_OF_STREAM:
+            self.logger.debug("got EOF token")
+            self.close()
+            self.logger.debug("passed EOF token")
+            return 0
+        if item is None:
+            return
+        return self.step(item)
 
 
 class IAPI(abc.ABC):

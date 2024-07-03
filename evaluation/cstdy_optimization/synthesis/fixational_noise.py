@@ -35,18 +35,13 @@ class WhiteNoiseSimulator(datamux.PipeTask):
         x_sim = np.linspace(s.x_entry, s.x_exit, num_samples) + self.generate_white_noise(num_samples) * self.xy_scale
         y_sim = np.linspace(s.y_entry, s.y_exit, num_samples) + self.generate_white_noise(num_samples) * self.xy_scale
         return pd.DataFrame(dict(t=t_sim, x=x_sim, y=y_sim, event="saccade")).to_dict("records")
+    
+    def close(self) -> None:
+        self.target.put(self.last_item)
 
-    def __call__(self, *args, **kwargs) -> int | None:
-        item = self.source.get()
-        if item == datamux.END_OF_STREAM:
-            self.logger.debug("got EOF token")
-            self.target.put(self.last_item)
-            self.target.put(item)
-            self.logger.debug("passed EOF token")
-            return 0
-        if item is None or not isinstance(item, (Fixation, Saccade)):
+    def step(self, item) -> int | None:
+        if not isinstance(item, (Fixation, Saccade)):
             return
-        
         if isinstance(item, Saccade):
             data = self.synthesize_saccade(item)
         if isinstance(item, Fixation):
@@ -93,18 +88,13 @@ class PinkNoiseSimulator(datamux.PipeTask):
         x_sim = np.linspace(s.x_entry, s.x_exit, num_samples) + self.generate_pink_noise(num_samples) * self.xy_scale
         y_sim = np.linspace(s.y_entry, s.y_exit, num_samples) + self.generate_pink_noise(num_samples) * self.xy_scale
         return pd.DataFrame(dict(t=t_sim, x=x_sim, y=y_sim, event="saccade")).to_dict("records")
+    
+    def close(self) -> None:
+        self.target.put(self.last_item)
 
-    def __call__(self, *args, **kwargs) -> int | None:
-        item = self.source.get()
-        if item == datamux.END_OF_STREAM:
-            self.logger.debug("got EOF token")
-            self.target.put(self.last_item)
-            self.target.put(item)
-            self.logger.debug("passed EOF token")
-            return 0
-        if item is None or not isinstance(item, (Fixation, Saccade)):
+    def step(self, item) -> int | None:
+        if not isinstance(item, (Fixation, Saccade)):
             return
-        
         if isinstance(item, Saccade):
             data = self.synthesize_saccade(item)
         if isinstance(item, Fixation):

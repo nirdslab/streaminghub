@@ -20,16 +20,7 @@ class FileWriter(datamux.SinkTask):
             os.remove(self.fp)
         self.logger.info(f"File: {self.fp}")
 
-    def __call__(self, *args, **kwargs) -> int | None:
-        item = self.source.get()
-        if item == datamux.END_OF_STREAM:
-            self.logger.debug("got EOF token")
-            self.completed.set()
-            self.logger.debug("set EOF flag")
-            return 0
-        if item is None:
-            return
-        
+    def step(self, item) -> int | None:
         with open(self.fp, "a") as f:
             if isinstance(item, dict):
                 json.dump(item, f)

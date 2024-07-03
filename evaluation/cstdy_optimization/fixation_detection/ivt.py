@@ -127,8 +127,20 @@ class IVT(datamux.PipeTask):
                 vel_mean=vel_mean,
                 vel_peak=vel_peak,
             )
+        
+    def close(self) -> None:
+        # release accumulated points
+        if self.state == SACCADE_STATE:
+            sacc = self.make_saccade(None)
+            if sacc is not None:
+                self.target.put(sacc)
+        if self.state == FIXATION_STATE:
+            fxtn = self.make_fixation(None, check_duration=False)
+            if fxtn is not None:
+                self.target.put(fxtn)
 
-    def __call__(self, *args, **kwargs) -> int | None:
+
+    def step(self, item) -> int | None:
         """
         compress gaze stream (t, x, y, d) into a fixation/saccade event stream
         v_threshold = 600 #px/s -> normal threshold is 0.5 o5 0.6 px/ms
@@ -137,29 +149,10 @@ class IVT(datamux.PipeTask):
 
         """
 
-        t: float
-        x: float
-        y: float
-
-        item = self.source.get()
-        if item == datamux.END_OF_STREAM:
-            self.logger.debug(f"got EOF token")
-            # release accumulated points
-            if self.state == SACCADE_STATE:
-                sacc = self.make_saccade(None)
-                if sacc is not None:
-                    self.target.put(sacc)
-            if self.state == FIXATION_STATE:
-                fxtn = self.make_fixation(None, check_duration=False)
-                if fxtn is not None:
-                    self.target.put(fxtn)
-            self.target.put(item)
-            self.logger.debug(f"passed EOF token")
-            return 0
-        if item is None:
-            return
-
-        t, x, y = item["t"], item["x"], item["y"]
+        t: float = item["t"]
+        x: float = item["x"]
+        y: float = item["y"]
+        
         if np.isnan(x) or np.isnan(y):
             self.logger.debug(f"ignoring nan at t={t}")
             return
