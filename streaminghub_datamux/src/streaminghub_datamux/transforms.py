@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import signal
 from typing import Literal
+from argparse import Namespace
 
 import streaminghub_datamux as dm
 
@@ -15,6 +16,7 @@ class CompositeTask(dm.ITask):
         # start composite task on a thread, not a process.
         # internal tasks will still be processes
         super().__init__(mode="thread")
+        assert len(tasks) > 0
         self.tasks = tasks
         self.run_self = run_self
         self.transform = transform
@@ -40,6 +42,7 @@ class CompositeTask(dm.ITask):
 class Broadcast(CompositeTask):
 
     source: dm.Queue
+    completed: dm.Flag
 
     def __init__(self, *tasks: dm.PipeTask | dm.SinkTask) -> None:
         super().__init__(*tasks, run_self=True)
@@ -54,6 +57,7 @@ class Broadcast(CompositeTask):
             assert isinstance(task, (dm.PipeTask, dm.SinkTask, dm.Pipeline))
             task.source.put(copy.deepcopy(item))
         if item == dm.END_OF_STREAM:
+            self.completed.set()
             return 0
 
 
@@ -67,17 +71,17 @@ class MergedSource(CompositeTask):
 
     def __init__(
         self,
-        t1: dm.SourceTask,
-        t2: dm.SourceTask,
-        *tn: dm.SourceTask,
-        dtype: Literal["list", "dict"] = "list",
+        t1: dm.SourceTask | Pipeline,
+        t2: dm.SourceTask | Pipeline,
+        *tn: dm.SourceTask | Pipeline,
+        agg: Literal["list", "dict", "obj"] = "obj",
         transform=None,
     ) -> None:
         # expect at least two tasks to merge
         super().__init__(t1, t2, *tn, run_self=True)
         self.target = dm.Queue(timeout=0.001)
-        self.sync_state = [None] * len(self.tasks)
-        self.dtype = dtype
+        self.sync_state: list[None | dict] = [None] * len(self.tasks)
+        self.agg = agg
         self.transform = transform
 
     def __call__(self, *args, **kwargs) -> int | None:
@@ -96,59 +100,79 @@ class MergedSource(CompositeTask):
             self.target.put(dm.END_OF_STREAM)
             return 0
 
-        # prepare output based on given dtype
-        if self.dtype == "list":
+        # prepare output based on given agg
+        if self.agg == "list":
             output = copy.deepcopy(self.sync_state)
-        elif self.dtype == "dict":
+        elif self.agg == "dict":
             output = {}
             for i, task in enumerate(self.tasks):
-                output[task.name] = copy.deepcopy(self.sync_state[i])
-
+                state = self.sync_state[i]
+                if state is not None:
+                    output[task.name] = dict(**state)
+        elif self.agg == "obj":
+            output = Namespace(**{task.name: None for task in self.tasks})
+            for i, task in enumerate(self.tasks):
+                state = self.sync_state[i]
+                if state is not None:
+                    setattr(output, task.name, Namespace(**state))
         if self.transform is not None:
             output = self.transform(output)
-        
+
         self.target.put(output)
 
 
 class Pipeline(CompositeTask):
 
+    # data source for the pipeline. if pipeline begins with source, its assigned automatically
     source: dm.Queue
+
+    # output of the pipeline
     target: dm.Queue
+
+    # flag to check for completion
     completed: dm.Flag
 
     def __init__(self, *tasks: dm.ITask) -> None:
         super().__init__(*tasks, run_self=False)
-        for i, task in enumerate(self.tasks):
-            if isinstance(task, (dm.SourceTask, MergedSource)):
-                assert i == 0
-                q = task.target
-                self.logger.debug(f"task={task.name}, source=None, target={task.target}")
-            elif isinstance(task, dm.SinkTask):
-                assert i == len(self.tasks) - 1
-                task.source = q
-                self.completed = task.completed
-                self.logger.debug(f"task={task.name}, source={task.source}, target=None")
-            elif isinstance(task, dm.PipeTask):
-                if i == 0:
-                    # source is empty
-                    task.source = dm.Queue(empty=True)
-                    q = task.target
-                    self.logger.debug(f"task={task.name}, source={task.source}, target={task.target}")
-                else:
-                    # source is non-empty
-                    task.source = q
-                    q = task.target
-                    self.logger.debug(f"task={task.name}, source={task.source}, target={task.target}")
-            elif isinstance(task, Pipeline):
-                assert i > 0
-                # source is non-empty
-                assert q is not None
-                task.source.assign(q)
-                q = task.target
-                self.logger.debug(f"task={task.name}, source={task.source}, target={task.target}")
-        self.target = q
 
-    def run(self, duration: float | None = None):
+        # handle first task
+        first = self.tasks[0]
+        if isinstance(first, (dm.SourceTask, MergedSource)):
+            self.source = None  # type: ignore
+            self.target = first.target
+            self.logger.info(f"task={first.name}, source=None, target={first.target}")
+        elif isinstance(first, (dm.PipeTask, dm.Pipeline)):
+            self.source = first.source
+            self.target = first.target
+        else:
+            raise ValueError(first)
+
+        # handle intermediate tasks
+        for task in self.tasks[1:-1]:
+            assert isinstance(task, (dm.PipeTask, Pipeline))
+            task.source.assign(self.target)
+            self.target = task.target
+            self.logger.info(f"task={task.name}, source={task.source}, target={task.target}")
+
+        # handle last task
+        last = self.tasks[-1]
+        if first == last:
+            pass
+        elif isinstance(last, Pipeline):
+            last.source.assign(self.target)
+            self.target = last.target
+            self.completed = last.completed
+            self.logger.info(f"task={last.name}, source={last.source}, target={last.target}")
+        elif isinstance(last, (dm.SinkTask, Broadcast)):
+            # print(self.target.q)
+            last.source.assign(self.target)
+            self.target = None  # type: ignore
+            self.completed = last.completed
+            self.logger.info(f"task={last.name}, source={last.source}, target=None")
+        else:
+            raise ValueError(last)
+
+    def run(self, duration: float | None = None) -> None:
         self.start()
         self.logger.info("pipeline started")
         try:
@@ -168,10 +192,29 @@ class ExpressionMap:
     def __init__(self, mapping: dict[str, str]) -> None:
         self.mapping = mapping
 
-    def __call__(self, msg: dict):
+    def __call__(self, msg: dict | Namespace):
         if msg == dm.END_OF_STREAM:
             return msg
         target = {}
-        for k, expr in self.mapping.items():
-            target[k] = eval(expr, {**msg, **msg.get("index", {}), **msg.get("value", {})})
+        if isinstance(msg, dict):
+            for k, expr in self.mapping.items():
+                target[k] = eval(expr, {**msg, **msg.get("index", {}), **msg.get("value", {})})
+        elif isinstance(msg, Namespace):
+            for k, expr in self.mapping.items():
+                target[k] = eval(expr, dict(msg._get_kwargs()))
         return target
+
+
+class Filter(dm.PipeTask):
+
+    def __init__(self, condition: str) -> None:
+        super().__init__(transform=None)
+        self.condition = condition
+
+    def close(self) -> None:
+        pass
+
+    def step(self, item) -> int | None:
+        check = eval(self.condition, item)
+        if check == True:
+            self.target.put(item)
