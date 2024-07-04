@@ -1,9 +1,9 @@
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 
 FREQ = 60
 
 
-class SimulateStream(datamux.SourceTask):
+class SimulateStream(dm.SourceTask):
 
     t = 0.0
     dt = 1.0 / FREQ
@@ -11,18 +11,18 @@ class SimulateStream(datamux.SourceTask):
     def __call__(self, *args, **kwargs) -> None:
         item = dict(t=self.t, x=0, y=0, d=0)
         self.target.put(item)
-        datamux.sleep(self.dt)
+        dm.sleep(self.dt)
         self.t += self.dt
 
 
-class LogDataStream(datamux.SinkTask):
+class LogDataStream(dm.SinkTask):
 
     def step(self, item) -> int | None:
         print(f"[{type(item).__name__}]", item)
 
 
 if __name__ == "__main__":
-    pipeline = datamux.Pipeline(
+    pipeline = dm.Pipeline(
         SimulateStream(),
         LogDataStream(),
     )

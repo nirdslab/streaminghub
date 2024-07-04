@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 
 from fixation_detection.typing import Fixation, Saccade
 
 
-class WhiteNoiseSimulator(datamux.PipeTask):
+class WhiteNoiseSimulator(dm.PipeTask):
     """
     Simulate iid Gaussian Noise Conditioned on Most Recent Fixation
 
@@ -51,7 +51,7 @@ class WhiteNoiseSimulator(datamux.PipeTask):
         self.last_item = data[-1]
 
 
-class PinkNoiseSimulator(datamux.PipeTask):
+class PinkNoiseSimulator(dm.PipeTask):
     """
     Simulate Pink Noise Conditioned on Most Recent Fixation
 

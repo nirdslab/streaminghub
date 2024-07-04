@@ -8,13 +8,13 @@ over StreamingHub
 
 import logging
 
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 
 
 def main():
 
-    api = datamux.API()
-    sink = datamux.Queue()
+    api = dm.API()
+    sink = dm.Queue()
 
     node_id = "pupil_core"
 
@@ -31,7 +31,7 @@ def main():
     while True:
         item = sink.get()
         logger.info(f"received item: {item}")
-        if item == datamux.END_OF_STREAM:
+        if item == dm.END_OF_STREAM:
             logger.debug("got EOF token")
             break
     api.stop_task(ack.randseq)

@@ -6,7 +6,7 @@ from typing import Callable, Coroutine
 
 import pickle
 import base64
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 import streaminghub_pydfds as dfds
 from streaminghub_datamux.rpc import create_rpc_client
 
@@ -21,7 +21,7 @@ class AsyncExecutor(Thread):
         self.loop = asyncio.new_event_loop()
         self.outgoing = asyncio.Queue()
         self.incoming = asyncio.Queue()
-        self.handlers: dict[bytes, datamux.Queue] = defaultdict(lambda: datamux.Queue())
+        self.handlers: dict[bytes, dm.Queue] = defaultdict(lambda: dm.Queue())
 
     def run(self):
         asyncio.set_event_loop(self.loop)
@@ -42,15 +42,15 @@ class AsyncExecutor(Thread):
         self,
         topic: bytes,
         content: dict,
-    ) -> datamux.Queue:
+    ) -> dm.Queue:
         self.logger.debug(f">: {topic}: {content}")
         self.submit(self.outgoing.put((topic, content))).result()
         return self.handlers[topic]
 
 
-class RemoteAPI(datamux.IAPI):
+class RemoteAPI(dm.IAPI):
     """
-    Remote API for DataMux.
+    Remote API for dm.
 
     It provides three modes of execution.
 
@@ -134,12 +134,12 @@ class RemoteAPI(datamux.IAPI):
         collection_id: str,
         stream_id: str,
         attrs: dict[str, str],
-        sink: datamux.Queue,
-        transform: Callable = datamux.identity,
+        sink: dm.Queue,
+        transform: Callable = dm.identity,
         rate_limit: bool = True,
         strict_time: bool = True,
         use_relative_ts: bool = True,
-    ) -> datamux.StreamAck:
+    ) -> dm.StreamAck:
         topic = TOPIC_REPLAY_COLLECTION_STREAM
         content = dict(
             collection_id=collection_id,
@@ -152,7 +152,7 @@ class RemoteAPI(datamux.IAPI):
         )
         info = self.executor.send(topic, content).get()
         assert info is not None
-        ack = datamux.StreamAck(**info)
+        ack = dm.StreamAck(**info)
         assert ack.randseq is not None
         stream_topic = ack.randseq.encode()
         self.executor.handlers[stream_topic] = sink
@@ -163,7 +163,7 @@ class RemoteAPI(datamux.IAPI):
         collection_id: str,
         stream_id: str,
         attrs: dict[str, str],
-    ) -> datamux.StreamAck:
+    ) -> dm.StreamAck:
         topic = TOPIC_PUBLISH_COLLECTION_STREAM
         content = dict(
             collection_id=collection_id,
@@ -172,7 +172,7 @@ class RemoteAPI(datamux.IAPI):
         )
         info = self.executor.send(topic, content).get()
         assert info is not None
-        ack = datamux.StreamAck(**info)
+        ack = dm.StreamAck(**info)
         return ack
 
     def list_live_nodes(
@@ -201,12 +201,12 @@ class RemoteAPI(datamux.IAPI):
         node_id: str,
         stream_id: str,
         attrs: dict,
-        sink: datamux.Queue,
-        transform: Callable = datamux.identity,
+        sink: dm.Queue,
+        transform: Callable = dm.identity,
         rate_limit: bool = True,
         strict_time: bool = True,
         use_relative_ts: bool = True,
-    ) -> datamux.StreamAck:
+    ) -> dm.StreamAck:
         topic = TOPIC_READ_LIVE_STREAM
         content = dict(
             node_id=node_id,
@@ -219,7 +219,7 @@ class RemoteAPI(datamux.IAPI):
         )
         info = self.executor.send(topic, content).get()
         assert info is not None
-        ack = datamux.StreamAck(**info)
+        ack = dm.StreamAck(**info)
         assert ack.randseq is not None
         stream_topic = ack.randseq.encode()
         self.executor.handlers[stream_topic] = sink
@@ -228,27 +228,27 @@ class RemoteAPI(datamux.IAPI):
     def stop_task(
         self,
         randseq: str,
-    ) -> datamux.StreamAck:
+    ) -> dm.StreamAck:
         topic = TOPIC_STOP_TASK
         content = dict(randseq=randseq)
         info = self.executor.send(topic, content).get()
         assert info is not None
-        ack = datamux.StreamAck(**info)
+        ack = dm.StreamAck(**info)
         return ack
 
     def attach(
         self,
         stream: dfds.Stream,
-        transform: Callable = datamux.identity,
+        transform: Callable = dm.identity,
         rate_limit: bool = True,
         strict_time: bool = True,
         use_relative_ts: bool = True,
-    ) -> datamux.SourceTask:
+    ) -> dm.SourceTask:
         mode = stream.attrs.get("mode")
         assert mode in ["proxy", "replay"]
         node = stream.node
         assert node is not None
-        return datamux.APIStreamer(
+        return dm.APIStreamer(
             self,
             mode,
             node.id,

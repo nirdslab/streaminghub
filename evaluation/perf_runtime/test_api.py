@@ -5,18 +5,18 @@ import timeit
 from statistics import stdev
 
 import pandas as pd
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 from test_configs import data_config, runs
 from tqdm import tqdm
 
 
 def connect():
-    api = datamux.API()
+    api = dm.API()
     return api
 
 
 def timeit_replay(
-    api: datamux.API,
+    api: dm.API,
     dataset_name: str,
     num_runs: int,
     num_points: int,
@@ -26,7 +26,7 @@ def timeit_replay(
     iter = tqdm(range(num_runs))
     for _ in iter:
         args = data_config[dataset_name]
-        sink = datamux.Queue()
+        sink = dm.Queue()
         _ = api.list_collections()
         ack = api.replay_collection_stream(**args, sink=sink)
         assert ack.randseq is not None
@@ -35,7 +35,7 @@ def timeit_replay(
         t_jitter = []
         for i in range(num_points + 1):
             item = sink.get()
-            if item == datamux.END_OF_STREAM:
+            if item == dm.END_OF_STREAM:
                 logger.debug("got EOF token")
                 break
             if i == 0:

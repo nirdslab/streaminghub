@@ -5,12 +5,11 @@ from typing import Callable
 
 import numpy as np
 
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 import streaminghub_pydfds as dfds
-from streaminghub_datamux.typing import Queue
 
 
-class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
+class CollectionManager(dm.Reader[dfds.Collection], dm.IServe):
     """
     Stream Reader for DFDS Collections.
 
@@ -74,7 +73,7 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: Queue,
+        q: dm.Queue,
         transform: Callable,
     ) -> dict:
         collection = self.__collections[source_id]
@@ -122,7 +121,7 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: Queue,
+        q: dm.Queue,
         transform: Callable,
         state: dict,
         rate_limit: bool = True,
@@ -177,12 +176,12 @@ class CollectionManager(datamux.Reader[dfds.Collection], datamux.IServe):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: Queue,
+        q: dm.Queue,
         transform: Callable,
         state: dict,
     ) -> None:
         # termination indicator
-        eof = datamux.END_OF_STREAM
+        eof = dm.END_OF_STREAM
         q.put(transform(eof))
         self.logger.info(f"replay ended")
 

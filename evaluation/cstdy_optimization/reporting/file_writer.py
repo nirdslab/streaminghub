@@ -3,10 +3,10 @@ import os
 
 import pydantic
 
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 
 
-class FileWriter(datamux.SinkTask):
+class FileWriter(dm.SinkTask):
 
     def __init__(self, *, name: str, log_dir: str, **kwargs) -> None:
         super().__init__()

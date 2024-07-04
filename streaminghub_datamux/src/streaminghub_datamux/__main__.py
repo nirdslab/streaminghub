@@ -2,7 +2,6 @@ import argparse
 import asyncio
 import logging
 
-import streaminghub_datamux as datamux
 from streaminghub_datamux.remote import DataMuxServer
 
 

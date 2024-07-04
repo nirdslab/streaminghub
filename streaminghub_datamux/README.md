@@ -37,7 +37,7 @@ In your Python script, first import datamux as follows.
 
 ```python
 # import datamux
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 
 ```
 
@@ -45,10 +45,10 @@ Next, instantiate the Datamux API. Here, you have two options:
 
 ```python
 # Option A - Local API (runs locally)
-api = datamux.API()
+api = dm.API()
 
 # Option B - Remote API (runs over a remote datamux server)
-api = datamux.RemoteAPI(rpc_name="<rpc>", codec_name="<codec>")
+api = dm.RemoteAPI(rpc_name="<rpc>", codec_name="<codec>")
 await api.connect(server_host="<host>", server_port=<port>)
 ```
 

@@ -1,14 +1,14 @@
 from typing import Callable
 
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 import streaminghub_pydfds as dfds
 
 from .managers import CollectionManager, ProxyManager
 
 
-class API(datamux.IAPI):
+class API(dm.IAPI):
     """
-    API for DataMux.
+    API for dm.
 
     It provides three modes of execution.
 
@@ -24,11 +24,11 @@ class API(datamux.IAPI):
 
         """
         super().__init__()
-        datamux.init_logging()
+        dm.init_logging()
         self.config = dfds.load_config()
         self.reader_c = CollectionManager(self.config)
         self.proxy_n = ProxyManager()
-        self.context: dict[str, datamux.Flag] = {}
+        self.context: dict[str, dm.Flag] = {}
 
         # setup CollectionManager
         self.reader_c.setup()
@@ -51,16 +51,16 @@ class API(datamux.IAPI):
         collection_id: str,
         stream_id: str,
         attrs: dict,
-        sink: datamux.Queue,
-        transform: Callable = datamux.identity,
+        sink: dm.Queue,
+        transform: Callable = dm.identity,
         rate_limit: bool = True,
         strict_time: bool = True,
         use_relative_ts: bool = True,
-    ) -> datamux.StreamAck:
-        randseq = datamux.prefix + datamux.gen_randseq()
-        if isinstance(transform, datamux.Enveloper):
+    ) -> dm.StreamAck:
+        randseq = dm.prefix + dm.gen_randseq()
+        if isinstance(transform, dm.Enveloper):
             transform.prefix = randseq.encode()
-        self.context[randseq] = datamux.create_flag()
+        self.context[randseq] = dm.create_flag()
         self.reader_c.attach(
             source_id=collection_id,
             stream_id=stream_id,
@@ -72,16 +72,16 @@ class API(datamux.IAPI):
             strict_time=strict_time,
             use_relative_ts=use_relative_ts,
         )
-        return datamux.StreamAck(status=True, randseq=randseq)
+        return dm.StreamAck(status=True, randseq=randseq)
 
     def publish_collection_stream(
         self,
         collection_id: str,
         stream_id: str,
         attrs: dict,
-    ) -> datamux.StreamAck:
+    ) -> dm.StreamAck:
         self.reader_c.serve(collection_id, stream_id, attrs=attrs)
-        return datamux.StreamAck(status=True)
+        return dm.StreamAck(status=True)
 
     def list_live_nodes(
         self,
@@ -102,16 +102,16 @@ class API(datamux.IAPI):
         node_id: str,
         stream_id: str,
         attrs: dict,
-        sink: datamux.Queue,
-        transform: Callable = datamux.identity,
+        sink: dm.Queue,
+        transform: Callable = dm.identity,
         rate_limit: bool = True,
         strict_time: bool = True,
         use_relative_ts: bool = True,
-    ) -> datamux.StreamAck:
-        randseq = datamux.gen_randseq()
-        self.context[randseq] = datamux.create_flag()
+    ) -> dm.StreamAck:
+        randseq = dm.gen_randseq()
+        self.context[randseq] = dm.create_flag()
         self.proxy_n.setup(proxy_id=node_id)
-        if isinstance(transform, datamux.Enveloper):
+        if isinstance(transform, dm.Enveloper):
             transform.prefix = randseq.encode()
         self.proxy_n.attach(
             source_id=node_id,
@@ -124,25 +124,25 @@ class API(datamux.IAPI):
             strict_time=strict_time,
             use_relative_ts=use_relative_ts,
         )
-        return datamux.StreamAck(status=True, randseq=randseq)
+        return dm.StreamAck(status=True, randseq=randseq)
 
     def stop_task(
         self,
         randseq: str,
-    ) -> datamux.StreamAck:
+    ) -> dm.StreamAck:
         if randseq in self.context:
             flag = self.context.pop(randseq)
             flag.set()
-        return datamux.StreamAck(status=True)
+        return dm.StreamAck(status=True)
 
     def attach(
         self,
         stream: dfds.Stream,
-        transform: Callable = datamux.identity,
+        transform: Callable = dm.identity,
         rate_limit: bool = True,
         strict_time: bool = True,
         use_relative_ts: bool = True,
-    ) -> datamux.SourceTask:
+    ) -> dm.SourceTask:
         mode = stream.attrs.get("mode")
         assert mode in ["proxy", "replay"]
         node = stream.node
@@ -150,7 +150,7 @@ class API(datamux.IAPI):
         node_id = node.id
         stream_id = stream.attrs.get("id")
         assert stream_id is not None
-        return datamux.APIStreamer(
+        return dm.APIStreamer(
             self,
             mode,
             node_id,

@@ -1,14 +1,14 @@
 import logging
 
 import pylsl
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 import streaminghub_pydfds as dfds
 from typing import Callable
 
 from .util import stream_info_to_stream, stream_inlet_to_stream
 
 
-class LSLProxy(datamux.Reader[dfds.Node]):
+class LSLProxy(dm.Reader[dfds.Node]):
     """
     LabStreamingLayer Proxy for Real-Time Data Streaming
 
@@ -62,7 +62,7 @@ class LSLProxy(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: datamux.Queue,
+        q: dm.Queue,
         transform: Callable,
     ) -> dict:
         assert source_id == "lsl"
@@ -102,7 +102,7 @@ class LSLProxy(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: datamux.Queue,
+        q: dm.Queue,
         transform: Callable,
         state: dict,
         rate_limit: bool = True,
@@ -133,13 +133,13 @@ class LSLProxy(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: datamux.Queue,
+        q: dm.Queue,
         transform: Callable,
         state: dict,
     ) -> None:
         inlet = state["inlet"]
         # termination indicator
-        eof = datamux.END_OF_STREAM
+        eof = dm.END_OF_STREAM
         inlet.close_stream()
         q.put(transform(eof))
         self.logger.info("relay ended")

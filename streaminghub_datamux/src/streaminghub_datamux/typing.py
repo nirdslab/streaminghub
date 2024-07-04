@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 import streaminghub_pydfds as dfds
 
-from . import util as datamux
+from . import util as dm
 
 END_OF_STREAM = {}  # NOTE do not change
 Q = multiprocessing.Queue
@@ -116,7 +116,7 @@ class ISource(abc.ABC):
         **kwargs,
     ):
         signal.signal(signal.SIGINT, lambda *args: self.__signal__(flag, *args))
-        datamux.init_logging()
+        dm.init_logging()
         state = self.on_attach(source_id, stream_id, attrs, q, transform, **kwargs)
         self.logger.debug("attached to stream")
         while not flag.is_set():
@@ -248,7 +248,7 @@ class ITask(abc.ABC):
     def __run__(self, *args, **kwargs) -> None:
         if self.mode == "process":
             signal.signal(signal.SIGINT, self.__signal__)
-        datamux.init_logging()
+        dm.init_logging()
         while not self.flag:
             try:
                 retval = self(*args, **kwargs)
@@ -388,7 +388,7 @@ class IAPI(abc.ABC):
         stream_id: str,
         attrs: dict,
         sink: Queue,
-        transform: Callable = datamux.identity,
+        transform: Callable = dm.identity,
         rate_limit: bool = True,
         strict_time: bool = True,
         use_relative_ts: bool = True,
@@ -450,7 +450,7 @@ class IAPI(abc.ABC):
         stream_id: str,
         attrs: dict,
         sink: Queue,
-        transform: Callable = datamux.identity,
+        transform: Callable = dm.identity,
         rate_limit: bool = True,
         strict_time: bool = True,
         use_relative_ts: bool = True,

@@ -515,23 +515,23 @@ FREQ = <span class="hljs-number">60</span>
 
 FREQ = <span class="hljs-number">60</span>
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SimulateStream</span><span class="hljs-params">(datamux.SourceTask)</span>:</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SimulateStream</span><span class="hljs-params">(dm.SourceTask)</span>:</span>
     t = <span class="hljs-number">0.0</span>
     dt = <span class="hljs-number">1.0</span> / FREQ
     <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__call__</span><span class="hljs-params">(self, *args, **kwargs)</span> -&gt; <span class="hljs-keyword">None</span>:</span>
         item = dict(t=self.t, x=<span class="hljs-number">0</span>, y=<span class="hljs-number">0</span>, d=<span class="hljs-number">0</span>)
         self.target.put(item)
-        datamux.sleep(self.dt)
+        dm.sleep(self.dt)
         self.t += self.dt
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LogDataStream</span><span class="hljs-params">(datamux.SinkTask)</span>:</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LogDataStream</span><span class="hljs-params">(dm.SinkTask)</span>:</span>
     <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__call__</span><span class="hljs-params">(self, *args, **kwargs)</span> -&gt; <span class="hljs-keyword">None</span>:</span>
         item = self.source.get()
         <span class="hljs-keyword">if</span> item <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span>:
             print(<span class="hljs-string">f"[<span class="hljs-subst">{type(item).__name__}</span>]"</span>, item)
 
 <span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">"__main__"</span>:
-    pipeline = datamux.Pipeline(
+    pipeline = dm.Pipeline(
         SimulateStream(),
         LogDataStream(),
     )

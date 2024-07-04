@@ -1,4 +1,4 @@
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 
 from .proxy import PupilCoreProxy as Proxy
 
@@ -14,9 +14,9 @@ def test():
     assert len(streams) > 0
     print(streams)
     stream = streams[0]
-    queue = datamux.Queue()
-    transform = datamux.identity
-    flag = datamux.create_flag()
+    queue = dm.Queue()
+    transform = dm.identity
+    flag = dm.create_flag()
     proxy.attach(node.id, stream.name, stream.attrs, queue, transform, flag)
 
     while True:

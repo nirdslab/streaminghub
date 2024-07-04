@@ -6,13 +6,13 @@ from typing import Callable
 
 import msgpack
 import numpy as np
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 import streaminghub_pydfds as dfds
 import zmq
 from PIL import Image
 
 
-class PupilCoreProxy(datamux.Reader[dfds.Node]):
+class PupilCoreProxy(dm.Reader[dfds.Node]):
     """
     Pupil Core Proxy for Real-Time Data Streaming
 
@@ -81,7 +81,7 @@ class PupilCoreProxy(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: datamux.Queue,
+        q: dm.Queue,
         transform: Callable,
     ) -> dict:
         conn_str = f"tcp://{self.ctrl_ip}:{self.sub_port}"
@@ -102,7 +102,7 @@ class PupilCoreProxy(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: datamux.Queue,
+        q: dm.Queue,
         transform: Callable,
         state: dict,
         rate_limit: bool = True,
@@ -131,7 +131,7 @@ class PupilCoreProxy(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: datamux.Queue,
+        q: dm.Queue,
         transform: Callable,
         state: dict,
     ) -> None:
@@ -148,7 +148,7 @@ class PupilCoreProxy(datamux.Reader[dfds.Node]):
         topic: str,
         message: dict | None,
         frame: np.ndarray | None,
-        queue: datamux.Queue,
+        queue: dm.Queue,
         transform: Callable,
     ) -> None:
         t = 0.0

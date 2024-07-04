@@ -16,13 +16,13 @@ import random
 import sys
 import time
 
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 import streaminghub_pydfds as dfds
 
 SYNTAX = "datasource_simulate [path/to/datasource/spec]"
 
 logger = logging.getLogger(__name__)
-api = datamux.API()
+api = dm.API()
 
 
 async def emit(source_id: str, spec: dfds.Collection, stream_id: str):
@@ -45,7 +45,7 @@ async def emit(source_id: str, spec: dfds.Collection, stream_id: str):
 
 
 async def begin_streaming_random_data(spec: dfds.Collection):
-    source_id = datamux.gen_randseq()
+    source_id = dm.gen_randseq()
     try:
         logger.info(
             f"DataSource [{source_id}]: Device: {spec.device.model}, {spec.device.manufacturer} ({spec.device.category})"

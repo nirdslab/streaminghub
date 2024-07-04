@@ -4,7 +4,7 @@ from typing import Literal
 
 import numpy as np
 
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 
 from .sg import SG
 from .typing import Fixation, Point, PointX, Saccade
@@ -17,7 +17,7 @@ SG_DERIV2 = 2
 BLANK_POINT = Point(t=0, x=0, y=0)
 
 
-class IVT(datamux.PipeTask):
+class IVT(dm.PipeTask):
 
     def __init__(
         self,

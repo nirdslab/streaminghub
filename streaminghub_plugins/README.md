@@ -45,10 +45,10 @@ StreamingHub provides three base classes for extension via plugins.
 Create a python script `my_custom_proxy.py` and define new class which extends the `streaminghub_datamux.Reader` base class.
 
 ```python
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 import streaminghub_pydfds as dfds
 
-class CustomProxy(datamux.Reader[dfds.Node]):
+class CustomProxy(dm.Reader[dfds.Node]):
     ...
 
 ```

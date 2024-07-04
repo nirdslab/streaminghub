@@ -15,7 +15,7 @@ The Python script looks as follows:
 from fixation_detection import IVT
 from reporting import LogWriter
 
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 
 if __name__ == "__main__":
 
@@ -30,17 +30,17 @@ if __name__ == "__main__":
     vt = 10
 
     # setup datamux api
-    api = datamux.API()
+    api = dm.API()
 
     streams = api.list_collection_streams(dataset)  # for recorded data (ADHD_SIN)
     # streams = api.list_live_streams("pupil_core")  # for live data (pupil_core)
 
     # get the first stream
     stream = streams[0]
-    datamux.logging.info(stream.attrs)
+    dm.logging.info(stream.attrs)
 
     # define a transform to map data into (t,x,y,d) format
-    preprocessor = datamux.ExpressionMap({
+    preprocessor = dm.ExpressionMap({
         "t": "float(t)",
         "x": "float(lx + rx) / 2",
         "y": "float(ly + ry) / 2",
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     })
 
     # define pipeline
-    pipeline_A = datamux.Pipeline(
+    pipeline_A = dm.Pipeline(
         api.attach(stream, transform=preprocessor),
         # IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
         LogWriter(name="ivt", **stream.attrs),
@@ -257,7 +257,7 @@ Now, let’s try to stream data from the dataset we just generated. For this, le
 from fixation_detection import IVT
 from reporting import LogWriter
 
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 
 if __name__ == "__main__":
 
@@ -272,17 +272,17 @@ if __name__ == "__main__":
     vt = 10
 
     # setup datamux api
-    api = datamux.API()
+    api = dm.API()
 
     streams = api.list_collection_streams(dataset)  # for recorded data (ADHD_SIN)
     # stream = api.list_live_streams("pupil_core")  # for live data (pupil_core)
 
     # get the first stream
     stream = streams[0]
-    datamux.logging.info(stream.attrs)
+    dm.logging.info(stream.attrs)
 
     # define a transform to map data into (t,x,y,d) format and handle missing values
-    preprocessor = datamux.ExpressionMap({
+    preprocessor = dm.ExpressionMap({
         "t": "float(t)",
         "x": "float(lx + rx) / 2",
         "y": "float(ly + ry) / 2",
@@ -290,7 +290,7 @@ if __name__ == "__main__":
     })
 
     # define pipeline
-    pipeline_A = datamux.Pipeline(
+    pipeline_A = dm.Pipeline(
         api.attach(stream, transform=preprocessor),
         # IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
         LogWriter(name="ivt", **stream.attrs),
@@ -310,7 +310,7 @@ Now, you should see a recording from the `ADHD_SIN` dataset being logged on the 
 
 ![14](assets/14.png)
 
-Moreover, the line `datamux.logging.info(stream.attrs)` in our Python script logs any metadata in the selected recording (i.e., `stream`).
+Moreover, the line `dm.logging.info(stream.attrs)` in our Python script logs any metadata in the selected recording (i.e., `stream`).
 
 ```json
 {
@@ -329,7 +329,7 @@ Moreover, the line `datamux.logging.info(stream.attrs)` in our Python script log
 </aside>
 
 ```python
-preprocessor = datamux.ExpressionMap({
+preprocessor = dm.ExpressionMap({
     "t": "float(t)",
     "x": "float(lx + rx) / 2",
     "y": "float(ly + ry) / 2",
@@ -340,7 +340,7 @@ preprocessor = datamux.ExpressionMap({
 By default, stream outputs will be passed on as-is. However, if you set the transform to an `ExpressionMap`, this tells `DataMux` to transform data before passing on, and specifies how to. The `ExpressionMap` constructor takes a dictionary as argument, whose keys tell `DataMux` what fields should be generated, and whose values provide `DataMux` an expression to generate them. Each expression is evaluated with all input variables in global scope, and hence, it will output the correct value.
 
 <aside>
-<img src="https://www.notion.so/icons/help-alternate_green.svg" alt="https://www.notion.so/icons/help-alternate_green.svg" width="40px" /> If a `datamux.ExpressionMap` is specified, the next pipeline node will only receive the keys/values specified in it.
+<img src="https://www.notion.so/icons/help-alternate_green.svg" alt="https://www.notion.so/icons/help-alternate_green.svg" width="40px" /> If a `dm.ExpressionMap` is specified, the next pipeline node will only receive the keys/values specified in it.
 
 </aside>
 
@@ -352,7 +352,7 @@ Now, let’s uncomment the 2nd step of the pipeline. This turns our script from,
 
 ```python
 # define pipeline
-pipeline_A = datamux.Pipeline(
+pipeline_A = dm.Pipeline(
     api.attach(stream, transform=preprocessor),
     # IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
     LogWriter(name="ivt", **stream.attrs),
@@ -363,7 +363,7 @@ pipeline_A = datamux.Pipeline(
 
 ```python
 # define pipeline
-pipeline_A = datamux.Pipeline(
+pipeline_A = dm.Pipeline(
     api.attach(stream, transform=preprocessor),
     IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
     LogWriter(name="ivt", **stream.attrs),
@@ -387,12 +387,12 @@ stream = api.list_live_streams("pupil_core")  # for live data (pupil_core)
 # stream = api.list_collection_streams(dataset)  # for recorded data (ADHD_SIN)
 ```
 
-When switching data sources, beware that the names of measurements may be different from your previous data source. You may need to update the `datamux.ExpressionMap` dictionary **values** (not keys)  to reflect the change in variable names.
+When switching data sources, beware that the names of measurements may be different from your previous data source. You may need to update the `dm.ExpressionMap` dictionary **values** (not keys)  to reflect the change in variable names.
 
 The updated `ExpressionMap` for the live data source is provided below.
 
 ```python
-preprocessor = datamux.ExpressionMap({
+preprocessor = dm.ExpressionMap({
     "t": "float(t)",
     "x": "float(eye_l.x + eye_r.x) / 2",
     "y": "float(eye_l.y + eye_r.y) / 2",

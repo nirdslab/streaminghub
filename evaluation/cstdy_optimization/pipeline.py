@@ -6,7 +6,7 @@ from fixation_detection import IVT
 from reporting import FileWriter
 from synthesis import PinkNoiseSimulator
 
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 
 if __name__ == "__main__":
     # get path and dataset from CLI
@@ -19,10 +19,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     basepath, timeout, dataset, vt = args.basepath, args.timeout, args.dataset, args.vt
 
-    api = datamux.API()
+    api = dm.API()
     streams = api.list_collection_streams(dataset)
 
-    preprocessor = datamux.ExpressionMap(
+    preprocessor = dm.ExpressionMap(
         {
             "t": "t",
             "x": "(lx + rx) / 2",
@@ -43,9 +43,9 @@ if __name__ == "__main__":
         attrs = stream.attrs
         subject, noise, task = attrs["subject"], attrs["noise"], attrs["task"]
         path = f"{basepath}/{subject}_{noise}_{task}"
-        datamux.logging.info(f"stream_id={attrs['id']}, stream_attrs={attrs}, vt={vt}")
+        dm.logging.info(f"stream_id={attrs['id']}, stream_attrs={attrs}, vt={vt}")
         # original data -> fixation/saccade -> simulated pink noise
-        pipeline_C = datamux.Pipeline(
+        pipeline_C = dm.Pipeline(
             api.attach(stream, transform=preprocessor, rate_limit=False, strict_time=True, use_relative_ts=True),
             IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
             PinkNoiseSimulator(freq=freq, xy_scale=xy_scale, d_scale=d_scale, transform=None),

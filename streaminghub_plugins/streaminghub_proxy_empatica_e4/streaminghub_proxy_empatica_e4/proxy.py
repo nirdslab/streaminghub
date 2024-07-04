@@ -6,13 +6,13 @@ import socket
 from pathlib import Path
 from typing import Callable
 
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 import streaminghub_pydfds as dfds
 
 from .util import E4ServerState, E4SSCommand
 
 
-class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
+class EmpaticaE4Proxy(dm.Reader[dfds.Node]):
     """
     Empatica E4 Proxy for Real-Time Data Streaming
 
@@ -60,7 +60,7 @@ class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
         self,
         source_id: str,
         stream_id: str,
-        q: datamux.Queue,
+        q: dm.Queue,
         transform: Callable,
     ):
         if self.server_state == E4ServerState.NO_DEVICES:
@@ -91,7 +91,7 @@ class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
         self,
         source_id: str,
         stream_id: str,
-        q: datamux.Queue,
+        q: dm.Queue,
         transform: Callable,
     ):
         # pull messages from socket
@@ -190,7 +190,7 @@ class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: datamux.Queue,
+        q: dm.Queue,
         transform: Callable,
     ) -> dict:
         self.logger.debug(f"Started task for source={source_id}, stream: {stream_id}...")
@@ -201,7 +201,7 @@ class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: datamux.Queue,
+        q: dm.Queue,
         transform: Callable,
         state: dict,
         rate_limit: bool = True,
@@ -221,7 +221,7 @@ class EmpaticaE4Proxy(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: datamux.Queue,
+        q: dm.Queue,
         transform: Callable,
         state: dict,
     ) -> None:

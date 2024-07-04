@@ -1,4 +1,4 @@
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 
 from .proxy import LSLProxy as Proxy
 
@@ -14,9 +14,9 @@ def test():
     assert len(streams) > 0
     print(streams)
     stream = streams[0]
-    queue = datamux.Queue()
-    flag = datamux.create_flag()
-    proxy.attach(node.id, stream.name, stream.attrs, queue, datamux.identity, flag)
+    queue = dm.Queue()
+    flag = dm.create_flag()
+    proxy.attach(node.id, stream.name, stream.attrs, queue, dm.identity, flag)
 
     while True:
         item = queue.get()

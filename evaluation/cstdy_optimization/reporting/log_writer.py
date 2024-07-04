@@ -1,7 +1,7 @@
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 
 
-class LogWriter(datamux.SinkTask):
+class LogWriter(dm.SinkTask):
 
     def __init__(self, *, name: str, **kwargs) -> None:
         super().__init__()

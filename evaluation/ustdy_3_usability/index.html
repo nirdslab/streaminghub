@@ -395,17 +395,17 @@ code {
     vt = <span class="hljs-number">10</span>
 
     <span class="hljs-comment"># setup datamux api</span>
-    api = datamux.API()
+    api = dm.API()
 
     streams = api.list_collection_streams(dataset)  <span class="hljs-comment"># for recorded data (ADHD_SIN)</span>
     <span class="hljs-comment"># streams = api.list_live_streams("pupil_core")  # for live data (pupil_core)</span>
 
     <span class="hljs-comment"># get the first stream</span>
     stream = streams[<span class="hljs-number">0</span>]
-    datamux.logging.info(stream.attrs)
+    dm.logging.info(stream.attrs)
 
     <span class="hljs-comment"># define a transform to map data into (t,x,y,d) format</span>
-    preprocessor = datamux.ExpressionMap({
+    preprocessor = dm.ExpressionMap({
         <span class="hljs-string">"t"</span>: <span class="hljs-string">"float(t)"</span>,
         <span class="hljs-string">"x"</span>: <span class="hljs-string">"float(lx + rx) / 2"</span>,
         <span class="hljs-string">"y"</span>: <span class="hljs-string">"float(ly + ry) / 2"</span>,
@@ -413,7 +413,7 @@ code {
     })
 
     <span class="hljs-comment"># define pipeline</span>
-    pipeline_A = datamux.Pipeline(
+    pipeline_A = dm.Pipeline(
         api.attach(stream, transform=preprocessor),
         <span class="hljs-comment"># IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),</span>
         LogWriter(name=<span class="hljs-string">"ivt"</span>, **stream.attrs),
@@ -566,17 +566,17 @@ drwxr-xr-x@ 850 ......  .....  27200 Jun 24 13:30 ADHD_SIN
     vt = <span class="hljs-number">10</span>
 
     <span class="hljs-comment"># setup datamux api</span>
-    api = datamux.API()
+    api = dm.API()
 
     streams = api.list_collection_streams(dataset)  <span class="hljs-comment"># for recorded data (ADHD_SIN)</span>
     <span class="hljs-comment"># stream = api.list_live_streams("pupil_core")  # for live data (pupil_core)</span>
 
     <span class="hljs-comment"># get the first stream</span>
     stream = streams[<span class="hljs-number">0</span>]
-    datamux.logging.info(stream.attrs)
+    dm.logging.info(stream.attrs)
 
     <span class="hljs-comment"># define a transform to map data into (t,x,y,d) format and handle missing values</span>
-    preprocessor = datamux.ExpressionMap({
+    preprocessor = dm.ExpressionMap({
         <span class="hljs-string">"t"</span>: <span class="hljs-string">"float(t)"</span>,
         <span class="hljs-string">"x"</span>: <span class="hljs-string">"float(lx + rx) / 2"</span>,
         <span class="hljs-string">"y"</span>: <span class="hljs-string">"float(ly + ry) / 2"</span>,
@@ -584,7 +584,7 @@ drwxr-xr-x@ 850 ......  .....  27200 Jun 24 13:30 ADHD_SIN
     })
 
     <span class="hljs-comment"># define pipeline</span>
-    pipeline_A = datamux.Pipeline(
+    pipeline_A = dm.Pipeline(
         api.attach(stream, transform=preprocessor),
         <span class="hljs-comment"># IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),</span>
         LogWriter(name=<span class="hljs-string">"ivt"</span>, **stream.attrs),
@@ -598,7 +598,7 @@ drwxr-xr-x@ 850 ......  .....  27200 Jun 24 13:30 ADHD_SIN
 </div></code></pre>
 <p>Now, you should see a recording from the <code>ADHD_SIN</code> dataset being logged on the terminal in a realtime-ish manner, <strong>without having to write any dataset-specific data reading code.</strong></p>
 <p><img src="assets/14.png" alt="14"></p>
-<p>Moreover, the line <code>datamux.logging.info(stream.attrs)</code> in our Python script logs any metadata in the selected recording (i.e., <code>stream</code>).</p>
+<p>Moreover, the line <code>dm.logging.info(stream.attrs)</code> in our Python script logs any metadata in the selected recording (i.e., <code>stream</code>).</p>
 <pre class="hljs"><code><div>{
 	<span class="hljs-attr">"collection"</span>: <span class="hljs-string">"ADHD_SIN"</span>,
 	<span class="hljs-attr">"subject"</span>: <span class="hljs-string">"024"</span>,
@@ -611,7 +611,7 @@ drwxr-xr-x@ 850 ......  .....  27200 Jun 24 13:30 ADHD_SIN
 <pre>
 <img src="https://www.notion.so/icons/help-alternate_green.svg" alt="https://www.notion.so/icons/help-alternate_green.svg" width="40px" /> What is the transform=preprocessor doing here?
 </pre>
-<pre class="hljs"><code><div>preprocessor = datamux.ExpressionMap({
+<pre class="hljs"><code><div>preprocessor = dm.ExpressionMap({
     <span class="hljs-string">"t"</span>: <span class="hljs-string">"float(t)"</span>,
     <span class="hljs-string">"x"</span>: <span class="hljs-string">"float(lx + rx) / 2"</span>,
     <span class="hljs-string">"y"</span>: <span class="hljs-string">"float(ly + ry) / 2"</span>,
@@ -620,13 +620,13 @@ drwxr-xr-x@ 850 ......  .....  27200 Jun 24 13:30 ADHD_SIN
 </div></code></pre>
 <p>By default, stream outputs will be passed on as-is. However, if you set the transform to an <code>ExpressionMap</code>, this tells <code>DataMux</code> to transform data before passing on, and specifies how to. The <code>ExpressionMap</code> constructor takes a dictionary as argument, whose keys tell <code>DataMux</code> what fields should be generated, and whose values provide <code>DataMux</code> an expression to generate them. Each expression is evaluated with all input variables in global scope, and hence, it will output the correct value.</p>
 <pre>
-<img src="https://www.notion.so/icons/help-alternate_green.svg" alt="https://www.notion.so/icons/help-alternate_green.svg" width="40px" /> If a `datamux.ExpressionMap` is specified, the next pipeline node will only receive the keys/values specified in it.
+<img src="https://www.notion.so/icons/help-alternate_green.svg" alt="https://www.notion.so/icons/help-alternate_green.svg" width="40px" /> If a `dm.ExpressionMap` is specified, the next pipeline node will only receive the keys/values specified in it.
 </pre>
 <h2 id="extending-the-pipeline-script">Extending the Pipeline Script</h2>
 <p>Now, let’s uncomment the 2nd step of the pipeline. This turns our script from, a <strong>two-step pipeline</strong> (source → logger), into a <strong>three-step pipeline</strong> (source → algorithm → logger).</p>
 <p><strong>Before</strong></p>
 <pre class="hljs"><code><div><span class="hljs-comment"># define pipeline</span>
-pipeline_A = datamux.Pipeline(
+pipeline_A = dm.Pipeline(
     api.attach(stream, transform=preprocessor),
     <span class="hljs-comment"># IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),</span>
     LogWriter(name=<span class="hljs-string">"ivt"</span>, **stream.attrs),
@@ -634,7 +634,7 @@ pipeline_A = datamux.Pipeline(
 </div></code></pre>
 <p><strong>After</strong></p>
 <pre class="hljs"><code><div><span class="hljs-comment"># define pipeline</span>
-pipeline_A = datamux.Pipeline(
+pipeline_A = dm.Pipeline(
     api.attach(stream, transform=preprocessor),
     IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=<span class="hljs-literal">None</span>),
     LogWriter(name=<span class="hljs-string">"ivt"</span>, **stream.attrs),
@@ -651,9 +651,9 @@ pipeline_A = datamux.Pipeline(
 <pre class="hljs"><code><div>stream = api.list_live_streams(<span class="hljs-string">"pupil_core"</span>)  <span class="hljs-comment"># for live data (pupil_core)</span>
 <span class="hljs-comment"># stream = api.list_collection_streams(dataset)  # for recorded data (ADHD_SIN)</span>
 </div></code></pre>
-<p>When switching data sources, beware that the names of measurements may be different from your previous data source. You may need to update the <code>datamux.ExpressionMap</code> dictionary <strong>values</strong> (not keys)  to reflect the change in variable names.</p>
+<p>When switching data sources, beware that the names of measurements may be different from your previous data source. You may need to update the <code>dm.ExpressionMap</code> dictionary <strong>values</strong> (not keys)  to reflect the change in variable names.</p>
 <p>The updated <code>ExpressionMap</code> for the live data source is provided below.</p>
-<pre class="hljs"><code><div>preprocessor = datamux.ExpressionMap({
+<pre class="hljs"><code><div>preprocessor = dm.ExpressionMap({
     <span class="hljs-string">"t"</span>: <span class="hljs-string">"float(t)"</span>,
     <span class="hljs-string">"x"</span>: <span class="hljs-string">"float(eye_l.x + eye_r.x) / 2"</span>,
     <span class="hljs-string">"y"</span>: <span class="hljs-string">"float(eye_l.y + eye_r.y) / 2"</span>,

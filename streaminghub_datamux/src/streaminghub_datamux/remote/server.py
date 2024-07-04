@@ -3,7 +3,7 @@ from threading import Thread
 
 import pickle
 import base64
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 from streaminghub_datamux.api import API
 from streaminghub_datamux.rpc import create_rpc_server
 
@@ -20,10 +20,10 @@ class DataMuxServer:
         self,
         rpc_name: str,
     ) -> None:
-        self.active = datamux.create_flag()
+        self.active = dm.create_flag()
         self.api_in = asyncio.Queue()
         self.api_out = asyncio.Queue()
-        self.data_q = datamux.Queue()
+        self.data_q = dm.Queue()
         # rpc module
         self.rpc = create_rpc_server(
             name=rpc_name,
@@ -61,7 +61,7 @@ class DataMuxServer:
                 attrs = content["attrs"]
                 transform = content["transform"]
                 transform = pickle.loads(base64.b64decode(transform))
-                wrapped = datamux.Enveloper(transform=transform, suffix=uid)
+                wrapped = dm.Enveloper(transform=transform, suffix=uid)
                 ack = self.api.proxy_live_stream(node_id, stream_id, attrs, self.data_q, wrapped)
                 retval = ack.model_dump()
             # REPLAY MODE (File -> Queue) ==============================================================================================
@@ -78,7 +78,7 @@ class DataMuxServer:
                 attrs = content["attrs"]
                 transform = content["transform"]
                 transform = pickle.loads(base64.b64decode(transform))
-                wrapped = datamux.Enveloper(transform=transform, suffix=uid)
+                wrapped = dm.Enveloper(transform=transform, suffix=uid)
                 ack = self.api.replay_collection_stream(collec_id, stream_id, attrs, self.data_q, wrapped)
                 retval = ack.model_dump()
             # RESTREAM MODE (File -> LSL) ==============================================================================================

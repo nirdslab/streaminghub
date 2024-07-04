@@ -4,12 +4,11 @@ from pathlib import Path
 from random import random
 from typing import Callable
 
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 import streaminghub_pydfds as dfds
-from streaminghub_datamux.typing import Queue
 
 
-class ExampleProxy(datamux.Reader[dfds.Node]):
+class ExampleProxy(dm.Reader[dfds.Node]):
     """
     An Example Proxy for Real-Time Data Streaming
 
@@ -48,7 +47,7 @@ class ExampleProxy(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: Queue,
+        q: dm.Queue,
         transform: Callable,
     ) -> dict:
         assert stream_id in self.stream_ids
@@ -60,7 +59,7 @@ class ExampleProxy(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: Queue,
+        q: dm.Queue,
         transform: Callable,
         state: dict,
         rate_limit: bool,
@@ -81,7 +80,7 @@ class ExampleProxy(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: Queue,
+        q: dm.Queue,
         transform: Callable,
         state: dict,
     ) -> None:
@@ -90,7 +89,7 @@ class ExampleProxy(datamux.Reader[dfds.Node]):
     def _proxy_random_msg(
         self,
         topic: str,
-        queue: datamux.Queue,
+        queue: dm.Queue,
         transform: Callable,
     ) -> None:
         t = 0.0

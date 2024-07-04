@@ -14,23 +14,23 @@ import asyncio
 import logging
 import multiprocessing
 
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 import streaminghub_pydfds as dfds
 
 DIGIT_CHARS = "0123456789"
 SHUTDOWN_FLAG = multiprocessing.Event()
 logger = logging.getLogger(__name__)
 
-api = datamux.API()
+api = dm.API()
 
 
-def log_sink(sink: datamux.Queue):
+def log_sink(sink: dm.Queue):
     while True:
         value = sink.get()
         if value is None:
             continue
         logging.info(value)
-        if value == datamux.END_OF_STREAM:
+        if value == dm.END_OF_STREAM:
             break
 
 
@@ -44,9 +44,9 @@ async def begin_streaming(collection_name: str, streams: list[dfds.Stream]):
         assert node is not None
         device = node.device
         assert device is not None
-        source_id = datamux.gen_randseq()
+        source_id = dm.gen_randseq()
         logger.info(f"Source [{source_id}]: {device.model}, {device.manufacturer} ({device.category})")
-        sink = datamux.Queue()
+        sink = dm.Queue()
         api.replay_collection_stream(collection_name, stream.name, stream.attrs, sink)
         procs.append(multiprocessing.Process(target=log_sink, args=(sink,), daemon=True))
         logger.info(f"Source [{source_id}]: started")

@@ -1,7 +1,7 @@
 import argparse
 import os.path
 
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 from gaze.fixation_detection import IVT
 from gaze.reporting import LogWriter
 from gaze.synthesis import PinkNoiseSimulator, WhiteNoiseSimulator
@@ -16,12 +16,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
     path, dataset, timeout = args.path, args.dataset, args.timeout
 
-    # api = datamux.RemoteAPI("websocket", "json")
+    # api = dm.RemoteAPI("websocket", "json")
     # api.connect("localhost", 8765)
-    api = datamux.API()
+    api = dm.API()
     streams = api.list_collection_streams(dataset)
 
-    preprocessor = datamux.ExpressionMap(
+    preprocessor = dm.ExpressionMap(
         {
             "t": "t",
             "x": "(lx + rx) / 2",
@@ -41,14 +41,14 @@ if __name__ == "__main__":
     for stream in streams:
 
         # original data
-        pipeline_A = datamux.Pipeline(
+        pipeline_A = dm.Pipeline(
             api.attach(stream, transform=preprocessor),
             LogWriter(name="original", **stream.attrs),
         )
         pipeline_A.run(timeout)
 
         # original data -> fixation/saccade -> simulated white noise
-        pipeline_B = datamux.Pipeline(
+        pipeline_B = dm.Pipeline(
             api.attach(stream, transform=preprocessor),
             IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
             WhiteNoiseSimulator(freq=freq, xy_scale=xy_scale, d_scale=d_scale, transform=None),
@@ -57,7 +57,7 @@ if __name__ == "__main__":
         pipeline_B.run(timeout)
 
         # original data -> fixation/saccade -> simulated pink noise
-        pipeline_C = datamux.Pipeline(
+        pipeline_C = dm.Pipeline(
             api.attach(stream, transform=preprocessor),
             IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
             PinkNoiseSimulator(freq=freq, xy_scale=xy_scale, d_scale=d_scale, transform=None),

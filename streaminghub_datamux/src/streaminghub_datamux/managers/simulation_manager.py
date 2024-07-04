@@ -1,8 +1,8 @@
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 import streaminghub_pydfds as dfds
 
 
-class SimulationManager(datamux.Reader[dfds.Node]):
+class SimulationManager(dm.Reader[dfds.Node]):
     """
     Stream Reader for DFDS Simulations.
 
