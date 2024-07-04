@@ -140,7 +140,7 @@ class Pipeline(CompositeTask):
         if isinstance(first, (dm.SourceTask, MergedSource)):
             self.source = None  # type: ignore
             self.target = first.target
-            self.logger.info(f"task={first.name}, source=None, target={first.target}")
+            self.logger.debug(f"task={first.name}, source=None, target={first.target}")
         elif isinstance(first, (dm.PipeTask, dm.Pipeline)):
             self.source = first.source
             self.target = first.target
@@ -152,7 +152,7 @@ class Pipeline(CompositeTask):
             assert isinstance(task, (dm.PipeTask, Pipeline))
             task.source.assign(self.target)
             self.target = task.target
-            self.logger.info(f"task={task.name}, source={task.source}, target={task.target}")
+            self.logger.debug(f"task={task.name}, source={task.source}, target={task.target}")
 
         # handle last task
         last = self.tasks[-1]
@@ -162,13 +162,13 @@ class Pipeline(CompositeTask):
             last.source.assign(self.target)
             self.target = last.target
             self.completed = last.completed
-            self.logger.info(f"task={last.name}, source={last.source}, target={last.target}")
+            self.logger.debug(f"task={last.name}, source={last.source}, target={last.target}")
         elif isinstance(last, (dm.SinkTask, Broadcast)):
             # print(self.target.q)
             last.source.assign(self.target)
             self.target = None  # type: ignore
             self.completed = last.completed
-            self.logger.info(f"task={last.name}, source={last.source}, target=None")
+            self.logger.debug(f"task={last.name}, source={last.source}, target=None")
         else:
             raise ValueError(last)
 
@@ -198,7 +198,7 @@ class ExpressionMap:
         target = {}
         if isinstance(msg, dict):
             for k, expr in self.mapping.items():
-                target[k] = eval(expr, {**msg, **msg.get("index", {}), **msg.get("value", {})})
+                target[k] = eval(expr, dict(**msg, **msg.get("index", {}), **msg.get("value", {})))
         elif isinstance(msg, Namespace):
             for k, expr in self.mapping.items():
                 target[k] = eval(expr, dict(msg._get_kwargs()))
@@ -218,10 +218,11 @@ class Filter(dm.PipeTask):
     def close(self) -> None:
         pass
 
-    def step(self, item) -> int | None:
-        check = eval(self.condition, item)
+    def step(self, msg) -> int | None:
+        from math import isnan
+        check = eval(self.condition, dict(**msg, **msg.get("index", {}), **msg.get("value", {}), isnan=isnan))
         if check == True:
-            self.target.put(item)
+            self.target.put(msg)
 
 
 class Split(dm.PipeTask):
@@ -236,13 +237,14 @@ class Split(dm.PipeTask):
         self.agg = agg
         self.map = [None] * len(self.cond)
 
-    def step(self, input) -> int | None:
+    def step(self, msg) -> int | None:
 
         # evaluate condition
         for i, (_, cond) in enumerate(self.cond):
-            met = eval(cond, input)
+            from math import isnan
+            met = eval(cond, dict(**msg, **msg.get("index", {}), **msg.get("value", {}), isnan=isnan))
             if met:
-                self.map[i] = input
+                self.map[i] = msg
         
         # prepare output based on given agg
         if self.agg == "list":

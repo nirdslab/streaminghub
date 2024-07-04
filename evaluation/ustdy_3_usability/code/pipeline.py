@@ -1,7 +1,7 @@
 from fixation_detection import IVT
 from reporting import LogWriter
 
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 
 if __name__ == "__main__":
 
@@ -16,17 +16,17 @@ if __name__ == "__main__":
     vt = 10
 
     # setup datamux api
-    api = datamux.API()
+    api = dm.API()
 
     streams = api.list_collection_streams(dataset)  # for recorded data (ADHD_SIN)
     # streams = api.list_live_streams("pupil_core")  # for live data (pupil_core)
 
     # get the first stream
     stream = streams[0]
-    datamux.logging.info(stream.attrs)
+    dm.logging.info(stream.attrs)
 
     # define a transform to map data into (t,x,y,d) format and handle missing values
-    preprocessor = datamux.ExpressionMap({
+    preprocessor = dm.ExpressionMap({
         "t": "float(t)",
         "x": "float(lx + rx) / 2",
         "y": "float(ly + ry) / 2",
@@ -34,8 +34,9 @@ if __name__ == "__main__":
     })
 
     # define pipeline
-    pipeline_A = datamux.Pipeline(
+    pipeline_A = dm.Pipeline(
         api.attach(stream, transform=preprocessor),
+        dm.Filter("not (isnan(x) or isnan(y) or isnan(d))"),
         # IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None),
         LogWriter(name="ivt", **stream.attrs),
     )
