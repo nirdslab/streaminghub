@@ -48,10 +48,10 @@ if __name__ == "__main__":
             agg="obj",
             transform=postprocessor,
         ).with_name("part1"),
-        # dm.Pipeline(
+        dm.Pipeline(
             IVT(screen_wh=screen_wh, diag_dist=diag_dist, freq=freq, vt=vt, transform=None).with_name("ivt"),
             LogWriter(name="log"),
-        # ).with_name("part2"),
+        ).with_name("part2"),
     ).with_name("full")
 
     # run pipeline
