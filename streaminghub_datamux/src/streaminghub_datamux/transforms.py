@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import copy
 import signal
-from typing import Literal
 from argparse import Namespace
+from typing import Literal
 
 import streaminghub_datamux as dm
 
@@ -206,6 +206,10 @@ class ExpressionMap:
 
 
 class Filter(dm.PipeTask):
+    """
+    Only pass items that meet the given condition
+
+    """
 
     def __init__(self, condition: str) -> None:
         super().__init__(transform=None)
@@ -218,3 +222,48 @@ class Filter(dm.PipeTask):
         check = eval(self.condition, item)
         if check == True:
             self.target.put(item)
+
+
+class Split(dm.PipeTask):
+    """
+    Split output based on expression
+
+    """
+
+    def __init__(self, *cond: tuple[str, str], agg: str, transform=None) -> None:
+        super().__init__(transform)
+        self.cond = cond
+        self.agg = agg
+        self.map = [None] * len(self.cond)
+
+    def step(self, input) -> int | None:
+
+        # evaluate condition
+        for i, (_, cond) in enumerate(self.cond):
+            met = eval(cond, input)
+            if met:
+                self.map[i] = input
+        
+        # prepare output based on given agg
+        if self.agg == "list":
+            output = copy.deepcopy(self.map)
+        elif self.agg == "dict":
+            output = {}
+            for i, (name, _) in enumerate(self.cond):
+                val = self.map[i]
+                if val is not None:
+                    output[name] = dict(**val)
+        elif self.agg == "obj":
+            output = Namespace(**{name: None for (name, _) in self.cond})
+            for i, (name, _) in enumerate(self.cond):
+                val = self.map[i]
+                if val is not None:
+                    setattr(output, name, Namespace(**val))
+        
+        if self.transform is not None:
+            output = self.transform(output)
+
+        self.target.put(output)
+
+    def close(self) -> None:
+        pass

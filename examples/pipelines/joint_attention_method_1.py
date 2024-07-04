@@ -9,7 +9,7 @@ if __name__ == "__main__":
     diag_dist = (21, 22)
     freq = 60
 
-    # pretend like nodes exist
+    # fake imports
     JointAttention: dm.PipeTask | None = None
     LogWriter: dm.SinkTask | None = None
     assert JointAttention is not None
@@ -25,11 +25,10 @@ if __name__ == "__main__":
     # streams = api.list_live_streams("pupil_core")  # for live data (pupil_core)
 
     # get the first stream
-    streamA = streams[-2]
-    streamB = streams[-1]
+    joint_stream = streams[0]
 
     # define a transform to map data into (t,x,y,d) format and handle missing values
-    preprocessor = dm.ExpressionMap(
+    pre = dm.ExpressionMap(
         {
             "t": "t",
             "x": "(lx + rx) / 2",
@@ -41,14 +40,14 @@ if __name__ == "__main__":
     # define pipeline
     pipeline_A = dm.Pipeline(
         dm.MergedSource(
-            # get subject A data
+            # filter subject A data
             dm.Pipeline(
-                api.attach(streamA, transform=preprocessor),
+                api.attach(joint_stream, transform=pre),
                 dm.Filter("subject == 'A'"),
             ).with_name("sA"),
-            # get subject B data
+            # filter subject B data
             dm.Pipeline(
-                api.attach(streamB, transform=preprocessor),
+                api.attach(joint_stream, transform=pre),
                 dm.Filter("subject == 'B'"),
             ).with_name("sB"),
             # get pairwise distance between A and B
