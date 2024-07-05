@@ -1,4 +1,4 @@
-import multiprocessing
+import multiprocess
 import signal
 import time
 
@@ -12,7 +12,7 @@ class Runner:
         self.queue = queue
 
     def start(self, *args, **kwargs):
-        self.proc = multiprocessing.Process(
+        self.proc = multiprocess.Process(
             group=None,
             target=self.func,
             name=self.func.__name__,
@@ -30,7 +30,7 @@ class Runner:
 
 
 def simulate_data_stream(
-    queue: multiprocessing.Queue,
+    queue: multiprocess.Queue,
 ):
     flag = False
     t = 0.0
@@ -54,7 +54,7 @@ def simulate_data_stream(
 
 
 def log_data_stream(
-    queue: multiprocessing.Queue,
+    queue: multiprocess.Queue,
 ):
     flag = False
 
@@ -75,7 +75,7 @@ def log_data_stream(
 
 
 if __name__ == "__main__":
-    queue = multiprocessing.Queue()
+    queue = multiprocess.Queue()
     simulator = Runner(simulate_data_stream, queue)
     printer = Runner(log_data_stream, queue)
     simulator.start()

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import abc
 import logging
-import multiprocessing
-import multiprocessing.synchronize
+import multiprocess
+import multiprocess.synchronize
 import signal
 import threading
 from typing import Callable, Generic, Literal, TypeVar
@@ -15,9 +15,9 @@ import streaminghub_pydfds as dfds
 from . import util as dm
 
 END_OF_STREAM = {}  # NOTE do not change
-Q = multiprocessing.Queue
+Q = multiprocess.Queue
 
-Flag = multiprocessing.synchronize.Event
+Flag = multiprocess.synchronize.Event
 
 D = TypeVar("D")
 
@@ -51,7 +51,7 @@ class Queue(Generic[D]):
 
 
 def create_flag() -> Flag:
-    return multiprocessing.Event()
+    return multiprocess.Event()
 
 
 class StreamAck(BaseModel):
@@ -88,7 +88,7 @@ class ISource(abc.ABC):
         use_relative_ts: bool = True,
         **kwargs,
     ):
-        proc = multiprocessing.Process(
+        proc = multiprocess.Process(
             None,
             self._attach_coro,
             f"{source_id}_{stream_id}",
@@ -178,7 +178,7 @@ class IServe(abc.ABC):
         stream_id: str,
         **kwargs,
     ):
-        proc = multiprocessing.Process(
+        proc = multiprocess.Process(
             None,
             self._serve_coro,
             f"{source_id}_{stream_id}",
@@ -229,7 +229,7 @@ class Reader(Generic[T], ISource, abc.ABC):
 class ITask(abc.ABC):
 
     logger = logging.getLogger(__name__)
-    proc: multiprocessing.Process | threading.Thread
+    proc: multiprocess.Process | threading.Thread
 
     def __init__(self, mode: Literal["process", "thread"] = "process") -> None:
         super().__init__()
@@ -260,7 +260,7 @@ class ITask(abc.ABC):
 
     def start(self, *args, **kwargs):
         if self.mode == "process":
-            fn = multiprocessing.Process
+            fn = multiprocess.Process
         elif self.mode == "thread":
             fn = threading.Thread
         else:
@@ -279,7 +279,7 @@ class ITask(abc.ABC):
     def stop(self):
         if isinstance(self.proc, threading.Thread):
             self.flag = True
-        if isinstance(self.proc, multiprocessing.Process):
+        if isinstance(self.proc, multiprocess.Process):
             self.proc.terminate()
         self.proc.join()
         self.logger.debug(f"Stopped {self.name}")

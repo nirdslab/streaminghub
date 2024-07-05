@@ -372,7 +372,7 @@ code {
 <h1 id="preference-test---code-clarity">Preference Test - Code Clarity</h1>
 <p>You are given <strong>THREE</strong> versions of code which passes <strong>random data</strong> into a <strong>real-time algorithm</strong>, and terminates after 10 seconds.</p>
 <h2 id="functional-style-a">Functional Style (A)</h2>
-<pre class="hljs"><code><div><span class="hljs-keyword">import</span> multiprocessing
+<pre class="hljs"><code><div><span class="hljs-keyword">import</span> multiprocess
 <span class="hljs-keyword">import</span> signal
 <span class="hljs-keyword">import</span> time
 
@@ -383,7 +383,7 @@ FREQ = <span class="hljs-number">60</span>
         self.func = func
         self.queue = queue
     <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">start</span><span class="hljs-params">(self, *args, **kwargs)</span>:</span>
-        self.proc = multiprocessing.Process(
+        self.proc = multiprocess.Process(
             group=<span class="hljs-literal">None</span>,
             target=self.func,
             name=self.func.__name__,
@@ -399,7 +399,7 @@ FREQ = <span class="hljs-number">60</span>
         print(<span class="hljs-string">f"Stopped <span class="hljs-subst">{self.proc.name}</span>"</span>)
 
 <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">simulate_data_stream</span><span class="hljs-params">(
-    queue: multiprocessing.Queue,
+    queue: multiprocess.Queue,
 )</span>:</span>
     flag = <span class="hljs-literal">False</span>
     t = <span class="hljs-number">0.0</span>
@@ -419,7 +419,7 @@ FREQ = <span class="hljs-number">60</span>
         step()
 
 <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">log_data_stream</span><span class="hljs-params">(
-    queue: multiprocessing.Queue,
+    queue: multiprocess.Queue,
 )</span>:</span>
     flag = <span class="hljs-literal">False</span>
     <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">handle_signal</span><span class="hljs-params">(signum, frame)</span>:</span>
@@ -436,7 +436,7 @@ FREQ = <span class="hljs-number">60</span>
         step()
 
 <span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">"__main__"</span>:
-    queue = multiprocessing.Queue()
+    queue = multiprocess.Queue()
     simulator = Runner(simulate_data_stream, queue)
     printer = Runner(log_data_stream, queue)
     simulator.start()
@@ -447,7 +447,7 @@ FREQ = <span class="hljs-number">60</span>
 </div></code></pre>
 <h2 id="class-style-b">Class Style (B)</h2>
 <pre class="hljs"><code><div><span class="hljs-keyword">import</span> abc
-<span class="hljs-keyword">import</span> multiprocessing
+<span class="hljs-keyword">import</span> multiprocess
 <span class="hljs-keyword">import</span> signal
 <span class="hljs-keyword">import</span> time
 
@@ -465,7 +465,7 @@ FREQ = <span class="hljs-number">60</span>
         <span class="hljs-keyword">while</span> <span class="hljs-keyword">not</span> self.flag:
             self.step(*args, **kwargs)
     <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">start</span><span class="hljs-params">(self, *args, **kwargs)</span>:</span>
-        self.proc = multiprocessing.Process(
+        self.proc = multiprocess.Process(
             group=<span class="hljs-literal">None</span>,
             target=self.__run__,
             name=self.name,
@@ -501,7 +501,7 @@ FREQ = <span class="hljs-number">60</span>
             <span class="hljs-keyword">pass</span>
 
 <span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">"__main__"</span>:
-    queue = multiprocessing.Queue()
+    queue = multiprocess.Queue()
     simulator = SimulateStream(queue)
     printer = LogDataStream(queue)
     simulator.start()

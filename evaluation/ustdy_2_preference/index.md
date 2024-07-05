@@ -5,7 +5,7 @@ You are given **THREE** versions of code which passes **random data** into a **r
 ## Functional Style (A)
 
 ```python
-import multiprocessing
+import multiprocess
 import signal
 import time
 
@@ -16,7 +16,7 @@ class Runner:
         self.func = func
         self.queue = queue
     def start(self, *args, **kwargs):
-        self.proc = multiprocessing.Process(
+        self.proc = multiprocess.Process(
             group=None,
             target=self.func,
             name=self.func.__name__,
@@ -32,7 +32,7 @@ class Runner:
         print(f"Stopped {self.proc.name}")
 
 def simulate_data_stream(
-    queue: multiprocessing.Queue,
+    queue: multiprocess.Queue,
 ):
     flag = False
     t = 0.0
@@ -52,7 +52,7 @@ def simulate_data_stream(
         step()
 
 def log_data_stream(
-    queue: multiprocessing.Queue,
+    queue: multiprocess.Queue,
 ):
     flag = False
     def handle_signal(signum, frame):
@@ -69,7 +69,7 @@ def log_data_stream(
         step()
 
 if __name__ == "__main__":
-    queue = multiprocessing.Queue()
+    queue = multiprocess.Queue()
     simulator = Runner(simulate_data_stream, queue)
     printer = Runner(log_data_stream, queue)
     simulator.start()
@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
 ```python
 import abc
-import multiprocessing
+import multiprocess
 import signal
 import time
 
@@ -101,7 +101,7 @@ class Runner:
         while not self.flag:
             self.step(*args, **kwargs)
     def start(self, *args, **kwargs):
-        self.proc = multiprocessing.Process(
+        self.proc = multiprocess.Process(
             group=None,
             target=self.__run__,
             name=self.name,
@@ -137,7 +137,7 @@ class LogDataStream(Runner):
             pass
 
 if __name__ == "__main__":
-    queue = multiprocessing.Queue()
+    queue = multiprocess.Queue()
     simulator = SimulateStream(queue)
     printer = LogDataStream(queue)
     simulator.start()

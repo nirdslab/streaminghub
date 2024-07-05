@@ -1,5 +1,5 @@
 import abc
-import multiprocessing
+import multiprocess
 import signal
 import time
 
@@ -22,7 +22,7 @@ class Runner:
             self.step(*args, **kwargs)
 
     def start(self, *args, **kwargs):
-        self.proc = multiprocessing.Process(
+        self.proc = multiprocess.Process(
             group=None,
             target=self.__run__,
             name=self.name,
@@ -66,7 +66,7 @@ class LogDataStream(Runner):
 
 
 if __name__ == "__main__":
-    queue = multiprocessing.Queue()
+    queue = multiprocess.Queue()
     simulator = SimulateStream(queue)
     printer = LogDataStream(queue)
     simulator.start()
