@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "streaminghub-datamux"
-version = "0.1.7"
+version = "0.1.8"
 authors = [{ name = "Yasith Jayawardana", email = "yasith@cs.odu.edu" }]
 description = "A library to stream data into real-time analytics pipelines"
 readme = "README.md"
@@ -28,7 +28,7 @@ optional-dependencies.dev = [
 ]
 
 [tool.bumpver]
-current_version = "0.1.7"
+current_version = "0.1.8"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump datamux version {old_version} -> {new_version}"
 tag_message = "{new_version}"

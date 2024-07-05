@@ -5,3 +5,4 @@ __pycache__/
 *.pth
 flask_session/
 lightning_logs/
+dist/
