@@ -203,6 +203,19 @@ class ExpressionMap:
             for k, expr in self.mapping.items():
                 target[k] = eval(expr, dict(msg._get_kwargs()))
         return target
+    
+class Transform(dm.PipeTask):
+
+    def __init__(self, transform=None) -> None:
+        super().__init__(transform=transform)
+
+    def close(self) -> None:
+        pass
+
+    def step(self, msg: dict | Namespace):
+        if self.transform is not None:
+            msg = self.transform(msg)
+        self.target.put(msg)
 
 
 class Filter(dm.PipeTask):
@@ -222,6 +235,8 @@ class Filter(dm.PipeTask):
         from math import isnan
         check = eval(self.condition, dict(**msg, **msg.get("index", {}), **msg.get("value", {}), isnan=isnan))
         if check == True:
+            if self.transform is not None:
+                msg = self.transform(msg)
             self.target.put(msg)
 
 
@@ -248,24 +263,24 @@ class Split(dm.PipeTask):
         
         # prepare output based on given agg
         if self.agg == "list":
-            output = copy.deepcopy(self.map)
+            msg = copy.deepcopy(self.map)
         elif self.agg == "dict":
-            output = {}
+            msg = {}
             for i, (name, _) in enumerate(self.cond):
                 val = self.map[i]
                 if val is not None:
-                    output[name] = dict(**val)
+                    msg[name] = dict(**val)
         elif self.agg == "obj":
-            output = Namespace(**{name: None for (name, _) in self.cond})
+            msg = Namespace(**{name: None for (name, _) in self.cond})
             for i, (name, _) in enumerate(self.cond):
                 val = self.map[i]
                 if val is not None:
-                    setattr(output, name, Namespace(**val))
+                    setattr(msg, name, Namespace(**val))
         
         if self.transform is not None:
-            output = self.transform(output)
+            msg = self.transform(msg)
 
-        self.target.put(output)
+        self.target.put(msg)
 
     def close(self) -> None:
         pass
