@@ -98,7 +98,7 @@ class DataMuxServer:
                 retval = dict(error="Unknown Request")
 
             msg = [topic, retval, uid]
-            self.api_out.put(msg)
+            self.api_out.put_nowait(msg)
 
     def requeue(
         self,

@@ -248,14 +248,17 @@ class RemoteAPI(dm.IAPI):
         assert mode in ["proxy", "replay"]
         node = stream.node
         assert node is not None
+        node_id = node.id
+        stream_id = stream.attrs.get("id")
+        assert stream_id is not None
         return dm.APIStreamer(
             self,
             mode,
-            node.id,
-            stream.name,
+            node_id,
+            stream_id,
             stream.attrs,
             transform,
-            rate_limit,
-            strict_time,
-            use_relative_ts,
+            rate_limit=rate_limit,
+            strict_time=strict_time,
+            use_relative_ts=use_relative_ts,
         )
