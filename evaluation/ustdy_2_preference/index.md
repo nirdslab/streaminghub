@@ -164,10 +164,8 @@ class SimulateStream(dm.SourceTask):
         self.t += self.dt
 
 class LogDataStream(dm.SinkTask):
-    def __call__(self, *args, **kwargs) -> None:
-        item = self.source.get()
-        if item is not None:
-            print(f"[{type(item).__name__}]", item)
+    def step(self, item) -> None:
+        print(f"[{type(item).__name__}]", item)
 
 if __name__ == "__main__":
     pipeline = dm.Pipeline(
@@ -184,25 +182,23 @@ For example, If your preference is A > B > C, please answer as `A,B,C`.
 
 </aside>
 
-| # | Question | Ranking |
-| --- | --- | --- |
-| 1 | Which code version do you find the most readable and easy to understand? |  |
-| 2 | Which code version do you believe would be the easiest to maintain and update over time? |  |
-| 3 | Which code version demonstrates the best modular design? |  |
-| 4 | Which code version would be the easiest to reuse in other projects or contexts? |  |
-| 5 | Which code version would be the easiest to extend with additional features or functionality? |  |
-| 6 | Which code version do you think would be the easiest to debug if issues arise? |  |
-| 7 | Which code version do you think has the shortest learning curve for a new developer? |  |
-| 8 | Which code version has the least dependency on external frameworks or libraries? |  |
-| 9 | Which code version do you think has the best approach to error handling? |  |
-| 10 | Taking into account all the factors above, which code version is your overall preference? |  |
+| #  | Question                                                                                     | Ranking |
+| -- | -------------------------------------------------------------------------------------------- | ------- |
+| 1  | Which code version do you find the most readable and easy to understand?                     |         |
+| 2  | Which code version do you believe would be the easiest to maintain and update over time?     |         |
+| 3  | Which code version demonstrates the best modular design?                                     |         |
+| 4  | Which code version would be the easiest to reuse in other projects or contexts?              |         |
+| 5  | Which code version would be the easiest to extend with additional features or functionality? |         |
+| 6  | Which code version do you think would be the easiest to debug if issues arise?               |         |
+| 7  | Which code version do you think has the shortest learning curve for a new developer?         |         |
+| 8  | Which code version has the least dependency on external frameworks or libraries?             |         |
+| 9  | Which code version do you think has the best approach to error handling?                     |         |
+| 10 | Taking into account all the factors above, which code version is your overall preference?    |         |
 
 If you had to migrate Code A to Code C, please rate the difficulty of this task
 
 > **Scale : [1 = Very Low; 2 = Low; 3 = Moderate; 4 = High; 5 = Very High]**
-> 
 
 If you had to migrate Code B to Code C, please rate the difficulty of this task
 
 > **Scale : [1 = Very Low; 2 = Low; 3 = Moderate; 4 = High; 5 = Very High]**
->
