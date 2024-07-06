@@ -1,12 +1,11 @@
 from importlib.metadata import entry_points
 from typing import Callable
 
-import streaminghub_datamux as datamux
+import streaminghub_datamux as dm
 import streaminghub_pydfds as dfds
-from streaminghub_datamux.typing import Queue
 
 
-class ProxyManager(datamux.Reader[dfds.Node]):
+class ProxyManager(dm.Reader[dfds.Node]):
     """
     An interface to find any active nodes (bio-sensors),
     request their streams, and proxy their data.
@@ -22,10 +21,10 @@ class ProxyManager(datamux.Reader[dfds.Node]):
     def __init__(self) -> None:
         super().__init__()
         # find all entrypoints with group=streaminghub_datamux.proxy
-        self.proxies: dict[str, datamux.Reader[dfds.Node]] = {}
+        self.proxies: dict[str, dm.Reader[dfds.Node]] = {}
         for ep in entry_points(group="streaminghub_datamux.proxy"):
             cls = ep.load()
-            if issubclass(cls, datamux.Reader):
+            if issubclass(cls, dm.Reader):
                 self.logger.info(f"Found proxy: {ep.name}")
                 self.proxies[ep.name] = cls()
             else:
@@ -34,7 +33,7 @@ class ProxyManager(datamux.Reader[dfds.Node]):
         self.node_ref: list[str] = []
         self.prox_ref: list[str] = []
 
-    def list_proxies(self) -> dict[str, datamux.Reader[dfds.Node]]:
+    def list_proxies(self) -> dict[str, dm.Reader[dfds.Node]]:
         return self.proxies
 
     def setup(self, *, proxy_id: str) -> None:
@@ -83,7 +82,7 @@ class ProxyManager(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: Queue,
+        q: dm.Queue,
         transform: Callable,
         **kwargs,
     ) -> dict:
@@ -95,7 +94,7 @@ class ProxyManager(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: Queue,
+        q: dm.Queue,
         transform: Callable,
         state: dict,
         rate_limit: bool = True,
@@ -113,7 +112,7 @@ class ProxyManager(datamux.Reader[dfds.Node]):
         source_id: str,
         stream_id: str,
         attrs: dict,
-        q: Queue,
+        q: dm.Queue,
         transform: Callable,
         state: dict,
         **kwargs,
