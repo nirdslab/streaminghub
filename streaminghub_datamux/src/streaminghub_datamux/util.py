@@ -22,10 +22,14 @@ def gen_randseq(length: int = 5) -> str:
 
 def init_logging():
     import logging
+    import os
 
-    from rich.logging import RichHandler
-
-    logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
+    if "jupyter" in os.environ['_']:
+        # inside jupyter notebook
+        logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]")
+    else:
+        from rich.logging import RichHandler
+        logging.basicConfig(level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()])
 
 
 def identity(x):
