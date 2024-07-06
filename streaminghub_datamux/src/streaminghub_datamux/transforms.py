@@ -4,6 +4,7 @@ import copy
 import signal
 from argparse import Namespace
 from typing import Literal
+from threading import Thread
 
 import streaminghub_datamux as dm
 
@@ -172,8 +173,14 @@ class Pipeline(CompositeTask):
         else:
             raise ValueError(last)
 
-    def run(self, duration: float | None = None) -> None:
+    def run(self, duration: float | None = None, block=True) -> None:
         self.start()
+        if block:
+            self.block_and_complete(duration)
+        else:
+            Thread(target=self.block_and_complete, args=(duration,), daemon=True).start()
+
+    def block_and_complete(self, duration: float | None = None):
         self.logger.info("pipeline started")
         try:
             self.completed.wait(duration)
@@ -182,6 +189,7 @@ class Pipeline(CompositeTask):
             self.logger.warning(f"pipeline raised an exception: {e}")
             raise e
         self.stop()
+
 
     def __call__(self, *args, **kwargs) -> None:
         raise ValueError("should never be called")

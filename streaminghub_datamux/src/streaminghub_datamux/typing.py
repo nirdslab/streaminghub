@@ -291,14 +291,14 @@ class ITask(abc.ABC):
 class ITaskWithOutput(ITask):
     target: Queue
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, mode: Literal["process", "thread"] = "process") -> None:
+        super().__init__(mode)
 
 
 class SourceTask(ITaskWithOutput):
 
-    def __init__(self, transform=None) -> None:
-        super().__init__()
+    def __init__(self, mode: Literal["process", "thread"] = "process", transform=None) -> None:
+        super().__init__(mode)
         self.target = Queue(timeout=0.001)
         self.transform = transform
 
@@ -306,8 +306,8 @@ class SourceTask(ITaskWithOutput):
 class PipeTask(ITaskWithOutput):
     source: Queue
 
-    def __init__(self, transform=None) -> None:
-        super().__init__()
+    def __init__(self, mode: Literal["process", "thread"] = "process", transform=None) -> None:
+        super().__init__(mode)
         self.source = Queue(timeout=0.001, empty=True)
         self.target = Queue(timeout=0.001)
         self.transform = transform
@@ -335,8 +335,8 @@ class SinkTask(ITask):
 
     completed: Flag
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, mode: Literal["process", "thread"] = "process") -> None:
+        super().__init__(mode)
         self.source = Queue(timeout=0.001, empty=True)
         self.completed = create_flag()
 
