@@ -1,0 +1,58 @@
+{
+    "$schema": "https://raw.githubusercontent.com/nirdslab/streaminghub/master/dfds/node.jsonschema",
+    "uri": "./rescaler.py",
+    "inputs": {
+        "eye": {
+            "name": "eye movements",
+            "description": "",
+            "unit": "px",
+            "fields": {
+                "x": {
+                    "name": "x gaze",
+                    "description": "",
+                    "dtype": "f32"
+                },
+                "y": {
+                    "name": "y gaze",
+                    "description": "",
+                    "dtype": "f32"
+                }
+            },
+            "index": {
+                "t": {
+                    "name": "timestamp",
+                    "description": "",
+                    "dtype": "f32"
+                }
+            },
+            "frequency": 60
+        }
+    },
+    "outputs": {
+        "eye": {
+            "name": "eye movements (rescaled)",
+            "description": "",
+            "unit": "px",
+            "fields": {
+                "x": {
+                    "name": "x gaze",
+                    "description": "",
+                    "dtype": "f32"
+                },
+                "y": {
+                    "name": "y gaze",
+                    "description": "",
+                    "dtype": "f32"
+                }
+            },
+            "index": {
+                "t": {
+                    "name": "timestamp",
+                    "description": "",
+                    "dtype": "f32"
+                }
+            },
+            "frequency": 60
+        }
+    }
+}

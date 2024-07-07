@@ -1,0 +1,6 @@
+lightning
+notebook
+seaborn
+torchmetrics
+torch
+tqdm

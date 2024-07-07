@@ -4,12 +4,8 @@ dependencies:
   - conda-forge::python=3.10
   - conda-forge::pip
   - conda-forge::setuptools
+  - conda-forge::notebook
   - conda-forge::ipykernel
-  - conda-forge::tqdm
-  - conda-forge::seaborn
-  - conda-forge::pytorch-lightning
-  - conda-forge::torchmetrics
-  - conda-forge::pytorch
 
   - pip:
       # source packages
@@ -23,3 +19,5 @@ dependencies:
       - "-e streaminghub_plugins/streaminghub_proxy_lsl"
       - "-e streaminghub_plugins/streaminghub_proxy_pupil_core"
       - "-e streaminghub_plugins/streaminghub_rpc_websocket"
+      - "-r evaluation/requirements.txt"
+      - "-r examples/requirements.txt"
