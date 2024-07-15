@@ -263,7 +263,7 @@
         "keywords": {
           "description": "keywords that best describes the collection",
           "type": "array",
-          "minItems": 1,
+          "minItems": 0,
           "items": {
             "description": "a keyword",
             "type": "string"
@@ -272,7 +272,7 @@
         "authors": {
           "description": "authors of the dataset",
           "type": "array",
-          "minItems": 1,
+          "minItems": 0,
           "items": {
             "$ref": "#/$defs/author"
           }
