@@ -17,10 +17,16 @@ class Config(p.BaseModel):
     meta_dir: Path
 
     @p.field_validator("data_dir", "meta_dir", mode="before")
-    def parse_path(cls, v) -> Path:
+    @classmethod
+    def parse_path(cls, v: str) -> Path:
         path = Path(v).expanduser().resolve()
         assert path.exists() and path.is_dir()
         return path
+
+    @p.field_serializer("data_dir", "meta_dir", return_type=str, when_used="always")
+    @classmethod
+    def serialize_path(cls, v: Path) -> str:
+        return v.as_posix()
 
 
 class Field(p.BaseModel):
